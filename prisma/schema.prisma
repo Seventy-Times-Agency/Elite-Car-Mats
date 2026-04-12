@@ -1,0 +1,185 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// Автомобили
+// ============================================
+
+model Brand {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  logo      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  models    Model[]
+}
+
+model Model {
+  id        String    @id @default(cuid())
+  name      String
+  slug      String
+  bodyType  String?
+  brandId   String
+  brand     Brand     @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  years     ModelYear[]
+  products  Product[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@unique([brandId, slug])
+}
+
+model ModelYear {
+  id      String @id @default(cuid())
+  year    Int
+  modelId String
+  model   Model  @relation(fields: [modelId], references: [id], onDelete: Cascade)
+
+  @@unique([modelId, year])
+}
+
+// ============================================
+// Продукты
+// ============================================
+
+enum MatSetType {
+  FRONT
+  FULL
+  CARGO
+  FULL_CARGO
+}
+
+model Product {
+  id        String     @id @default(cuid())
+  modelId   String
+  model     Model      @relation(fields: [modelId], references: [id], onDelete: Cascade)
+  matSet    MatSetType
+  price     Decimal?   @db.Decimal(10, 2)
+  images    String[]
+  active    Boolean    @default(true)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  orderItems OrderItem[]
+
+  @@unique([modelId, matSet])
+}
+
+// ============================================
+// Цвета
+// ============================================
+
+model EvaColor {
+  id        String      @id @default(cuid())
+  name      String
+  hex       String
+  image     String?
+  sortOrder Int         @default(0)
+  active    Boolean     @default(true)
+  orderItems OrderItem[]
+}
+
+model EdgeColor {
+  id        String      @id @default(cuid())
+  name      String
+  hex       String
+  sortOrder Int         @default(0)
+  active    Boolean     @default(true)
+  orderItems OrderItem[]
+}
+
+// ============================================
+// Шильдики (бейджи)
+// ============================================
+
+model Badge {
+  id        String      @id @default(cuid())
+  brandName String
+  image     String?
+  price     Decimal?    @db.Decimal(10, 2)
+  active    Boolean     @default(true)
+  orderItems OrderItem[]
+}
+
+// ============================================
+// Заказы
+// ============================================
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PRODUCTION
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+model Order {
+  id              String      @id @default(cuid())
+  orderNumber     String      @unique
+  status          OrderStatus @default(PENDING)
+  customerName    String
+  phone           String
+  email           String
+  address         String
+  city            String?
+  state           String?
+  zip             String?
+  comment         String?
+  total           Decimal?    @db.Decimal(10, 2)
+  trackingNumber  String?
+  items           OrderItem[]
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+}
+
+model OrderItem {
+  id          String     @id @default(cuid())
+  orderId     String
+  order       Order      @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId   String
+  product     Product    @relation(fields: [productId], references: [id])
+  colorId     String
+  color       EvaColor   @relation(fields: [colorId], references: [id])
+  edgeColorId String
+  edgeColor   EdgeColor  @relation(fields: [edgeColorId], references: [id])
+  badgeId     String?
+  badge       Badge?     @relation(fields: [badgeId], references: [id])
+  quantity    Int        @default(1)
+  price       Decimal?   @db.Decimal(10, 2)
+}
+
+// ============================================
+// Отзывы
+// ============================================
+
+model Review {
+  id           String   @id @default(cuid())
+  customerName String
+  carModel     String
+  text         String
+  rating       Int      @default(5)
+  photos       String[]
+  approved     Boolean  @default(false)
+  createdAt    DateTime @default(now())
+}
+
+// ============================================
+// Промокоды
+// ============================================
+
+model PromoCode {
+  id        String    @id @default(cuid())
+  code      String    @unique
+  discount  Int       // percentage
+  active    Boolean   @default(true)
+  expiresAt DateTime?
+  createdAt DateTime  @default(now())
+}

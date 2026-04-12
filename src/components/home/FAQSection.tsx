@@ -5,33 +5,27 @@ import { useState } from "react";
 const faqs = [
   {
     question: "Что такое EVA коврики?",
-    answer:
-      "EVA (этиленвинилацетат) — это современный полимерный материал, который используется в производстве спортивной обуви и детских площадок. Он водонепроницаемый, лёгкий, не имеет запаха и служит до 5 лет.",
+    answer: "EVA (этиленвинилацетат) — современный полимерный материал, который используется в спортивной обуви и детских площадках. Водонепроницаемый, лёгкий, без запаха, служит до 5 лет.",
   },
   {
-    question: "Как подобрать коврики для моего автомобиля?",
-    answer:
-      "Используйте наш конфигуратор — выберите марку, модель и год выпуска вашего авто. Мы подберём идеальный комплект, который встанет точно по лекалам вашего автомобиля.",
+    question: "Как подобрать коврики для моего авто?",
+    answer: "Используйте конфигуратор на главной странице — выберите марку, модель и год. Мы подберём комплект, который встанет идеально по лекалам вашего авто.",
   },
   {
     question: "Какие комплекты доступны?",
-    answer:
-      "Мы предлагаем 4 варианта: передние коврики (Front Set), полный комплект салона (Full Set), коврик в багажник (Cargo Liner) и полный комплект с багажником (Full Set + Cargo Liner).",
+    answer: "4 варианта: передние коврики (Front Set), полный комплект салона (Full Set), коврик в багажник (Cargo Liner) и полный комплект с багажником (Full Set + Cargo Liner).",
   },
   {
     question: "Как ухаживать за ковриками?",
-    answer:
-      "EVA коврики очень просты в уходе — достаточно промыть водой из шланга или протереть влажной тряпкой. Они не впитывают влагу и быстро сохнут.",
+    answer: "Промойте водой из шланга или протрите влажной тряпкой. EVA не впитывает влагу и быстро сохнет.",
   },
   {
     question: "Какая гарантия?",
-    answer:
-      "Мы предоставляем гарантию 2 года на все наши коврики. Если в течение этого срока обнаружится дефект материала или изготовления, мы заменим коврик бесплатно.",
+    answer: "2 года на все коврики. Если обнаружится дефект материала или изготовления — заменим бесплатно.",
   },
   {
     question: "Сколько времени занимает доставка?",
-    answer:
-      "Стандартные заказы отправляются в течение 48 часов. Доставка по территории США занимает 3-7 рабочих дней в зависимости от региона. Вы получите трек-номер для отслеживания.",
+    answer: "Отправка в течение 48 часов. По территории США — 3-7 рабочих дней. Вы получите трек-номер.",
   },
 ];
 
@@ -39,48 +33,34 @@ export function FAQSection() {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   return (
-    <section className="py-16 lg:py-24 bg-brand-black">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl lg:text-4xl font-bold text-brand-white">
-            Частые <span className="text-gradient-gold">вопросы</span>
+    <section className="py-20 lg:py-28 bg-brand-offwhite">
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-14">
+          <p className="text-brand-gold text-sm tracking-[0.3em] uppercase font-medium mb-3">
+            FAQ
+          </p>
+          <h2 className="text-3xl lg:text-4xl font-bold text-brand-black">
+            Частые вопросы
           </h2>
         </div>
 
-        <div className="space-y-3">
+        <div className="divide-y divide-brand-gray-200 border-t border-b border-brand-gray-200">
           {faqs.map((faq, index) => (
-            <div
-              key={index}
-              className="border border-brand-gray/30 rounded-xl overflow-hidden"
-            >
+            <div key={index}>
               <button
-                onClick={() =>
-                  setOpenIndex(openIndex === index ? null : index)
-                }
-                className="w-full flex items-center justify-between p-5 text-left hover:bg-brand-dark-light transition-colors"
+                onClick={() => setOpenIndex(openIndex === index ? null : index)}
+                className="w-full flex items-center justify-between py-5 text-left group"
               >
-                <span className="text-brand-text font-medium text-sm lg:text-base pr-4">
+                <span className="text-brand-black text-sm font-medium pr-8 group-hover:text-brand-gold transition-colors">
                   {faq.question}
                 </span>
-                <svg
-                  className={`w-5 h-5 text-brand-gold shrink-0 transition-transform duration-200 ${
-                    openIndex === index ? "rotate-180" : ""
-                  }`}
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 9l-7 7-7-7"
-                  />
-                </svg>
+                <span className={`text-brand-gold text-lg shrink-0 transition-transform duration-200 ${openIndex === index ? "rotate-45" : ""}`}>
+                  +
+                </span>
               </button>
               {openIndex === index && (
-                <div className="px-5 pb-5">
-                  <p className="text-brand-text-muted text-sm leading-relaxed">
+                <div className="pb-5 pr-12">
+                  <p className="text-brand-text-secondary text-sm leading-relaxed">
                     {faq.answer}
                   </p>
                 </div>

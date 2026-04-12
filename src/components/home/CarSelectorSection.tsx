@@ -42,90 +42,89 @@ export function CarSelectorSection() {
     }
   };
 
+  const selectClasses =
+    "w-full bg-white border border-brand-gray-200 rounded-none px-4 py-3.5 text-brand-text text-sm focus:border-brand-gold focus:outline-none transition-colors appearance-none cursor-pointer disabled:bg-brand-gray-100 disabled:text-brand-gray-400 disabled:cursor-not-allowed";
+
   return (
-    <section className="py-16 lg:py-24 bg-brand-dark">
+    <section className="py-20 lg:py-28 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl lg:text-4xl font-bold text-brand-white">
-            Подберите <span className="text-gradient-gold">коврики</span> для
-            вашего авто
+        {/* Header */}
+        <div className="text-center mb-14">
+          <p className="text-brand-gold text-sm tracking-[0.3em] uppercase font-medium mb-3">
+            Конфигуратор
+          </p>
+          <h2 className="text-3xl lg:text-4xl font-bold text-brand-black">
+            Подберите коврики для вашего авто
           </h2>
-          <p className="mt-4 text-brand-text-muted text-lg">
-            Выберите марку, модель и год выпуска
+          <p className="mt-4 text-brand-text-secondary max-w-lg mx-auto">
+            Выберите марку, модель и год — мы подберём идеальный комплект
           </p>
         </div>
 
-        <div className="max-w-4xl mx-auto">
-          <div className="bg-brand-gray/30 backdrop-blur-sm border border-brand-gray/50 rounded-2xl p-6 lg:p-8 border-glow-gold">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6">
-              {/* Brand */}
-              <div>
-                <label className="block text-sm font-medium text-brand-text-muted mb-2">
-                  Марка
-                </label>
-                <select
-                  value={selectedBrand}
-                  onChange={(e) => handleBrandChange(e.target.value)}
-                  className="w-full bg-brand-dark border border-brand-gray-light rounded-lg px-4 py-3 text-brand-text focus:border-brand-gold focus:outline-none focus:ring-1 focus:ring-brand-gold/50 transition-colors appearance-none cursor-pointer"
-                >
-                  <option value="">Выберите марку</option>
-                  {brands.map((brand) => (
-                    <option key={brand.id} value={brand.id}>
-                      {brand.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Model */}
-              <div>
-                <label className="block text-sm font-medium text-brand-text-muted mb-2">
-                  Модель
-                </label>
-                <select
-                  value={selectedModel}
-                  onChange={(e) => handleModelChange(e.target.value)}
-                  disabled={!selectedBrand}
-                  className="w-full bg-brand-dark border border-brand-gray-light rounded-lg px-4 py-3 text-brand-text focus:border-brand-gold focus:outline-none focus:ring-1 focus:ring-brand-gold/50 transition-colors appearance-none cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
-                >
-                  <option value="">Выберите модель</option>
-                  {availableModels.map((model) => (
-                    <option key={model.id} value={model.id}>
-                      {model.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Year */}
-              <div>
-                <label className="block text-sm font-medium text-brand-text-muted mb-2">
-                  Год
-                </label>
-                <select
-                  value={selectedYear}
-                  onChange={(e) => setSelectedYear(e.target.value)}
-                  disabled={!selectedModel}
-                  className="w-full bg-brand-dark border border-brand-gray-light rounded-lg px-4 py-3 text-brand-text focus:border-brand-gold focus:outline-none focus:ring-1 focus:ring-brand-gold/50 transition-colors appearance-none cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
-                >
-                  <option value="">Выберите год</option>
-                  {availableYears.map((year) => (
-                    <option key={year} value={year}>
-                      {year}
-                    </option>
-                  ))}
-                </select>
-              </div>
+        {/* Selector — like PrimeEVA: horizontal steps */}
+        <div className="max-w-3xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-0 border border-brand-gray-200">
+            {/* Brand */}
+            <div className="border-b sm:border-b-0 sm:border-r border-brand-gray-200">
+              <label className="block text-[10px] uppercase tracking-[0.2em] text-brand-gray-400 font-medium px-4 pt-3">
+                Марка
+              </label>
+              <select
+                value={selectedBrand}
+                onChange={(e) => handleBrandChange(e.target.value)}
+                className={selectClasses + " border-0"}
+              >
+                <option value="">Выберите марку</option>
+                {brands.map((brand) => (
+                  <option key={brand.id} value={brand.id}>{brand.name}</option>
+                ))}
+              </select>
             </div>
 
-            <button
-              onClick={handleSubmit}
-              disabled={!selectedBrand || !selectedModel}
-              className="mt-6 w-full bg-brand-gold hover:bg-brand-gold-light disabled:bg-brand-gray disabled:cursor-not-allowed text-brand-black font-semibold py-4 rounded-lg transition-all duration-200 hover:shadow-lg hover:shadow-brand-gold/20 text-base"
-            >
-              Показать коврики
-            </button>
+            {/* Model */}
+            <div className="border-b sm:border-b-0 sm:border-r border-brand-gray-200">
+              <label className="block text-[10px] uppercase tracking-[0.2em] text-brand-gray-400 font-medium px-4 pt-3">
+                Модель
+              </label>
+              <select
+                value={selectedModel}
+                onChange={(e) => handleModelChange(e.target.value)}
+                disabled={!selectedBrand}
+                className={selectClasses + " border-0"}
+              >
+                <option value="">Выберите модель</option>
+                {availableModels.map((model) => (
+                  <option key={model.id} value={model.id}>{model.name}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Year */}
+            <div>
+              <label className="block text-[10px] uppercase tracking-[0.2em] text-brand-gray-400 font-medium px-4 pt-3">
+                Год
+              </label>
+              <select
+                value={selectedYear}
+                onChange={(e) => setSelectedYear(e.target.value)}
+                disabled={!selectedModel}
+                className={selectClasses + " border-0"}
+              >
+                <option value="">Выберите год</option>
+                {availableYears.map((year) => (
+                  <option key={year} value={year}>{year}</option>
+                ))}
+              </select>
+            </div>
           </div>
+
+          <button
+            onClick={handleSubmit}
+            disabled={!selectedBrand || !selectedModel}
+            className="mt-0 w-full bg-brand-black hover:bg-brand-gold disabled:bg-brand-gray-200 disabled:text-brand-gray-400 text-white text-sm font-medium tracking-wide uppercase py-4 transition-colors disabled:cursor-not-allowed"
+          >
+            Показать коврики
+          </button>
         </div>
       </div>
     </section>

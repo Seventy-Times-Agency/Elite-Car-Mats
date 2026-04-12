@@ -6,22 +6,9 @@ import { Footer } from "@/components/layout/Footer";
 import { CartProvider } from "@/context/CartContext";
 
 const inter = localFont({
-  src: [
-    {
-      path: "./fonts/inter-var.woff2",
-      style: "normal",
-    },
-  ],
+  src: "./fonts/inter-var.woff2",
   variable: "--font-inter",
   display: "swap",
-  fallback: [
-    "system-ui",
-    "-apple-system",
-    "BlinkMacSystemFont",
-    "Segoe UI",
-    "Roboto",
-    "sans-serif",
-  ],
 });
 
 export const metadata: Metadata = {

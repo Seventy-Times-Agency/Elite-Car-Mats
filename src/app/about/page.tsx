@@ -5,102 +5,66 @@ export const metadata: Metadata = {
   description: "Elite Car Mats — премиальные EVA коврики для автомобилей",
 };
 
-const values = [
-  {
-    title: "Качество",
-    description: "Только премиальный EVA материал от проверенных поставщиков",
-  },
-  {
-    title: "Точность",
-    description: "Индивидуальный раскрой под каждую модель авто по 3D-лекалам",
-  },
-  {
-    title: "Стиль",
-    description: "Элегантный дизайн, который подчёркивает статус вашего авто",
-  },
-  {
-    title: "Сервис",
-    description: "Быстрая доставка, гарантия 2 года и поддержка клиентов",
-  },
-];
-
 export default function AboutPage() {
   return (
-    <div className="py-12 lg:py-20">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="text-center mb-16">
-          <h1 className="text-3xl lg:text-5xl font-bold text-brand-white">
-            О <span className="text-gradient-gold">Elite Car Mats</span>
+    <div className="bg-white">
+      {/* Header block */}
+      <div className="bg-brand-black py-20 lg:py-28">
+        <div className="max-w-3xl mx-auto px-4 text-center">
+          <p className="text-brand-gold text-sm tracking-[0.3em] uppercase font-medium mb-4">О компании</p>
+          <h1 className="text-3xl lg:text-5xl font-bold text-white leading-tight">
+            Коврики элитного класса для вашего автомобиля
           </h1>
-          <p className="mt-6 text-lg text-brand-text-muted max-w-2xl mx-auto leading-relaxed">
-            Мы создаём премиальные автомобильные коврики из EVA материала,
-            которые сочетают безупречное качество, идеальную посадку и
-            стильный дизайн.
+          <p className="mt-6 text-white/50 text-lg max-w-xl mx-auto leading-relaxed">
+            Мы создаём премиальные автомобильные коврики из EVA материала, которые сочетают качество, посадку и стиль.
           </p>
         </div>
+      </div>
 
+      {/* Content */}
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
         {/* Mission */}
-        <div className="bg-brand-dark-light border border-brand-gray/30 rounded-2xl p-8 lg:p-12 mb-12">
-          <h2 className="text-2xl font-bold text-brand-white mb-4">
-            Наша миссия
-          </h2>
-          <p className="text-brand-text-muted leading-relaxed">
-            Дать каждому автовладельцу возможность защитить салон своего
-            автомобиля с помощью ковриков элитного класса. Мы верим, что
-            качественные аксессуары не должны стоить целое состояние — поэтому
-            предлагаем премиальное качество по доступной цене.
+        <div className="mb-16">
+          <h2 className="text-[10px] uppercase tracking-[0.2em] text-brand-gold font-medium mb-4">Наша миссия</h2>
+          <p className="text-brand-text-secondary leading-relaxed">
+            Дать каждому автовладельцу возможность защитить салон с помощью ковриков элитного класса. Премиальное качество не должно стоить целое состояние.
           </p>
         </div>
 
         {/* Values */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-12">
-          {values.map((value) => (
-            <div
-              key={value.title}
-              className="bg-brand-dark border border-brand-gray/30 rounded-xl p-6"
-            >
-              <h3 className="text-lg font-semibold text-brand-gold">
-                {value.title}
-              </h3>
-              <p className="mt-2 text-brand-text-muted text-sm">
-                {value.description}
-              </p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 mb-16">
+          {[
+            { title: "Качество", text: "Только премиальный EVA от проверенных поставщиков" },
+            { title: "Точность", text: "Индивидуальный раскрой по 3D-лекалам каждой модели" },
+            { title: "Стиль", text: "Элегантный дизайн, который подчёркивает статус авто" },
+            { title: "Сервис", text: "Быстрая доставка, гарантия и поддержка клиентов" },
+          ].map((v) => (
+            <div key={v.title}>
+              <h3 className="text-brand-black font-semibold mb-2">{v.title}</h3>
+              <p className="text-brand-text-secondary text-sm">{v.text}</p>
             </div>
           ))}
         </div>
 
-        {/* About EVA */}
-        <div className="bg-brand-dark-light border border-brand-gold/20 rounded-2xl p-8 lg:p-12 border-glow-gold">
-          <h2 className="text-2xl font-bold text-brand-white mb-4">
-            Что такое EVA?
-          </h2>
-          <p className="text-brand-text-muted leading-relaxed mb-4">
-            EVA (этиленвинилацетат) — это современный полимерный материал,
-            который широко используется в производстве спортивной обуви,
-            детских площадок и медицинских изделий.
+        {/* EVA */}
+        <div className="border border-brand-gold/30 p-8 lg:p-10">
+          <h2 className="text-[10px] uppercase tracking-[0.2em] text-brand-gold font-medium mb-4">Что такое EVA</h2>
+          <p className="text-brand-text-secondary text-sm leading-relaxed mb-5">
+            EVA (этиленвинилацетат) — современный полимер, используемый в спортивной обуви и медицине.
           </p>
-          <ul className="space-y-2 text-brand-text-muted text-sm">
-            <li className="flex items-center gap-2">
-              <span className="w-1.5 h-1.5 bg-brand-gold rounded-full" />
-              Водонепроницаемый — не пропускает влагу
-            </li>
-            <li className="flex items-center gap-2">
-              <span className="w-1.5 h-1.5 bg-brand-gold rounded-full" />
-              Износостойкий — служит до 5 лет
-            </li>
-            <li className="flex items-center gap-2">
-              <span className="w-1.5 h-1.5 bg-brand-gold rounded-full" />
-              Экологичный — безопасен для здоровья
-            </li>
-            <li className="flex items-center gap-2">
-              <span className="w-1.5 h-1.5 bg-brand-gold rounded-full" />
-              Лёгкий в уходе — моется водой
-            </li>
-            <li className="flex items-center gap-2">
-              <span className="w-1.5 h-1.5 bg-brand-gold rounded-full" />
-              Без запаха — в отличие от резиновых ковриков
-            </li>
+          <ul className="space-y-2 text-brand-text-secondary text-sm">
+            {[
+              "Водонепроницаемый",
+              "Износостойкий — до 5 лет",
+              "Экологичный и безопасный",
+              "Легко моется водой",
+              "Без запаха",
+            ].map((item) => (
+              <li key={item} className="flex items-center gap-3">
+                <span className="w-1 h-1 bg-brand-gold rounded-full shrink-0" />
+                {item}
+              </li>
+            ))}
           </ul>
         </div>
       </div>

@@ -1,15 +1,91 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { brands, mockModels } from "@/data/mock";
+
+interface DropdownProps {
+  label: string;
+  step: number;
+  value: string;
+  displayValue: string;
+  placeholder: string;
+  options: { id: string; label: string }[];
+  onChange: (id: string) => void;
+  disabled?: boolean;
+  active: boolean;
+}
+
+function Dropdown({ label, step, value, displayValue, placeholder, options, onChange, disabled, active }: DropdownProps) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        onClick={() => !disabled && setOpen(!open)}
+        disabled={disabled}
+        className={`w-full text-left p-5 border transition-all duration-300 group ${
+          open
+            ? "border-gold bg-gold-muted"
+            : disabled
+            ? "border-dark-border/30 opacity-40 cursor-not-allowed"
+            : "border-dark-border hover:border-gold/50 bg-dark-soft"
+        }`}
+      >
+        <div className="flex items-center gap-2 mb-1.5">
+          <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold ${
+            active ? "bg-gold text-dark" : "bg-dark-border text-text-inverse-muted"
+          }`}>{step}</span>
+          <span className="text-[10px] uppercase tracking-[0.25em] text-gold/60 font-medium">{label}</span>
+        </div>
+        <div className="flex items-center justify-between pl-7">
+          <span className={`text-base font-medium ${value ? "text-text-inverse" : "text-text-inverse-muted/40"}`}>
+            {value ? displayValue : placeholder}
+          </span>
+          <svg className={`w-4 h-4 text-gold/40 transition-transform duration-200 ${open ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </div>
+      </button>
+
+      {open && options.length > 0 && (
+        <div className="absolute top-full left-0 right-0 z-50 mt-1 bg-dark-card border border-dark-border shadow-[0_12px_40px_rgba(0,0,0,0.5)] max-h-64 overflow-y-auto">
+          {options.map((opt) => (
+            <button
+              key={opt.id}
+              onClick={() => { onChange(opt.id); setOpen(false); }}
+              className={`w-full text-left px-5 py-3 text-sm transition-colors duration-150 ${
+                value === opt.id
+                  ? "bg-gold/10 text-gold font-medium"
+                  : "text-text-inverse-muted hover:bg-dark-border/50 hover:text-text-inverse"
+              }`}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export function CarSelectorSection() {
   const router = useRouter();
   const [selectedBrand, setSelectedBrand] = useState("");
   const [selectedModel, setSelectedModel] = useState("");
   const [selectedYear, setSelectedYear] = useState("");
-  const [focused, setFocused] = useState<string | null>(null);
+
+  const brand = brands.find((b) => b.id === selectedBrand);
+  const model = mockModels.find((m) => m.id === selectedModel);
 
   const availableModels = useMemo(
     () => mockModels.filter((m) => m.brandId === selectedBrand),
@@ -17,9 +93,8 @@ export function CarSelectorSection() {
   );
 
   const availableYears = useMemo(() => {
-    const model = mockModels.find((m) => m.id === selectedModel);
     return model ? [...model.years].sort((a, b) => b - a) : [];
-  }, [selectedModel]);
+  }, [model]);
 
   const handleBrandChange = (brandId: string) => {
     setSelectedBrand(brandId);
@@ -33,13 +108,9 @@ export function CarSelectorSection() {
   };
 
   const handleSubmit = () => {
-    if (selectedBrand && selectedModel) {
-      const brand = brands.find((b) => b.id === selectedBrand);
-      const model = mockModels.find((m) => m.id === selectedModel);
-      if (brand && model) {
-        const yearPath = selectedYear ? `?year=${selectedYear}` : "";
-        router.push(`/catalog/${brand.slug}/${model.slug}${yearPath}`);
-      }
+    if (brand && model) {
+      const yearPath = selectedYear ? `?year=${selectedYear}` : "";
+      router.push(`/catalog/${brand.slug}/${model.slug}${yearPath}`);
     }
   };
 
@@ -59,96 +130,52 @@ export function CarSelectorSection() {
         </div>
 
         <div className="max-w-4xl mx-auto">
-          {/* Modern card selector */}
-          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.06)] border border-light-border/50 overflow-hidden">
-            <div className="grid grid-cols-1 md:grid-cols-3">
-              {/* Brand */}
-              <div className={`relative p-6 border-b md:border-b-0 md:border-r border-light-border/50 transition-colors duration-300 ${focused === "brand" ? "bg-gold-muted" : ""}`}>
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="w-6 h-6 rounded-full bg-gold/10 flex items-center justify-center text-gold text-[10px] font-bold">1</span>
-                  <label className="text-[10px] uppercase tracking-[0.25em] text-gold font-medium">Марка</label>
-                </div>
-                <select
-                  value={selectedBrand}
-                  onChange={(e) => handleBrandChange(e.target.value)}
-                  onFocus={() => setFocused("brand")}
-                  onBlur={() => setFocused(null)}
-                  className="w-full bg-transparent text-text-primary text-base font-medium focus:outline-none appearance-none cursor-pointer pr-6"
-                >
-                  <option value="" className="text-light-text">Выберите марку</option>
-                  {brands.map((b) => (
-                    <option key={b.id} value={b.id}>{b.name}</option>
-                  ))}
-                </select>
-                <svg className="absolute right-6 bottom-7 w-4 h-4 text-gold/50 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </div>
-
-              {/* Model */}
-              <div className={`relative p-6 border-b md:border-b-0 md:border-r border-light-border/50 transition-colors duration-300 ${focused === "model" ? "bg-gold-muted" : ""}`}>
-                <div className="flex items-center gap-2 mb-3">
-                  <span className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold transition-colors ${selectedBrand ? "bg-gold/10 text-gold" : "bg-light-border/50 text-light-text"}`}>2</span>
-                  <label className={`text-[10px] uppercase tracking-[0.25em] font-medium transition-colors ${selectedBrand ? "text-gold" : "text-light-text"}`}>Модель</label>
-                </div>
-                <select
-                  value={selectedModel}
-                  onChange={(e) => handleModelChange(e.target.value)}
-                  disabled={!selectedBrand}
-                  onFocus={() => setFocused("model")}
-                  onBlur={() => setFocused(null)}
-                  className="w-full bg-transparent text-text-primary text-base font-medium focus:outline-none appearance-none cursor-pointer disabled:text-light-text disabled:cursor-not-allowed pr-6"
-                >
-                  <option value="" className="text-light-text">Выберите модель</option>
-                  {availableModels.map((m) => (
-                    <option key={m.id} value={m.id}>{m.name}</option>
-                  ))}
-                </select>
-                <svg className="absolute right-6 bottom-7 w-4 h-4 text-gold/50 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </div>
-
-              {/* Year */}
-              <div className={`relative p-6 transition-colors duration-300 ${focused === "year" ? "bg-gold-muted" : ""}`}>
-                <div className="flex items-center gap-2 mb-3">
-                  <span className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold transition-colors ${selectedModel ? "bg-gold/10 text-gold" : "bg-light-border/50 text-light-text"}`}>3</span>
-                  <label className={`text-[10px] uppercase tracking-[0.25em] font-medium transition-colors ${selectedModel ? "text-gold" : "text-light-text"}`}>Год</label>
-                </div>
-                <select
-                  value={selectedYear}
-                  onChange={(e) => setSelectedYear(e.target.value)}
-                  disabled={!selectedModel}
-                  onFocus={() => setFocused("year")}
-                  onBlur={() => setFocused(null)}
-                  className="w-full bg-transparent text-text-primary text-base font-medium focus:outline-none appearance-none cursor-pointer disabled:text-light-text disabled:cursor-not-allowed pr-6"
-                >
-                  <option value="" className="text-light-text">Выберите год</option>
-                  {availableYears.map((y) => (
-                    <option key={y} value={y}>{y}</option>
-                  ))}
-                </select>
-                <svg className="absolute right-6 bottom-7 w-4 h-4 text-gold/50 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </div>
-            </div>
-
-            {/* Submit */}
-            <div className="p-4 bg-light-soft/50 border-t border-light-border/50">
-              <button
-                onClick={handleSubmit}
-                disabled={!isReady}
-                className={`w-full py-4 rounded-xl text-sm font-medium tracking-wider uppercase transition-all duration-300 ${
-                  isReady
-                    ? "bg-gold hover:bg-gold-light text-dark shadow-[0_4px_16px_rgba(201,168,76,0.3)] hover:shadow-[0_6px_24px_rgba(201,168,76,0.4)]"
-                    : "bg-light-border text-light-text cursor-not-allowed"
-                }`}
-              >
-                {isReady ? "Показать коврики →" : "Выберите марку и модель"}
-              </button>
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <Dropdown
+              label="Марка"
+              step={1}
+              value={selectedBrand}
+              displayValue={brand?.name || ""}
+              placeholder="Выберите марку"
+              options={brands.map((b) => ({ id: b.id, label: b.name }))}
+              onChange={handleBrandChange}
+              active={!!selectedBrand}
+            />
+            <Dropdown
+              label="Модель"
+              step={2}
+              value={selectedModel}
+              displayValue={model?.name || ""}
+              placeholder="Выберите модель"
+              options={availableModels.map((m) => ({ id: m.id, label: m.name }))}
+              onChange={handleModelChange}
+              disabled={!selectedBrand}
+              active={!!selectedModel}
+            />
+            <Dropdown
+              label="Год"
+              step={3}
+              value={selectedYear}
+              displayValue={selectedYear}
+              placeholder="Выберите год"
+              options={availableYears.map((y) => ({ id: String(y), label: String(y) }))}
+              onChange={(v) => setSelectedYear(v)}
+              disabled={!selectedModel}
+              active={!!selectedYear}
+            />
           </div>
+
+          <button
+            onClick={handleSubmit}
+            disabled={!isReady}
+            className={`w-full mt-4 py-4 text-sm font-medium tracking-wider uppercase transition-all duration-300 ${
+              isReady
+                ? "bg-gold hover:bg-gold-light text-dark shadow-[0_4px_20px_rgba(201,168,76,0.25)] hover:shadow-[0_6px_28px_rgba(201,168,76,0.35)]"
+                : "bg-dark-border/30 text-text-inverse-muted/30 cursor-not-allowed"
+            }`}
+          >
+            {isReady ? "Показать коврики →" : "Выберите марку и модель"}
+          </button>
         </div>
       </div>
     </section>

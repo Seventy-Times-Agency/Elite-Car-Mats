@@ -3,6 +3,55 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 
+function MatIllustration() {
+  return (
+    <div className="relative w-full max-w-lg mx-auto">
+      {/* Main mat shape - trapezoid with honeycomb */}
+      <svg viewBox="0 0 500 400" className="w-full drop-shadow-[0_20px_60px_rgba(201,168,76,0.15)]">
+        {/* Mat body */}
+        <defs>
+          <pattern id="honeycomb" width="20" height="17.32" patternUnits="userSpaceOnUse" patternTransform="rotate(0)">
+            <polygon points="10,0 20,5.77 20,17.32 10,11.55 0,17.32 0,5.77" fill="none" stroke="rgba(201,168,76,0.3)" strokeWidth="0.5"/>
+          </pattern>
+          <linearGradient id="matGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#1a1a1a"/>
+            <stop offset="100%" stopColor="#111111"/>
+          </linearGradient>
+          <linearGradient id="edgeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#C9A84C"/>
+            <stop offset="50%" stopColor="#DBBD6A"/>
+            <stop offset="100%" stopColor="#C9A84C"/>
+          </linearGradient>
+        </defs>
+
+        {/* Shadow */}
+        <path d="M80,350 Q250,380 420,350 L450,180 Q250,160 50,180 Z" fill="rgba(0,0,0,0.2)" filter="blur(20px)"/>
+
+        {/* Mat shape - perspective view */}
+        <path d="M60,320 L440,320 L470,140 Q250,120 30,140 Z" fill="url(#matGrad)" stroke="url(#edgeGrad)" strokeWidth="3" rx="8"/>
+
+        {/* Honeycomb pattern overlay */}
+        <path d="M60,320 L440,320 L470,140 Q250,120 30,140 Z" fill="url(#honeycomb)"/>
+
+        {/* Raised edges - 3D effect */}
+        <path d="M60,320 L30,140 L50,135 L75,315 Z" fill="rgba(201,168,76,0.15)"/>
+        <path d="M440,320 L470,140 L450,135 L425,315 Z" fill="rgba(201,168,76,0.1)"/>
+
+        {/* Logo badge */}
+        <rect x="200" y="260" width="100" height="30" rx="2" fill="rgba(201,168,76,0.2)" stroke="rgba(201,168,76,0.4)" strokeWidth="0.5"/>
+        <text x="250" y="280" textAnchor="middle" fill="rgba(201,168,76,0.7)" fontSize="8" fontWeight="bold" letterSpacing="2">ELITE MATS</text>
+
+        {/* Heel pad area */}
+        <ellipse cx="250" cy="200" rx="50" ry="35" fill="rgba(201,168,76,0.05)" stroke="rgba(201,168,76,0.15)" strokeWidth="0.5"/>
+      </svg>
+
+      {/* Floating accent dots */}
+      <div className="absolute top-8 right-4 w-2 h-2 bg-gold/40 rounded-full animate-pulse" />
+      <div className="absolute bottom-16 left-8 w-1.5 h-1.5 bg-gold/30 rounded-full animate-pulse [animation-delay:1s]" />
+    </div>
+  );
+}
+
 export function HeroSection() {
   return (
     <section className="relative bg-dark eva-pattern overflow-hidden -mt-18 lg:-mt-22 pt-18 lg:pt-22">
@@ -10,13 +59,12 @@ export function HeroSection() {
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="min-h-[85vh] flex items-center py-20">
-          <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-            {/* Left — single animation wrapper */}
+          <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center">
+            {/* Left */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
-              className="lg:col-span-7"
             >
               <p className="section-label mb-6">Premium EVA Car Mats</p>
 
@@ -62,27 +110,15 @@ export function HeroSection() {
               </div>
             </motion.div>
 
-            {/* Right — decorative (no animation) */}
-            <div className="hidden lg:block lg:col-span-5">
-              <div className="relative aspect-square">
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-80 h-80 border border-gold/10 rounded-full" />
-                </div>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-60 h-60 border border-gold/15 rounded-full" />
-                </div>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-40 h-40 bg-gold/5 border border-gold/20 rounded-full flex items-center justify-center">
-                    <div>
-                      <div className="text-4xl font-bold text-gold/30 text-center">EC</div>
-                      <div className="text-[10px] text-text-inverse-muted/30 tracking-[0.3em] uppercase text-center">Mats</div>
-                    </div>
-                  </div>
-                </div>
-                <div className="absolute top-12 right-16 w-2 h-2 bg-gold/30 rounded-full" />
-                <div className="absolute bottom-20 left-12 w-1.5 h-1.5 bg-gold/20 rounded-full" />
-              </div>
-            </div>
+            {/* Right — mat illustration */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="hidden lg:block"
+            >
+              <MatIllustration />
+            </motion.div>
           </div>
         </div>
       </div>

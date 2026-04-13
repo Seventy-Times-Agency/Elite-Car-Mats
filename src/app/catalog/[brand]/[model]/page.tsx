@@ -45,7 +45,7 @@ export default function ProductPage() {
   };
 
   return (
-    <div className="bg-light">
+    <div>
       <div className="border-b border-light-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
           <nav className="text-xs text-light-text">

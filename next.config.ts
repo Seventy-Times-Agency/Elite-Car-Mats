@@ -7,6 +7,10 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "vl.imgix.net",
       },
+      {
+        protocol: "https",
+        hostname: "cdn.imagin.studio",
+      },
     ],
   },
 };

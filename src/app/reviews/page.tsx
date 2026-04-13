@@ -1,6 +1,3 @@
-"use client";
-
-import { motion } from "framer-motion";
 import { mockReviews } from "@/data/mock";
 
 function Stars({ rating }: { rating: number }) {
@@ -17,28 +14,20 @@ function Stars({ rating }: { rating: number }) {
 
 export default function ReviewsPage() {
   return (
-    <div className="py-16 lg:py-24 bg-light min-h-screen">
+    <div className="py-16 lg:py-24 min-h-screen">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-14">
+        <div className="text-center mb-14">
           <span className="section-label">Отзывы</span>
           <h1 className="mt-4 text-3xl lg:text-4xl font-bold text-text-primary">Что говорят клиенты</h1>
-        </motion.div>
-
+        </div>
         <div className="text-center mb-12 pb-12 border-b border-light-border">
           <div className="text-4xl font-bold text-text-primary">5.0</div>
           <div className="flex justify-center mt-1"><Stars rating={5} /></div>
           <p className="text-light-text text-xs mt-2">{mockReviews.length} отзывов</p>
         </div>
-
-        <div className="space-y-0 divide-y divide-light-border">
-          {mockReviews.map((r, i) => (
-            <motion.div
-              key={r.id}
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.1 }}
-              className="py-8"
-            >
+        <div className="divide-y divide-light-border">
+          {mockReviews.map((r) => (
+            <div key={r.id} className="py-8">
               <div className="flex items-center justify-between mb-3">
                 <div>
                   <div className="text-text-primary text-sm font-medium">{r.customerName}</div>
@@ -48,7 +37,7 @@ export default function ReviewsPage() {
               </div>
               <Stars rating={r.rating} />
               <p className="mt-3 text-text-secondary text-sm leading-relaxed">{r.text}</p>
-            </motion.div>
+            </div>
           ))}
         </div>
       </div>

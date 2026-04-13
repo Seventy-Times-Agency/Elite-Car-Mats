@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import { FloatingCTA } from "@/components/layout/FloatingCTA";
 import { CartProvider } from "@/context/CartContext";
 
 const inter = localFont({
@@ -40,6 +41,7 @@ export default function RootLayout({
           <Header />
           <main className="flex-1">{children}</main>
           <Footer />
+          <FloatingCTA />
         </CartProvider>
       </body>
     </html>

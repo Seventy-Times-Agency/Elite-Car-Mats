@@ -1,32 +1,32 @@
 @import "tailwindcss";
 
 @theme inline {
-  /* Brand Colors — Light Premium Theme */
-  --color-brand-gold: #C5A55A;
-  --color-brand-gold-light: #D4B76A;
-  --color-brand-gold-dark: #A68B3C;
-  --color-brand-black: #111111;
-  --color-brand-dark: #1A1A1A;
-  --color-brand-white: #FFFFFF;
-  --color-brand-offwhite: #FAFAF8;
-  --color-brand-cream: #F5F3EF;
-  --color-brand-gray-100: #F0EDEA;
-  --color-brand-gray-200: #E0DDD8;
-  --color-brand-gray-300: #C8C4BE;
-  --color-brand-gray-400: #9B9690;
-  --color-brand-gray-500: #6E6A64;
-  --color-brand-gray-600: #4A4742;
-  --color-brand-text: #1A1A1A;
-  --color-brand-text-secondary: #6E6A64;
-  --color-brand-success: #2D8B4E;
-  --color-brand-error: #C93B3B;
+  /* Brand Colors — Hybrid Premium */
+  --color-gold: #C9A84C;
+  --color-gold-light: #DBBD6A;
+  --color-gold-dark: #A88A32;
+  --color-gold-muted: rgba(201, 168, 76, 0.08);
 
-  /* Fonts */
+  --color-dark: #0C0C0C;
+  --color-dark-soft: #141414;
+  --color-dark-card: #1A1A1A;
+  --color-dark-border: #2A2A2A;
+
+  --color-light: #FFFFFF;
+  --color-light-soft: #F8F7F4;
+  --color-light-card: #F2F0EC;
+  --color-light-border: #E4E0DA;
+  --color-light-text: #6B665E;
+
+  --color-text-primary: #1A1A1A;
+  --color-text-secondary: #7A756D;
+  --color-text-inverse: #F0EDE8;
+  --color-text-inverse-muted: rgba(240, 237, 232, 0.5);
+
+  --color-success: #3A9D5C;
+  --color-error: #C93B3B;
+
   --font-sans: var(--font-inter);
-
-  /* Semantic */
-  --color-background: var(--color-brand-white);
-  --color-foreground: var(--color-brand-text);
 }
 
 html {
@@ -34,21 +34,36 @@ html {
 }
 
 body {
-  background: var(--color-background);
-  color: var(--color-foreground);
+  background: var(--color-light);
+  color: var(--color-text-primary);
   font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
 /* Gold gradient text */
-.text-gradient-gold {
-  background: linear-gradient(135deg, var(--color-brand-gold-light), var(--color-brand-gold), var(--color-brand-gold-dark));
+.text-gold-gradient {
+  background: linear-gradient(135deg, var(--color-gold-light) 0%, var(--color-gold) 50%, var(--color-gold-dark) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
+/* EVA honeycomb pattern — unique brand element */
+.eva-pattern {
+  background-image: url("data:image/svg+xml,%3Csvg width='28' height='49' viewBox='0 0 28 49' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M13.99 9.25l13 7.5v15l-13 7.5L1 31.75v-15l12.99-7.5zM3 17.9v12.7l10.99 6.34 11-6.35V17.9l-11-6.34L3 17.9zM0 15l12.98-7.5V0h-2v6.35L0 12.69v2.3zm0 18.5L12.98 41v8h-2v-6.85L0 35.81v-2.3zM15 0v7.5L27.99 15H28v-2.31h-.01L17 6.35V0h-2zm0 49v-8l12.99-7.5H28v2.31h-.01L17 42.15V49h-2z' fill='%23C9A84C' fill-opacity='0.04' fill-rule='evenodd'/%3E%3C/svg%3E");
+}
+
 /* Selection */
 ::selection {
-  background: rgba(197, 165, 90, 0.2);
-  color: var(--color-brand-black);
+  background: rgba(201, 168, 76, 0.25);
+  color: var(--color-dark);
+}
+
+/* Section label style */
+.section-label {
+  font-size: 11px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  font-weight: 500;
+  color: var(--color-gold);
 }

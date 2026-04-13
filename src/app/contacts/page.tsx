@@ -1,52 +1,59 @@
-import { Metadata } from "next";
+"use client";
 
-export const metadata: Metadata = {
-  title: "Контакты",
-  description: "Свяжитесь с нами — Elite Car Mats",
-};
+import { motion } from "framer-motion";
 
 export default function ContactsPage() {
-  const inputClasses = "w-full border border-brand-gray-200 px-4 py-3 text-sm text-brand-text placeholder:text-brand-gray-300 focus:border-brand-gold focus:outline-none transition-colors";
+  const input = "w-full border border-light-border px-4 py-3.5 text-sm text-text-primary placeholder:text-light-text/50 focus:border-gold focus:outline-none transition-colors bg-transparent";
 
   return (
-    <div className="py-12 lg:py-20 bg-white">
+    <div className="py-16 lg:py-24 bg-light min-h-screen">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-14">
-          <p className="text-brand-gold text-sm tracking-[0.3em] uppercase font-medium mb-3">Контакты</p>
-          <h1 className="text-3xl lg:text-4xl font-bold text-brand-black">Свяжитесь с нами</h1>
-          <p className="mt-3 text-brand-text-secondary">Мы всегда рады помочь с подбором ковриков</p>
-        </div>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center mb-14"
+        >
+          <span className="section-label">Контакты</span>
+          <h1 className="mt-4 text-3xl lg:text-4xl font-bold text-text-primary">Свяжитесь с нами</h1>
+          <p className="mt-3 text-text-secondary">Мы всегда рады помочь с подбором ковриков</p>
+        </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          {/* Info */}
-          <div className="space-y-6">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.1 }}
+            className="space-y-0 divide-y divide-light-border border-t border-light-border"
+          >
             {[
               { label: "Телефон", value: "+1 (234) 567-890", href: "tel:+1234567890" },
               { label: "Email", value: "info@elitecarmats.com", href: "mailto:info@elitecarmats.com" },
               { label: "Адрес", value: "Rochester, NY, USA" },
             ].map((c) => (
-              <div key={c.label} className="border-b border-brand-gray-100 pb-5">
-                <div className="text-[10px] uppercase tracking-[0.2em] text-brand-gray-400 font-medium mb-1">{c.label}</div>
+              <div key={c.label} className="py-5">
+                <div className="section-label text-light-text text-[10px] mb-1">{c.label}</div>
                 {c.href ? (
-                  <a href={c.href} className="text-brand-black hover:text-brand-gold transition-colors font-medium">{c.value}</a>
+                  <a href={c.href} className="text-text-primary hover:text-gold transition-colors font-medium">{c.value}</a>
                 ) : (
-                  <div className="text-brand-black font-medium">{c.value}</div>
+                  <div className="text-text-primary font-medium">{c.value}</div>
                 )}
               </div>
             ))}
-          </div>
+          </motion.div>
 
-          {/* Form */}
-          <div>
-            <form className="space-y-4">
-              <input type="text" placeholder="Имя" className={inputClasses} />
-              <input type="email" placeholder="Email" className={inputClasses} />
-              <textarea placeholder="Сообщение" rows={5} className={inputClasses + " resize-none"} />
-              <button type="submit" className="w-full bg-brand-black hover:bg-brand-gold text-white text-sm font-medium tracking-wide uppercase py-3.5 transition-colors">
-                Отправить
-              </button>
-            </form>
-          </div>
+          <motion.form
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.2 }}
+            className="space-y-4"
+          >
+            <input type="text" placeholder="Имя" className={input} />
+            <input type="email" placeholder="Email" className={input} />
+            <textarea placeholder="Сообщение" rows={5} className={input + " resize-none"} />
+            <button type="submit" className="w-full bg-dark hover:bg-gold text-light text-sm font-medium tracking-wider uppercase py-3.5 transition-all duration-300">
+              Отправить
+            </button>
+          </motion.form>
         </div>
       </div>
     </div>

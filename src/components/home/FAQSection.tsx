@@ -1,70 +1,65 @@
 "use client";
 
 import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 const faqs = [
-  {
-    question: "Что такое EVA коврики?",
-    answer: "EVA (этиленвинилацетат) — современный полимерный материал, который используется в спортивной обуви и детских площадках. Водонепроницаемый, лёгкий, без запаха, служит до 5 лет.",
-  },
-  {
-    question: "Как подобрать коврики для моего авто?",
-    answer: "Используйте конфигуратор на главной странице — выберите марку, модель и год. Мы подберём комплект, который встанет идеально по лекалам вашего авто.",
-  },
-  {
-    question: "Какие комплекты доступны?",
-    answer: "4 варианта: передние коврики (Front Set), полный комплект салона (Full Set), коврик в багажник (Cargo Liner) и полный комплект с багажником (Full Set + Cargo Liner).",
-  },
-  {
-    question: "Как ухаживать за ковриками?",
-    answer: "Промойте водой из шланга или протрите влажной тряпкой. EVA не впитывает влагу и быстро сохнет.",
-  },
-  {
-    question: "Какая гарантия?",
-    answer: "2 года на все коврики. Если обнаружится дефект материала или изготовления — заменим бесплатно.",
-  },
-  {
-    question: "Сколько времени занимает доставка?",
-    answer: "Отправка в течение 48 часов. По территории США — 3-7 рабочих дней. Вы получите трек-номер.",
-  },
+  { q: "Что такое EVA коврики?", a: "EVA (этиленвинилацетат) — современный полимерный материал, используемый в спортивной обуви и детских площадках. Водонепроницаемый, лёгкий, без запаха, служит до 5 лет." },
+  { q: "Как подобрать коврики для моего авто?", a: "Используйте конфигуратор — выберите марку, модель и год. Мы подберём комплект, который встанет идеально по лекалам." },
+  { q: "Какие комплекты доступны?", a: "4 варианта: передние (Front Set), полный комплект (Full Set), багажник (Cargo Liner) и полный + багажник (Full Set + Cargo Liner)." },
+  { q: "Как ухаживать за ковриками?", a: "Промойте водой из шланга или протрите тряпкой. EVA не впитывает влагу и быстро сохнет." },
+  { q: "Какая гарантия?", a: "2 года на все коврики. Дефект материала или изготовления — заменим бесплатно." },
+  { q: "Сколько времени занимает доставка?", a: "Отправка в течение 48 часов. По территории США — 3-7 рабочих дней. Трек-номер прилагается." },
 ];
 
 export function FAQSection() {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   return (
-    <section className="py-20 lg:py-28 bg-brand-offwhite">
+    <section className="py-24 lg:py-32 bg-light">
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-14">
-          <p className="text-brand-gold text-sm tracking-[0.3em] uppercase font-medium mb-3">
-            FAQ
-          </p>
-          <h2 className="text-3xl lg:text-4xl font-bold text-brand-black">
-            Частые вопросы
-          </h2>
-        </div>
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-14"
+        >
+          <span className="section-label">FAQ</span>
+          <h2 className="mt-4 text-3xl lg:text-4xl font-bold text-text-primary">Частые вопросы</h2>
+        </motion.div>
 
-        <div className="divide-y divide-brand-gray-200 border-t border-b border-brand-gray-200">
+        <div className="border-t border-light-border">
           {faqs.map((faq, index) => (
-            <div key={index}>
+            <div key={index} className="border-b border-light-border">
               <button
                 onClick={() => setOpenIndex(openIndex === index ? null : index)}
                 className="w-full flex items-center justify-between py-5 text-left group"
               >
-                <span className="text-brand-black text-sm font-medium pr-8 group-hover:text-brand-gold transition-colors">
-                  {faq.question}
+                <span className="text-text-primary text-sm font-medium pr-8 group-hover:text-gold transition-colors duration-300">
+                  {faq.q}
                 </span>
-                <span className={`text-brand-gold text-lg shrink-0 transition-transform duration-200 ${openIndex === index ? "rotate-45" : ""}`}>
+                <motion.span
+                  animate={{ rotate: openIndex === index ? 45 : 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="text-gold text-lg shrink-0"
+                >
                   +
-                </span>
+                </motion.span>
               </button>
-              {openIndex === index && (
-                <div className="pb-5 pr-12">
-                  <p className="text-brand-text-secondary text-sm leading-relaxed">
-                    {faq.answer}
-                  </p>
-                </div>
-              )}
+              <AnimatePresence>
+                {openIndex === index && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="overflow-hidden"
+                  >
+                    <p className="pb-5 pr-12 text-text-secondary text-sm leading-relaxed">{faq.a}</p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           ))}
         </div>

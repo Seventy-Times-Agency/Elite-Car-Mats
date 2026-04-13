@@ -1,12 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { brands } from "@/data/mock";
 
 export default function CatalogPage() {
   return (
-    <div className="py-16 lg:py-24 bg-light min-h-screen">
+    <div className="py-16 lg:py-24 min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -26,17 +27,27 @@ export default function CatalogPage() {
               key={brand.id}
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: i * 0.03 }}
+              transition={{ duration: 0.3, delay: i * 0.025 }}
             >
               <Link
                 href={`/catalog/${brand.slug}`}
-                className="group block border border-light-border hover:border-gold p-6 text-center transition-all duration-300 hover:shadow-[0_4px_20px_rgba(201,168,76,0.08)]"
+                className="group block bg-light border border-light-border hover:border-gold p-5 text-center transition-all duration-300 hover:shadow-[0_4px_20px_rgba(201,168,76,0.08)]"
               >
-                <div className="w-12 h-12 mx-auto bg-light-soft rounded-full flex items-center justify-center group-hover:bg-gold-muted transition-colors duration-300">
-                  <span className="text-light-text group-hover:text-gold text-lg font-bold transition-colors duration-300">
+                {brand.logo ? (
+                  <div className="w-16 h-12 mx-auto relative">
+                    <Image
+                      src={brand.logo}
+                      alt={brand.name}
+                      fill
+                      className="object-contain opacity-50 group-hover:opacity-100 transition-opacity duration-300"
+                      sizes="64px"
+                    />
+                  </div>
+                ) : (
+                  <div className="w-16 h-12 mx-auto flex items-center justify-center text-light-text group-hover:text-gold text-xl font-bold transition-colors">
                     {brand.name.charAt(0)}
-                  </span>
-                </div>
+                  </div>
+                )}
                 <h3 className="mt-3 text-text-primary font-medium text-sm group-hover:text-gold transition-colors duration-300">
                   {brand.name}
                 </h3>

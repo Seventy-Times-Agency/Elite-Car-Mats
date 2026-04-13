@@ -51,15 +51,15 @@ export function HeroSection() {
                 transition={{ duration: 0.6, delay: 0.5 }}
                 className="mt-10 flex flex-wrap gap-4"
               >
-                <Link
-                  href="/catalog"
+                <a
+                  href="#configurator"
                   className="group inline-flex items-center gap-3 bg-gold hover:bg-gold-light text-dark px-8 py-4 text-sm font-medium tracking-wide uppercase transition-all duration-300"
                 >
                   Подобрать коврики
                   <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                   </svg>
-                </Link>
+                </a>
                 <Link
                   href="/about"
                   className="inline-flex items-center px-8 py-4 border border-text-inverse-muted/20 text-text-inverse-muted hover:border-gold hover:text-gold text-sm font-medium tracking-wide uppercase transition-all duration-300"

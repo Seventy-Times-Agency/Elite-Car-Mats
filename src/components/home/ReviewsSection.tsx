@@ -1,8 +1,5 @@
-"use client";
-
 import { mockReviews } from "@/data/mock";
 import Link from "next/link";
-import { motion } from "framer-motion";
 
 function Stars({ rating }: { rating: number }) {
   return (
@@ -20,42 +17,27 @@ export function ReviewsSection() {
   return (
     <section className="py-24 lg:py-32 bg-light-soft">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-14"
-        >
+        <div className="text-center mb-14">
           <span className="section-label">Отзывы</span>
           <h2 className="mt-4 text-3xl lg:text-4xl font-bold text-text-primary">Что говорят клиенты</h2>
-        </motion.div>
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {mockReviews.map((review, i) => (
-            <motion.div
-              key={review.id}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: i * 0.1 }}
-              className="bg-light border border-light-border p-8 relative group hover:border-gold/30 transition-colors duration-500"
-            >
+          {mockReviews.map((review) => (
+            <div key={review.id} className="bg-light border border-light-border p-8 relative group hover:border-gold/30 transition-colors duration-300">
               <div className="absolute top-5 right-6 text-gold/10 text-5xl font-serif leading-none select-none">&ldquo;</div>
               <Stars rating={review.rating} />
-              <p className="mt-5 text-text-secondary text-sm leading-relaxed relative">{review.text}</p>
+              <p className="mt-5 text-text-secondary text-sm leading-relaxed">{review.text}</p>
               <div className="mt-6 pt-5 border-t border-light-border">
                 <div className="text-text-primary text-sm font-medium">{review.customerName}</div>
                 <div className="text-light-text text-xs mt-0.5">{review.carModel}</div>
               </div>
-            </motion.div>
+            </div>
           ))}
         </div>
 
         <div className="text-center mt-10">
-          <Link href="/reviews" className="section-label hover:text-gold-dark transition-colors">
-            Все отзывы &rarr;
-          </Link>
+          <Link href="/reviews" className="section-label hover:text-gold-dark transition-colors">Все отзывы &rarr;</Link>
         </div>
       </div>
     </section>

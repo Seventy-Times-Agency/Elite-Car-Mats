@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 
 const faqs = [
   { q: "Что такое EVA коврики?", a: "EVA (этиленвинилацетат) — современный полимерный материал, используемый в спортивной обуви и детских площадках. Водонепроницаемый, лёгкий, без запаха, служит до 5 лет." },
@@ -16,18 +15,12 @@ export function FAQSection() {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   return (
-    <section className="py-24 lg:py-32 bg-light">
+    <section className="py-24 lg:py-32">
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-14"
-        >
+        <div className="text-center mb-14">
           <span className="section-label">FAQ</span>
           <h2 className="mt-4 text-3xl lg:text-4xl font-bold text-text-primary">Частые вопросы</h2>
-        </motion.div>
+        </div>
 
         <div className="border-t border-light-border">
           {faqs.map((faq, index) => (
@@ -39,27 +32,17 @@ export function FAQSection() {
                 <span className="text-text-primary text-sm font-medium pr-8 group-hover:text-gold transition-colors duration-300">
                   {faq.q}
                 </span>
-                <motion.span
-                  animate={{ rotate: openIndex === index ? 45 : 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="text-gold text-lg shrink-0"
-                >
+                <span className={`text-gold text-lg shrink-0 transition-transform duration-200 ${openIndex === index ? "rotate-45" : ""}`}>
                   +
-                </motion.span>
+                </span>
               </button>
-              <AnimatePresence>
-                {openIndex === index && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: "auto", opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.3 }}
-                    className="overflow-hidden"
-                  >
-                    <p className="pb-5 pr-12 text-text-secondary text-sm leading-relaxed">{faq.a}</p>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+              <div
+                className={`overflow-hidden transition-all duration-300 ${
+                  openIndex === index ? "max-h-40 opacity-100 pb-5" : "max-h-0 opacity-0"
+                }`}
+              >
+                <p className="pr-12 text-text-secondary text-sm leading-relaxed">{faq.a}</p>
+              </div>
             </div>
           ))}
         </div>

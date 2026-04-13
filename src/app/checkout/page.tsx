@@ -1,14 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
 import { useCart } from "@/context/CartContext";
 import Link from "next/link";
 
 export default function CheckoutPage() {
   const { items } = useCart();
   const [form, setForm] = useState({ name: "", phone: "", email: "", address: "", city: "", state: "", zip: "", comment: "" });
-
   const onChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
     setForm((p) => ({ ...p, [e.target.name]: e.target.value }));
 
@@ -16,7 +14,7 @@ export default function CheckoutPage() {
 
   if (items.length === 0) {
     return (
-      <div className="py-28 text-center bg-light">
+      <div className="py-28 text-center">
         <h1 className="text-xl font-bold text-text-primary">Корзина пуста</h1>
         <Link href="/catalog" className="mt-3 inline-block text-gold text-sm">Каталог</Link>
       </div>
@@ -24,14 +22,9 @@ export default function CheckoutPage() {
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="py-12 lg:py-20 bg-light min-h-screen"
-    >
+    <div className="py-12 lg:py-20 min-h-screen">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <h1 className="text-2xl font-bold text-text-primary mb-10">Оформление заказа</h1>
-
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
           <div className="lg:col-span-2 space-y-8">
             <div>
@@ -42,7 +35,6 @@ export default function CheckoutPage() {
                 <input name="email" value={form.email} onChange={onChange} placeholder="Email *" className={input + " sm:col-span-2"} />
               </div>
             </div>
-
             <div>
               <span className="section-label text-light-text text-[10px]">Доставка</span>
               <div className="mt-3 space-y-4">
@@ -55,12 +47,10 @@ export default function CheckoutPage() {
                 <textarea name="comment" value={form.comment} onChange={onChange} placeholder="Комментарий" rows={3} className={input + " resize-none"} />
               </div>
             </div>
-
             <button className="w-full bg-dark hover:bg-gold text-light text-sm font-medium tracking-wider uppercase py-4 transition-all duration-300">
               Подтвердить заказ
             </button>
           </div>
-
           <div>
             <div className="border border-light-border p-6 sticky top-24">
               <span className="section-label text-light-text text-[10px]">Ваш заказ</span>
@@ -77,6 +67,6 @@ export default function CheckoutPage() {
           </div>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }

@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 import { brands, mockModels } from "@/data/mock";
 
 export function CarSelectorSection() {
@@ -43,89 +44,67 @@ export function CarSelectorSection() {
   };
 
   const selectClasses =
-    "w-full bg-white border border-brand-gray-200 rounded-none px-4 py-3.5 text-brand-text text-sm focus:border-brand-gold focus:outline-none transition-colors appearance-none cursor-pointer disabled:bg-brand-gray-100 disabled:text-brand-gray-400 disabled:cursor-not-allowed";
+    "w-full bg-transparent border-0 px-5 py-4 text-sm text-text-primary focus:outline-none appearance-none cursor-pointer disabled:text-light-text disabled:cursor-not-allowed";
 
   return (
-    <section className="py-20 lg:py-28 bg-white">
+    <section className="py-24 lg:py-32 bg-light">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="text-center mb-14">
-          <p className="text-brand-gold text-sm tracking-[0.3em] uppercase font-medium mb-3">
-            Конфигуратор
-          </p>
-          <h2 className="text-3xl lg:text-4xl font-bold text-brand-black">
-            Подберите коврики для вашего авто
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-16"
+        >
+          <span className="section-label">Конфигуратор</span>
+          <h2 className="mt-4 text-3xl lg:text-4xl font-bold text-text-primary">
+            Подберите коврики
           </h2>
-          <p className="mt-4 text-brand-text-secondary max-w-lg mx-auto">
-            Выберите марку, модель и год — мы подберём идеальный комплект
+          <p className="mt-3 text-text-secondary max-w-md mx-auto">
+            Выберите марку, модель и год выпуска
           </p>
-        </div>
+        </motion.div>
 
-        {/* Selector — like PrimeEVA: horizontal steps */}
-        <div className="max-w-3xl mx-auto">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-0 border border-brand-gray-200">
-            {/* Brand */}
-            <div className="border-b sm:border-b-0 sm:border-r border-brand-gray-200">
-              <label className="block text-[10px] uppercase tracking-[0.2em] text-brand-gray-400 font-medium px-4 pt-3">
-                Марка
-              </label>
-              <select
-                value={selectedBrand}
-                onChange={(e) => handleBrandChange(e.target.value)}
-                className={selectClasses + " border-0"}
-              >
-                <option value="">Выберите марку</option>
-                {brands.map((brand) => (
-                  <option key={brand.id} value={brand.id}>{brand.name}</option>
-                ))}
-              </select>
-            </div>
-
-            {/* Model */}
-            <div className="border-b sm:border-b-0 sm:border-r border-brand-gray-200">
-              <label className="block text-[10px] uppercase tracking-[0.2em] text-brand-gray-400 font-medium px-4 pt-3">
-                Модель
-              </label>
-              <select
-                value={selectedModel}
-                onChange={(e) => handleModelChange(e.target.value)}
-                disabled={!selectedBrand}
-                className={selectClasses + " border-0"}
-              >
-                <option value="">Выберите модель</option>
-                {availableModels.map((model) => (
-                  <option key={model.id} value={model.id}>{model.name}</option>
-                ))}
-              </select>
-            </div>
-
-            {/* Year */}
-            <div>
-              <label className="block text-[10px] uppercase tracking-[0.2em] text-brand-gray-400 font-medium px-4 pt-3">
-                Год
-              </label>
-              <select
-                value={selectedYear}
-                onChange={(e) => setSelectedYear(e.target.value)}
-                disabled={!selectedModel}
-                className={selectClasses + " border-0"}
-              >
-                <option value="">Выберите год</option>
-                {availableYears.map((year) => (
-                  <option key={year} value={year}>{year}</option>
-                ))}
-              </select>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="max-w-3xl mx-auto"
+        >
+          <div className="border border-light-border bg-light-soft">
+            <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-light-border">
+              <div>
+                <label className="block section-label text-light-text px-5 pt-4 text-[10px]">Марка</label>
+                <select value={selectedBrand} onChange={(e) => handleBrandChange(e.target.value)} className={selectClasses}>
+                  <option value="">Выберите</option>
+                  {brands.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="block section-label text-light-text px-5 pt-4 text-[10px]">Модель</label>
+                <select value={selectedModel} onChange={(e) => handleModelChange(e.target.value)} disabled={!selectedBrand} className={selectClasses}>
+                  <option value="">Выберите</option>
+                  {availableModels.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="block section-label text-light-text px-5 pt-4 text-[10px]">Год</label>
+                <select value={selectedYear} onChange={(e) => setSelectedYear(e.target.value)} disabled={!selectedModel} className={selectClasses}>
+                  <option value="">Выберите</option>
+                  {availableYears.map((y) => <option key={y} value={y}>{y}</option>)}
+                </select>
+              </div>
             </div>
           </div>
-
           <button
             onClick={handleSubmit}
             disabled={!selectedBrand || !selectedModel}
-            className="mt-0 w-full bg-brand-black hover:bg-brand-gold disabled:bg-brand-gray-200 disabled:text-brand-gray-400 text-white text-sm font-medium tracking-wide uppercase py-4 transition-colors disabled:cursor-not-allowed"
+            className="w-full bg-dark hover:bg-gold disabled:bg-light-border disabled:text-light-text text-light text-sm font-medium tracking-wider uppercase py-4 transition-all duration-300 disabled:cursor-not-allowed"
           >
             Показать коврики
           </button>
-        </div>
+        </motion.div>
       </div>
     </section>
   );

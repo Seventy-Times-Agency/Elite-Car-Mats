@@ -1,44 +1,48 @@
-import { Metadata } from "next";
-import Link from "next/link";
-import { brands } from "@/data/mock";
+"use client";
 
-export const metadata: Metadata = {
-  title: "Каталог",
-  description: "Выберите марку автомобиля для подбора EVA ковриков",
-};
+import Link from "next/link";
+import { motion } from "framer-motion";
+import { brands } from "@/data/mock";
 
 export default function CatalogPage() {
   return (
-    <div className="py-12 lg:py-20 bg-white">
+    <div className="py-16 lg:py-24 bg-light min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-14">
-          <p className="text-brand-gold text-sm tracking-[0.3em] uppercase font-medium mb-3">
-            Каталог
-          </p>
-          <h1 className="text-3xl lg:text-4xl font-bold text-brand-black">
-            Выберите марку автомобиля
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="text-center mb-14"
+        >
+          <span className="section-label">Каталог</span>
+          <h1 className="mt-4 text-3xl lg:text-4xl font-bold text-text-primary">
+            Выберите марку
           </h1>
-        </div>
+        </motion.div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-          {brands.map((brand) => (
-            <Link
+          {brands.map((brand, i) => (
+            <motion.div
               key={brand.id}
-              href={`/catalog/${brand.slug}`}
-              className="group border border-brand-gray-200 hover:border-brand-gold p-6 text-center transition-all"
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: i * 0.03 }}
             >
-              <div className="w-14 h-14 mx-auto bg-brand-offwhite rounded-full flex items-center justify-center group-hover:bg-brand-gold/10 transition-colors">
-                <span className="text-brand-gray-400 group-hover:text-brand-gold text-lg font-bold transition-colors">
-                  {brand.name.charAt(0)}
-                </span>
-              </div>
-              <h3 className="mt-3 text-brand-black font-medium text-sm group-hover:text-brand-gold transition-colors">
-                {brand.name}
-              </h3>
-              <p className="text-brand-gray-400 text-xs mt-1">
-                {brand.modelsCount} моделей
-              </p>
-            </Link>
+              <Link
+                href={`/catalog/${brand.slug}`}
+                className="group block border border-light-border hover:border-gold p-6 text-center transition-all duration-300 hover:shadow-[0_4px_20px_rgba(201,168,76,0.08)]"
+              >
+                <div className="w-12 h-12 mx-auto bg-light-soft rounded-full flex items-center justify-center group-hover:bg-gold-muted transition-colors duration-300">
+                  <span className="text-light-text group-hover:text-gold text-lg font-bold transition-colors duration-300">
+                    {brand.name.charAt(0)}
+                  </span>
+                </div>
+                <h3 className="mt-3 text-text-primary font-medium text-sm group-hover:text-gold transition-colors duration-300">
+                  {brand.name}
+                </h3>
+                <p className="text-light-text text-xs mt-1">{brand.modelsCount} моделей</p>
+              </Link>
+            </motion.div>
           ))}
         </div>
       </div>

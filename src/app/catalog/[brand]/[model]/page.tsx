@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useParams } from "next/navigation";
 import { brands, mockModels, matSets, evaColors, edgeColors, badges, carImage } from "@/data/mock";
 import { useCart } from "@/context/CartContext";
+import { MatPreview } from "@/components/product/MatPreview";
 import { MatSetType } from "@/types";
 
 export default function ProductPage() {
@@ -42,16 +43,22 @@ export default function ProductPage() {
       </div>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 lg:py-16">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
-          <div className="space-y-4">
-            <div className="aspect-square glass-card rounded-xl relative overflow-hidden">
-              <Image src={carImage(brand.name, model.name, year)} alt={`${brand.name} ${model.name}`} fill className="object-contain p-8" sizes="(max-width:1024px)100vw,50vw" priority />
+          <div className="space-y-4 lg:sticky lg:top-24 lg:self-start">
+            {/* Dynamic mat preview */}
+            <div className="aspect-[4/3] glass-card rounded-xl relative overflow-hidden p-6 lg:p-8">
+              <MatPreview color={color} edgeColor={edge} showBadge={badge} />
+              <div className="absolute top-4 left-4 text-[10px] uppercase tracking-[0.2em] text-gold/60 font-semibold">Превью</div>
             </div>
-            <div className="flex gap-2 h-14">
-              <div className="flex-1 rounded-lg border border-border relative" style={{ backgroundColor: color.hex }}>
-                <span className="absolute bottom-2 left-3 text-[10px] text-white/50 tracking-wider uppercase">Коврик</span>
+
+            {/* Small car reference + color swatches */}
+            <div className="grid grid-cols-[1fr_auto] gap-3">
+              <div className="aspect-[16/9] rounded-lg bg-surface-elevated relative overflow-hidden border border-border">
+                <Image src={carImage(brand.name, model.name, year)} alt={`${brand.name} ${model.name}`} fill className="object-contain p-3" sizes="300px" />
+                <div className="absolute bottom-2 left-2 text-[10px] uppercase tracking-[0.15em] text-text-faint">Ваше авто</div>
               </div>
-              <div className="w-14 rounded-lg border border-border relative" style={{ backgroundColor: edge.hex }}>
-                <span className="absolute bottom-2 left-1 text-[9px] text-white/50 tracking-wider uppercase">Кант</span>
+              <div className="flex flex-col gap-1.5">
+                <div className="w-14 h-[calc(50%-3px)] rounded-md border border-border" style={{ backgroundColor: color.hex }} title={`Коврик: ${color.name}`} />
+                <div className="w-14 h-[calc(50%-3px)] rounded-md border border-border" style={{ backgroundColor: edge.hex }} title={`Окантовка: ${edge.name}`} />
               </div>
             </div>
           </div>

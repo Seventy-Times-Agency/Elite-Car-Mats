@@ -3,9 +3,9 @@ import { Brand, CarModel, EvaColor, EdgeColor, MatSet, Review, Badge } from "@/t
 const brandLogo = (name: string) =>
   `https://vl.imgix.net/img/${name}-logo.png?w=120&h=90&fit=clip&auto=format`;
 
-export function carImage(make: string, model: string, year?: number): string {
-  const y = year || 2024;
-  return `https://cdn.imagin.studio/getimage?customer=hrjavascript-masede&make=${encodeURIComponent(make)}&modelFamily=${encodeURIComponent(model)}&modelYear=${y}&angle=23&width=600`;
+export function carImage(make: string, model: string, _year?: number): string {
+  void _year;
+  return `/api/car-image?make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}`;
 }
 
 export const matSets: MatSet[] = [

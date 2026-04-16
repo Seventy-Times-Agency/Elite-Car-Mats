@@ -3,14 +3,9 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "vl.imgix.net",
-      },
-      {
-        protocol: "https",
-        hostname: "cdn.imagin.studio",
-      },
+      { protocol: "https", hostname: "vl.imgix.net" },
+      { protocol: "https", hostname: "upload.wikimedia.org" },
+      { protocol: "https", hostname: "commons.wikimedia.org" },
     ],
   },
 };

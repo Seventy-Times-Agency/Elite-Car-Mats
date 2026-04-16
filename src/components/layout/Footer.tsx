@@ -25,7 +25,7 @@ export function Footer() {
             <h3 className="text-[10px] uppercase tracking-[0.2em] text-gold/40 font-semibold mb-5">Контакты</h3>
             <ul className="space-y-3 text-sm text-text-dim">
               <li><a href="tel:+1234567890" className="hover:text-gold transition-colors">+1 (234) 567-890</a></li>
-              <li><a href="mailto:info@elitecarmats.com" className="hover:text-gold transition-colors">info@elitecarmats.com</a></li>
+              <li><a href="mailto:info@elitecarmats.us" className="hover:text-gold transition-colors">info@elitecarmats.us</a></li>
               <li>Rochester, NY, USA</li>
             </ul>
           </div>

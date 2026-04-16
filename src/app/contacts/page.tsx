@@ -11,7 +11,7 @@ export default function ContactsPage() {
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           <div className="space-y-4">
-            {[{l:"Телефон",v:"+1 (234) 567-890",h:"tel:+1234567890"},{l:"Email",v:"info@elitecarmats.com",h:"mailto:info@elitecarmats.com"},{l:"Адрес",v:"Rochester, NY, USA"}].map((c) => (
+            {[{l:"Телефон",v:"+1 (234) 567-890",h:"tel:+1234567890"},{l:"Email",v:"info@elitecarmats.us",h:"mailto:info@elitecarmats.us"},{l:"Адрес",v:"Rochester, NY, USA"}].map((c) => (
               <div key={c.l} className="glass-card rounded-xl p-5">
                 <div className="text-[10px] uppercase tracking-[0.2em] text-gold font-semibold mb-1">{c.l}</div>
                 {c.h ? <a href={c.h} className="text-text hover:text-gold transition-colors font-medium">{c.v}</a> : <div className="text-text font-medium">{c.v}</div>}

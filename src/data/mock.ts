@@ -1,34 +1,7 @@
 import { Brand, CarModel, EvaColor, EdgeColor, MatSet, Review, Badge } from "@/types";
-import carImages from "./car-images.json";
 
 const brandLogo = (name: string) =>
   `https://vl.imgix.net/img/${name}-logo.png?w=120&h=90&fit=clip&auto=format`;
-
-const imageMap = carImages as Record<string, string>;
-
-export function carImage(make: string, model: string, _year?: number): string {
-  void _year;
-  return `/api/car-image?make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}`;
-}
-
-export function carImageByModel(brandId: string, modelId: string, make: string, model: string): string {
-  const key = `${brandId}/${modelId}`;
-  return imageMap[key] || `/api/car-image?make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}`;
-}
-
-// imagin.studio — clean 3D car renderings on transparent background.
-// Params: make + modelFamily (slug) + modelYear. Angle 23 = 3/4 front view.
-export function carRenderUrl(brandSlug: string, modelSlug: string, year: number): string {
-  const params = new URLSearchParams({
-    customer: "img",
-    make: brandSlug,
-    modelFamily: modelSlug,
-    modelYear: String(year),
-    angle: "23",
-    zoomType: "fullscreen",
-  });
-  return `https://cdn.imagin.studio/getimage?${params.toString()}`;
-}
 
 export const matSets: MatSet[] = [
   { type: "front", label: "Передние", description: "Водитель + пассажир" },
@@ -95,9 +68,23 @@ export const brands: Brand[] = [
   { id: "volvo", name: "Volvo", slug: "volvo", logo: brandLogo("volvo"), modelsCount: 0 },
 ];
 
-function m(id: string, brandId: string, brandName: string, name: string, slug: string, years: number[], bodyType: string): CarModel {
-  return { id, brandId, brandName, name, slug, years, bodyType };
+import { VehicleCategory } from "@/types";
+
+function categoryFromBody(bodyType: string): VehicleCategory {
+  if (bodyType === "Пикап" || bodyType === "Фургон") return "truck";
+  if (bodyType === "Кроссовер" || bodyType === "Внедорожник") return "suv";
+  return "car";
 }
+
+function m(id: string, brandId: string, brandName: string, name: string, slug: string, years: number[], bodyType: string): CarModel {
+  return { id, brandId, brandName, name, slug, years, bodyType, category: categoryFromBody(bodyType) };
+}
+
+export const categoryLabels: Record<VehicleCategory, string> = {
+  car: "Легковые",
+  suv: "SUV / Кроссоверы",
+  truck: "Пикапы / Фургоны",
+};
 
 const Y = (from: number, to: number) => Array.from({ length: to - from + 1 }, (_, i) => from + i);
 

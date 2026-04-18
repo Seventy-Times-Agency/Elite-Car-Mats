@@ -4,8 +4,6 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "prefetch-images": "node scripts/prefetch-car-images.mjs",
-    "prebuild": "node scripts/prefetch-car-images.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "eslint"

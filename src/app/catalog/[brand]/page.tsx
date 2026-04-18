@@ -2,7 +2,8 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useParams } from "next/navigation";
-import { brands, mockModels, carImageByModel } from "@/data/mock";
+import { brands, mockModels } from "@/data/mock";
+import { CarImage } from "@/components/product/CarImage";
 
 export default function BrandPage() {
   const params = useParams();
@@ -31,8 +32,12 @@ export default function BrandPage() {
             return (
               <Link key={m.id} href={`/catalog/${brand.slug}/${m.slug}`} className="group glass-card glow-hover rounded-xl overflow-hidden">
                 <div className="aspect-[16/10] bg-surface-elevated relative overflow-hidden">
-                  <Image src={carImageByModel(brand.id, m.id, brand.name, m.name)} alt={`${brand.name} ${m.name}`} fill unoptimized
-                    className="object-cover group-hover:scale-105 transition-transform duration-500" sizes="(max-width:640px)100vw,(max-width:1024px)50vw,33vw" />
+                  <CarImage
+                    brandId={brand.id} brandSlug={brand.slug} brandName={brand.name}
+                    modelId={m.id} modelSlug={m.slug} modelName={m.name} year={y}
+                    className="object-contain p-2 group-hover:scale-105 transition-transform duration-500"
+                    sizes="(max-width:640px)100vw,(max-width:1024px)50vw,33vw"
+                  />
                 </div>
                 <div className="p-5">
                   <h3 className="text-base font-semibold group-hover:text-gold transition-colors duration-300">{brand.name} {m.name}</h3>

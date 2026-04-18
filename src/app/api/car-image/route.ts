@@ -21,8 +21,13 @@ interface WikiSearchResponse {
 const UA = "EliteCarMats/1.0 (https://elitecarmats.us; contact@elitecarmats.us)";
 const memory = new Map<string, string | null>();
 
-function upscale(url: string, size = 800): string {
-  return url.replace(/\/(\d{2,4})px-/, `/${size}px-`);
+// Wikipedia thumbnails larger than the source image fail with an error page.
+// Clamp to a conservative size that's almost always already generated.
+function safeThumbSize(url: string, maxSize = 500): string {
+  return url.replace(/\/(\d{2,4})px-/, (match, current) => {
+    const size = Math.min(Number(current) || maxSize, maxSize);
+    return `/${size}px-`;
+  });
 }
 
 function titleCandidates(make: string, model: string): string[] {
@@ -50,7 +55,7 @@ async function fetchSummary(title: string): Promise<string | null> {
     );
     if (!res.ok) return null;
     const data = (await res.json()) as WikiSummary;
-    if (data.thumbnail?.source) return upscale(data.thumbnail.source);
+    if (data.thumbnail?.source) return safeThumbSize(data.thumbnail.source);
     if (data.originalimage?.source) return data.originalimage.source;
     return null;
   } catch {
@@ -62,7 +67,7 @@ async function fetchSearch(make: string, model: string): Promise<string | null> 
   const url =
     `https://en.wikipedia.org/w/api.php` +
     `?action=query&format=json&formatversion=2` +
-    `&prop=pageimages&piprop=thumbnail&pithumbsize=800` +
+    `&prop=pageimages&piprop=thumbnail&pithumbsize=500` +
     `&generator=search&gsrlimit=3&gsrnamespace=0` +
     `&gsrsearch=${encodeURIComponent(`${make} ${model} car`)}`;
   try {
@@ -76,7 +81,7 @@ async function fetchSearch(make: string, model: string): Promise<string | null> 
     const pages = data.query?.pages;
     if (!pages) return null;
     const list = Object.values(pages).sort((a, b) => a.index - b.index);
-    for (const p of list) if (p.thumbnail?.source) return upscale(p.thumbnail.source);
+    for (const p of list) if (p.thumbnail?.source) return safeThumbSize(p.thumbnail.source);
     return null;
   } catch {
     return null;

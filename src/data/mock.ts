@@ -1,11 +1,19 @@
 import { Brand, CarModel, EvaColor, EdgeColor, MatSet, Review, Badge } from "@/types";
+import carImages from "./car-images.json";
 
 const brandLogo = (name: string) =>
   `https://vl.imgix.net/img/${name}-logo.png?w=120&h=90&fit=clip&auto=format`;
 
+const imageMap = carImages as Record<string, string>;
+
 export function carImage(make: string, model: string, _year?: number): string {
   void _year;
   return `/api/car-image?make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}`;
+}
+
+export function carImageByModel(brandId: string, modelId: string, make: string, model: string): string {
+  const key = `${brandId}/${modelId}`;
+  return imageMap[key] || `/api/car-image?make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}`;
 }
 
 export const matSets: MatSet[] = [

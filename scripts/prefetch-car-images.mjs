@@ -31,8 +31,13 @@ async function loadModels() {
   return models;
 }
 
-function upscale(url, size = 800) {
-  return url.replace(/\/(\d{2,4})px-/, `/${size}px-`);
+// Wikipedia returns an error page when a thumbnail larger than the source
+// image is requested. Clamp to a safe size that's virtually always generated.
+function safeThumbSize(url, maxSize = 500) {
+  return url.replace(/\/(\d{2,4})px-/, (_, current) => {
+    const size = Math.min(Number(current) || maxSize, maxSize);
+    return `/${size}px-`;
+  });
 }
 
 function titleCandidates(make, model) {
@@ -68,7 +73,7 @@ async function fetchSummary(title) {
     `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}?redirect=true`
   );
   if (!data) return null;
-  if (data.thumbnail?.source) return upscale(data.thumbnail.source);
+  if (data.thumbnail?.source) return safeThumbSize(data.thumbnail.source);
   if (data.originalimage?.source) return data.originalimage.source;
   return null;
 }
@@ -77,13 +82,13 @@ async function fetchSearch(make, model) {
   const url =
     `https://en.wikipedia.org/w/api.php` +
     `?action=query&format=json&formatversion=2` +
-    `&prop=pageimages&piprop=thumbnail&pithumbsize=800` +
+    `&prop=pageimages&piprop=thumbnail&pithumbsize=500` +
     `&generator=search&gsrlimit=3&gsrnamespace=0` +
     `&gsrsearch=${encodeURIComponent(`${make} ${model} car`)}`;
   const data = await fetchJson(url);
   if (!data?.query?.pages) return null;
   const list = Object.values(data.query.pages).sort((a, b) => a.index - b.index);
-  for (const p of list) if (p.thumbnail?.source) return upscale(p.thumbnail.source);
+  for (const p of list) if (p.thumbnail?.source) return safeThumbSize(p.thumbnail.source);
   return null;
 }
 

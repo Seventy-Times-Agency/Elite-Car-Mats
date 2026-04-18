@@ -6,6 +6,8 @@ export interface Brand {
   modelsCount: number;
 }
 
+export type VehicleCategory = "car" | "suv" | "truck";
+
 export interface CarModel {
   id: string;
   brandId: string;
@@ -14,6 +16,7 @@ export interface CarModel {
   slug: string;
   years: number[];
   bodyType: string;
+  category: VehicleCategory;
   image?: string;
 }
 

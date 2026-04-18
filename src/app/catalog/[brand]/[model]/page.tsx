@@ -5,7 +5,6 @@ import { useParams } from "next/navigation";
 import { brands, mockModels, matSets, evaColors, edgeColors, badges } from "@/data/mock";
 import { useCart } from "@/context/CartContext";
 import { MatPreview } from "@/components/product/MatPreview";
-import { CarImage } from "@/components/product/CarImage";
 import { MatSetType } from "@/types";
 
 export default function ProductPage() {
@@ -50,15 +49,21 @@ export default function ProductPage() {
               <div className="absolute top-4 left-4 text-[10px] uppercase tracking-[0.2em] text-gold/60 font-semibold">Превью</div>
             </div>
 
-            {/* Small car reference + color swatches */}
-            <div className="grid grid-cols-[1fr_auto] gap-3">
-              <div className="aspect-[16/9] rounded-lg bg-surface-elevated relative overflow-hidden border border-border">
-                <CarImage brandId={brand.id} brandSlug={brand.slug} brandName={brand.name} modelId={model.id} modelSlug={model.slug} modelName={model.name} year={year} className="object-contain p-2" sizes="300px" />
-                <div className="absolute bottom-2 left-2 text-[10px] uppercase tracking-[0.15em] text-text-faint">Ваше авто</div>
+            {/* Color swatches */}
+            <div className="flex gap-3">
+              <div className="glass-card rounded-lg px-4 py-3 flex items-center gap-3 flex-1">
+                <div className="w-8 h-8 rounded-md border border-border shrink-0" style={{ backgroundColor: color.hex }} />
+                <div className="min-w-0">
+                  <div className="text-[10px] uppercase tracking-wider text-text-faint">Коврик</div>
+                  <div className="text-xs text-text truncate">{color.name}</div>
+                </div>
               </div>
-              <div className="flex flex-col gap-1.5">
-                <div className="w-14 h-[calc(50%-3px)] rounded-md border border-border" style={{ backgroundColor: color.hex }} title={`Коврик: ${color.name}`} />
-                <div className="w-14 h-[calc(50%-3px)] rounded-md border border-border" style={{ backgroundColor: edge.hex }} title={`Окантовка: ${edge.name}`} />
+              <div className="glass-card rounded-lg px-4 py-3 flex items-center gap-3 flex-1">
+                <div className="w-8 h-8 rounded-md border border-border shrink-0" style={{ backgroundColor: edge.hex }} />
+                <div className="min-w-0">
+                  <div className="text-[10px] uppercase tracking-wider text-text-faint">Окантовка</div>
+                  <div className="text-xs text-text truncate">{edge.name}</div>
+                </div>
               </div>
             </div>
           </div>

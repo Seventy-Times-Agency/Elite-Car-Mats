@@ -24,21 +24,21 @@ function CustomSelect({ label, step, value, display, placeholder, options, onCha
       <button
         onClick={() => !disabled && setOpen(!open)}
         disabled={disabled}
-        className={`w-full text-left glass-card glow-hover rounded-xl p-5 transition-all duration-300 ${
+        className={`w-full text-left glass-card glow-hover rounded-xl p-6 transition-all duration-300 ${
           disabled ? "opacity-30 cursor-not-allowed" : "cursor-pointer"
-        } ${open ? "!border-gold/40 shadow-[0_0_24px_rgba(212,165,74,0.1)]" : ""}`}
+        } ${open ? "!border-gold/50 shadow-[0_0_32px_rgba(212,165,74,0.15)]" : ""}`}
       >
-        <div className="flex items-center gap-2.5 mb-2">
-          <span className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold transition-colors ${
-            active ? "bg-gradient-to-br from-gold to-gold-dark text-bg shadow-[0_0_10px_rgba(212,165,74,0.3)]" : "bg-border text-text-faint"
+        <div className="flex items-center gap-3 mb-3">
+          <span className={`w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold transition-colors ${
+            active ? "bg-gradient-to-br from-gold to-gold-dark text-bg shadow-[0_0_12px_rgba(212,165,74,0.35)]" : "bg-border text-text-faint"
           }`}>{step}</span>
-          <span className="text-[10px] uppercase tracking-[0.2em] text-gold font-semibold">{label}</span>
+          <span className="text-[11px] uppercase tracking-[0.22em] text-gold font-semibold">{label}</span>
         </div>
-        <div className="flex items-center justify-between pl-8">
-          <span className={`text-[15px] font-medium ${value ? "text-text" : "text-text-faint"}`}>
+        <div className="flex items-center justify-between pl-10">
+          <span className={`text-[17px] font-medium truncate ${value ? "text-text" : "text-text-faint"}`}>
             {value ? display : placeholder}
           </span>
-          <svg className={`w-4 h-4 text-gold/40 transition-transform duration-200 ${open ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className={`w-4 h-4 text-gold/50 shrink-0 ml-2 transition-transform duration-200 ${open ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
           </svg>
         </div>
@@ -80,32 +80,57 @@ export function CarSelectorSection() {
   };
 
   return (
-    <section id="configurator" className="py-24 lg:py-32 scroll-mt-20">
+    <section id="configurator" className="py-24 lg:py-36 scroll-mt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-14">
+        <div className="text-center mb-16">
           <span className="section-label">Конфигуратор</span>
-          <h2 className="mt-4 text-3xl lg:text-4xl font-bold">Подберите коврики</h2>
-          <p className="mt-3 text-text-dim max-w-md mx-auto">3 шага до идеальных ковриков для вашего авто</p>
+          <h2 className="mt-5 text-4xl lg:text-6xl font-bold tracking-tight">Подберите <span className="text-gold-gradient">коврики</span></h2>
+          <p className="mt-5 text-text-dim text-base lg:text-lg max-w-lg mx-auto">3 шага до идеальных EVA ковриков для вашего авто</p>
         </div>
 
-        <div className="max-w-4xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <CustomSelect label="Марка" step={1} value={brandId} display={brand?.name||""} placeholder="Выберите марку"
-              options={brands.map((b) => ({ id: b.id, label: b.name }))} onChange={onBrand} />
-            <CustomSelect label="Модель" step={2} value={modelId} display={model?.name||""} placeholder="Выберите модель"
-              options={models.map((m) => ({ id: m.id, label: m.name }))} onChange={onModel} disabled={!brandId} />
-            <CustomSelect label="Год" step={3} value={yearId} display={yearId} placeholder="Выберите год"
-              options={years.map((y) => ({ id: String(y), label: String(y) }))} onChange={setYearId} disabled={!modelId} />
-          </div>
+        <div className="max-w-5xl mx-auto relative">
+          {/* Ambient gold glow behind the frame */}
+          <div className="absolute -inset-4 bg-gradient-to-r from-gold/10 via-gold/5 to-gold/10 rounded-[32px] blur-2xl pointer-events-none" aria-hidden />
 
-          <button onClick={go} disabled={!ready}
-            className={`w-full mt-5 py-4 rounded-xl text-sm font-semibold tracking-wider uppercase transition-all duration-300 ${
-              ready
-                ? "bg-gradient-to-r from-gold to-gold-light text-bg shadow-[0_4px_24px_rgba(212,165,74,0.3)] hover:shadow-[0_6px_32px_rgba(212,165,74,0.4)] hover:from-gold-light hover:to-gold"
-                : "bg-surface border border-border text-text-faint cursor-not-allowed"
-            }`}>
-            {ready ? "Показать коврики →" : "Выберите марку и модель"}
-          </button>
+          <div className="relative rounded-[28px] p-[1.5px] bg-gradient-to-br from-gold/60 via-gold/20 to-gold/50 shadow-[0_12px_48px_rgba(0,0,0,0.4),0_0_32px_rgba(212,165,74,0.12)]">
+            <div className="rounded-[26px] bg-gradient-to-b from-[#161616] to-[#0F0F0F] p-6 sm:p-8 lg:p-10 relative overflow-hidden">
+              {/* Corner gold accents */}
+              <div className="absolute top-0 left-0 w-20 h-20 pointer-events-none" aria-hidden>
+                <div className="absolute top-4 left-4 w-10 h-[1px] bg-gradient-to-r from-gold to-transparent" />
+                <div className="absolute top-4 left-4 h-10 w-[1px] bg-gradient-to-b from-gold to-transparent" />
+              </div>
+              <div className="absolute top-0 right-0 w-20 h-20 pointer-events-none" aria-hidden>
+                <div className="absolute top-4 right-4 w-10 h-[1px] bg-gradient-to-l from-gold to-transparent" />
+                <div className="absolute top-4 right-4 h-10 w-[1px] bg-gradient-to-b from-gold to-transparent" />
+              </div>
+              <div className="absolute bottom-0 left-0 w-20 h-20 pointer-events-none" aria-hidden>
+                <div className="absolute bottom-4 left-4 w-10 h-[1px] bg-gradient-to-r from-gold to-transparent" />
+                <div className="absolute bottom-4 left-4 h-10 w-[1px] bg-gradient-to-t from-gold to-transparent" />
+              </div>
+              <div className="absolute bottom-0 right-0 w-20 h-20 pointer-events-none" aria-hidden>
+                <div className="absolute bottom-4 right-4 w-10 h-[1px] bg-gradient-to-l from-gold to-transparent" />
+                <div className="absolute bottom-4 right-4 h-10 w-[1px] bg-gradient-to-t from-gold to-transparent" />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <CustomSelect label="Марка" step={1} value={brandId} display={brand?.name||""} placeholder="Выберите марку"
+                  options={brands.map((b) => ({ id: b.id, label: b.name }))} onChange={onBrand} />
+                <CustomSelect label="Модель" step={2} value={modelId} display={model?.name||""} placeholder="Выберите модель"
+                  options={models.map((m) => ({ id: m.id, label: m.name }))} onChange={onModel} disabled={!brandId} />
+                <CustomSelect label="Год" step={3} value={yearId} display={yearId} placeholder="Выберите год"
+                  options={years.map((y) => ({ id: String(y), label: String(y) }))} onChange={setYearId} disabled={!modelId} />
+              </div>
+
+              <button onClick={go} disabled={!ready}
+                className={`w-full mt-7 py-5 rounded-xl text-sm font-semibold tracking-[0.15em] uppercase transition-all duration-300 ${
+                  ready
+                    ? "bg-gradient-to-r from-gold to-gold-light text-bg shadow-[0_4px_24px_rgba(212,165,74,0.35)] hover:shadow-[0_6px_36px_rgba(212,165,74,0.5)] hover:from-gold-light hover:to-gold"
+                    : "bg-surface border border-border text-text-faint cursor-not-allowed"
+                }`}>
+                {ready ? "Показать коврики →" : "Выберите марку и модель"}
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </section>

@@ -1,6 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { readFile } from "fs/promises";
-import path from "path";
 
 export const runtime = "nodejs";
 
@@ -14,7 +12,6 @@ interface WikiSearchPage {
   title: string;
   index: number;
   thumbnail?: { source: string; width: number; height: number };
-  pageimage?: string;
 }
 
 interface WikiSearchResponse {
@@ -22,7 +19,6 @@ interface WikiSearchResponse {
 }
 
 const UA = "EliteCarMats/1.0 (https://elitecarmats.us; contact@elitecarmats.us)";
-
 const memory = new Map<string, string | null>();
 
 function upscale(url: string, size = 800): string {
@@ -31,14 +27,15 @@ function upscale(url: string, size = 800): string {
 
 function titleCandidates(make: string, model: string): string[] {
   const m = model.trim();
-  const variants = new Set<string>([
-    `${make}_${m.replace(/\s+/g, "_")}`,
-    `${make}_${m}`,
-    `${make}_${m.replace(/-/g, "_")}`,
-    `${make}_${m.replace(/\./g, "")}`,
-    `${make}_${m.replace(/\s+/g, "_").replace(/\./g, "")}`,
-  ]);
-  return Array.from(variants);
+  return Array.from(
+    new Set([
+      `${make}_${m.replace(/\s+/g, "_")}`,
+      `${make}_${m}`,
+      `${make}_${m.replace(/-/g, "_")}`,
+      `${make}_${m.replace(/\./g, "")}`,
+      `${make}_${m.replace(/\s+/g, "_").replace(/\./g, "")}`,
+    ])
+  );
 }
 
 async function fetchSummary(title: string): Promise<string | null> {
@@ -64,7 +61,7 @@ async function fetchSummary(title: string): Promise<string | null> {
 async function fetchSearch(make: string, model: string): Promise<string | null> {
   const url =
     `https://en.wikipedia.org/w/api.php` +
-    `?action=query&format=json&formatversion=2&origin=*` +
+    `?action=query&format=json&formatversion=2` +
     `&prop=pageimages&piprop=thumbnail&pithumbsize=800` +
     `&generator=search&gsrlimit=3&gsrnamespace=0` +
     `&gsrsearch=${encodeURIComponent(`${make} ${model} car`)}`;
@@ -98,19 +95,18 @@ async function resolveCarImage(make: string, model: string): Promise<string | nu
   return img;
 }
 
-async function placeholderResponse(): Promise<NextResponse> {
-  try {
-    const filePath = path.join(process.cwd(), "public", "placeholder-car.svg");
-    const file = await readFile(filePath);
-    return new NextResponse(new Uint8Array(file), {
-      headers: {
-        "Content-Type": "image/svg+xml",
-        "Cache-Control": "public, max-age=3600",
-      },
-    });
-  } catch {
-    return new NextResponse("Not found", { status: 404 });
-  }
+function escapeXml(s: string): string {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+
+function minimalPlaceholder(make: string, model: string): NextResponse {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 380"><rect width="600" height="380" fill="#1A1A1A"/><text x="300" y="195" text-anchor="middle" font-family="sans-serif" font-size="14" fill="#A09888">${escapeXml(make)} ${escapeXml(model)}</text></svg>`;
+  return new NextResponse(svg, {
+    headers: {
+      "Content-Type": "image/svg+xml; charset=utf-8",
+      "Cache-Control": "public, max-age=3600",
+    },
+  });
 }
 
 export async function GET(request: NextRequest) {
@@ -120,7 +116,7 @@ export async function GET(request: NextRequest) {
   if (!make || !model) return new NextResponse("Missing make or model", { status: 400 });
 
   const imageUrl = await resolveCarImage(make, model);
-  if (!imageUrl) return placeholderResponse();
+  if (!imageUrl) return minimalPlaceholder(make, model);
 
   return NextResponse.redirect(imageUrl, {
     status: 302,

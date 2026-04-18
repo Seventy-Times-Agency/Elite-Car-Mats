@@ -6,6 +6,7 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "vl.imgix.net" },
       { protocol: "https", hostname: "upload.wikimedia.org" },
       { protocol: "https", hostname: "commons.wikimedia.org" },
+      { protocol: "https", hostname: "cdn.imagin.studio" },
     ],
   },
 };

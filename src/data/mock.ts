@@ -16,6 +16,20 @@ export function carImageByModel(brandId: string, modelId: string, make: string, 
   return imageMap[key] || `/api/car-image?make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}`;
 }
 
+// imagin.studio — clean 3D car renderings on transparent background.
+// Params: make + modelFamily (slug) + modelYear. Angle 23 = 3/4 front view.
+export function carRenderUrl(brandSlug: string, modelSlug: string, year: number): string {
+  const params = new URLSearchParams({
+    customer: "img",
+    make: brandSlug,
+    modelFamily: modelSlug,
+    modelYear: String(year),
+    angle: "23",
+    zoomType: "fullscreen",
+  });
+  return `https://cdn.imagin.studio/getimage?${params.toString()}`;
+}
+
 export const matSets: MatSet[] = [
   { type: "front", label: "Передние", description: "Водитель + пассажир" },
   { type: "full", label: "Полный комплект", description: "Весь салон" },

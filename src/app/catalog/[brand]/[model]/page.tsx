@@ -1,11 +1,11 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { useParams } from "next/navigation";
-import { brands, mockModels, matSets, evaColors, edgeColors, badges, carImageByModel } from "@/data/mock";
+import { brands, mockModels, matSets, evaColors, edgeColors, badges } from "@/data/mock";
 import { useCart } from "@/context/CartContext";
 import { MatPreview } from "@/components/product/MatPreview";
+import { CarImage } from "@/components/product/CarImage";
 import { MatSetType } from "@/types";
 
 export default function ProductPage() {
@@ -53,7 +53,7 @@ export default function ProductPage() {
             {/* Small car reference + color swatches */}
             <div className="grid grid-cols-[1fr_auto] gap-3">
               <div className="aspect-[16/9] rounded-lg bg-surface-elevated relative overflow-hidden border border-border">
-                <Image src={carImageByModel(brand.id, model.id, brand.name, model.name)} alt={`${brand.name} ${model.name}`} fill unoptimized className="object-cover" sizes="300px" />
+                <CarImage brandId={brand.id} brandSlug={brand.slug} brandName={brand.name} modelId={model.id} modelSlug={model.slug} modelName={model.name} year={year} className="object-contain p-2" sizes="300px" />
                 <div className="absolute bottom-2 left-2 text-[10px] uppercase tracking-[0.15em] text-text-faint">Ваше авто</div>
               </div>
               <div className="flex flex-col gap-1.5">

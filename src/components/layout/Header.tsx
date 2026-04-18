@@ -18,7 +18,6 @@ export function Header() {
   const links = [
     { href: "/catalog", label: "Каталог" },
     { href: "/about", label: "О нас" },
-    { href: "/reviews", label: "Отзывы" },
     { href: "/contacts", label: "Контакты" },
   ];
 

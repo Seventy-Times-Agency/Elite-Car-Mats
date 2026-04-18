@@ -2,53 +2,100 @@ import { NextRequest, NextResponse } from "next/server";
 import { readFile } from "fs/promises";
 import path from "path";
 
+export const runtime = "nodejs";
+
 interface WikiSummary {
   thumbnail?: { source: string; width: number; height: number };
   originalimage?: { source: string; width: number; height: number };
 }
 
-const cache = new Map<string, string | null>();
+interface WikiSearchPage {
+  pageid: number;
+  title: string;
+  index: number;
+  thumbnail?: { source: string; width: number; height: number };
+  pageimage?: string;
+}
 
-async function fetchWikipediaImage(make: string, model: string): Promise<string | null> {
-  const cacheKey = `${make}|${model}`;
-  if (cache.has(cacheKey)) return cache.get(cacheKey)!;
+interface WikiSearchResponse {
+  query?: { pages?: Record<string, WikiSearchPage> };
+}
 
-  const candidates = [
-    `${make}_${model.replace(/ /g, "_")}`,
-    `${make}_${model}`,
-    `${make}_${model.replace(/-/g, "_")}`,
-  ];
+const UA = "EliteCarMats/1.0 (https://elitecarmats.us; contact@elitecarmats.us)";
 
-  for (const title of candidates) {
-    try {
-      const res = await fetch(
-        `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`,
-        {
-          headers: { "User-Agent": "EliteCarMats/1.0 (https://elitecarmats.us)" },
-          next: { revalidate: 60 * 60 * 24 * 7 },
-        }
-      );
+const memory = new Map<string, string | null>();
 
-      if (!res.ok) continue;
+function upscale(url: string, size = 800): string {
+  return url.replace(/\/(\d{2,4})px-/, `/${size}px-`);
+}
 
-      const data: WikiSummary = await res.json();
+function titleCandidates(make: string, model: string): string[] {
+  const m = model.trim();
+  const variants = new Set<string>([
+    `${make}_${m.replace(/\s+/g, "_")}`,
+    `${make}_${m}`,
+    `${make}_${m.replace(/-/g, "_")}`,
+    `${make}_${m.replace(/\./g, "")}`,
+    `${make}_${m.replace(/\s+/g, "_").replace(/\./g, "")}`,
+  ]);
+  return Array.from(variants);
+}
 
-      if (data.thumbnail?.source) {
-        const url = data.thumbnail.source.replace(/\/\d+px-/, "/800px-");
-        cache.set(cacheKey, url);
-        return url;
+async function fetchSummary(title: string): Promise<string | null> {
+  try {
+    const res = await fetch(
+      `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}?redirect=true`,
+      {
+        headers: { "User-Agent": UA, "Accept": "application/json" },
+        cache: "force-cache",
+        next: { revalidate: 60 * 60 * 24 * 7 },
       }
-      if (data.originalimage?.source) {
-        cache.set(cacheKey, data.originalimage.source);
-        return data.originalimage.source;
-      }
-    } catch {
-      continue;
-    }
+    );
+    if (!res.ok) return null;
+    const data = (await res.json()) as WikiSummary;
+    if (data.thumbnail?.source) return upscale(data.thumbnail.source);
+    if (data.originalimage?.source) return data.originalimage.source;
+    return null;
+  } catch {
+    return null;
   }
+}
 
-  cache.set(cacheKey, null);
-  return null;
+async function fetchSearch(make: string, model: string): Promise<string | null> {
+  const url =
+    `https://en.wikipedia.org/w/api.php` +
+    `?action=query&format=json&formatversion=2&origin=*` +
+    `&prop=pageimages&piprop=thumbnail&pithumbsize=800` +
+    `&generator=search&gsrlimit=3&gsrnamespace=0` +
+    `&gsrsearch=${encodeURIComponent(`${make} ${model} car`)}`;
+  try {
+    const res = await fetch(url, {
+      headers: { "User-Agent": UA, "Accept": "application/json" },
+      cache: "force-cache",
+      next: { revalidate: 60 * 60 * 24 * 7 },
+    });
+    if (!res.ok) return null;
+    const data = (await res.json()) as WikiSearchResponse;
+    const pages = data.query?.pages;
+    if (!pages) return null;
+    const list = Object.values(pages).sort((a, b) => a.index - b.index);
+    for (const p of list) if (p.thumbnail?.source) return upscale(p.thumbnail.source);
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+async function resolveCarImage(make: string, model: string): Promise<string | null> {
+  const key = `${make}|${model}`;
+  if (memory.has(key)) return memory.get(key)!;
+  for (const t of titleCandidates(make, model)) {
+    const img = await fetchSummary(t);
+    if (img) { memory.set(key, img); return img; }
+  }
+  const img = await fetchSearch(make, model);
+  memory.set(key, img);
+  return img;
 }
 
 async function placeholderResponse(): Promise<NextResponse> {
@@ -70,33 +117,13 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const make = searchParams.get("make");
   const model = searchParams.get("model");
+  if (!make || !model) return new NextResponse("Missing make or model", { status: 400 });
 
-  if (!make || !model) {
-    return new NextResponse("Missing make or model", { status: 400 });
-  }
-
-  const imageUrl = await fetchWikipediaImage(make, model);
-
+  const imageUrl = await resolveCarImage(make, model);
   if (!imageUrl) return placeholderResponse();
 
-  try {
-    const imageRes = await fetch(imageUrl, {
-      headers: { "User-Agent": "EliteCarMats/1.0 (https://elitecarmats.us)" },
-      next: { revalidate: 60 * 60 * 24 * 30 },
-    });
-
-    if (!imageRes.ok) return placeholderResponse();
-
-    const buffer = await imageRes.arrayBuffer();
-    const contentType = imageRes.headers.get("Content-Type") || "image/jpeg";
-
-    return new NextResponse(buffer, {
-      headers: {
-        "Content-Type": contentType,
-        "Cache-Control": "public, max-age=2592000, s-maxage=2592000, immutable",
-      },
-    });
-  } catch {
-    return placeholderResponse();
-  }
+  return NextResponse.redirect(imageUrl, {
+    status: 302,
+    headers: { "Cache-Control": "public, max-age=2592000, s-maxage=2592000" },
+  });
 }

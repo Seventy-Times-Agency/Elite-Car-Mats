@@ -31,7 +31,7 @@ export default function BrandPage() {
             return (
               <Link key={m.id} href={`/catalog/${brand.slug}/${m.slug}`} className="group glass-card glow-hover rounded-xl overflow-hidden">
                 <div className="aspect-[16/10] bg-surface-elevated relative overflow-hidden">
-                  <Image src={carImage(brand.name, m.name, y)} alt={`${brand.name} ${m.name}`} fill
+                  <Image src={carImage(brand.name, m.name, y)} alt={`${brand.name} ${m.name}`} fill unoptimized
                     className="object-contain p-4 group-hover:scale-105 transition-transform duration-500" sizes="(max-width:640px)100vw,(max-width:1024px)50vw,33vw" />
                 </div>
                 <div className="p-5">

@@ -6,7 +6,7 @@ import { brands, mockModels, matSets, evaColors, edgeColors, badges } from "@/da
 import { useCart } from "@/context/CartContext";
 import { MatPreview } from "@/components/product/MatPreview";
 import { MatSetType } from "@/types";
-import { calculateItemUnitPrice, formatPrice, MAT_SET_PRICE } from "@/lib/pricing";
+import { calculateItemUnitPrice, formatPrice } from "@/lib/pricing";
 
 export default function ProductPage() {
   const params = useParams();
@@ -78,7 +78,6 @@ export default function ProductPage() {
             <p className="text-text-dim text-sm mt-1">{model.bodyType} · EVA коврики</p>
             <div className="mt-4 flex items-baseline gap-2">
               <span className="text-gold text-3xl font-bold">{formatPrice(unitPrice)}</span>
-              <span className="text-text-faint text-xs">от {formatPrice(MAT_SET_PRICE.cargo)}</span>
             </div>
             <div className="mt-10 space-y-8">
               <div>

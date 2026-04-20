@@ -1,20 +1,23 @@
 import { MatSetType } from "@/types";
 
+// Временная единая цена — будет заменена на реальный прайс-лист позже
+const FLAT_PRICE = 100;
+
 export const MAT_SET_PRICE: Record<MatSetType, number> = {
-  front: 89,
-  full: 139,
-  cargo: 59,
-  "full-cargo": 179,
+  front: FLAT_PRICE,
+  full: FLAT_PRICE,
+  cargo: FLAT_PRICE,
+  "full-cargo": FLAT_PRICE,
 };
 
 export const EDGE_SURCHARGE: Record<string, number> = {
   black: 0,
   gray: 0,
-  gold: 10,
-  red: 10,
+  gold: 0,
+  red: 0,
 };
 
-export const BADGE_PRICE = 15;
+export const BADGE_PRICE = 0;
 
 export const CURRENCY = "USD";
 export const CURRENCY_SYMBOL = "$";

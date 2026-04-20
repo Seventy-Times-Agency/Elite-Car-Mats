@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { headers } from "next/headers";
 import { formatPrice } from "@/lib/pricing";
+import { CopyNumber } from "./CopyNumber";
 
 export const dynamic = "force-dynamic";
 
@@ -85,9 +86,9 @@ export default async function OrderPage({
         <div className="text-center mb-10">
           <div className="inline-block text-5xl mb-3">✓</div>
           <h1 className="text-2xl lg:text-3xl font-bold">Заказ принят</h1>
-          <p className="text-text-dim text-sm mt-2">
-            Номер заказа: <span className="text-gold font-medium">{order.orderNumber}</span>
-          </p>
+          <div className="text-text-dim text-sm mt-2">
+            Номер заказа: <CopyNumber value={order.orderNumber} />
+          </div>
         </div>
 
         <div className="glass-card rounded-xl p-6 mb-6">

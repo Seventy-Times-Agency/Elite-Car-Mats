@@ -11,7 +11,7 @@ export function Footer() {
             <p className="mt-5 text-text-dim text-sm leading-relaxed">Премиальные EVA коврики с индивидуальной подгонкой.</p>
           </div>
           {[
-            { t: "Навигация", items: [{h:"/catalog",l:"Каталог"},{h:"/about",l:"О компании"},{h:"/contacts",l:"Контакты"}] },
+            { t: "Навигация", items: [{h:"/catalog",l:"Каталог"},{h:"/about",l:"О компании"},{h:"/contacts",l:"Контакты"},{h:"/track",l:"Отследить заказ"}] },
             { t: "Информация", items: [{h:"/delivery",l:"Доставка"},{h:"/warranty",l:"Гарантия"},{h:"/privacy",l:"Конфиденциальность"}] },
           ].map((col) => (
             <div key={col.t}>

@@ -6,6 +6,7 @@ import { brands, mockModels, matSets, evaColors, edgeColors, badges } from "@/da
 import { useCart } from "@/context/CartContext";
 import { MatPreview } from "@/components/product/MatPreview";
 import { MatSetType } from "@/types";
+import { calculateItemUnitPrice, formatPrice } from "@/lib/pricing";
 
 export default function ProductPage() {
   const params = useParams();
@@ -23,6 +24,11 @@ export default function ProductPage() {
 
   const bdg = badges.find((b) => b.brandName === brand.name);
   const ms = matSets.find((s) => s.type === set)!;
+  const unitPrice = calculateItemUnitPrice({
+    matSet: set,
+    edgeColor: { id: edge.id },
+    badge: badge && bdg ? { id: bdg.id } : null,
+  });
 
   const add = () => {
     addItem({ modelId: model.id, brandName: brand.name, modelName: model.name, year, matSet: set, matSetLabel: ms.label, color, edgeColor: edge, badge: badge && bdg ? bdg : undefined, quantity: 1 });
@@ -70,6 +76,9 @@ export default function ProductPage() {
           <div>
             <h1 className="text-2xl lg:text-3xl font-bold">{brand.name} {model.name}</h1>
             <p className="text-text-dim text-sm mt-1">{model.bodyType} · EVA коврики</p>
+            <div className="mt-4 flex items-baseline gap-2">
+              <span className="text-gold text-3xl font-bold">{formatPrice(unitPrice)}</span>
+            </div>
             <div className="mt-10 space-y-8">
               <div>
                 <h3 className="section-label text-[10px] mb-3">1 — Год</h3>
@@ -112,7 +121,7 @@ export default function ProductPage() {
                 </div>
               )}
               <button onClick={add} className={`w-full py-4 rounded-xl text-sm font-semibold tracking-wider uppercase transition-all duration-300 ${added ? "bg-success text-bg" : "bg-gradient-to-r from-gold to-gold-light text-bg shadow-[0_4px_24px_rgba(212,165,74,0.25)] hover:shadow-[0_6px_32px_rgba(212,165,74,0.4)]"}`}>
-                {added ? "✓ Добавлено!" : "Добавить в корзину"}
+                {added ? "✓ Добавлено!" : `Добавить в корзину — ${formatPrice(unitPrice)}`}
               </button>
             </div>
           </div>

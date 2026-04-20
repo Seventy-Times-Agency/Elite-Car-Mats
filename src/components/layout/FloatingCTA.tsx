@@ -5,7 +5,13 @@ import { usePathname } from "next/navigation";
 
 export function FloatingCTA() {
   const pathname = usePathname();
-  if (pathname === "/cart" || pathname === "/checkout") return null;
+  if (
+    pathname === "/cart" ||
+    pathname === "/checkout" ||
+    pathname.startsWith("/admin") ||
+    pathname.startsWith("/order/")
+  )
+    return null;
 
   return (
     <div className="fixed bottom-6 right-6 z-40">

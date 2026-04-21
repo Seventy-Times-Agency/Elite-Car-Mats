@@ -1,3 +1,5 @@
+import { Reveal } from "@/components/common/Reveal";
+
 const features = [
   {
     icon: (
@@ -59,13 +61,13 @@ export function FeaturesSection() {
   return (
     <section className="py-14 lg:py-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-10">
+        <Reveal className="text-center mb-10">
           <span className="section-label">Преимущества</span>
           <h2 className="mt-4 text-3xl lg:text-4xl font-bold">Почему Elite Car Mats</h2>
           <p className="mt-3 text-text-dim text-base max-w-2xl mx-auto leading-relaxed">
             Что получает каждый клиент — независимо от марки авто, комплектации и адреса доставки.
           </p>
-        </div>
+        </Reveal>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {features.map((f) => (
             <a href="#configurator" key={f.title} className="glass-card glow-hover rounded-xl p-6 group block">

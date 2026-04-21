@@ -1,3 +1,5 @@
+import { Reveal } from "@/components/common/Reveal";
+
 const items = [
   { brand: "Toyota", model: "Camry", brandSlug: "toyota", modelSlug: "camry", year: "2023", tag: "Полный + Багажник", color: "gold" },
   { brand: "BMW", model: "X5", brandSlug: "bmw", modelSlug: "x5", year: "2024", tag: "Полный комплект", color: "red" },
@@ -39,7 +41,7 @@ export function GallerySection() {
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-gold/[0.015] to-transparent pointer-events-none" />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between mb-10 gap-6">
+        <Reveal className="flex flex-col lg:flex-row lg:items-end lg:justify-between mb-10 gap-6">
           <div>
             <span className="section-label">Наши работы</span>
             <h2 className="mt-4 text-3xl lg:text-4xl font-bold">Примеры ковриков под разные авто</h2>
@@ -56,7 +58,7 @@ export function GallerySection() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
             </svg>
           </a>
-        </div>
+        </Reveal>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {items.map((it) => (

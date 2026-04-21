@@ -7,6 +7,7 @@ import { useCart } from "@/context/CartContext";
 import { MatPreview } from "@/components/product/MatPreview";
 import { MatSetType } from "@/types";
 import { calculateItemUnitPrice, formatPrice } from "@/lib/pricing";
+import { ProductJsonLd } from "@/components/seo/ProductJsonLd";
 
 export default function ProductPage() {
   const params = useParams();
@@ -37,6 +38,12 @@ export default function ProductPage() {
 
   return (
     <div>
+      <ProductJsonLd
+        brand={brand.name}
+        model={model.name}
+        price={unitPrice}
+        url={`/catalog/${brand.slug}/${model.slug}`}
+      />
       <div className="border-b border-border/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
           <nav className="text-xs text-text-dim">
@@ -125,6 +132,22 @@ export default function ProductPage() {
               </button>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Mobile sticky add-to-cart */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-bg/95 backdrop-blur-xl border-t border-border/50 px-4 py-3 pb-[calc(env(safe-area-inset-bottom)+0.75rem)]">
+        <div className="flex items-center gap-3">
+          <div className="min-w-0 flex-1">
+            <div className="text-[10px] uppercase tracking-wider text-text-faint">{ms.label}</div>
+            <div className="text-gold text-lg font-bold leading-tight">{formatPrice(unitPrice)}</div>
+          </div>
+          <button
+            onClick={add}
+            className={`px-5 py-3 rounded-xl text-xs font-semibold tracking-[0.15em] uppercase shrink-0 transition-all duration-300 ${added ? "bg-success text-bg" : "bg-gradient-to-r from-gold to-gold-light text-bg shadow-[0_4px_18px_rgba(212,165,74,0.3)]"}`}
+          >
+            {added ? "✓ Добавлено" : "В корзину"}
+          </button>
         </div>
       </div>
     </div>

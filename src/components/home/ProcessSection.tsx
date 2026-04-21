@@ -1,3 +1,5 @@
+import { Reveal } from "@/components/common/Reveal";
+
 const steps = [
   {
     n: "01",
@@ -49,13 +51,13 @@ export function ProcessSection() {
       }} />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-10">
+        <Reveal className="text-center mb-10">
           <span className="section-label">Производство</span>
           <h2 className="mt-4 text-3xl lg:text-4xl font-bold">Как мы делаем ваш комплект</h2>
           <p className="mt-3 text-text-dim text-base max-w-2xl mx-auto leading-relaxed">
             От заявки до упакованной посылки — 4 этапа, каждый с контролем качества. Делаем под заказ.
           </p>
-        </div>
+        </Reveal>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
           {steps.map((s, i) => (

@@ -69,3 +69,49 @@ body {
   background: rgba(212, 165, 74, 0.3);
   color: #fff;
 }
+
+/* Better focus for keyboard navigation */
+:focus-visible {
+  outline: 2px solid var(--color-gold);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Long-form prose content (legal, about) */
+.prose-content h2 {
+  color: var(--color-text);
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+  letter-spacing: -0.01em;
+}
+.prose-content h3 {
+  color: var(--color-text);
+  font-size: 1rem;
+  font-weight: 600;
+  margin-top: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+.prose-content p { margin-bottom: 0.875rem; }
+.prose-content ul, .prose-content ol { padding-left: 1.25rem; margin-bottom: 0.875rem; }
+.prose-content ul { list-style-type: disc; }
+.prose-content ol { list-style-type: decimal; }
+.prose-content li { margin-bottom: 0.4rem; }
+.prose-content a { color: var(--color-gold); text-decoration: underline; text-underline-offset: 3px; }
+.prose-content a:hover { color: var(--color-gold-light); }
+.prose-content strong { color: var(--color-text); font-weight: 600; }
+
+/* Fade-in on scroll utility */
+.fade-in {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+.fade-in.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .fade-in { opacity: 1; transform: none; transition: none; }
+}

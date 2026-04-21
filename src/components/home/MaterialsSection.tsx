@@ -1,3 +1,5 @@
+import { Reveal } from "@/components/common/Reveal";
+
 const materials = [
   {
     label: "EVA base",
@@ -62,13 +64,13 @@ export function MaterialsSection() {
   return (
     <section className="py-14 lg:py-20 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-10">
+        <Reveal className="text-center mb-10">
           <span className="section-label">Материалы</span>
           <h2 className="mt-4 text-3xl lg:text-4xl font-bold">Из чего сделан ваш комплект</h2>
           <p className="mt-3 text-text-dim text-base max-w-2xl mx-auto leading-relaxed">
             Три составляющих премиум-коврика. Каждая выбрана по спецификации — не по цене.
           </p>
-        </div>
+        </Reveal>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
           {materials.map((m) => (

@@ -1,49 +1,39 @@
-import { Reveal } from "@/components/common/Reveal";
+"use client";
 
-const steps = [
-  {
-    n: "01",
-    title: "Выбор модели",
-    desc: "Указываете марку, модель и год — наш конфигуратор мгновенно подбирает подходящее лекало из базы 290+ моделей.",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-8 h-8">
-        <path strokeLinecap="round" strokeLinejoin="round" d="m15.75 10.5 4.72-4.72a.75.75 0 0 1 1.28.53v11.38a.75.75 0 0 1-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25h-9A2.25 2.25 0 0 0 2.25 7.5v9a2.25 2.25 0 0 0 2.25 2.25Z" />
-      </svg>
-    ),
-  },
-  {
-    n: "02",
-    title: "Индивидуальный раскрой",
-    desc: "CNC-плоттер режет EVA-плиту по 3D-лекалу с точностью до 1 мм. Каждый коврик точно повторяет форму пола вашего авто.",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-8 h-8">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 14.25v2.25m3-4.5v4.5m3-6.75v6.75m3-9v9M6 20.25h12A2.25 2.25 0 0 0 20.25 18V6A2.25 2.25 0 0 0 18 3.75H6A2.25 2.25 0 0 0 3.75 6v12A2.25 2.25 0 0 0 6 20.25Z" />
-      </svg>
-    ),
-  },
-  {
-    n: "03",
-    title: "Пошив и отделка",
-    desc: "Окантовка пристрачивается высокопрочной нитью, ставится шильдик с логотипом марки, нашивка ELITECARMATS.US сбоку.",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-8 h-8">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M9.53 16.122a3 3 0 0 0-5.78 1.128 2.25 2.25 0 0 1-2.4 2.245 4.5 4.5 0 0 0 8.4-2.245c0-.399-.078-.78-.22-1.128Zm0 0a15.998 15.998 0 0 0 3.388-1.62m-5.043-.025a15.994 15.994 0 0 1 1.622-3.395m3.42 3.42a15.995 15.995 0 0 0 4.764-4.648l3.876-5.814a1.151 1.151 0 0 0-1.597-1.597L14.146 6.32a15.996 15.996 0 0 0-4.649 4.763m3.42 3.42a6.776 6.776 0 0 0-3.42-3.42" />
-      </svg>
-    ),
-  },
-  {
-    n: "04",
-    title: "Отправка по США",
-    desc: "Упаковка в плотный крафт-конверт, отправка USPS или UPS Ground в течение 48 часов. Бесплатная доставка от $99.",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-8 h-8">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 18.75a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h6m-9 0H3.375c-.621 0-1.125-.504-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h1.125c.621 0 1.125-.504 1.125-1.125v-5.625m-8.25 4.5h-3.75M8.25 3.75H3.375c-.621 0-1.125.504-1.125 1.125v9.75c0 .621.504 1.125 1.125 1.125h17.25c.621 0 1.125-.504 1.125-1.125V11.25m-5.625-7.5H14.25m-5.625 0v1.5m0 0V12m-4.5-1.5h15.375c.621 0 1.125.504 1.125 1.125v1.5" />
-      </svg>
-    ),
-  },
+import { Reveal } from "@/components/common/Reveal";
+import { useT } from "@/i18n/I18nProvider";
+
+const ICONS = [
+  (
+    <svg key="1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-8 h-8">
+      <path strokeLinecap="round" strokeLinejoin="round" d="m15.75 10.5 4.72-4.72a.75.75 0 0 1 1.28.53v11.38a.75.75 0 0 1-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25h-9A2.25 2.25 0 0 0 2.25 7.5v9a2.25 2.25 0 0 0 2.25 2.25Z" />
+    </svg>
+  ),
+  (
+    <svg key="2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-8 h-8">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 14.25v2.25m3-4.5v4.5m3-6.75v6.75m3-9v9M6 20.25h12A2.25 2.25 0 0 0 20.25 18V6A2.25 2.25 0 0 0 18 3.75H6A2.25 2.25 0 0 0 3.75 6v12A2.25 2.25 0 0 0 6 20.25Z" />
+    </svg>
+  ),
+  (
+    <svg key="3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-8 h-8">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M9.53 16.122a3 3 0 0 0-5.78 1.128 2.25 2.25 0 0 1-2.4 2.245 4.5 4.5 0 0 0 8.4-2.245c0-.399-.078-.78-.22-1.128Zm0 0a15.998 15.998 0 0 0 3.388-1.62m-5.043-.025a15.994 15.994 0 0 1 1.622-3.395m3.42 3.42a15.995 15.995 0 0 0 4.764-4.648l3.876-5.814a1.151 1.151 0 0 0-1.597-1.597L14.146 6.32a15.996 15.996 0 0 0-4.649 4.763m3.42 3.42a6.776 6.776 0 0 0-3.42-3.42" />
+    </svg>
+  ),
+  (
+    <svg key="4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-8 h-8">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 18.75a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h6m-9 0H3.375c-.621 0-1.125-.504-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h1.125c.621 0 1.125-.504 1.125-1.125v-5.625m-8.25 4.5h-3.75M8.25 3.75H3.375c-.621 0-1.125.504-1.125 1.125v9.75c0 .621.504 1.125 1.125 1.125h17.25c.621 0 1.125-.504 1.125-1.125V11.25m-5.625-7.5H14.25m-5.625 0v1.5m0 0V12m-4.5-1.5h15.375c.621 0 1.125.504 1.125 1.125v1.5" />
+    </svg>
+  ),
 ];
 
 export function ProcessSection() {
+  const t = useT();
+  const steps = [
+    { n: "01", title: t("process.s1Title"), desc: t("process.s1Desc"), icon: ICONS[0] },
+    { n: "02", title: t("process.s2Title"), desc: t("process.s2Desc"), icon: ICONS[1] },
+    { n: "03", title: t("process.s3Title"), desc: t("process.s3Desc"), icon: ICONS[2] },
+    { n: "04", title: t("process.s4Title"), desc: t("process.s4Desc"), icon: ICONS[3] },
+  ];
   return (
     <section className="py-14 lg:py-20 relative">
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{
@@ -52,10 +42,10 @@ export function ProcessSection() {
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <Reveal className="text-center mb-10">
-          <span className="section-label">Производство</span>
-          <h2 className="mt-4 text-3xl lg:text-4xl font-bold">Как мы делаем ваш комплект</h2>
+          <span className="section-label">{t("process.label")}</span>
+          <h2 className="mt-4 text-3xl lg:text-4xl font-bold">{t("process.title")}</h2>
           <p className="mt-3 text-text-dim text-base max-w-2xl mx-auto leading-relaxed">
-            От заявки до упакованной посылки — 4 этапа, каждый с контролем качества. Делаем под заказ.
+            {t("process.subtitle")}
           </p>
         </Reveal>
 
@@ -82,7 +72,7 @@ export function ProcessSection() {
             href="#configurator"
             className="inline-flex items-center gap-2 bg-gradient-to-r from-gold to-gold-light text-bg px-7 py-3.5 text-sm font-semibold tracking-[0.15em] uppercase rounded-xl shadow-[0_4px_24px_rgba(212,165,74,0.25)] hover:shadow-[0_6px_32px_rgba(212,165,74,0.4)] transition-all"
           >
-            Оформить свой комплект
+            {t("process.cta")}
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
             </svg>

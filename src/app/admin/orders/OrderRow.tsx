@@ -3,17 +3,15 @@
 import Link from "next/link";
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { useT, useLocale } from "@/i18n/I18nProvider";
 
-type Status = "PENDING" | "CONFIRMED" | "PRODUCTION" | "SHIPPED" | "DELIVERED" | "CANCELLED";
-
-const STATUS_LABEL: Record<Status, string> = {
-  PENDING: "Ожидает",
-  CONFIRMED: "Подтверждён",
-  PRODUCTION: "Производство",
-  SHIPPED: "Отправлен",
-  DELIVERED: "Доставлен",
-  CANCELLED: "Отменён",
-};
+type Status =
+  | "PENDING"
+  | "CONFIRMED"
+  | "PRODUCTION"
+  | "SHIPPED"
+  | "DELIVERED"
+  | "CANCELLED";
 
 const STATUS_COLOR: Record<Status, string> = {
   PENDING: "text-yellow-400 border-yellow-400/30",
@@ -45,11 +43,22 @@ export function OrderRow({
   formattedTotal: string;
 }) {
   const router = useRouter();
+  const t = useT();
+  const locale = useLocale();
   const [expanded, setExpanded] = useState(false);
   const [status, setStatus] = useState<Status>(order.status as Status);
   const [tracking, setTracking] = useState(order.trackingNumber ?? "");
   const [saving, startSaving] = useTransition();
   const [message, setMessage] = useState<string | null>(null);
+
+  const STATUS_LABEL: Record<Status, string> = {
+    PENDING: t("admin.statusPending"),
+    CONFIRMED: t("admin.statusConfirmed"),
+    PRODUCTION: t("admin.statusProduction"),
+    SHIPPED: t("admin.statusShipped"),
+    DELIVERED: t("admin.statusDelivered"),
+    CANCELLED: t("admin.statusCancelled"),
+  };
 
   const hasChanges =
     status !== order.status || (tracking || "") !== (order.trackingNumber ?? "");
@@ -66,16 +75,18 @@ export function OrderRow({
         }),
       });
       if (!res.ok) {
-        setMessage("Ошибка сохранения");
+        setMessage(t("admin.saveFailed"));
         return;
       }
-      setMessage("Сохранено");
+      setMessage(t("admin.saved"));
       router.refresh();
       setTimeout(() => setMessage(null), 2000);
     });
   };
 
-  const date = new Date(order.createdAt).toLocaleDateString("ru-RU", {
+  const localeTag =
+    locale === "ru" ? "ru-RU" : locale === "uk" ? "uk-UA" : "en-US";
+  const date = new Date(order.createdAt).toLocaleDateString(localeTag, {
     day: "2-digit",
     month: "short",
     hour: "2-digit",
@@ -101,7 +112,8 @@ export function OrderRow({
             <span className="text-text-faint text-xs">{date}</span>
           </div>
           <div className="text-sm text-text mt-1 truncate">
-            {order.customerName} · {order.email} · {order.itemsCount} поз.
+            {order.customerName} · {order.email} ·{" "}
+            {t("admin.itemsCount", { n: order.itemsCount })}
           </div>
         </div>
         <div className="text-gold font-semibold text-lg shrink-0">
@@ -113,19 +125,27 @@ export function OrderRow({
         <div className="px-4 pb-4 pt-2 border-t border-border/30 space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
             <div>
-              <div className="text-text-faint uppercase tracking-wider mb-1">Телефон</div>
-              <a href={`tel:${order.phone}`} className="text-text">{order.phone}</a>
+              <div className="text-text-faint uppercase tracking-wider mb-1">
+                {t("admin.phoneLabel")}
+              </div>
+              <a href={`tel:${order.phone}`} className="text-text">
+                {order.phone}
+              </a>
             </div>
             <div>
-              <div className="text-text-faint uppercase tracking-wider mb-1">Email</div>
-              <a href={`mailto:${order.email}`} className="text-text">{order.email}</a>
+              <div className="text-text-faint uppercase tracking-wider mb-1">
+                {t("admin.emailLabel")}
+              </div>
+              <a href={`mailto:${order.email}`} className="text-text">
+                {order.email}
+              </a>
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-[10px] uppercase tracking-wider text-text-faint mb-1.5">
-                Статус
+                {t("admin.statusLabel")}
               </label>
               <select
                 value={status}
@@ -141,12 +161,12 @@ export function OrderRow({
             </div>
             <div>
               <label className="block text-[10px] uppercase tracking-wider text-text-faint mb-1.5">
-                Трек-номер
+                {t("admin.trackingLabel")}
               </label>
               <input
                 value={tracking}
                 onChange={(e) => setTracking(e.target.value)}
-                placeholder="Необязательно"
+                placeholder={t("admin.trackingPh")}
                 className="w-full glass-card rounded-lg px-3 py-2 text-sm focus:border-gold/40 focus:outline-none"
               />
             </div>
@@ -158,7 +178,7 @@ export function OrderRow({
               target="_blank"
               className="text-xs text-text-dim hover:text-gold"
             >
-              Открыть страницу заказа →
+              {t("admin.openOrderPage")}
             </Link>
             <div className="flex items-center gap-3">
               {message && (
@@ -169,7 +189,7 @@ export function OrderRow({
                 disabled={!hasChanges || saving}
                 className="bg-gradient-to-r from-gold to-gold-light text-bg text-xs font-semibold px-4 py-2 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed"
               >
-                {saving ? "Сохранение..." : "Сохранить"}
+                {saving ? t("admin.saving") : t("admin.save")}
               </button>
             </div>
           </div>

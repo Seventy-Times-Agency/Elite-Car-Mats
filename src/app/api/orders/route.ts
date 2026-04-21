@@ -8,6 +8,8 @@ import {
   sendOwnerOrderEmail,
 } from "@/lib/email";
 import { evaColors, edgeColors, brands } from "@/data/mock";
+import { getDictionary } from "@/i18n/getDictionary";
+import { makeT } from "@/i18n/dictionary";
 
 function generateOrderNumber(): string {
   const ts = Date.now().toString(36).toUpperCase();
@@ -15,16 +17,18 @@ function generateOrderNumber(): string {
   return `ECM-${ts}-${rand}`;
 }
 
-function resolveNames(item: OrderItemInput) {
+async function resolveNames(item: OrderItemInput) {
   const color = evaColors.find((c) => c.id === item.colorId);
   const edge = edgeColors.find((c) => c.id === item.edgeColorId);
   const badge = item.badgeId
     ? brands.find((b) => `badge-${b.slug}` === item.badgeId)
     : null;
+  const { dict, fallback } = await getDictionary();
+  const t = makeT(dict, fallback);
   return {
     colorName: color?.name ?? item.colorId,
     edgeColorName: edge?.name ?? item.edgeColorId,
-    badgeName: badge ? `Шильдик ${badge.name}` : null,
+    badgeName: badge ? t("email.badgeSuffix", { brand: badge.name }) : null,
   };
 }
 
@@ -104,8 +108,8 @@ export async function POST(request: Request) {
     );
   }
 
-  const emailItems = items.map((i) => {
-    const names = resolveNames(i);
+  const emailItems = await Promise.all(items.map(async (i) => {
+    const names = await resolveNames(i);
     return {
       brandName: i.brandName,
       modelName: i.modelName,
@@ -120,7 +124,7 @@ export async function POST(request: Request) {
         badge: i.badgeId ? { id: i.badgeId } : null,
       }),
     };
-  });
+  }));
 
   const emailData = {
     orderNumber: order.orderNumber,

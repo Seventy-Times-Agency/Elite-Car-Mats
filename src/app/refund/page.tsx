@@ -1,63 +1,75 @@
-import { LegalLayout } from "@/components/legal/LegalLayout";
+"use client";
 
-export const metadata = {
-  title: "Возврат и обмен",
-  description: "Условия возврата и обмена автоковриков Elite Car Mats: 30 дней, без вопросов.",
-};
+import { LegalLayout } from "@/components/legal/LegalLayout";
+import { useT } from "@/i18n/I18nProvider";
 
 export default function RefundPage() {
+  const t = useT();
   return (
     <LegalLayout
-      title="Возврат и обмен"
-      intro="Если коврики не подошли — вернём деньги. Если ошиблись с комплектом — поменяем без доплаты за изготовление."
-      updatedAt="20 апреля 2026"
+      title={t("refund.title")}
+      intro={t("refund.intro")}
+      updatedAt={t("refund.updatedAt")}
     >
-      <h2>30 дней на возврат</h2>
+      <h2>{t("refund.windowH")}</h2>
       <p>
-        У вас есть <strong>30 календарных дней</strong> с момента получения посылки, чтобы решить — оставить коврики или вернуть.
+        {t("refund.windowPPre")}
+        <strong>{t("refund.windowBold")}</strong>
+        {t("refund.windowPPost")}
       </p>
 
-      <h2>Условия возврата</h2>
+      <h2>{t("refund.condH")}</h2>
       <ul>
-        <li>Коврики должны быть в <strong>оригинальной упаковке</strong></li>
-        <li>Без следов использования (без грязи, царапин, запахов)</li>
-        <li>Шильдики и нашивки на месте</li>
+        <li>
+          {t("refund.cond1Pre")}
+          <strong>{t("refund.cond1Bold")}</strong>
+        </li>
+        <li>{t("refund.cond2")}</li>
+        <li>{t("refund.cond3")}</li>
       </ul>
 
-      <h2>Как оформить возврат</h2>
+      <h2>{t("refund.howH")}</h2>
       <ol>
-        <li>Напишите на <a href="mailto:info@elitecarmats.us">info@elitecarmats.us</a> с темой «Return» и номером заказа</li>
-        <li>Мы пришлём адрес возврата и инструкцию</li>
-        <li>Упакуйте коврики в оригинальную коробку и отправьте</li>
-        <li>После получения посылки мы вернём деньги в течение 5 рабочих дней</li>
+        <li>
+          {t("refund.howPre")}{" "}
+          <a href="mailto:info@elitecarmats.us">info@elitecarmats.us</a>
+          {t("refund.howPost")}
+        </li>
+        <li>{t("refund.how2")}</li>
+        <li>{t("refund.how3")}</li>
+        <li>{t("refund.how4")}</li>
       </ol>
 
-      <h2>Кто платит за обратную пересылку</h2>
+      <h2>{t("refund.whoH")}</h2>
       <ul>
-        <li><strong>Брак или наша ошибка</strong> — пересылку оплачиваем мы</li>
-        <li><strong>Не подошли / передумали</strong> — пересылку оплачивает клиент (~$10–15 USPS Ground)</li>
+        <li>
+          <strong>{t("refund.who1Bold")}</strong>
+          {t("refund.who1")}
+        </li>
+        <li>
+          <strong>{t("refund.who2Bold")}</strong>
+          {t("refund.who2")}
+        </li>
       </ul>
 
-      <h2>Обмен</h2>
-      <p>
-        Если ошиблись с комплектом или цветом — делаем обмен без доплаты за изготовление новой пары. Доплата только за обратную пересылку.
-      </p>
+      <h2>{t("refund.exchangeH")}</h2>
+      <p>{t("refund.exchangeP")}</p>
 
-      <h2>Возврат денег</h2>
-      <p>
-        Деньги возвращаются на тот же способ оплаты, которым была сделана покупка (карта, Apple Pay, Google Pay). Сроки зачисления зависят от вашего банка — обычно 3–7 рабочих дней после нашего возврата.
-      </p>
+      <h2>{t("refund.refundsH")}</h2>
+      <p>{t("refund.refundsP")}</p>
 
-      <h2>Что не подлежит возврату</h2>
+      <h2>{t("refund.notH")}</h2>
       <ul>
-        <li>Коврики со следами использования</li>
-        <li>Коврики, изготовленные по индивидуальному заказу с уникальным дизайном (вне нашего стандартного каталога)</li>
-        <li>Заказы, оформленные более 30 дней назад</li>
+        <li>{t("refund.not1")}</li>
+        <li>{t("refund.not2")}</li>
+        <li>{t("refund.not3")}</li>
       </ul>
 
-      <h2>Брак при доставке</h2>
+      <h2>{t("refund.damageH")}</h2>
       <p>
-        Если посылка пришла повреждённой или вы обнаружили дефект изготовления — сфотографируйте проблему и пришлите нам в течение 48 часов на <a href="mailto:info@elitecarmats.us">info@elitecarmats.us</a>. Заменим бесплатно или вернём полную стоимость.
+        {t("refund.damagePPre")}{" "}
+        <a href="mailto:info@elitecarmats.us">info@elitecarmats.us</a>
+        {t("refund.damagePPost")}
       </p>
     </LegalLayout>
   );

@@ -1,58 +1,58 @@
-import { LegalLayout } from "@/components/legal/LegalLayout";
+"use client";
 
-export const metadata = {
-  title: "Гарантия",
-  description: "2 года гарантии на материалы и швы автоковриков Elite Car Mats. Замена бесплатно при производственном браке.",
-};
+import { LegalLayout } from "@/components/legal/LegalLayout";
+import { useT } from "@/i18n/I18nProvider";
 
 export default function WarrantyPage() {
+  const t = useT();
   return (
     <LegalLayout
-      title="Гарантия 2 года"
-      intro="Полная гарантия на материалы и пошив. Производственный брак — меняем бесплатно, без экспертиз и нервотрёпки."
-      updatedAt="20 апреля 2026"
+      title={t("warranty.title")}
+      intro={t("warranty.intro")}
+      updatedAt={t("warranty.updatedAt")}
     >
-      <h2>Что покрывает гарантия</h2>
+      <h2>{t("warranty.coversH")}</h2>
       <ul>
-        <li>Расхождение или разрыв шва окантовки</li>
-        <li>Деформация коврика при нормальной эксплуатации</li>
-        <li>Растрескивание EVA-материала при нормальных температурах (−40°C до +70°C)</li>
-        <li>Отслоение или поломка металлического шильдика</li>
-        <li>Дефект цвета окантовки (выцветание, неравномерность) в первый год</li>
+        <li>{t("warranty.c1")}</li>
+        <li>{t("warranty.c2")}</li>
+        <li>{t("warranty.c3")}</li>
+        <li>{t("warranty.c4")}</li>
+        <li>{t("warranty.c5")}</li>
       </ul>
 
-      <h2>Что не покрывает</h2>
+      <h2>{t("warranty.notH")}</h2>
       <ul>
-        <li>Естественный износ (протёртые пятки, царапины от каблуков) — для EVA это 4–5 лет активной эксплуатации</li>
-        <li>Повреждения от острых предметов, химикатов, открытого огня</li>
-        <li>Загрязнения, которые не отмываются обычной чисткой</li>
-        <li>Деформация от длительного хранения в свёрнутом виде</li>
-        <li>Неправильная установка (коврик мешает педалям и т.п.)</li>
+        <li>{t("warranty.n1")}</li>
+        <li>{t("warranty.n2")}</li>
+        <li>{t("warranty.n3")}</li>
+        <li>{t("warranty.n4")}</li>
+        <li>{t("warranty.n5")}</li>
       </ul>
 
-      <h2>Срок гарантии</h2>
+      <h2>{t("warranty.periodH")}</h2>
       <p>
-        <strong>2 года</strong> с момента доставки заказа. Дата отсчёта — дата получения по трек-номеру USPS / UPS.
+        <strong>{t("warranty.periodBold")}</strong>
+        {t("warranty.periodP")}
       </p>
 
-      <h2>Как воспользоваться гарантией</h2>
+      <h2>{t("warranty.howH")}</h2>
       <ol>
-        <li>Сфотографируйте дефект (общий вид + крупный план)</li>
-        <li>Напишите на <a href="mailto:info@elitecarmats.us">info@elitecarmats.us</a> с темой «Warranty» и номером заказа</li>
-        <li>Приложите фото и опишите когда возникла проблема</li>
-        <li>Мы отвечаем в течение 1 рабочего дня</li>
-        <li>При подтверждении брака — изготавливаем и отправляем замену за наш счёт</li>
+        <li>{t("warranty.h1")}</li>
+        <li>
+          {t("warranty.h2Pre")}{" "}
+          <a href="mailto:info@elitecarmats.us">info@elitecarmats.us</a>
+          {t("warranty.h2Post")}
+        </li>
+        <li>{t("warranty.h3")}</li>
+        <li>{t("warranty.h4")}</li>
+        <li>{t("warranty.h5")}</li>
       </ol>
 
-      <h2>Замена или возврат денег</h2>
-      <p>
-        По умолчанию мы предлагаем замену на новый коврик. Если изготовление уже невозможно (например, модель снята с производства лекал) — возвращаем стоимость заказа полностью.
-      </p>
+      <h2>{t("warranty.replaceH")}</h2>
+      <p>{t("warranty.replaceP")}</p>
 
-      <h2>Перевозка для замены</h2>
-      <p>
-        Старый коврик отправлять обратно <strong>не нужно</strong> в большинстве случаев — фотографии достаточно. Если нужна физическая экспертиза — мы оплачиваем обратную пересылку.
-      </p>
+      <h2>{t("warranty.shipH")}</h2>
+      <p>{t("warranty.shipP")}</p>
     </LegalLayout>
   );
 }

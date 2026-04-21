@@ -2,11 +2,6 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getDictionary } from "@/i18n/getDictionary";
 
-export const metadata = {
-  title: "Отследить заказ",
-  description: "Проверьте статус вашего заказа Elite Car Mats по номеру.",
-};
-
 async function track(formData: FormData) {
   "use server";
   const raw = String(formData.get("orderNumber") ?? "").trim();

@@ -4,11 +4,15 @@ import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
 import { formatPrice } from "@/lib/pricing";
 import { OrderRow } from "./OrderRow";
+import { getDictionary } from "@/i18n/getDictionary";
+import { makeT } from "@/i18n/dictionary";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminOrdersPage() {
   if (!(await requireAdmin())) redirect("/admin/login");
+  const { dict, fallback } = await getDictionary();
+  const t = makeT(dict, fallback);
 
   const orders = await prisma.order.findMany({
     orderBy: { createdAt: "desc" },
@@ -28,9 +32,9 @@ export default async function AdminOrdersPage() {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-2xl font-bold">Заказы</h1>
+            <h1 className="text-2xl font-bold">{t("admin.ordersTitle")}</h1>
             <p className="text-text-dim text-xs mt-1">
-              Всего: {orders.length}
+              {t("admin.ordersTotalLabel")}: {orders.length}
               {Object.entries(totalsByStatus).map(([s, n]) => ` · ${s}: ${n}`)}
             </p>
           </div>
@@ -39,14 +43,14 @@ export default async function AdminOrdersPage() {
               type="submit"
               className="text-text-dim hover:text-error text-xs uppercase tracking-wider"
             >
-              Выйти
+              {t("admin.signOut")}
             </button>
           </form>
         </div>
 
         {orders.length === 0 ? (
           <div className="glass-card rounded-xl p-12 text-center text-text-dim">
-            Заказов пока нет
+            {t("admin.ordersEmpty")}
           </div>
         ) : (
           <div className="space-y-3">
@@ -73,7 +77,7 @@ export default async function AdminOrdersPage() {
 
         <div className="mt-8 text-center">
           <Link href="/" className="text-text-dim text-xs hover:text-gold">
-            ← На сайт
+            {t("admin.backToSite")}
           </Link>
         </div>
       </div>

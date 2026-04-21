@@ -6,15 +6,11 @@ export async function generateMetadata(): Promise<Metadata> {
   const { dict, fallback } = await getDictionary();
   const t = makeT(dict, fallback);
   return {
-    title: t("admin.metaTitle"),
-    robots: { index: false, follow: false },
+    title: t("warranty.metaTitle"),
+    description: t("warranty.metaDesc"),
   };
 }
 
-export default function AdminLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  return <div className="min-h-screen">{children}</div>;
+export default function Layout({ children }: { children: React.ReactNode }) {
+  return children;
 }

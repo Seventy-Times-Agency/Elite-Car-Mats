@@ -1,61 +1,62 @@
-import { LegalLayout } from "@/components/legal/LegalLayout";
+"use client";
 
-export const metadata = {
-  title: "Доставка",
-  description: "Условия доставки автоковриков Elite Car Mats по США: бесплатно от $99, экспресс 2-3 дня.",
-};
+import { LegalLayout } from "@/components/legal/LegalLayout";
+import { useT } from "@/i18n/I18nProvider";
 
 export default function DeliveryPage() {
+  const t = useT();
   return (
     <LegalLayout
-      title="Доставка"
-      intro="Отправляем заказы из Rochester, NY в течение 48 часов после изготовления. Доставка по всей территории США."
-      updatedAt="20 апреля 2026"
+      title={t("delivery.title")}
+      intro={t("delivery.intro")}
+      updatedAt={t("delivery.updatedAt")}
     >
-      <h2>Сроки</h2>
+      <h2>{t("delivery.timelinesH")}</h2>
       <ul>
-        <li><strong>Изготовление:</strong> до 48 часов после оплаты</li>
-        <li><strong>USPS / UPS Ground:</strong> 3–7 рабочих дней по США</li>
-        <li><strong>Экспресс (UPS 2nd Day):</strong> 2–3 рабочих дня — $19</li>
+        <li>
+          <strong>{t("delivery.t1Pre")}</strong> {t("delivery.t1")}
+        </li>
+        <li>
+          <strong>{t("delivery.t2Pre")}</strong> {t("delivery.t2")}
+        </li>
+        <li>
+          <strong>{t("delivery.t3Pre")}</strong> {t("delivery.t3")}
+        </li>
       </ul>
 
-      <h2>Стоимость</h2>
+      <h2>{t("delivery.costH")}</h2>
       <ul>
-        <li><strong>Бесплатно</strong> при заказе от $99 (стандартная доставка)</li>
-        <li>$9 USPS / UPS Ground для заказов до $99</li>
-        <li>$19 экспресс-доставка 2–3 дня в любую точку</li>
+        <li>
+          <strong>{t("delivery.c1Pre")}</strong> {t("delivery.c1")}
+        </li>
+        <li>{t("delivery.c2")}</li>
+        <li>{t("delivery.c3")}</li>
       </ul>
 
-      <h2>Куда доставляем</h2>
-      <p>Все 50 штатов США + Округ Колумбия.</p>
+      <h2>{t("delivery.whereH")}</h2>
+      <p>{t("delivery.whereP1")}</p>
       <p>
-        В Канаду и Мексику доставляем по запросу — стоимость рассчитывается индивидуально, напишите на{" "}
-        <a href="mailto:info@elitecarmats.us">info@elitecarmats.us</a>.
+        {t("delivery.whereP2Pre")}{" "}
+        <a href="mailto:info@elitecarmats.us">info@elitecarmats.us</a>
+        {t("delivery.whereP2Post")}
       </p>
 
-      <h2>Отслеживание</h2>
+      <h2>{t("delivery.trackingH")}</h2>
       <p>
-        Сразу после отправки вам приходит email с трек-номером и ссылкой на USPS / UPS. Также статус доступен на странице{" "}
-        <a href="/track">отслеживания заказа</a>.
+        {t("delivery.trackingP1")}{" "}
+        <a href="/track">{t("delivery.trackingLink")}</a>
+        {t("delivery.trackingP2")}
       </p>
 
-      <h2>Упаковка</h2>
-      <p>
-        Каждый комплект упаковывается в плотный крафт-конверт с защитой от деформации. Шильдики и мелкие аксессуары — в отдельном пакете внутри. Маркировка экологичными материалами.
-      </p>
+      <h2>{t("delivery.packH")}</h2>
+      <p>{t("delivery.packP")}</p>
 
-      <h2>Что делать если посылка не пришла</h2>
-      <p>
-        Если по трек-номеру посылка значится как доставленная, но вы её не получили — напишите нам. Мы запрашиваем расследование у перевозчика и в большинстве случаев находим в течение 3–5 дней.
-      </p>
-      <p>
-        Если перевозчик подтверждает утерю — мы изготавливаем и отправляем замену бесплатно.
-      </p>
+      <h2>{t("delivery.missingH")}</h2>
+      <p>{t("delivery.missingP1")}</p>
+      <p>{t("delivery.missingP2")}</p>
 
-      <h2>Удалённые регионы (Аляска, Гавайи)</h2>
-      <p>
-        Доставка возможна, но сроки увеличиваются до 7–14 дней. Стоимость стандартная, экспресс не доступен.
-      </p>
+      <h2>{t("delivery.remoteH")}</h2>
+      <p>{t("delivery.remoteP")}</p>
     </LegalLayout>
   );
 }

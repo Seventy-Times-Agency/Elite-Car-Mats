@@ -1,31 +1,7 @@
-import { Reveal } from "@/components/common/Reveal";
+"use client";
 
-const materials = [
-  {
-    label: "EVA base",
-    title: "EVA премиум",
-    spec: "10 мм, закрытоячеистая структура",
-    desc: "Пена этилен-винилацетат медицинского класса — та же, что в спортивной обуви и ортопедических стельках. Не впитывает воду, не пахнет, не выделяет летучих веществ. Стабильна от −40°C до +70°C.",
-    facts: ["Плотность 100 кг/м³", "5–7 лет службы", "Соответствует REACH"],
-    pattern: "honeycomb",
-  },
-  {
-    label: "Edge",
-    title: "Окантовка",
-    spec: "Мягкий ПВХ, 8 мм профиль",
-    desc: "Бортик по периметру удерживает внутри до 1,5 литров воды, грязи и снега. Доступна в 4 цветах: чёрная, серая, золотая и красная. Пришивается двойной строчкой поверх коврика.",
-    facts: ["Высота бортика 30 мм", "4 цвета на выбор", "Не ломается на морозе"],
-    pattern: "stripes",
-  },
-  {
-    label: "Thread & tag",
-    title: "Нить и шильдик",
-    spec: "Полиэстер 40S/2, металлический логотип",
-    desc: "Высокопрочная автомобильная нить не выгорает и не гниёт. Металлический шильдик марки авто на переднем коврике водителя — тонкая деталь, которая отличает премиум от массового продукта.",
-    facts: ["UV-стойкая нить", "Шильдики 30+ марок", "Нашивка ELITECARMATS.US"],
-    pattern: "diagonal",
-  },
-];
+import { Reveal } from "@/components/common/Reveal";
+import { useT } from "@/i18n/I18nProvider";
 
 function PatternFill({ kind }: { kind: string }) {
   if (kind === "honeycomb") {
@@ -61,14 +37,53 @@ function PatternFill({ kind }: { kind: string }) {
 }
 
 export function MaterialsSection() {
+  const t = useT();
+  const materials = [
+    {
+      label: t("materials.baseLabel"),
+      title: t("materials.baseTitle"),
+      spec: t("materials.baseSpec"),
+      desc: t("materials.baseDesc"),
+      facts: [
+        t("materials.baseFact1"),
+        t("materials.baseFact2"),
+        t("materials.baseFact3"),
+      ],
+      pattern: "honeycomb",
+    },
+    {
+      label: t("materials.edgeLabel"),
+      title: t("materials.edgeTitle"),
+      spec: t("materials.edgeSpec"),
+      desc: t("materials.edgeDesc"),
+      facts: [
+        t("materials.edgeFact1"),
+        t("materials.edgeFact2"),
+        t("materials.edgeFact3"),
+      ],
+      pattern: "stripes",
+    },
+    {
+      label: t("materials.threadLabel"),
+      title: t("materials.threadTitle"),
+      spec: t("materials.threadSpec"),
+      desc: t("materials.threadDesc"),
+      facts: [
+        t("materials.threadFact1"),
+        t("materials.threadFact2"),
+        t("materials.threadFact3"),
+      ],
+      pattern: "diagonal",
+    },
+  ];
   return (
     <section className="py-14 lg:py-20 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <Reveal className="text-center mb-10">
-          <span className="section-label">Материалы</span>
-          <h2 className="mt-4 text-3xl lg:text-4xl font-bold">Из чего сделан ваш комплект</h2>
+          <span className="section-label">{t("materials.label")}</span>
+          <h2 className="mt-4 text-3xl lg:text-4xl font-bold">{t("materials.title")}</h2>
           <p className="mt-3 text-text-dim text-base max-w-2xl mx-auto leading-relaxed">
-            Три составляющих премиум-коврика. Каждая выбрана по спецификации — не по цене.
+            {t("materials.subtitle")}
           </p>
         </Reveal>
 
@@ -81,7 +96,7 @@ export function MaterialsSection() {
                   {m.label}
                 </div>
                 <div className="absolute bottom-4 right-4 text-[9px] uppercase tracking-[0.15em] text-text-faint">
-                  Фото скоро
+                  {t("materials.photoComing")}
                 </div>
               </div>
               <div className="p-6 flex-1 flex flex-col">
@@ -106,7 +121,7 @@ export function MaterialsSection() {
             href="#configurator"
             className="inline-flex items-center gap-2 text-gold hover:text-gold-light text-sm uppercase tracking-[0.15em] font-medium transition-colors"
           >
-            Выбрать материал для своего авто
+            {t("materials.cta")}
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
             </svg>

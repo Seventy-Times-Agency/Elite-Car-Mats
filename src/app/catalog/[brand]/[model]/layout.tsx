@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { brands, mockModels } from "@/data/mock";
 import { MAT_SET_PRICE } from "@/lib/pricing";
+import { getDictionary } from "@/i18n/getDictionary";
+import { makeT } from "@/i18n/dictionary";
 
 interface Params {
   params: Promise<{ brand: string; model: string }>;
@@ -9,19 +11,30 @@ interface Params {
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { brand: brandSlug, model: modelSlug } = await params;
   const brand = brands.find((b) => b.slug === brandSlug);
-  const model = mockModels.find((m) => m.slug === modelSlug && m.brandId === brand?.id);
-  if (!brand || !model) return { title: "Модель не найдена" };
+  const model = mockModels.find(
+    (m) => m.slug === modelSlug && m.brandId === brand?.id,
+  );
+  const { dict, fallback } = await getDictionary();
+  const t = makeT(dict, fallback);
+  if (!brand || !model) return { title: t("prod.metaNotFound") };
 
   const price = MAT_SET_PRICE.full;
-  const yearMin = model.years[0];
-  const yearMax = model.years[model.years.length - 1];
+  const yMin = model.years[0];
+  const yMax = model.years[model.years.length - 1];
+  const vars = {
+    brand: brand.name,
+    model: model.name,
+    yMin,
+    yMax,
+    price,
+  };
 
   return {
-    title: `EVA коврики для ${brand.name} ${model.name}`,
-    description: `Премиальные EVA коврики для ${brand.name} ${model.name} ${yearMin}–${yearMax}. Индивидуальный раскрой, 4 цвета окантовки. От $${price}. Доставка по США.`,
+    title: t("prod.metaTitle", vars),
+    description: t("prod.metaDesc", vars),
     openGraph: {
-      title: `${brand.name} ${model.name} — EVA коврики`,
-      description: `Точный раскрой под ${brand.name} ${model.name}. От $${price}.`,
+      title: t("prod.ogTitle", vars),
+      description: t("prod.ogDesc", vars),
     },
     alternates: {
       canonical: `/catalog/${brand.slug}/${model.slug}`,

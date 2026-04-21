@@ -1,68 +1,61 @@
-import { LegalLayout } from "@/components/legal/LegalLayout";
+"use client";
 
-export const metadata = {
-  title: "Политика конфиденциальности",
-  description: "Как Elite Car Mats собирает, использует и защищает ваши персональные данные.",
-};
+import { LegalLayout } from "@/components/legal/LegalLayout";
+import { useT } from "@/i18n/I18nProvider";
 
 export default function PrivacyPage() {
+  const t = useT();
   return (
     <LegalLayout
-      title="Политика конфиденциальности"
-      intro="Мы уважаем вашу приватность и собираем минимум данных, необходимых для оформления и доставки заказа."
-      updatedAt="20 апреля 2026"
+      title={t("privacy.title")}
+      intro={t("privacy.intro")}
+      updatedAt={t("privacy.updatedAt")}
     >
-      <h2>1. Какие данные мы собираем</h2>
-      <p>
-        Для оформления заказа мы запрашиваем: имя, email, телефон, адрес доставки. Эти данные используются исключительно для обработки заказа и связи по нему.
-      </p>
-      <p>
-        При посещении сайта автоматически собираются: IP-адрес (для защиты от спама), технические данные браузера, страницы просмотра. Эти данные обезличены и используются для анализа работы сайта.
-      </p>
+      <h2>{t("privacy.s1H")}</h2>
+      <p>{t("privacy.s1P1")}</p>
+      <p>{t("privacy.s1P2")}</p>
 
-      <h2>2. Как мы используем данные</h2>
+      <h2>{t("privacy.s2H")}</h2>
       <ul>
-        <li>Обработка и доставка заказа</li>
-        <li>Связь с вами по статусу заказа (email, телефон)</li>
-        <li>Уведомления об отправке и трек-номер</li>
-        <li>Улучшение работы сайта (обезличенная аналитика)</li>
+        <li>{t("privacy.s2l1")}</li>
+        <li>{t("privacy.s2l2")}</li>
+        <li>{t("privacy.s2l3")}</li>
+        <li>{t("privacy.s2l4")}</li>
       </ul>
       <p>
-        Мы <strong>не передаём</strong> ваши данные третьим лицам, кроме служб доставки (USPS, UPS) для физической отправки заказа.
+        {t("privacy.s2PPre")}
+        <strong>{t("privacy.s2PBold")}</strong>
+        {t("privacy.s2PPost")}
       </p>
 
-      <h2>3. Cookies</h2>
+      <h2>{t("privacy.s3H")}</h2>
+      <p>{t("privacy.s3P")}</p>
+
+      <h2>{t("privacy.s4H")}</h2>
       <p>
-        Сайт использует обязательные cookies для работы корзины и сохранения языка интерфейса. Аналитические cookies включаются только с вашего согласия (баннер при первом посещении).
+        {t("privacy.s4PPre")}
+        <strong>{t("privacy.s4PBold")}</strong>
+        {t("privacy.s4PPost")}
       </p>
 
-      <h2>4. Хранение и защита</h2>
+      <h2>{t("privacy.s5H")}</h2>
       <p>
-        Данные заказов хранятся в защищённой базе на серверах в США. Доступ к ним есть только у нашего персонала. Данные карт мы <strong>не храним</strong> — оплата проходит через сертифицированного процессора (Stripe).
+        {t("privacy.s5P1Pre")}
+        <a href="mailto:info@elitecarmats.us">info@elitecarmats.us</a>
+        {t("privacy.s5P1Post")}
       </p>
+      <p>{t("privacy.s5P2")}</p>
 
-      <h2>5. Ваши права</h2>
-      <p>
-        Вы можете запросить копию ваших данных, их исправление или полное удаление. Для этого напишите на{" "}
-        <a href="mailto:info@elitecarmats.us">info@elitecarmats.us</a> с темы «Privacy request».
-      </p>
-      <p>
-        Жители Калифорнии (CCPA) и ЕС (GDPR) имеют расширенные права на доступ, перенос и удаление данных — все запросы обрабатываем в течение 30 дней.
-      </p>
+      <h2>{t("privacy.s6H")}</h2>
+      <p>{t("privacy.s6P")}</p>
 
-      <h2>6. Дети</h2>
-      <p>
-        Сайт не предназначен для лиц младше 16 лет. Мы сознательно не собираем данные детей. Если вы считаете, что мы получили такие данные, напишите нам — удалим в течение 72 часов.
-      </p>
+      <h2>{t("privacy.s7H")}</h2>
+      <p>{t("privacy.s7P")}</p>
 
-      <h2>7. Изменения политики</h2>
+      <h2>{t("privacy.s8H")}</h2>
       <p>
-        Мы можем обновлять эту политику. Дата последнего обновления указана сверху. Существенные изменения мы дополнительно уведомляем по email тех клиентов, у которых есть активные заказы.
-      </p>
-
-      <h2>8. Контакты</h2>
-      <p>
-        Elite Car Mats · Rochester, NY, USA · <a href="mailto:info@elitecarmats.us">info@elitecarmats.us</a>
+        {t("privacy.s8P")}
+        <a href="mailto:info@elitecarmats.us">info@elitecarmats.us</a>
       </p>
     </LegalLayout>
   );

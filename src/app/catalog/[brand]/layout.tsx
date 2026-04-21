@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { brands } from "@/data/mock";
+import { getDictionary } from "@/i18n/getDictionary";
+import { makeT } from "@/i18n/dictionary";
 
 interface Params {
   params: Promise<{ brand: string }>;
@@ -8,14 +10,19 @@ interface Params {
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { brand: slug } = await params;
   const brand = brands.find((b) => b.slug === slug);
-  if (!brand) return { title: "Бренд не найден" };
+  const { dict, fallback } = await getDictionary();
+  const t = makeT(dict, fallback);
+  if (!brand) return { title: t("brand.metaNotFound") };
 
   return {
-    title: `Коврики для ${brand.name}`,
-    description: `Премиальные EVA автоковрики для ${brand.name}: индивидуальный раскрой под все модели и годы. Бесплатная доставка по США от $99.`,
+    title: t("brand.metaTitle", { brand: brand.name }),
+    description: t("brand.metaDesc", { brand: brand.name }),
     openGraph: {
-      title: `Коврики для ${brand.name} — Elite Car Mats`,
-      description: `EVA коврики для ${brand.name}. ${brand.modelsCount} моделей. Точная подгонка по году выпуска.`,
+      title: t("brand.ogTitle", { brand: brand.name }),
+      description: t("brand.ogDesc", {
+        brand: brand.name,
+        count: brand.modelsCount,
+      }),
     },
     alternates: {
       canonical: `/catalog/${brand.slug}`,

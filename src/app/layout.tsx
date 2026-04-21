@@ -9,6 +9,7 @@ import { CartProvider } from "@/context/CartContext";
 import { I18nProvider } from "@/i18n/I18nProvider";
 import { getDictionary } from "@/i18n/getDictionary";
 import { LOCALE_HTML_LANG, LOCALE_OG } from "@/i18n/config";
+import { makeT } from "@/i18n/dictionary";
 
 const inter = localFont({
   src: "./fonts/inter-var.woff2",
@@ -25,17 +26,15 @@ export const viewport: Viewport = {
 };
 
 export async function generateMetadata(): Promise<Metadata> {
-  const { locale } = await getDictionary();
-  // Title/description stay in Russian as the primary canonical metadata;
-  // localized strings in UI come from dictionary at render time.
+  const { locale, dict, fallback } = await getDictionary();
+  const t = makeT(dict, fallback);
   return {
     metadataBase: new URL(SITE),
     title: {
-      default: "Elite Car Mats — Премиальные EVA коврики для авто",
+      default: t("root.title"),
       template: "%s | Elite Car Mats",
     },
-    description:
-      "Индивидуальные автоковрики из EVA материала премиум-класса. Точная подгонка под вашу модель авто. Бесплатная доставка по США от $99. Гарантия 2 года.",
+    description: t("root.description"),
     applicationName: "Elite Car Mats",
     authors: [{ name: "Elite Car Mats", url: SITE }],
     generator: "Next.js",
@@ -56,16 +55,14 @@ export async function generateMetadata(): Promise<Metadata> {
       type: "website",
       locale: LOCALE_OG[locale],
       siteName: "Elite Car Mats",
-      title: "Elite Car Mats — Премиальные EVA коврики для авто",
-      description:
-        "Индивидуальные EVA коврики премиум-класса. CNC-раскрой под вашу модель. Бесплатная доставка по США от $99.",
+      title: t("root.ogTitle"),
+      description: t("root.ogDesc"),
       url: SITE,
     },
     twitter: {
       card: "summary_large_image",
-      title: "Elite Car Mats — Премиальные EVA коврики",
-      description:
-        "Индивидуальные EVA коврики под вашу модель авто. Доставка по США.",
+      title: t("root.twitterTitle"),
+      description: t("root.twitterDesc"),
     },
     robots: {
       index: true,

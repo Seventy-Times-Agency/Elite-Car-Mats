@@ -1,14 +1,19 @@
 import type { Metadata } from "next";
+import { getDictionary } from "@/i18n/getDictionary";
+import { makeT } from "@/i18n/dictionary";
 
-export const metadata: Metadata = {
-  title: "О компании",
-  description:
-    "EliteCarMats — производитель премиальных EVA автоковриков для рынка США. Индивидуальный раскрой, высокое качество материалов, гарантия 2 года.",
-  openGraph: {
-    title: "О компании Elite Car Mats",
-    description: "Производитель премиальных EVA автоковриков для рынка США.",
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { dict, fallback } = await getDictionary();
+  const t = makeT(dict, fallback);
+  return {
+    title: t("about.metaTitle"),
+    description: t("about.metaDesc"),
+    openGraph: {
+      title: t("about.ogTitle"),
+      description: t("about.ogDesc"),
+    },
+  };
+}
 
 export default function AboutLayout({ children }: { children: React.ReactNode }) {
   return children;

@@ -53,6 +53,7 @@ export const ru: Dict = {
   "cfg.yearPh": "Выберите год",
   "cfg.submit": "Показать коврики →",
   "cfg.submitDisabled": "Выберите марку и модель",
+  "cfg.noResults": "Ничего не найдено",
 
   // Cookie banner
   "cookies.aria": "Уведомление о cookies",

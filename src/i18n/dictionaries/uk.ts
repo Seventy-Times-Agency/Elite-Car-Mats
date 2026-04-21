@@ -49,6 +49,7 @@ export const uk: Dict = {
   "cfg.yearPh": "Оберіть рік",
   "cfg.submit": "Показати килимки →",
   "cfg.submitDisabled": "Оберіть марку та модель",
+  "cfg.noResults": "Нічого не знайдено",
 
   "cookies.aria": "Повідомлення про cookies",
   "cookies.title": "Ми використовуємо cookies",

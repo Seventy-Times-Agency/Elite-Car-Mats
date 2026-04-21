@@ -49,6 +49,7 @@ export const en: Dict = {
   "cfg.yearPh": "Select year",
   "cfg.submit": "Show my mats →",
   "cfg.submitDisabled": "Select make and model",
+  "cfg.noResults": "No results",
 
   "cookies.aria": "Cookie notice",
   "cookies.title": "We use cookies",

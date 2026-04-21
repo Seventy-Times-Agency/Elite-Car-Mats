@@ -40,10 +40,10 @@ export function Header() {
   ];
 
   const ctaHref = pathname === "/" ? "#configurator" : "/catalog";
-  const cartAriaFn = t.raw("nav.cartAria") as
-    | ((n: number) => string)
-    | undefined;
-  const cartAria = cartAriaFn ? cartAriaFn(itemsCount) : "Cart";
+  const cartAria =
+    itemsCount > 0
+      ? t("nav.cartAriaWithCount", { n: itemsCount })
+      : t("nav.cartAriaEmpty");
 
   return (
     <header

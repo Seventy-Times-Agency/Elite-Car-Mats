@@ -36,22 +36,24 @@ const COLOR_KEY: Record<string, string> = {
   Красный: "color.red",
 };
 
+function lookup(t: TFn, key: string | undefined, fallback: string): string {
+  if (!key) return fallback;
+  const v = t.raw(key);
+  return typeof v === "string" ? v : fallback;
+}
+
 export function localizeBody(t: TFn, body: string): string {
-  const key = BODY_KEY[body];
-  return key ? t(key, body) : body;
+  return lookup(t, BODY_KEY[body], body);
 }
 
 export function localizeMatSet(t: TFn, label: string): string {
-  const key = MATSET_KEY[label];
-  return key ? t(key, label) : label;
+  return lookup(t, MATSET_KEY[label], label);
 }
 
 export function localizeMatSetDesc(t: TFn, desc: string): string {
-  const key = MATSET_DESC_KEY[desc];
-  return key ? t(key, desc) : desc;
+  return lookup(t, MATSET_DESC_KEY[desc], desc);
 }
 
 export function localizeColor(t: TFn, name: string): string {
-  const key = COLOR_KEY[name];
-  return key ? t(key, name) : name;
+  return lookup(t, COLOR_KEY[name], name);
 }

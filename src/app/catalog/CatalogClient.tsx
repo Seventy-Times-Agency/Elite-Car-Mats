@@ -16,13 +16,6 @@ export function CatalogClient({ brands }: { brands: Brand[] }) {
     return brands.filter((b) => b.name.toLowerCase().includes(q));
   }, [brands, query]);
 
-  const noResultsFn = t.raw("catalog.noResults") as
-    | ((q: string) => string)
-    | undefined;
-  const modelsCountFn = t.raw("catalog.modelsCount") as
-    | ((n: number) => string)
-    | undefined;
-
   return (
     <>
       <div className="max-w-md mx-auto mb-8">
@@ -73,7 +66,7 @@ export function CatalogClient({ brands }: { brands: Brand[] }) {
       {filtered.length === 0 ? (
         <div className="text-center py-16">
           <p className="text-text-dim">
-            {noResultsFn ? noResultsFn(query) : query}
+            {t("catalog.noResults", { query })}
           </p>
           <p className="text-text-faint text-xs mt-2">
             {t("catalog.noResultsContact")}{" "}
@@ -112,7 +105,7 @@ export function CatalogClient({ brands }: { brands: Brand[] }) {
                 {b.name}
               </h3>
               <p className="text-text-faint text-xs mt-1">
-                {modelsCountFn ? modelsCountFn(b.modelsCount) : b.modelsCount}
+                {t("catalog.modelsCount", { n: b.modelsCount })}
               </p>
             </Link>
           ))}

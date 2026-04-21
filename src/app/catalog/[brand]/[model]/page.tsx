@@ -51,19 +51,6 @@ export default function ProductPage() {
     badge: badge && bdg ? { id: bdg.id } : null,
   });
 
-  const stepColorFn =
-    (t.raw("prod.stepColor") as ((c: string) => string) | undefined) ??
-    ((c: string) => `3 — ${c}`);
-  const stepEdgeFn =
-    (t.raw("prod.stepEdge") as ((c: string) => string) | undefined) ??
-    ((c: string) => `4 — ${c}`);
-  const badgeNameFn =
-    (t.raw("prod.badgeName") as ((b: string) => string) | undefined) ??
-    ((b: string) => b);
-  const addCartFullFn =
-    (t.raw("prod.addToCartFull") as ((p: string) => string) | undefined) ??
-    ((p: string) => p);
-
   const localizedColor = localizeColor(t, color.name);
   const localizedEdge = localizeColor(t, edge.name);
 
@@ -207,7 +194,7 @@ export default function ProductPage() {
               </div>
               <div>
                 <h3 className="section-label text-[10px] mb-3">
-                  {stepColorFn(localizedColor)}
+                  {t("prod.stepColor", { color: localizedColor })}
                 </h3>
                 <div className="flex gap-3">
                   {evaColors.map((c) => (
@@ -222,7 +209,7 @@ export default function ProductPage() {
               </div>
               <div>
                 <h3 className="section-label text-[10px] mb-3">
-                  {stepEdgeFn(localizedEdge)}
+                  {t("prod.stepEdge", { color: localizedEdge })}
                 </h3>
                 <div className="flex gap-3">
                   {edgeColors.map((c) => (
@@ -249,7 +236,7 @@ export default function ProductPage() {
                     />
                     <div>
                       <span className="text-text text-sm font-medium">
-                        {badgeNameFn(brand.name)}
+                        {t("prod.badgeName", { brand: brand.name })}
                       </span>
                       <p className="text-text-dim text-xs mt-0.5">
                         {t("prod.badgeSubtext")}
@@ -264,7 +251,7 @@ export default function ProductPage() {
               >
                 {added
                   ? t("prod.addedFull")
-                  : addCartFullFn(formatPrice(unitPrice))}
+                  : t("prod.addToCartFull", { price: formatPrice(unitPrice) })}
               </button>
             </div>
           </div>

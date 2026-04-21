@@ -60,33 +60,33 @@ function PatternFill({ kind }: { kind: string }) {
 
 export function MaterialsSection() {
   return (
-    <section className="py-24 lg:py-32 relative">
+    <section className="py-14 lg:py-20 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
+        <div className="text-center mb-10">
           <span className="section-label">Материалы</span>
-          <h2 className="mt-4 text-3xl lg:text-5xl font-bold">Из чего сделан ваш комплект</h2>
-          <p className="mt-5 text-text-dim text-base max-w-2xl mx-auto leading-relaxed">
+          <h2 className="mt-4 text-3xl lg:text-4xl font-bold">Из чего сделан ваш комплект</h2>
+          <p className="mt-3 text-text-dim text-base max-w-2xl mx-auto leading-relaxed">
             Три составляющих премиум-коврика. Каждая выбрана по спецификации — не по цене.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
           {materials.map((m) => (
-            <div key={m.title} className="group glass-card rounded-2xl overflow-hidden flex flex-col">
+            <a href="#configurator" key={m.title} className="group glass-card glow-hover rounded-2xl overflow-hidden flex flex-col">
               <div className="relative aspect-[4/3] bg-gradient-to-br from-bg-elevated to-bg border-b border-border/40 overflow-hidden">
                 <PatternFill kind={m.pattern} />
-                <div className="absolute top-4 left-4 text-[10px] uppercase tracking-[0.2em] text-gold/70 font-semibold">
+                <div className="absolute top-4 left-4 text-[10px] uppercase tracking-[0.2em] text-gold font-semibold">
                   {m.label}
                 </div>
                 <div className="absolute bottom-4 right-4 text-[9px] uppercase tracking-[0.15em] text-text-faint">
                   Фото скоро
                 </div>
               </div>
-              <div className="p-7 flex-1 flex flex-col">
-                <h3 className="text-xl font-semibold group-hover:text-gold transition-colors">{m.title}</h3>
-                <p className="mt-1 text-gold/70 text-[11px] uppercase tracking-wider font-mono">{m.spec}</p>
-                <p className="mt-4 text-text-dim text-sm leading-relaxed">{m.desc}</p>
-                <ul className="mt-5 pt-5 border-t border-border/30 space-y-2">
+              <div className="p-6 flex-1 flex flex-col">
+                <h3 className="text-lg font-semibold group-hover:text-gold transition-colors">{m.title}</h3>
+                <p className="mt-1 text-gold text-[11px] uppercase tracking-wider font-mono">{m.spec}</p>
+                <p className="mt-3 text-text-dim text-sm leading-relaxed">{m.desc}</p>
+                <ul className="mt-4 pt-4 border-t border-border/30 space-y-2">
                   {m.facts.map((f) => (
                     <li key={f} className="flex items-center gap-3 text-xs text-text-dim">
                       <span className="w-1 h-1 rounded-full bg-gold shrink-0" />
@@ -95,8 +95,20 @@ export function MaterialsSection() {
                   ))}
                 </ul>
               </div>
-            </div>
+            </a>
           ))}
+        </div>
+
+        <div className="mt-8 text-center">
+          <a
+            href="#configurator"
+            className="inline-flex items-center gap-2 text-gold hover:text-gold-light text-sm uppercase tracking-[0.15em] font-medium transition-colors"
+          >
+            Выбрать материал для своего авто
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            </svg>
+          </a>
         </div>
       </div>
     </section>

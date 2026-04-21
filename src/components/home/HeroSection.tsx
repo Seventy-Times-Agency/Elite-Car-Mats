@@ -11,19 +11,19 @@ export function HeroSection() {
       <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-gold/[0.02] rounded-full blur-[100px] pointer-events-none" />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="min-h-[88vh] flex items-center py-20">
+        <div className="min-h-[70vh] flex items-center py-14">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }} className="max-w-2xl">
-            <p className="section-label mb-6">Premium EVA Car Mats</p>
+            <p className="section-label mb-5">Premium EVA Car Mats</p>
 
-            <h1 className="text-[clamp(2.8rem,7vw,5rem)] font-bold leading-[1.05] tracking-tight">
+            <h1 className="text-[clamp(2.6rem,6.5vw,4.5rem)] font-bold leading-[1.05] tracking-tight">
               Коврики,<br />достойные<br /><span className="text-gold-gradient">вашего авто</span>
             </h1>
 
-            <p className="mt-8 text-text-dim text-lg max-w-lg leading-relaxed">
+            <p className="mt-6 text-text-dim text-base lg:text-lg max-w-lg leading-relaxed">
               Индивидуальный раскрой под вашу модель. Премиальный EVA материал. Доставка по всем США.
             </p>
 
-            <div className="mt-12 flex flex-wrap gap-4">
+            <div className="mt-8 flex flex-wrap gap-4">
               <a href="#configurator" className="group inline-flex items-center gap-3 bg-gradient-to-r from-gold to-gold-light hover:from-gold-light hover:to-gold text-bg px-8 py-4 text-sm font-semibold tracking-wide uppercase transition-all duration-300 shadow-[0_4px_24px_rgba(212,165,74,0.25)] hover:shadow-[0_6px_32px_rgba(212,165,74,0.35)]">
                 Подобрать коврики
                 <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -35,7 +35,7 @@ export function HeroSection() {
               </Link>
             </div>
 
-            <div className="mt-20 flex gap-16">
+            <div className="mt-12 flex gap-12 lg:gap-16">
               {[{ v: "200+", l: "Моделей" }, { v: "5 лет", l: "Служат" }, { v: "2 года", l: "Гарантия" }].map((s) => (
                 <div key={s.l}>
                   <div className="text-3xl font-bold text-gold">{s.v}</div>

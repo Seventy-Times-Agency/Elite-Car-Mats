@@ -43,36 +43,48 @@ const steps = [
 
 export function ProcessSection() {
   return (
-    <section className="py-24 lg:py-32 relative">
+    <section className="py-14 lg:py-20 relative">
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{
         backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='104' viewBox='0 0 60 104' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0 L60 17.32 L60 51.96 L30 69.28 L0 51.96 L0 17.32 Z M30 34.64 L60 51.96 M30 34.64 L0 51.96 M30 34.64 L30 0' stroke='%23D4A54A' stroke-width='0.5' fill='none'/%3E%3C/svg%3E")`,
       }} />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-20">
+        <div className="text-center mb-10">
           <span className="section-label">Производство</span>
-          <h2 className="mt-4 text-3xl lg:text-5xl font-bold">Как мы делаем ваш комплект</h2>
-          <p className="mt-5 text-text-dim text-base max-w-2xl mx-auto leading-relaxed">
-            От заявки до упакованной посылки — 4 этапа, каждый с контролем качества. Ваши коврики не лежат на складе — мы делаем их под заказ.
+          <h2 className="mt-4 text-3xl lg:text-4xl font-bold">Как мы делаем ваш комплект</h2>
+          <p className="mt-3 text-text-dim text-base max-w-2xl mx-auto leading-relaxed">
+            От заявки до упакованной посылки — 4 этапа, каждый с контролем качества. Делаем под заказ.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
           {steps.map((s, i) => (
-            <div key={s.n} className="relative group">
+            <a key={s.n} href="#configurator" className="relative group block">
               {i < steps.length - 1 && (
-                <div className="hidden lg:block absolute top-12 left-[calc(100%-16px)] w-8 h-px bg-gradient-to-r from-gold/40 to-transparent z-10" />
+                <div className="hidden lg:block absolute top-12 left-[calc(100%-12px)] w-5 h-px bg-gradient-to-r from-gold/50 to-transparent z-10" />
               )}
-              <div className="glass-card glow-hover rounded-2xl p-7 h-full flex flex-col">
-                <div className="flex items-start justify-between mb-6">
-                  <div className="text-gold/30 text-xs font-mono tracking-[0.25em]">{s.n}</div>
-                  <div className="text-gold/70 group-hover:text-gold transition-colors">{s.icon}</div>
+              <div className="glass-card glow-hover rounded-2xl p-6 h-full flex flex-col">
+                <div className="flex items-start justify-between mb-5">
+                  <div className="text-gold/50 text-xs font-mono tracking-[0.25em]">{s.n}</div>
+                  <div className="text-gold group-hover:text-gold-light transition-colors">{s.icon}</div>
                 </div>
-                <h3 className="text-lg font-semibold mb-3 group-hover:text-gold transition-colors">{s.title}</h3>
+                <h3 className="text-base lg:text-lg font-semibold mb-2 group-hover:text-gold transition-colors">{s.title}</h3>
                 <p className="text-text-dim text-sm leading-relaxed">{s.desc}</p>
               </div>
-            </div>
+            </a>
           ))}
+        </div>
+
+        <div className="mt-10 text-center">
+          <a
+            href="#configurator"
+            className="inline-flex items-center gap-2 bg-gradient-to-r from-gold to-gold-light text-bg px-7 py-3.5 text-sm font-semibold tracking-[0.15em] uppercase rounded-xl shadow-[0_4px_24px_rgba(212,165,74,0.25)] hover:shadow-[0_6px_32px_rgba(212,165,74,0.4)] transition-all"
+          >
+            Оформить свой комплект
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            </svg>
+          </a>
         </div>
       </div>
     </section>

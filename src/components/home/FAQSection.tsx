@@ -48,12 +48,12 @@ export function FAQSection() {
   const [openIdx, setOpenIdx] = useState<number | null>(0);
 
   return (
-    <section className="py-24 lg:py-32">
+    <section className="py-14 lg:py-20">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-14">
+        <div className="text-center mb-10">
           <span className="section-label">FAQ</span>
-          <h2 className="mt-4 text-3xl lg:text-5xl font-bold">Частые вопросы</h2>
-          <p className="mt-4 text-text-dim text-base max-w-xl mx-auto">
+          <h2 className="mt-4 text-3xl lg:text-4xl font-bold">Частые вопросы</h2>
+          <p className="mt-3 text-text-dim text-base max-w-xl mx-auto">
             Собрали ответы на всё, что чаще всего спрашивают наши клиенты — от материала до гарантии и доставки.
           </p>
         </div>

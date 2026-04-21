@@ -57,23 +57,35 @@ const features = [
 
 export function FeaturesSection() {
   return (
-    <section className="py-24 lg:py-32">
+    <section className="py-14 lg:py-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
+        <div className="text-center mb-10">
           <span className="section-label">Преимущества</span>
-          <h2 className="mt-4 text-3xl lg:text-5xl font-bold">Почему Elite Car Mats</h2>
-          <p className="mt-5 text-text-dim text-base max-w-2xl mx-auto leading-relaxed">
+          <h2 className="mt-4 text-3xl lg:text-4xl font-bold">Почему Elite Car Mats</h2>
+          <p className="mt-3 text-text-dim text-base max-w-2xl mx-auto leading-relaxed">
             Что получает каждый клиент — независимо от марки авто, комплектации и адреса доставки.
           </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {features.map((f) => (
-            <div key={f.title} className="glass-card glow-hover rounded-xl p-7 group">
-              <div className="text-gold/70 mb-5 group-hover:text-gold transition-colors">{f.icon}</div>
+            <a href="#configurator" key={f.title} className="glass-card glow-hover rounded-xl p-6 group block">
+              <div className="text-gold mb-4 group-hover:text-gold-light transition-colors">{f.icon}</div>
               <h3 className="text-base font-semibold group-hover:text-gold transition-colors duration-300">{f.title}</h3>
-              <p className="mt-2.5 text-text-dim text-sm leading-relaxed">{f.desc}</p>
-            </div>
+              <p className="mt-2 text-text-dim text-sm leading-relaxed">{f.desc}</p>
+            </a>
           ))}
+        </div>
+
+        <div className="mt-8 text-center">
+          <a
+            href="#configurator"
+            className="inline-flex items-center gap-2 bg-gradient-to-r from-gold to-gold-light text-bg px-7 py-3.5 text-sm font-semibold tracking-[0.15em] uppercase rounded-xl shadow-[0_4px_24px_rgba(212,165,74,0.25)] hover:shadow-[0_6px_32px_rgba(212,165,74,0.4)] transition-all"
+          >
+            Подобрать коврики
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            </svg>
+          </a>
         </div>
       </div>
     </section>

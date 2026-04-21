@@ -12,12 +12,12 @@ const rows = [
 
 export function ComparisonSection() {
   return (
-    <section className="py-24 lg:py-32">
+    <section className="py-14 lg:py-20">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-14">
+        <div className="text-center mb-10">
           <span className="section-label">Сравнение</span>
-          <h2 className="mt-4 text-3xl lg:text-5xl font-bold">Elite vs обычные коврики</h2>
-          <p className="mt-5 text-text-dim text-base max-w-2xl mx-auto leading-relaxed">
+          <h2 className="mt-4 text-3xl lg:text-4xl font-bold">Elite vs обычные коврики</h2>
+          <p className="mt-3 text-text-dim text-base max-w-2xl mx-auto leading-relaxed">
             Чем наш комплект отличается от резиновых и универсальных ковриков из автомагазина.
           </p>
         </div>
@@ -64,6 +64,18 @@ export function ComparisonSection() {
               </div>
             </div>
           ))}
+        </div>
+
+        <div className="mt-8 text-center">
+          <a
+            href="#configurator"
+            className="inline-flex items-center gap-2 bg-gradient-to-r from-gold to-gold-light text-bg px-7 py-3.5 text-sm font-semibold tracking-[0.15em] uppercase rounded-xl shadow-[0_4px_24px_rgba(212,165,74,0.25)] hover:shadow-[0_6px_32px_rgba(212,165,74,0.4)] transition-all"
+          >
+            Заказать Elite
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            </svg>
+          </a>
         </div>
       </div>
     </section>

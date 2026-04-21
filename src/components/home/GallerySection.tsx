@@ -1,10 +1,10 @@
 const items = [
-  { brand: "Toyota", model: "Camry", year: "2023", tag: "Полный + Багажник", color: "gold" },
-  { brand: "BMW", model: "X5", year: "2024", tag: "Полный комплект", color: "red" },
-  { brand: "Tesla", model: "Model Y", year: "2024", tag: "Полный + Багажник", color: "gray" },
-  { brand: "Ford", model: "F-150", year: "2023", tag: "Передние + Багажник", color: "black" },
-  { brand: "Audi", model: "Q5", year: "2024", tag: "Полный комплект", color: "gold" },
-  { brand: "Mercedes", model: "GLE", year: "2023", tag: "Полный + Багажник", color: "red" },
+  { brand: "Toyota", model: "Camry", brandSlug: "toyota", modelSlug: "camry", year: "2023", tag: "Полный + Багажник", color: "gold" },
+  { brand: "BMW", model: "X5", brandSlug: "bmw", modelSlug: "x5", year: "2024", tag: "Полный комплект", color: "red" },
+  { brand: "Tesla", model: "Model Y", brandSlug: "tesla", modelSlug: "model-y", year: "2024", tag: "Полный + Багажник", color: "gray" },
+  { brand: "Ford", model: "F-150", brandSlug: "ford", modelSlug: "f-150", year: "2023", tag: "Передние + Багажник", color: "black" },
+  { brand: "Audi", model: "Q5", brandSlug: "audi", modelSlug: "q5", year: "2024", tag: "Полный комплект", color: "gold" },
+  { brand: "Mercedes", model: "GLE", brandSlug: "mercedes", modelSlug: "gle", year: "2023", tag: "Полный + Багажник", color: "red" },
 ];
 
 const edgeColors: Record<string, string> = {
@@ -35,16 +35,16 @@ function MatSilhouette({ edge }: { edge: string }) {
 
 export function GallerySection() {
   return (
-    <section className="py-24 lg:py-32 relative">
+    <section className="py-14 lg:py-20 relative">
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-gold/[0.015] to-transparent pointer-events-none" />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between mb-14 gap-6">
+        <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between mb-10 gap-6">
           <div>
             <span className="section-label">Наши работы</span>
-            <h2 className="mt-4 text-3xl lg:text-5xl font-bold">Примеры ковриков под разные авто</h2>
-            <p className="mt-5 text-text-dim text-base max-w-xl leading-relaxed">
-              Несколько популярных комплектов из нашего каталога. Каждый комплект раскраивается под конкретную модель и год.
+            <h2 className="mt-4 text-3xl lg:text-4xl font-bold">Примеры ковриков под разные авто</h2>
+            <p className="mt-3 text-text-dim text-base max-w-xl leading-relaxed">
+              Несколько популярных комплектов из нашего каталога. Каждый раскраивается под конкретную модель и год.
             </p>
           </div>
           <a
@@ -60,10 +60,14 @@ export function GallerySection() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {items.map((it) => (
-            <div key={`${it.brand}-${it.model}`} className="group glass-card rounded-2xl overflow-hidden flex flex-col">
+            <a
+              href={`/catalog/${it.brandSlug}/${it.modelSlug}`}
+              key={`${it.brand}-${it.model}`}
+              className="group glass-card glow-hover rounded-2xl overflow-hidden flex flex-col"
+            >
               <div className="relative aspect-[4/3] bg-gradient-to-br from-bg-elevated via-bg to-bg-elevated border-b border-border/30 overflow-hidden">
                 <div
-                  className="absolute inset-0 opacity-[0.06] transition-opacity duration-500 group-hover:opacity-[0.1]"
+                  className="absolute inset-0 opacity-[0.08] transition-opacity duration-500 group-hover:opacity-[0.14]"
                   style={{
                     backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='104' viewBox='0 0 60 104' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0 L60 17.32 L60 51.96 L30 69.28 L0 51.96 L0 17.32 Z' stroke='%23D4A54A' stroke-width='1' fill='none'/%3E%3C/svg%3E")`,
                   }}
@@ -71,13 +75,21 @@ export function GallerySection() {
                 <MatSilhouette edge={edgeColors[it.color]} />
                 <div className="absolute top-4 left-4 flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: edgeColors[it.color] }} />
-                  <span className="text-[10px] uppercase tracking-[0.2em] text-text-faint">Превью</span>
+                  <span className="text-[10px] uppercase tracking-[0.2em] text-text-dim">Превью</span>
                 </div>
                 <div className="absolute top-4 right-4 text-[9px] uppercase tracking-[0.15em] text-text-faint">
                   Фото в пути
                 </div>
+                <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <span className="inline-flex items-center gap-1.5 bg-gold text-bg text-[10px] font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full shadow-[0_4px_16px_rgba(212,165,74,0.4)]">
+                    Заказать
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    </svg>
+                  </span>
+                </div>
               </div>
-              <div className="p-6 flex items-start justify-between gap-4">
+              <div className="p-5 flex items-start justify-between gap-4">
                 <div className="min-w-0">
                   <div className="flex items-baseline gap-2 flex-wrap">
                     <h3 className="text-base font-semibold text-text group-hover:text-gold transition-colors">
@@ -87,9 +99,9 @@ export function GallerySection() {
                   </div>
                   <p className="mt-1 text-text-dim text-xs">{it.tag}</p>
                 </div>
-                <span className="text-gold text-xs uppercase tracking-wider shrink-0 mt-1">$100</span>
+                <span className="text-gold text-sm font-semibold shrink-0 mt-0.5">$100</span>
               </div>
-            </div>
+            </a>
           ))}
         </div>
       </div>

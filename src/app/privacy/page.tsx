@@ -1,66 +1,74 @@
 import { LegalLayout } from "@/components/legal/LegalLayout";
 
 export const metadata = {
-  title: "Политика конфиденциальности",
-  description: "Как Elite Car Mats собирает, использует и защищает ваши персональные данные.",
+  title: "Privacy Policy",
+  description: "How Elite Car Mats collects, uses, and protects your personal data.",
 };
 
 export default function PrivacyPage() {
   return (
     <LegalLayout
-      title="Политика конфиденциальности"
-      intro="Мы уважаем вашу приватность и собираем минимум данных, необходимых для оформления и доставки заказа."
-      updatedAt="20 апреля 2026"
+      title="Privacy Policy"
+      intro="We respect your privacy and collect only the minimum data required to process and deliver your order."
+      updatedAt="April 20, 2026"
     >
-      <h2>1. Какие данные мы собираем</h2>
+      <h2>1. Data we collect</h2>
       <p>
-        Для оформления заказа мы запрашиваем: имя, email, телефон, адрес доставки. Эти данные используются исключительно для обработки заказа и связи по нему.
+        To process your order we collect: name, email, phone, and shipping address. This information is used solely
+        for order fulfillment and related communication.
       </p>
       <p>
-        При посещении сайта автоматически собираются: IP-адрес (для защиты от спама), технические данные браузера, страницы просмотра. Эти данные обезличены и используются для анализа работы сайта.
+        When you visit the site, we automatically collect: IP address (for spam protection), browser technical data,
+        and pages viewed. This data is anonymized and used to analyze site performance.
       </p>
 
-      <h2>2. Как мы используем данные</h2>
+      <h2>2. How we use your data</h2>
       <ul>
-        <li>Обработка и доставка заказа</li>
-        <li>Связь с вами по статусу заказа (email, телефон)</li>
-        <li>Уведомления об отправке и трек-номер</li>
-        <li>Улучшение работы сайта (обезличенная аналитика)</li>
+        <li>Processing and shipping your order</li>
+        <li>Communicating with you about order status (email, phone)</li>
+        <li>Shipment notifications and tracking numbers</li>
+        <li>Improving the website (anonymized analytics)</li>
       </ul>
       <p>
-        Мы <strong>не передаём</strong> ваши данные третьим лицам, кроме служб доставки (USPS, UPS) для физической отправки заказа.
+        We do <strong>not</strong> share your data with third parties, except with shipping carriers (USPS, UPS) for
+        the physical delivery of your order.
       </p>
 
       <h2>3. Cookies</h2>
       <p>
-        Сайт использует обязательные cookies для работы корзины и сохранения языка интерфейса. Аналитические cookies включаются только с вашего согласия (баннер при первом посещении).
+        The site uses essential cookies for cart functionality and interface language preferences. Analytics cookies
+        are enabled only with your consent (banner on your first visit).
       </p>
 
-      <h2>4. Хранение и защита</h2>
+      <h2>4. Storage & security</h2>
       <p>
-        Данные заказов хранятся в защищённой базе на серверах в США. Доступ к ним есть только у нашего персонала. Данные карт мы <strong>не храним</strong> — оплата проходит через сертифицированного процессора (Stripe).
+        Order data is stored in a secure database on U.S.-based servers. Only our staff has access. We do{" "}
+        <strong>not</strong> store card details — payments are processed by a certified processor (Stripe).
       </p>
 
-      <h2>5. Ваши права</h2>
+      <h2>5. Your rights</h2>
       <p>
-        Вы можете запросить копию ваших данных, их исправление или полное удаление. Для этого напишите на{" "}
-        <a href="mailto:info@elitecarmats.us">info@elitecarmats.us</a> с темы «Privacy request».
+        You may request a copy of your data, correction, or complete deletion. Email{" "}
+        <a href="mailto:info@elitecarmats.us">info@elitecarmats.us</a> with the subject &ldquo;Privacy request&rdquo;.
       </p>
       <p>
-        Жители Калифорнии (CCPA) и ЕС (GDPR) имеют расширенные права на доступ, перенос и удаление данных — все запросы обрабатываем в течение 30 дней.
-      </p>
-
-      <h2>6. Дети</h2>
-      <p>
-        Сайт не предназначен для лиц младше 16 лет. Мы сознательно не собираем данные детей. Если вы считаете, что мы получили такие данные, напишите нам — удалим в течение 72 часов.
+        California residents (CCPA) and EU residents (GDPR) have expanded rights regarding data access, portability,
+        and deletion — all requests are processed within 30 days.
       </p>
 
-      <h2>7. Изменения политики</h2>
+      <h2>6. Children</h2>
       <p>
-        Мы можем обновлять эту политику. Дата последнего обновления указана сверху. Существенные изменения мы дополнительно уведомляем по email тех клиентов, у которых есть активные заказы.
+        This site is not intended for individuals under 16. We don&apos;t knowingly collect data from children. If
+        you believe we have received such data, please contact us — we&apos;ll remove it within 72 hours.
       </p>
 
-      <h2>8. Контакты</h2>
+      <h2>7. Policy changes</h2>
+      <p>
+        We may update this policy. The last update date is shown at the top. For material changes, we&apos;ll also
+        email customers with active orders.
+      </p>
+
+      <h2>8. Contact</h2>
       <p>
         Elite Car Mats · Rochester, NY, USA · <a href="mailto:info@elitecarmats.us">info@elitecarmats.us</a>
       </p>

@@ -1,60 +1,63 @@
 import { LegalLayout } from "@/components/legal/LegalLayout";
 
 export const metadata = {
-  title: "Доставка",
-  description: "Условия доставки автоковриков Elite Car Mats по США: бесплатно от $99, экспресс 2-3 дня.",
+  title: "Shipping",
+  description: "Elite Car Mats shipping terms for the U.S.: free on orders over $99, express 2–3 days.",
 };
 
 export default function DeliveryPage() {
   return (
     <LegalLayout
-      title="Доставка"
-      intro="Отправляем заказы из Rochester, NY в течение 48 часов после изготовления. Доставка по всей территории США."
-      updatedAt="20 апреля 2026"
+      title="Shipping"
+      intro="We ship orders from Rochester, NY within 48 hours of production. Shipping nationwide across the United States."
+      updatedAt="April 20, 2026"
     >
-      <h2>Сроки</h2>
+      <h2>Timelines</h2>
       <ul>
-        <li><strong>Изготовление:</strong> до 48 часов после оплаты</li>
-        <li><strong>USPS / UPS Ground:</strong> 3–7 рабочих дней по США</li>
-        <li><strong>Экспресс (UPS 2nd Day):</strong> 2–3 рабочих дня — $19</li>
+        <li><strong>Production:</strong> up to 48 hours after payment</li>
+        <li><strong>USPS / UPS Ground:</strong> 3–7 business days within the U.S.</li>
+        <li><strong>Express (UPS 2nd Day):</strong> 2–3 business days — $19</li>
       </ul>
 
-      <h2>Стоимость</h2>
+      <h2>Cost</h2>
       <ul>
-        <li><strong>Бесплатно</strong> при заказе от $99 (стандартная доставка)</li>
-        <li>$9 USPS / UPS Ground для заказов до $99</li>
-        <li>$19 экспресс-доставка 2–3 дня в любую точку</li>
+        <li><strong>Free</strong> on orders over $99 (standard shipping)</li>
+        <li>$9 USPS / UPS Ground on orders under $99</li>
+        <li>$19 express shipping 2–3 days to any destination</li>
       </ul>
 
-      <h2>Куда доставляем</h2>
-      <p>Все 50 штатов США + Округ Колумбия.</p>
+      <h2>Where we ship</h2>
+      <p>All 50 U.S. states + District of Columbia.</p>
       <p>
-        В Канаду и Мексику доставляем по запросу — стоимость рассчитывается индивидуально, напишите на{" "}
+        We ship to Canada and Mexico on request — the cost is quoted individually; email{" "}
         <a href="mailto:info@elitecarmats.us">info@elitecarmats.us</a>.
       </p>
 
-      <h2>Отслеживание</h2>
+      <h2>Tracking</h2>
       <p>
-        Сразу после отправки вам приходит email с трек-номером и ссылкой на USPS / UPS. Также статус доступен на странице{" "}
-        <a href="/track">отслеживания заказа</a>.
+        As soon as your order ships, you&apos;ll receive an email with a tracking number and a link to USPS / UPS.
+        Status is also available on the{" "}
+        <a href="/track">order tracking page</a>.
       </p>
 
-      <h2>Упаковка</h2>
+      <h2>Packaging</h2>
       <p>
-        Каждый комплект упаковывается в плотный крафт-конверт с защитой от деформации. Шильдики и мелкие аксессуары — в отдельном пакете внутри. Маркировка экологичными материалами.
+        Every set is packed in a heavy kraft mailer with anti-deformation protection. Badges and small accessories
+        go in a separate bag inside. Packaging uses eco-friendly materials.
       </p>
 
-      <h2>Что делать если посылка не пришла</h2>
+      <h2>If your package doesn&apos;t arrive</h2>
       <p>
-        Если по трек-номеру посылка значится как доставленная, но вы её не получили — напишите нам. Мы запрашиваем расследование у перевозчика и в большинстве случаев находим в течение 3–5 дней.
+        If the tracking shows delivered but you didn&apos;t receive the package, email us. We&apos;ll open an
+        investigation with the carrier — in most cases it&apos;s found within 3–5 days.
       </p>
       <p>
-        Если перевозчик подтверждает утерю — мы изготавливаем и отправляем замену бесплатно.
+        If the carrier confirms the package is lost, we&apos;ll produce and ship a replacement free of charge.
       </p>
 
-      <h2>Удалённые регионы (Аляска, Гавайи)</h2>
+      <h2>Remote regions (Alaska, Hawaii)</h2>
       <p>
-        Доставка возможна, но сроки увеличиваются до 7–14 дней. Стоимость стандартная, экспресс не доступен.
+        Shipping is available, but delivery takes 7–14 days. Standard rates apply; express is not available.
       </p>
     </LegalLayout>
   );

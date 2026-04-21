@@ -20,20 +20,20 @@ export function NewsletterForm() {
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        throw new Error(data.error || "Не удалось подписаться");
+        throw new Error(data.error || "Subscription failed");
       }
       setState("success");
       setEmail("");
     } catch (err) {
       setState("error");
-      setError(err instanceof Error ? err.message : "Ошибка");
+      setError(err instanceof Error ? err.message : "Error");
     }
   };
 
   if (state === "success") {
     return (
       <div className="text-sm text-text-dim">
-        <span className="text-gold">✓</span> Подписаны. Напишем когда сайт официально откроется.
+        <span className="text-gold">✓</span> You&apos;re in. We&apos;ll email you the moment we launch.
       </div>
     );
   }
@@ -46,8 +46,8 @@ export function NewsletterForm() {
           required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="ваш email"
-          aria-label="Email для подписки"
+          placeholder="your email"
+          aria-label="Email for subscription"
           disabled={state === "loading"}
           className="flex-1 min-w-0 glass-card rounded-lg px-3 py-2.5 text-sm text-text placeholder:text-text-faint focus:border-gold/40 focus:outline-none transition-all disabled:opacity-60"
         />
@@ -61,7 +61,7 @@ export function NewsletterForm() {
       </div>
       {error && <p className="text-[11px] text-error">{error}</p>}
       <p className="text-[10px] text-text-faint">
-        Один email при запуске. Никакого спама.
+        One email at launch. No spam, ever.
       </p>
     </form>
   );

@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "О компании",
+  title: "About Us",
   description:
-    "EliteCarMats — производитель премиальных EVA автоковриков для рынка США. Индивидуальный раскрой, высокое качество материалов, гарантия 2 года.",
+    "Elite Car Mats — premium EVA floor mat manufacturer for the U.S. market. Custom-cut, premium materials, 2-year warranty.",
   openGraph: {
-    title: "О компании Elite Car Mats",
-    description: "Производитель премиальных EVA автоковриков для рынка США.",
+    title: "About Elite Car Mats",
+    description: "Premium EVA floor mat manufacturer for the U.S. market.",
   },
 };
 

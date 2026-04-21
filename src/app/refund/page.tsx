@@ -1,63 +1,68 @@
 import { LegalLayout } from "@/components/legal/LegalLayout";
 
 export const metadata = {
-  title: "Возврат и обмен",
-  description: "Условия возврата и обмена автоковриков Elite Car Mats: 30 дней, без вопросов.",
+  title: "Returns & Exchanges",
+  description: "Return and exchange policy for Elite Car Mats: 30 days, no questions asked.",
 };
 
 export default function RefundPage() {
   return (
     <LegalLayout
-      title="Возврат и обмен"
-      intro="Если коврики не подошли — вернём деньги. Если ошиблись с комплектом — поменяем без доплаты за изготовление."
-      updatedAt="20 апреля 2026"
+      title="Returns & Exchanges"
+      intro="If the mats don&apos;t work for you, we&apos;ll refund you. If you picked the wrong set, we&apos;ll exchange them with no additional production charge."
+      updatedAt="April 20, 2026"
     >
-      <h2>30 дней на возврат</h2>
+      <h2>30-day return window</h2>
       <p>
-        У вас есть <strong>30 календарных дней</strong> с момента получения посылки, чтобы решить — оставить коврики или вернуть.
+        You have <strong>30 calendar days</strong> from the delivery date to decide whether to keep or return your
+        mats.
       </p>
 
-      <h2>Условия возврата</h2>
+      <h2>Return conditions</h2>
       <ul>
-        <li>Коврики должны быть в <strong>оригинальной упаковке</strong></li>
-        <li>Без следов использования (без грязи, царапин, запахов)</li>
-        <li>Шильдики и нашивки на месте</li>
+        <li>Mats must be in their <strong>original packaging</strong></li>
+        <li>No signs of use (no dirt, scuffs, or odors)</li>
+        <li>Badges and labels intact</li>
       </ul>
 
-      <h2>Как оформить возврат</h2>
+      <h2>How to return</h2>
       <ol>
-        <li>Напишите на <a href="mailto:info@elitecarmats.us">info@elitecarmats.us</a> с темой «Return» и номером заказа</li>
-        <li>Мы пришлём адрес возврата и инструкцию</li>
-        <li>Упакуйте коврики в оригинальную коробку и отправьте</li>
-        <li>После получения посылки мы вернём деньги в течение 5 рабочих дней</li>
+        <li>Email <a href="mailto:info@elitecarmats.us">info@elitecarmats.us</a> with the subject &ldquo;Return&rdquo; and your order number</li>
+        <li>We&apos;ll send the return address and instructions</li>
+        <li>Pack the mats in the original box and ship them back</li>
+        <li>Once we receive the package, we&apos;ll refund you within 5 business days</li>
       </ol>
 
-      <h2>Кто платит за обратную пересылку</h2>
+      <h2>Who pays for return shipping</h2>
       <ul>
-        <li><strong>Брак или наша ошибка</strong> — пересылку оплачиваем мы</li>
-        <li><strong>Не подошли / передумали</strong> — пересылку оплачивает клиент (~$10–15 USPS Ground)</li>
+        <li><strong>Defect or our mistake</strong> — we cover return shipping</li>
+        <li><strong>Wrong fit or change of mind</strong> — customer covers return shipping (~$10–15 USPS Ground)</li>
       </ul>
 
-      <h2>Обмен</h2>
+      <h2>Exchanges</h2>
       <p>
-        Если ошиблись с комплектом или цветом — делаем обмен без доплаты за изготовление новой пары. Доплата только за обратную пересылку.
+        If you picked the wrong set or color, we&apos;ll exchange them with no additional production charge. You
+        only cover the return shipping.
       </p>
 
-      <h2>Возврат денег</h2>
+      <h2>Refunds</h2>
       <p>
-        Деньги возвращаются на тот же способ оплаты, которым была сделана покупка (карта, Apple Pay, Google Pay). Сроки зачисления зависят от вашего банка — обычно 3–7 рабочих дней после нашего возврата.
+        Refunds are issued to the original payment method (card, Apple Pay, Google Pay). Settlement timing depends
+        on your bank — usually 3–7 business days after we issue the refund.
       </p>
 
-      <h2>Что не подлежит возврату</h2>
+      <h2>What can&apos;t be returned</h2>
       <ul>
-        <li>Коврики со следами использования</li>
-        <li>Коврики, изготовленные по индивидуальному заказу с уникальным дизайном (вне нашего стандартного каталога)</li>
-        <li>Заказы, оформленные более 30 дней назад</li>
+        <li>Mats with signs of use</li>
+        <li>Custom-designed mats produced outside our standard catalog</li>
+        <li>Orders placed more than 30 days ago</li>
       </ul>
 
-      <h2>Брак при доставке</h2>
+      <h2>Damage on arrival</h2>
       <p>
-        Если посылка пришла повреждённой или вы обнаружили дефект изготовления — сфотографируйте проблему и пришлите нам в течение 48 часов на <a href="mailto:info@elitecarmats.us">info@elitecarmats.us</a>. Заменим бесплатно или вернём полную стоимость.
+        If the package arrives damaged or you find a manufacturing defect, photograph the issue and email us within
+        48 hours at <a href="mailto:info@elitecarmats.us">info@elitecarmats.us</a>. We&apos;ll replace it free or
+        refund the full amount.
       </p>
     </LegalLayout>
   );

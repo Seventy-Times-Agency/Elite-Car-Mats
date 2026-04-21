@@ -16,29 +16,29 @@ export const orderItemSchema = z.object({
 
 export const createOrderSchema = z.object({
   customer: z.object({
-    name: z.string().trim().min(2, "Укажите имя").max(80),
+    name: z.string().trim().min(2, "Please enter your name").max(80),
     phone: z
       .string()
       .trim()
-      .min(7, "Укажите телефон")
+      .min(7, "Please enter a phone number")
       .max(30)
-      .regex(/^[+()\-\s\d]+$/, "Неверный формат телефона"),
-    email: z.string().trim().email("Неверный email"),
+      .regex(/^[+()\-\s\d]+$/, "Invalid phone format"),
+    email: z.string().trim().email("Invalid email"),
   }),
   shipping: z.object({
-    address: z.string().trim().min(5, "Укажите адрес").max(200),
+    address: z.string().trim().min(5, "Please enter an address").max(200),
     city: z.string().trim().max(80).optional().default(""),
     state: z.string().trim().max(40).optional().default(""),
     zip: z
       .string()
       .trim()
       .max(20)
-      .regex(/^[\d\s\-]*$/, "Неверный ZIP")
+      .regex(/^[\d\s\-]*$/, "Invalid ZIP")
       .optional()
       .default(""),
     comment: z.string().trim().max(1000).optional().default(""),
   }),
-  items: z.array(orderItemSchema).min(1, "Корзина пуста"),
+  items: z.array(orderItemSchema).min(1, "Cart is empty"),
 });
 
 export type CreateOrderInput = z.infer<typeof createOrderSchema>;

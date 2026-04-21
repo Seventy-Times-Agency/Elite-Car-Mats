@@ -14,7 +14,7 @@ export function LegalLayout({ title, intro, updatedAt, children }: Props) {
           {intro && <p className="mt-4 text-text-dim text-base leading-relaxed">{intro}</p>}
           {updatedAt && (
             <p className="mt-4 text-text-faint text-xs uppercase tracking-[0.2em]">
-              Обновлено: {updatedAt}
+              Last updated: {updatedAt}
             </p>
           )}
         </header>

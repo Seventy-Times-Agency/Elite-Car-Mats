@@ -20,11 +20,11 @@ export function CopyNumber({ value }: { value: string }) {
       type="button"
       onClick={copy}
       className="inline-flex items-center gap-2 text-gold hover:text-gold-light font-medium transition-colors"
-      title="Скопировать номер"
+      title="Copy number"
     >
       <span>{value}</span>
       <span className="text-[11px] text-text-faint">
-        {copied ? "Скопировано ✓" : "Копировать"}
+        {copied ? "Copied ✓" : "Copy"}
       </span>
     </button>
   );

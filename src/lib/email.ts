@@ -9,14 +9,14 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://elitecarmats.us";
 const resend = apiKey ? new Resend(apiKey) : null;
 
 const MAT_SET_LABEL: Record<string, string> = {
-  front: "Передние",
-  full: "Полный комплект",
-  cargo: "Багажник",
-  "full-cargo": "Полный + Багажник",
-  FRONT: "Передние",
-  FULL: "Полный комплект",
-  CARGO: "Багажник",
-  FULL_CARGO: "Полный + Багажник",
+  front: "Fronts",
+  full: "Full Set",
+  cargo: "Cargo",
+  "full-cargo": "Full Set + Cargo",
+  FRONT: "Fronts",
+  FULL: "Full Set",
+  CARGO: "Cargo",
+  FULL_CARGO: "Full Set + Cargo",
 };
 
 interface OrderEmailItem {
@@ -86,36 +86,36 @@ function baseTemplate(inner: string): string {
 
 export async function sendCustomerOrderEmail(data: OrderEmailData): Promise<void> {
   const html = baseTemplate(`
-    <h1 style="font-size:22px;font-weight:700;margin:0 0 8px;">Спасибо за заказ, ${data.customerName}!</h1>
+    <h1 style="font-size:22px;font-weight:700;margin:0 0 8px;">Thank you for your order, ${data.customerName}!</h1>
     <p style="color:#aaa;font-size:14px;margin:0 0 24px;">
-      Ваш заказ принят. Мы свяжемся для подтверждения в ближайшее время.
+      Your order has been received. We&rsquo;ll reach out shortly to confirm the details.
     </p>
     <div style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:12px;padding:20px;margin-bottom:20px;">
-      <div style="color:#8a8a8a;font-size:11px;letter-spacing:0.2em;text-transform:uppercase;">Номер заказа</div>
+      <div style="color:#8a8a8a;font-size:11px;letter-spacing:0.2em;text-transform:uppercase;">Order number</div>
       <div style="color:#D4A54A;font-size:18px;font-weight:700;margin-top:6px;">${data.orderNumber}</div>
     </div>
     <table style="width:100%;border-collapse:collapse;">
       ${itemsTable(data.items)}
       <tr>
-        <td style="padding-top:16px;color:#8a8a8a;font-size:11px;letter-spacing:0.2em;text-transform:uppercase;">Итого</td>
+        <td style="padding-top:16px;color:#8a8a8a;font-size:11px;letter-spacing:0.2em;text-transform:uppercase;">Total</td>
         <td style="padding-top:16px;text-align:right;color:#D4A54A;font-size:20px;font-weight:700;">${formatPrice(data.total)}</td>
       </tr>
     </table>
     <div style="text-align:center;margin-top:32px;">
-      <a href="${siteUrl}/order/${data.orderNumber}" style="display:inline-block;background:linear-gradient(to right,#D4A54A,#E5BC5F);color:#0F0F0F;text-decoration:none;padding:14px 28px;border-radius:10px;font-weight:600;font-size:13px;letter-spacing:0.1em;text-transform:uppercase;">Отследить заказ</a>
+      <a href="${siteUrl}/order/${data.orderNumber}" style="display:inline-block;background:linear-gradient(to right,#D4A54A,#E5BC5F);color:#0F0F0F;text-decoration:none;padding:14px 28px;border-radius:10px;font-weight:600;font-size:13px;letter-spacing:0.1em;text-transform:uppercase;">Track order</a>
     </div>
   `);
 
   await send({
     to: data.customerEmail,
-    subject: `Заказ ${data.orderNumber} принят — EliteCarMats`,
+    subject: `Order ${data.orderNumber} received — Elite Car Mats`,
     html,
   });
 }
 
 export async function sendOwnerOrderEmail(data: OrderEmailData): Promise<void> {
   const html = baseTemplate(`
-    <h1 style="font-size:20px;font-weight:700;margin:0 0 20px;">Новый заказ ${data.orderNumber}</h1>
+    <h1 style="font-size:20px;font-weight:700;margin:0 0 20px;">New order ${data.orderNumber}</h1>
     <div style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:12px;padding:20px;margin-bottom:20px;">
       <div style="color:#F0ECE5;font-weight:600;">${data.customerName}</div>
       <div style="color:#aaa;font-size:13px;margin-top:4px;">
@@ -129,18 +129,18 @@ export async function sendOwnerOrderEmail(data: OrderEmailData): Promise<void> {
     <table style="width:100%;border-collapse:collapse;">
       ${itemsTable(data.items)}
       <tr>
-        <td style="padding-top:16px;color:#8a8a8a;font-size:11px;letter-spacing:0.2em;text-transform:uppercase;">Итого</td>
+        <td style="padding-top:16px;color:#8a8a8a;font-size:11px;letter-spacing:0.2em;text-transform:uppercase;">Total</td>
         <td style="padding-top:16px;text-align:right;color:#D4A54A;font-size:20px;font-weight:700;">${formatPrice(data.total)}</td>
       </tr>
     </table>
     <div style="text-align:center;margin-top:32px;">
-      <a href="${siteUrl}/admin/orders" style="color:#D4A54A;font-size:13px;">Открыть в админке →</a>
+      <a href="${siteUrl}/admin/orders" style="color:#D4A54A;font-size:13px;">Open in admin →</a>
     </div>
   `);
 
   await send({
     to: ownerEmail,
-    subject: `Новый заказ ${data.orderNumber} — ${formatPrice(data.total)}`,
+    subject: `New order ${data.orderNumber} — ${formatPrice(data.total)}`,
     html,
     replyTo: data.customerEmail,
   });
@@ -153,22 +153,22 @@ export async function sendShippedEmail(params: {
   trackingNumber: string;
 }): Promise<void> {
   const html = baseTemplate(`
-    <h1 style="font-size:22px;font-weight:700;margin:0 0 8px;">Ваш заказ отправлен</h1>
+    <h1 style="font-size:22px;font-weight:700;margin:0 0 8px;">Your order has shipped</h1>
     <p style="color:#aaa;font-size:14px;margin:0 0 24px;">
-      ${params.customerName}, ваши коврики в пути.
+      ${params.customerName}, your mats are on the way.
     </p>
     <div style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:12px;padding:20px;margin-bottom:20px;">
-      <div style="color:#8a8a8a;font-size:11px;letter-spacing:0.2em;text-transform:uppercase;">Трек-номер</div>
+      <div style="color:#8a8a8a;font-size:11px;letter-spacing:0.2em;text-transform:uppercase;">Tracking number</div>
       <div style="color:#D4A54A;font-size:18px;font-weight:700;margin-top:6px;font-family:monospace;">${params.trackingNumber}</div>
     </div>
     <div style="text-align:center;">
-      <a href="${siteUrl}/order/${params.orderNumber}" style="color:#D4A54A;font-size:13px;">Детали заказа ${params.orderNumber} →</a>
+      <a href="${siteUrl}/order/${params.orderNumber}" style="color:#D4A54A;font-size:13px;">Order ${params.orderNumber} details →</a>
     </div>
   `);
 
   await send({
     to: params.customerEmail,
-    subject: `Заказ ${params.orderNumber} отправлен — трек ${params.trackingNumber}`,
+    subject: `Order ${params.orderNumber} shipped — tracking ${params.trackingNumber}`,
     html,
   });
 }

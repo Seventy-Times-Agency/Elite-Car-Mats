@@ -10,29 +10,29 @@ export function Footer() {
           <div className="lg:col-span-1">
             <span className="font-bold text-xl tracking-[0.12em] uppercase">Elite<span className="text-gold">Car</span>Mats</span>
             <p className="mt-4 text-text-dim text-sm leading-relaxed">
-              Премиальные EVA коврики с индивидуальной подгонкой. Производство в США.
+              Premium EVA car mats custom-fit to your vehicle. Made in the USA.
             </p>
             <div className="mt-5">
               <p className="text-[10px] uppercase tracking-[0.2em] text-gold/60 font-semibold mb-3">
-                Узнать о запуске
+                Get launch updates
               </p>
               <NewsletterForm />
             </div>
           </div>
 
           {[
-            { t: "Навигация", items: [
-              { h: "/catalog", l: "Каталог" },
-              { h: "/about", l: "О компании" },
-              { h: "/contacts", l: "Контакты" },
-              { h: "/track", l: "Отследить заказ" },
+            { t: "Navigation", items: [
+              { h: "/catalog", l: "Catalog" },
+              { h: "/about", l: "About Us" },
+              { h: "/contacts", l: "Contact" },
+              { h: "/track", l: "Track Order" },
             ]},
-            { t: "Информация", items: [
-              { h: "/delivery", l: "Доставка" },
-              { h: "/warranty", l: "Гарантия" },
-              { h: "/refund", l: "Возврат" },
-              { h: "/privacy", l: "Конфиденциальность" },
-              { h: "/terms", l: "Условия" },
+            { t: "Information", items: [
+              { h: "/delivery", l: "Shipping" },
+              { h: "/warranty", l: "Warranty" },
+              { h: "/refund", l: "Returns" },
+              { h: "/privacy", l: "Privacy Policy" },
+              { h: "/terms", l: "Terms of Service" },
             ]},
           ].map((col) => (
             <div key={col.t}>
@@ -50,7 +50,7 @@ export function Footer() {
           ))}
 
           <div>
-            <h3 className="text-[10px] uppercase tracking-[0.2em] text-gold/60 font-semibold mb-4">Контакты</h3>
+            <h3 className="text-[10px] uppercase tracking-[0.2em] text-gold/60 font-semibold mb-4">Contact</h3>
             <ul className="space-y-2.5 text-sm text-text-dim">
               <li>
                 <a href="mailto:info@elitecarmats.us" className="hover:text-gold transition-colors">
@@ -60,7 +60,7 @@ export function Footer() {
               <li>Rochester, NY, USA</li>
               <li className="pt-2">
                 <Link href="/contacts" className="text-gold/80 hover:text-gold text-xs uppercase tracking-wider">
-                  Все контакты →
+                  All contacts →
                 </Link>
               </li>
             </ul>

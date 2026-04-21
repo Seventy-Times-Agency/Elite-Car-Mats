@@ -66,10 +66,10 @@ export default function OpengraphImage() {
 
         <div style={{ display: "flex", flexDirection: "column", position: "relative", gap: 8 }}>
           <div style={{ display: "flex", fontSize: 96, fontWeight: 800, lineHeight: 1, letterSpacing: "-0.03em" }}>
-            Коврики,
+            Floor mats
           </div>
           <div style={{ display: "flex", fontSize: 96, fontWeight: 800, lineHeight: 1, letterSpacing: "-0.03em" }}>
-            достойные
+            worthy of
           </div>
           <div
             style={{
@@ -83,16 +83,16 @@ export default function OpengraphImage() {
               color: "transparent",
             }}
           >
-            вашего авто
+            your car
           </div>
         </div>
 
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", position: "relative" }}>
           <div style={{ display: "flex", gap: 56 }}>
             {[
-              { v: "290+", l: "МОДЕЛЕЙ" },
-              { v: "5 лет", l: "СЛУЖАТ" },
-              { v: "2 года", l: "ГАРАНТИЯ" },
+              { v: "290+", l: "MODELS" },
+              { v: "5 YRS", l: "LIFESPAN" },
+              { v: "2 YRS", l: "WARRANTY" },
             ].map((s) => (
               <div key={s.l} style={{ display: "flex", flexDirection: "column" }}>
                 <div style={{ fontSize: 40, fontWeight: 800, color: "#D4A54A" }}>{s.v}</div>

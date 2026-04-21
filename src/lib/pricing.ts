@@ -1,6 +1,6 @@
 import { MatSetType } from "@/types";
 
-// Временная единая цена — будет заменена на реальный прайс-лист позже
+// Temporary flat price — will be replaced with a real price list later
 const FLAT_PRICE = 100;
 
 export const MAT_SET_PRICE: Record<MatSetType, number> = {

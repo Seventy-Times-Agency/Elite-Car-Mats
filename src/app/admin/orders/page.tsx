@@ -28,9 +28,9 @@ export default async function AdminOrdersPage() {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-2xl font-bold">Заказы</h1>
+            <h1 className="text-2xl font-bold">Orders</h1>
             <p className="text-text-dim text-xs mt-1">
-              Всего: {orders.length}
+              Total: {orders.length}
               {Object.entries(totalsByStatus).map(([s, n]) => ` · ${s}: ${n}`)}
             </p>
           </div>
@@ -39,14 +39,14 @@ export default async function AdminOrdersPage() {
               type="submit"
               className="text-text-dim hover:text-error text-xs uppercase tracking-wider"
             >
-              Выйти
+              Sign out
             </button>
           </form>
         </div>
 
         {orders.length === 0 ? (
           <div className="glass-card rounded-xl p-12 text-center text-text-dim">
-            Заказов пока нет
+            No orders yet
           </div>
         ) : (
           <div className="space-y-3">
@@ -73,7 +73,7 @@ export default async function AdminOrdersPage() {
 
         <div className="mt-8 text-center">
           <Link href="/" className="text-text-dim text-xs hover:text-gold">
-            ← На сайт
+            ← Back to site
           </Link>
         </div>
       </div>

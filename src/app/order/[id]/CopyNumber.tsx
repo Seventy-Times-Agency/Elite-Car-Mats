@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { useT } from "@/i18n/I18nProvider";
 
 export function CopyNumber({ value }: { value: string }) {
   const [copied, setCopied] = useState(false);
+  const t = useT();
 
   const copy = async () => {
     try {
@@ -20,11 +22,11 @@ export function CopyNumber({ value }: { value: string }) {
       type="button"
       onClick={copy}
       className="inline-flex items-center gap-2 text-gold hover:text-gold-light font-medium transition-colors"
-      title="Скопировать номер"
+      title={t("ord.copyTitle")}
     >
       <span>{value}</span>
       <span className="text-[11px] text-text-faint">
-        {copied ? "Скопировано ✓" : "Копировать"}
+        {copied ? t("ord.copied") : t("ord.copy")}
       </span>
     </button>
   );

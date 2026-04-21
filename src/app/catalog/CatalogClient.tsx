@@ -4,15 +4,24 @@ import Link from "next/link";
 import Image from "next/image";
 import { useMemo, useState } from "react";
 import { Brand } from "@/types";
+import { useT } from "@/i18n/I18nProvider";
 
 export function CatalogClient({ brands }: { brands: Brand[] }) {
   const [query, setQuery] = useState("");
+  const t = useT();
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return brands;
     return brands.filter((b) => b.name.toLowerCase().includes(q));
   }, [brands, query]);
+
+  const noResultsFn = t.raw("catalog.noResults") as
+    | ((q: string) => string)
+    | undefined;
+  const modelsCountFn = t.raw("catalog.modelsCount") as
+    | ((n: number) => string)
+    | undefined;
 
   return (
     <>
@@ -36,17 +45,24 @@ export function CatalogClient({ brands }: { brands: Brand[] }) {
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Найти марку…"
-            aria-label="Поиск марки"
+            placeholder={t("catalog.searchPh")}
+            aria-label={t("catalog.searchAria")}
             className="w-full glass-card rounded-xl pl-11 pr-12 py-3 text-sm text-text placeholder:text-text-faint focus:border-gold/40 focus:outline-none transition-all"
           />
           {query && (
             <button
               onClick={() => setQuery("")}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-text-faint hover:text-gold p-1"
-              aria-label="Очистить поиск"
+              aria-label={t("catalog.clearAria")}
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden>
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+                aria-hidden
+              >
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
               </svg>
             </button>
@@ -56,10 +72,15 @@ export function CatalogClient({ brands }: { brands: Brand[] }) {
 
       {filtered.length === 0 ? (
         <div className="text-center py-16">
-          <p className="text-text-dim">Ничего не нашли по запросу «{query}».</p>
+          <p className="text-text-dim">
+            {noResultsFn ? noResultsFn(query) : query}
+          </p>
           <p className="text-text-faint text-xs mt-2">
-            Не нашли свою марку? Напишите{" "}
-            <a href="mailto:info@elitecarmats.us" className="text-gold hover:text-gold-light">
+            {t("catalog.noResultsContact")}{" "}
+            <a
+              href="mailto:info@elitecarmats.us"
+              className="text-gold hover:text-gold-light"
+            >
               info@elitecarmats.us
             </a>
           </p>
@@ -90,7 +111,9 @@ export function CatalogClient({ brands }: { brands: Brand[] }) {
               <h3 className="mt-3 text-text text-sm font-medium group-hover:text-gold transition-colors duration-300">
                 {b.name}
               </h3>
-              <p className="text-text-faint text-xs mt-1">{b.modelsCount} моделей</p>
+              <p className="text-text-faint text-xs mt-1">
+                {modelsCountFn ? modelsCountFn(b.modelsCount) : b.modelsCount}
+              </p>
             </Link>
           ))}
         </div>

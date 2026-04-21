@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { useT } from "@/i18n/I18nProvider";
 
 export function HeroSection() {
+  const t = useT();
   return (
     <section className="relative overflow-hidden -mt-16 lg:-mt-20 pt-16 lg:pt-20">
       {/* Ambient glow */}
@@ -13,30 +15,34 @@ export function HeroSection() {
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="min-h-[70vh] py-14 grid grid-cols-1 lg:grid-cols-[1.15fr_1fr] gap-12 items-center">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }} className="max-w-2xl">
-            <p className="section-label mb-5">Premium EVA Car Mats</p>
+            <p className="section-label mb-5">{t("hero.label")}</p>
 
             <h1 className="text-[clamp(2.6rem,6.5vw,4.5rem)] font-bold leading-[1.05] tracking-tight">
-              Коврики,<br />достойные<br /><span className="text-gold-gradient">вашего авто</span>
+              {t("hero.titleLine1")}<br />{t("hero.titleLine2")}<br /><span className="text-gold-gradient">{t("hero.titleLine3")}</span>
             </h1>
 
             <p className="mt-6 text-text-dim text-base lg:text-lg max-w-lg leading-relaxed">
-              Индивидуальный раскрой под вашу модель. Премиальный EVA материал. Доставка по всем США.
+              {t("hero.subtitle")}
             </p>
 
             <div className="mt-8 flex flex-wrap gap-4">
               <a href="#configurator" className="group inline-flex items-center gap-3 bg-gradient-to-r from-gold to-gold-light hover:from-gold-light hover:to-gold text-bg px-8 py-4 text-sm font-semibold tracking-wide uppercase transition-all duration-300 shadow-[0_4px_24px_rgba(212,165,74,0.25)] hover:shadow-[0_6px_32px_rgba(212,165,74,0.35)] rounded-lg">
-                Подобрать коврики
+                {t("cta.buildMats")}
                 <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                 </svg>
               </a>
               <Link href="/about" className="inline-flex items-center px-8 py-4 border border-border hover:border-gold/40 text-text-dim hover:text-gold text-sm font-medium tracking-wide uppercase transition-all duration-300 rounded-lg">
-                О продукте
+                {t("hero.learnMore")}
               </Link>
             </div>
 
             <div className="mt-12 flex gap-10 sm:gap-14 lg:gap-16">
-              {[{ v: "290+", l: "Моделей" }, { v: "5 лет", l: "Служат" }, { v: "2 года", l: "Гарантия" }].map((s) => (
+              {[
+                { v: t("hero.statModelsValue"), l: t("hero.statModels") },
+                { v: t("hero.statLifespanValue"), l: t("hero.statLifespan") },
+                { v: t("hero.statWarrantyValue"), l: t("hero.statWarranty") },
+              ].map((s) => (
                 <div key={s.l}>
                   <div className="text-3xl font-bold text-gold">{s.v}</div>
                   <div className="text-text-faint text-xs uppercase tracking-[0.15em] mt-1">{s.l}</div>

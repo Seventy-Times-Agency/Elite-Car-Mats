@@ -3,6 +3,7 @@
 import { useState, useMemo, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { brands, mockModels } from "@/data/mock";
+import { useT } from "@/i18n/I18nProvider";
 
 function CustomSelect({ label, step, value, display, placeholder, options, onChange, disabled }: {
   label: string; step: number; value: string; display: string; placeholder: string;
@@ -62,6 +63,7 @@ function CustomSelect({ label, step, value, display, placeholder, options, onCha
 
 export function CarSelectorSection() {
   const router = useRouter();
+  const t = useT();
   const [brandId, setBrandId] = useState("");
   const [modelId, setModelId] = useState("");
   const [yearId, setYearId] = useState("");
@@ -83,9 +85,9 @@ export function CarSelectorSection() {
     <section id="configurator" className="py-14 lg:py-20 scroll-mt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-10">
-          <span className="section-label">Конфигуратор</span>
-          <h2 className="mt-4 text-3xl lg:text-5xl font-bold tracking-tight">Подберите <span className="text-gold-gradient">коврики</span></h2>
-          <p className="mt-3 text-text-dim text-base max-w-lg mx-auto">3 шага до идеальных EVA ковриков для вашего авто</p>
+          <span className="section-label">{t("cfg.label")}</span>
+          <h2 className="mt-4 text-3xl lg:text-5xl font-bold tracking-tight">{t("cfg.titleA")} <span className="text-gold-gradient">{t("cfg.titleB")}</span></h2>
+          <p className="mt-3 text-text-dim text-base max-w-lg mx-auto">{t("cfg.subtitle")}</p>
         </div>
 
         <div className="max-w-5xl mx-auto relative">
@@ -95,11 +97,11 @@ export function CarSelectorSection() {
           <div className="relative rounded-[28px] p-[1.5px] bg-gradient-to-br from-gold/60 via-gold/20 to-gold/50 shadow-[0_12px_48px_rgba(0,0,0,0.4),0_0_32px_rgba(212,165,74,0.12)]">
             <div className="rounded-[26px] bg-gradient-to-b from-[#161616] to-[#0F0F0F] p-6 sm:p-8 lg:p-10 relative overflow-hidden">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                <CustomSelect label="Марка" step={1} value={brandId} display={brand?.name||""} placeholder="Выберите марку"
+                <CustomSelect label={t("cfg.make")} step={1} value={brandId} display={brand?.name||""} placeholder={t("cfg.makePh")}
                   options={brands.map((b) => ({ id: b.id, label: b.name }))} onChange={onBrand} />
-                <CustomSelect label="Модель" step={2} value={modelId} display={model?.name||""} placeholder="Выберите модель"
+                <CustomSelect label={t("cfg.model")} step={2} value={modelId} display={model?.name||""} placeholder={t("cfg.modelPh")}
                   options={models.map((m) => ({ id: m.id, label: m.name }))} onChange={onModel} disabled={!brandId} />
-                <CustomSelect label="Год" step={3} value={yearId} display={yearId} placeholder="Выберите год"
+                <CustomSelect label={t("cfg.year")} step={3} value={yearId} display={yearId} placeholder={t("cfg.yearPh")}
                   options={years.map((y) => ({ id: String(y), label: String(y) }))} onChange={setYearId} disabled={!modelId} />
               </div>
 
@@ -109,7 +111,7 @@ export function CarSelectorSection() {
                     ? "bg-gradient-to-r from-gold to-gold-light text-bg shadow-[0_4px_24px_rgba(212,165,74,0.35)] hover:shadow-[0_6px_36px_rgba(212,165,74,0.5)] hover:from-gold-light hover:to-gold"
                     : "bg-surface border border-border text-text-faint cursor-not-allowed"
                 }`}>
-                {ready ? "Показать коврики →" : "Выберите марку и модель"}
+                {ready ? t("cfg.submit") : t("cfg.submitDisabled")}
               </button>
             </div>
           </div>

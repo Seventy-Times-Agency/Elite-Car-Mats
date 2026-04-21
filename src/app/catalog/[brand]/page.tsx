@@ -3,8 +3,10 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useParams } from "next/navigation";
-import { brands, mockModels, categoryLabels } from "@/data/mock";
+import { brands, mockModels } from "@/data/mock";
 import { VehicleCategory } from "@/types";
+import { useT } from "@/i18n/I18nProvider";
+import { localizeBody } from "@/i18n/labels";
 
 const CATEGORY_ORDER: VehicleCategory[] = ["car", "suv", "truck"];
 
@@ -37,14 +39,21 @@ const CATEGORY_ICONS: Record<VehicleCategory, React.ReactNode> = {
   ),
 };
 
+const CATEGORY_LABEL_KEY: Record<VehicleCategory, string> = {
+  car: "cat.cars",
+  suv: "cat.suvs",
+  truck: "cat.trucks",
+};
+
 export default function BrandPage() {
   const params = useParams();
+  const t = useT();
   const brand = brands.find((b) => b.slug === params.brand);
   const [filter, setFilter] = useState<VehicleCategory | "all">("all");
 
   const models = useMemo(
     () => (brand ? mockModels.filter((m) => m.brandId === brand.id) : []),
-    [brand]
+    [brand],
   );
 
   const availableCategories = useMemo(() => {
@@ -52,16 +61,24 @@ export default function BrandPage() {
     return CATEGORY_ORDER.filter((c) => set.has(c));
   }, [models]);
 
-  if (!brand) return <div className="py-20 text-center"><h1 className="text-xl font-bold">Не найдено</h1></div>;
+  if (!brand)
+    return (
+      <div className="py-20 text-center">
+        <h1 className="text-xl font-bold">{t("brand.notFound")}</h1>
+      </div>
+    );
 
-  const visibleModels = filter === "all" ? models : models.filter((m) => m.category === filter);
+  const visibleModels =
+    filter === "all" ? models : models.filter((m) => m.category === filter);
   const showFilter = availableCategories.length > 1;
 
   return (
     <div className="py-16 lg:py-24 min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <nav className="mb-10 text-xs text-text-dim">
-          <Link href="/catalog" className="hover:text-gold transition-colors">Каталог</Link>
+          <Link href="/catalog" className="hover:text-gold transition-colors">
+            {t("brand.breadcrumbCatalog")}
+          </Link>
           <span className="mx-2 text-border">/</span>
           <span className="text-text">{brand.name}</span>
         </nav>
@@ -69,14 +86,20 @@ export default function BrandPage() {
         <div className="flex items-center gap-4 mb-10">
           {brand.logo && (
             <div className="w-16 h-12 relative shrink-0">
-              <Image src={brand.logo} alt={brand.name} fill className="object-contain" sizes="64px" />
+              <Image
+                src={brand.logo}
+                alt={brand.name}
+                fill
+                className="object-contain"
+                sizes="64px"
+              />
             </div>
           )}
           <div>
             <h1 className="text-3xl lg:text-4xl font-bold">
-              Коврики для <span className="text-gold">{brand.name}</span>
+              {t("brand.titlePrefix")} <span className="text-gold">{brand.name}</span>
             </h1>
-            <p className="mt-1 text-text-dim text-sm">Выберите модель</p>
+            <p className="mt-1 text-text-dim text-sm">{t("brand.subtitle")}</p>
           </div>
         </div>
 
@@ -86,7 +109,7 @@ export default function BrandPage() {
               onClick={() => setFilter("all")}
               className={`px-4 py-2 text-sm rounded-lg transition-all duration-200 ${filter === "all" ? "bg-gradient-to-r from-gold to-gold-light text-bg font-medium shadow-[0_2px_12px_rgba(212,165,74,0.3)]" : "glass-card text-text-dim hover:text-gold hover:border-gold/30"}`}
             >
-              Все ({models.length})
+              {t("brand.allFilter")} ({models.length})
             </button>
             {availableCategories.map((c) => {
               const count = models.filter((m) => m.category === c).length;
@@ -96,7 +119,7 @@ export default function BrandPage() {
                   onClick={() => setFilter(c)}
                   className={`px-4 py-2 text-sm rounded-lg transition-all duration-200 ${filter === c ? "bg-gradient-to-r from-gold to-gold-light text-bg font-medium shadow-[0_2px_12px_rgba(212,165,74,0.3)]" : "glass-card text-text-dim hover:text-gold hover:border-gold/30"}`}
                 >
-                  {categoryLabels[c]} ({count})
+                  {t(CATEGORY_LABEL_KEY[c])} ({count})
                 </button>
               );
             })}
@@ -112,10 +135,7 @@ export default function BrandPage() {
                 href={`/catalog/${brand.slug}/${m.slug}`}
                 className="group relative rounded-xl p-4 bg-gradient-to-b from-[#1A1A1A] to-[#131313] border border-border/60 hover:border-gold/50 transition-all duration-300 overflow-hidden hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,0,0,0.4),0_0_24px_rgba(212,165,74,0.08)]"
               >
-                {/* Gold shine on hover */}
                 <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-br from-gold/[0.06] via-transparent to-transparent pointer-events-none" aria-hidden />
-
-                {/* Corner accent on hover */}
                 <div className="absolute top-0 right-0 w-12 h-12 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" aria-hidden>
                   <div className="absolute top-2.5 right-2.5 w-5 h-[1px] bg-gradient-to-l from-gold to-transparent" />
                   <div className="absolute top-2.5 right-2.5 h-5 w-[1px] bg-gradient-to-b from-gold to-transparent" />
@@ -131,7 +151,7 @@ export default function BrandPage() {
 
                 <div className="mt-3 pt-3 border-t border-border/40 flex items-center justify-between">
                   <span className="text-[10px] uppercase tracking-wider text-text-faint group-hover:text-text-dim transition-colors">
-                    {m.bodyType}
+                    {localizeBody(t, m.bodyType)}
                   </span>
                   <span className="text-[10px] font-medium text-text-faint group-hover:text-gold/70 transition-colors tabular-nums">
                     {m.years[0]}–{y}
@@ -143,7 +163,9 @@ export default function BrandPage() {
         </div>
 
         {visibleModels.length === 0 && (
-          <div className="text-center py-16 text-text-dim">В этой категории пока нет моделей.</div>
+          <div className="text-center py-16 text-text-dim">
+            {t("brand.emptyCategory")}
+          </div>
         )}
       </div>
     </div>

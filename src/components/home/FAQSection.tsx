@@ -3,44 +3,44 @@ import { useState } from "react";
 
 const faqs = [
   {
-    q: "What are EVA mats and how are they better than ordinary ones?",
-    a: "EVA (ethylene-vinyl acetate) is a closed-cell polymer used to make athletic footwear and orthopedic insoles. Unlike rubber mats, EVA doesn't absorb moisture, dust, or odors, doesn't crack from temperature swings (−40°F to 160°F), weighs 3–4× less, and lasts 5–7 years without losing its look. The honeycomb structure on top holds up to 1.5 liters of water, dirt, and snow — everything stays in the mat, not on your upholstery.",
+    q: "Что такое EVA коврики и чем они лучше обычных?",
+    a: "EVA (этилен-винилацетат) — это закрытоячеистый полимер, который используют для производства спортивной обуви и ортопедических стелек. В отличие от резиновых ковриков, EVA не впитывает влагу, пыль и запахи, не трескается от перепадов температур (от −40°C до +70°C), весит в 3-4 раза меньше и служит 5-7 лет без потери внешнего вида. Сотовая структура верхнего слоя удерживает до 1,5 литров воды, грязи и снега — всё остаётся внутри коврика, а не на обивке салона.",
   },
   {
-    q: "How do I find mats for my car?",
-    a: "Use the configurator at the top of the home page: pick your make, model, and year. Every mat is cut from an individual pattern for your VIN range — the fit is precise, with no gaps or pedal interference. If your model isn't listed, email info@elitecarmats.us and we'll cut a pattern within 3 business days.",
+    q: "Как подобрать коврики под мою машину?",
+    a: "Используйте конфигуратор в верхней части главной страницы: выберите марку, модель и год выпуска. Каждый коврик раскраивается по индивидуальным лекалам именно под ваш VIN-диапазон — подгонка идеальная, без зазоров и перекрытий педалей. Если вашей модели нет в списке — напишите на info@elitecarmats.us, раскроим по шаблону в течение 3 рабочих дней.",
   },
   {
-    q: "What sets do you offer and which should I choose?",
-    a: "We make 4 options. \"Fronts\" — two mats for driver and passenger (basic protection, $59–79). \"Full Set\" — the full cabin: front + rear row (for sedans and hatchbacks, $119–149). \"Cargo\" — a separate mat for the cargo area ($49–69). \"Full Set + Cargo\" — maximum protection for the whole cabin and trunk ($149–189). For most customers, \"Full Set + Cargo\" is the sweet spot — especially if you have kids, a dog, or you take frequent road trips.",
+    q: "Какие комплекты бывают и что выбрать?",
+    a: "Мы делаем 4 варианта. «Передние» — два коврика для водителя и пассажира (минимальная защита, $59-79). «Полный» — весь салон: перед + задний ряд (для седанов и хэтчбеков, $119-149). «Багажник» — отдельно в багажное отделение ($49-69). «Полный + Багажник» — максимальная защита всего салона и багажника ($149-189). Для большинства клиентов оптимален «Полный + Багажник» — особенно если у вас дети, собака или частые поездки за город.",
   },
   {
-    q: "What colors and edge options are available?",
-    a: "Mat base: black or gray EVA (black is universal; gray looks great in light-colored interiors). Edge trim (raised perimeter): black, gray, gold, or red. Red and gold add an accent; black is classic. On request, we can add a metal brand badge with your car's logo on the driver's front mat.",
+    q: "Какие цвета и варианты окантовки доступны?",
+    a: "Основа коврика: чёрный или серый EVA (чёрный универсальный, серый хорошо смотрится в светлых салонах). Окантовка (бортик по периметру): чёрная, серая, золотая и красная. Красный и золотой — для ярких акцентов, чёрный — классика. По запросу можем сделать фирменный шильдик марки вашего авто — металлический логотип на переднем коврике водителя.",
   },
   {
-    q: "How do I care for the mats?",
-    a: "Once every 1–2 weeks, shake them out and rinse with a hose or in the shower. For deeper cleaning, use warm water with mild soap and a soft brush. EVA handles water, auto chemistry, road salt, and de-icers. Dry away from direct heat (radiator, hair dryer, direct sun). Don't use abrasive cleaners — they damage the honeycomb structure.",
+    q: "Как ухаживать за ковриками?",
+    a: "Раз в 1-2 недели вытряхивайте и промывайте из шланга или под душем. Для глубокой чистки — тёплая вода с мыльным раствором и мягкая щётка. EVA не боится воды, химии для авто, соли и реагентов. Сушить нужно вдали от прямых источников тепла (батарея, фен, прямое солнце). Не используйте абразивные чистящие средства — они повреждают сотовую структуру.",
   },
   {
-    q: "What's the warranty and what does it cover?",
-    a: "2-year manufacturer warranty on all materials and stitching. If you find a manufacturing defect during the warranty period — a crack, stitch separation, edge deformation — we'll replace the mat or set free of charge. Normal wear (worn heel areas, heel scuffs) is not covered, but this is a natural process and takes 4–5 years of active use with EVA.",
+    q: "Какая гарантия и что она покрывает?",
+    a: "2 года гарантии производителя на все материалы и швы. Если в течение гарантийного срока обнаружится производственный дефект — трещина, расхождение шва, деформация окантовки — мы бесплатно заменим коврик или комплект. Износ от использования (протёртые пятки, царапины от каблуков) гарантией не покрывается, но это естественный процесс и для EVA он занимает 4-5 лет активной эксплуатации.",
   },
   {
-    q: "How fast is shipping and how much does it cost?",
-    a: "We ship within 48 hours of payment. Within the USA, USPS / UPS Ground — 3–7 business days, free on orders over $99. Express (2–3 days) — $19. Tracking link is emailed the moment the package leaves. We also ship to Canada and Mexico; the cost is calculated at checkout.",
+    q: "Сколько идёт доставка и сколько стоит?",
+    a: "Отправляем заказ в течение 48 часов после оплаты. По США доставка USPS / UPS Ground — 3-7 рабочих дней, бесплатно при заказе от $99. Экспресс (2-3 дня) — $19. Отслеживание по трек-номеру — ссылка приходит на email сразу после отправки. В Канаду и Мексику тоже доставляем, стоимость рассчитывается на этапе оформления.",
   },
   {
-    q: "Can I return or exchange my mats?",
-    a: "Yes, within 30 days of delivery. Mats must be in original packaging, with no signs of use or odors. Refunds are processed within 5 business days of us receiving the return. If you picked the wrong set or color, we do a free exchange — you only cover the return shipping.",
+    q: "Можно ли вернуть или обменять коврики?",
+    a: "Да, в течение 30 дней с момента получения. Коврики должны быть в оригинальной упаковке, без следов эксплуатации и запахов. Возврат денег — в течение 5 рабочих дней после получения нами посылки. Если ошиблись с комплектом или цветом — делаем бесплатный обмен, вы только доплачиваете за обратную пересылку.",
   },
   {
-    q: "Do the mats fit EVs (Tesla, Rivian, Lucid)?",
-    a: "Yes — we have patterns for all popular EVs: Tesla Model 3/Y/S/X, Cybertruck, Rivian R1T/R1S, Lucid Air, Ford Mustang Mach-E, Hyundai Ioniq 5/6, Kia EV6/EV9, BMW iX, Mercedes EQS. EVs often have unusual floor geometry (flat, no tunnel) — our mats account for this.",
+    q: "Подойдут ли коврики для электромобилей (Tesla, Rivian, Lucid)?",
+    a: "Да, у нас есть лекала под все популярные EV: Tesla Model 3/Y/S/X, Cybertruck, Rivian R1T/R1S, Lucid Air, Ford Mustang Mach-E, Hyundai Ioniq 5/6, Kia EV6/EV9, BMW iX, Mercedes EQS. У электромобилей часто нестандартная геометрия пола (плоский, без тоннеля) — наши коврики это учитывают.",
   },
   {
-    q: "Do you make mats for pickups and commercial vehicles?",
-    a: "Absolutely. Ford F-150, Ram 1500/2500/3500, Chevy Silverado, GMC Sierra, Toyota Tacoma/Tundra, Nissan Titan, Ram ProMaster, Ford Transit — all in the catalog. Crew Cab / Super Cab / Regular Cab use different patterns — pick your exact configuration on the model page.",
+    q: "Делаете ли на пикапы и коммерческий транспорт?",
+    a: "Конечно. Ford F-150, Ram 1500/2500/3500, Chevy Silverado, GMC Sierra, Toyota Tacoma/Tundra, Nissan Titan, Ram ProMaster, Ford Transit — всё в каталоге. Для пикапов с кабиной Crew/Super Cab и Regular Cab — разные лекала, выбирайте точно под свою комплектацию на странице модели.",
   },
 ];
 
@@ -52,9 +52,9 @@ export function FAQSection() {
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-10">
           <span className="section-label">FAQ</span>
-          <h2 className="mt-4 text-3xl lg:text-4xl font-bold">Frequently Asked Questions</h2>
+          <h2 className="mt-4 text-3xl lg:text-4xl font-bold">Частые вопросы</h2>
           <p className="mt-3 text-text-dim text-base max-w-xl mx-auto">
-            Answers to what our customers ask most — from material to warranty to shipping.
+            Собрали ответы на всё, что чаще всего спрашивают наши клиенты — от материала до гарантии и доставки.
           </p>
         </div>
         <div className="space-y-2.5">
@@ -79,9 +79,9 @@ export function FAQSection() {
         </div>
 
         <div className="mt-12 text-center glass-card rounded-xl p-7 lg:p-8">
-          <p className="text-text-dim text-sm">Didn&apos;t find your answer?</p>
+          <p className="text-text-dim text-sm">Не нашли ответа на свой вопрос?</p>
           <p className="mt-2 text-text text-base">
-            Email us — we reply within an hour during business hours.
+            Напишите нам — ответим в течение часа в рабочее время.
           </p>
           <a
             href="mailto:info@elitecarmats.us"

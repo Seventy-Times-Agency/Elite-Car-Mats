@@ -14,9 +14,9 @@ export default function CartPage() {
   if (items.length === 0) return (
     <div className="py-28 text-center">
       <div className="text-5xl mb-4 opacity-20">🛒</div>
-      <h1 className="text-xl font-bold">Your cart is empty</h1>
-      <p className="mt-2 text-text-dim text-sm">Add mats from the catalog</p>
-      <Link href="/catalog" className="mt-6 inline-block bg-gradient-to-r from-gold to-gold-light text-bg px-6 py-3 text-sm font-semibold tracking-wider uppercase rounded-lg shadow-[0_4px_20px_rgba(212,165,74,0.25)]">Catalog</Link>
+      <h1 className="text-xl font-bold">Корзина пуста</h1>
+      <p className="mt-2 text-text-dim text-sm">Добавьте коврики из каталога</p>
+      <Link href="/catalog" className="mt-6 inline-block bg-gradient-to-r from-gold to-gold-light text-bg px-6 py-3 text-sm font-semibold tracking-wider uppercase rounded-lg shadow-[0_4px_20px_rgba(212,165,74,0.25)]">Каталог</Link>
     </div>
   );
 
@@ -24,8 +24,8 @@ export default function CartPage() {
     <div className="py-12 lg:py-20 min-h-screen">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between mb-10">
-          <h1 className="text-2xl font-bold">Cart</h1>
-          <button onClick={clearCart} className="text-text-faint hover:text-error text-xs tracking-wider uppercase transition-colors">Clear</button>
+          <h1 className="text-2xl font-bold">Корзина</h1>
+          <button onClick={clearCart} className="text-text-faint hover:text-error text-xs tracking-wider uppercase transition-colors">Очистить</button>
         </div>
         <div className="space-y-3">
           {items.map((item) => {
@@ -43,7 +43,7 @@ export default function CartPage() {
                     <button onClick={() => updateQuantity(item.id, item.quantity-1)} disabled={item.quantity<=1} className="w-7 h-7 rounded border border-border text-text-dim hover:border-gold hover:text-gold text-sm transition-colors disabled:opacity-30">-</button>
                     <span className="text-text text-sm w-6 text-center">{item.quantity}</span>
                     <button onClick={() => updateQuantity(item.id, item.quantity+1)} className="w-7 h-7 rounded border border-border text-text-dim hover:border-gold hover:text-gold text-sm transition-colors">+</button>
-                    <span className="text-text-faint text-[11px] ml-2">{formatPrice(unit)} / ea</span>
+                    <span className="text-text-faint text-[11px] ml-2">{formatPrice(unit)} / шт</span>
                   </div>
                 </div>
                 <button onClick={() => removeItem(item.id)} className="text-border hover:text-error transition-colors self-start">✕</button>
@@ -52,11 +52,11 @@ export default function CartPage() {
           })}
         </div>
         <div className="mt-8 glass-card rounded-xl p-5 flex items-baseline justify-between">
-          <span className="text-text-dim text-xs uppercase tracking-wider">Total</span>
+          <span className="text-text-dim text-xs uppercase tracking-wider">Итого</span>
           <span className="text-gold text-2xl font-bold">{formatPrice(total)}</span>
         </div>
         <div className="mt-4">
-          <Link href="/checkout" className="block w-full text-center bg-gradient-to-r from-gold to-gold-light text-bg text-sm font-semibold tracking-wider uppercase py-4 rounded-xl transition-all duration-300 shadow-[0_4px_24px_rgba(212,165,74,0.25)]">Checkout</Link>
+          <Link href="/checkout" className="block w-full text-center bg-gradient-to-r from-gold to-gold-light text-bg text-sm font-semibold tracking-wider uppercase py-4 rounded-xl transition-all duration-300 shadow-[0_4px_24px_rgba(212,165,74,0.25)]">Оформить заказ</Link>
         </div>
       </div>
     </div>

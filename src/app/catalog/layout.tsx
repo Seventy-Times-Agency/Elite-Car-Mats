@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Car Mats Catalog",
+  title: "Каталог автоковриков",
   description:
-    "EVA car mats catalog for every popular make: Toyota, BMW, Audi, Tesla, Ford, and 40+ more. Custom-cut for your exact model and year.",
+    "Каталог EVA автоковриков под все популярные марки авто: Toyota, BMW, Audi, Tesla, Ford и более 40 других. Индивидуальный раскрой под вашу модель и год.",
   openGraph: {
-    title: "EVA Car Mats Catalog",
-    description: "EVA mats for 290+ vehicle models. Precision fit by year.",
+    title: "Каталог EVA автоковриков",
+    description: "EVA коврики под 290+ моделей авто. Точная подгонка по году выпуска.",
   },
 };
 

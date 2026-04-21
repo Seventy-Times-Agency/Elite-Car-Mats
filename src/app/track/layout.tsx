@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Track Order",
-  description: "Check the status of your Elite Car Mats order by number.",
+  title: "Отследить заказ",
+  description: "Проверьте статус вашего заказа Elite Car Mats по номеру.",
   robots: { index: false, follow: false },
 };
 

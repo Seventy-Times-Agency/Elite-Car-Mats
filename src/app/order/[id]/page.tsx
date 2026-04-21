@@ -7,12 +7,12 @@ import { CopyNumber } from "./CopyNumber";
 export const dynamic = "force-dynamic";
 
 const STATUS_LABEL: Record<string, string> = {
-  PENDING: "Awaiting confirmation",
-  CONFIRMED: "Confirmed",
-  PRODUCTION: "In production",
-  SHIPPED: "Shipped",
-  DELIVERED: "Delivered",
-  CANCELLED: "Cancelled",
+  PENDING: "Ожидает подтверждения",
+  CONFIRMED: "Подтверждён",
+  PRODUCTION: "В производстве",
+  SHIPPED: "Отправлен",
+  DELIVERED: "Доставлен",
+  CANCELLED: "Отменён",
 };
 
 const STATUS_STEPS = [
@@ -24,10 +24,10 @@ const STATUS_STEPS = [
 ] as const;
 
 const MAT_SET_LABEL: Record<string, string> = {
-  FRONT: "Fronts",
-  FULL: "Full Set",
-  CARGO: "Cargo",
-  FULL_CARGO: "Full Set + Cargo",
+  FRONT: "Передние",
+  FULL: "Полный комплект",
+  CARGO: "Багажник",
+  FULL_CARGO: "Полный + Багажник",
 };
 
 interface OrderResponse {
@@ -85,14 +85,14 @@ export default async function OrderPage({
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-10">
           <div className="inline-block text-5xl mb-3">✓</div>
-          <h1 className="text-2xl lg:text-3xl font-bold">Order received</h1>
+          <h1 className="text-2xl lg:text-3xl font-bold">Заказ принят</h1>
           <div className="text-text-dim text-sm mt-2">
-            Order number: <CopyNumber value={order.orderNumber} />
+            Номер заказа: <CopyNumber value={order.orderNumber} />
           </div>
         </div>
 
         <div className="glass-card rounded-xl p-6 mb-6">
-          <span className="section-label text-[10px]">Status</span>
+          <span className="section-label text-[10px]">Статус</span>
           <div className="mt-3 text-gold text-lg font-semibold">
             {STATUS_LABEL[order.status] ?? order.status}
           </div>
@@ -111,13 +111,13 @@ export default async function OrderPage({
           )}
           {order.trackingNumber && (
             <p className="mt-4 text-sm text-text-dim">
-              Tracking number: <span className="text-text font-mono">{order.trackingNumber}</span>
+              Трек-номер: <span className="text-text font-mono">{order.trackingNumber}</span>
             </p>
           )}
         </div>
 
         <div className="glass-card rounded-xl p-6 mb-6">
-          <span className="section-label text-[10px]">Order summary</span>
+          <span className="section-label text-[10px]">Состав заказа</span>
           <div className="mt-4 space-y-3">
             {order.items.map((i) => (
               <div key={i.id} className="flex gap-4 py-3 border-b border-border/30 last:border-0">
@@ -143,13 +143,13 @@ export default async function OrderPage({
             ))}
           </div>
           <div className="flex justify-between items-baseline mt-5 pt-4 border-t border-border/50">
-            <span className="text-text-dim text-xs uppercase tracking-wider">Total</span>
+            <span className="text-text-dim text-xs uppercase tracking-wider">Итого</span>
             <span className="text-gold text-xl font-bold">{formatPrice(order.total)}</span>
           </div>
         </div>
 
         <div className="glass-card rounded-xl p-6 mb-6">
-          <span className="section-label text-[10px]">Shipping</span>
+          <span className="section-label text-[10px]">Доставка</span>
           <div className="mt-3 text-sm space-y-1">
             <div className="text-text">{order.customerName}</div>
             <div className="text-text-dim">{order.email} · {order.phone}</div>
@@ -167,7 +167,7 @@ export default async function OrderPage({
             href="/catalog"
             className="inline-block text-gold hover:text-gold-light text-sm uppercase tracking-wider transition-colors"
           >
-            ← Back to catalog
+            ← Вернуться в каталог
           </Link>
         </div>
       </div>

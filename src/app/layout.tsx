@@ -24,40 +24,40 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL(SITE),
   title: {
-    default: "Elite Car Mats — Premium EVA Floor Mats for Your Car",
+    default: "Elite Car Mats — Премиальные EVA коврики для авто",
     template: "%s | Elite Car Mats",
   },
   description:
-    "Custom-fit premium EVA car floor mats. Precision-cut for your exact make and model. Free shipping across the USA on orders over $99. 2-year warranty.",
+    "Индивидуальные автоковрики из EVA материала премиум-класса. Точная подгонка под вашу модель авто. Бесплатная доставка по США от $99. Гарантия 2 года.",
   applicationName: "Elite Car Mats",
   authors: [{ name: "Elite Car Mats", url: SITE }],
   generator: "Next.js",
   keywords: [
+    "автоковрики",
+    "EVA коврики",
+    "коврики в машину",
     "car mats",
-    "EVA floor mats",
-    "custom car mats",
-    "auto floor mats",
+    "EVA mats",
     "elite car mats",
     "premium car mats",
     "custom car mats USA",
-    "all-weather floor mats",
-    "car accessories",
+    "auto floor mats",
   ],
   category: "automotive",
   openGraph: {
     type: "website",
-    locale: "en_US",
+    locale: "ru_RU",
     siteName: "Elite Car Mats",
-    title: "Elite Car Mats — Premium EVA Floor Mats for Your Car",
+    title: "Elite Car Mats — Премиальные EVA коврики для авто",
     description:
-      "Custom-fit premium EVA floor mats. CNC-cut for your exact model. Free U.S. shipping on orders over $99.",
+      "Индивидуальные EVA коврики премиум-класса. CNC-раскрой под вашу модель. Бесплатная доставка по США от $99.",
     url: SITE,
   },
   twitter: {
     card: "summary_large_image",
-    title: "Elite Car Mats — Premium EVA Floor Mats",
+    title: "Elite Car Mats — Премиальные EVA коврики",
     description:
-      "Custom-fit EVA floor mats for your vehicle. Shipped across the USA.",
+      "Индивидуальные EVA коврики под вашу модель авто. Доставка по США.",
   },
   robots: {
     index: true,
@@ -85,13 +85,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} h-full antialiased`}>
+    <html lang="ru" className={`${inter.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col">
         <a
           href="#main-content"
           className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:bg-gold focus:text-bg focus:px-4 focus:py-2 focus:rounded-lg focus:font-semibold focus:text-sm"
         >
-          Skip to main content
+          Перейти к содержимому
         </a>
         <CartProvider>
           <Header />

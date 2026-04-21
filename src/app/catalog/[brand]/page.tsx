@@ -52,7 +52,7 @@ export default function BrandPage() {
     return CATEGORY_ORDER.filter((c) => set.has(c));
   }, [models]);
 
-  if (!brand) return <div className="py-20 text-center"><h1 className="text-xl font-bold">Not found</h1></div>;
+  if (!brand) return <div className="py-20 text-center"><h1 className="text-xl font-bold">Не найдено</h1></div>;
 
   const visibleModels = filter === "all" ? models : models.filter((m) => m.category === filter);
   const showFilter = availableCategories.length > 1;
@@ -61,7 +61,7 @@ export default function BrandPage() {
     <div className="py-16 lg:py-24 min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <nav className="mb-10 text-xs text-text-dim">
-          <Link href="/catalog" className="hover:text-gold transition-colors">Catalog</Link>
+          <Link href="/catalog" className="hover:text-gold transition-colors">Каталог</Link>
           <span className="mx-2 text-border">/</span>
           <span className="text-text">{brand.name}</span>
         </nav>
@@ -74,9 +74,9 @@ export default function BrandPage() {
           )}
           <div>
             <h1 className="text-3xl lg:text-4xl font-bold">
-              <span className="text-gold">{brand.name}</span> Floor Mats
+              Коврики для <span className="text-gold">{brand.name}</span>
             </h1>
-            <p className="mt-1 text-text-dim text-sm">Choose your model</p>
+            <p className="mt-1 text-text-dim text-sm">Выберите модель</p>
           </div>
         </div>
 
@@ -86,7 +86,7 @@ export default function BrandPage() {
               onClick={() => setFilter("all")}
               className={`px-4 py-2 text-sm rounded-lg transition-all duration-200 ${filter === "all" ? "bg-gradient-to-r from-gold to-gold-light text-bg font-medium shadow-[0_2px_12px_rgba(212,165,74,0.3)]" : "glass-card text-text-dim hover:text-gold hover:border-gold/30"}`}
             >
-              All ({models.length})
+              Все ({models.length})
             </button>
             {availableCategories.map((c) => {
               const count = models.filter((m) => m.category === c).length;
@@ -143,7 +143,7 @@ export default function BrandPage() {
         </div>
 
         {visibleModels.length === 0 && (
-          <div className="text-center py-16 text-text-dim">No models in this category yet.</div>
+          <div className="text-center py-16 text-text-dim">В этой категории пока нет моделей.</div>
         )}
       </div>
     </div>

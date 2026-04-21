@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Contact",
+  title: "Контакты",
   description:
-    "Get in touch with Elite Car Mats: info@elitecarmats.us. Rochester, NY, USA. Shipping nationwide across the U.S.",
+    "Свяжитесь с EliteCarMats: info@elitecarmats.us. Rochester, NY, USA. Доставка по всей территории США.",
   openGraph: {
-    title: "Contact Elite Car Mats",
-    description: "info@elitecarmats.us · Rochester, NY · Nationwide U.S. shipping.",
+    title: "Контакты Elite Car Mats",
+    description: "info@elitecarmats.us · Rochester, NY · Доставка по США.",
   },
 };
 

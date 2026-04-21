@@ -3,26 +3,26 @@ import { Reveal } from "@/components/common/Reveal";
 const materials = [
   {
     label: "EVA base",
-    title: "Premium EVA",
-    spec: "10 mm, closed-cell structure",
-    desc: "Medical-grade ethylene-vinyl acetate foam — the same material used in athletic footwear and orthopedic insoles. Zero water absorption, odorless, VOC-free. Stable from −40°F to 160°F.",
-    facts: ["Density 100 kg/m³", "5–7 year service life", "REACH compliant"],
+    title: "EVA премиум",
+    spec: "10 мм, закрытоячеистая структура",
+    desc: "Пена этилен-винилацетат медицинского класса — та же, что в спортивной обуви и ортопедических стельках. Не впитывает воду, не пахнет, не выделяет летучих веществ. Стабильна от −40°C до +70°C.",
+    facts: ["Плотность 100 кг/м³", "5–7 лет службы", "Соответствует REACH"],
     pattern: "honeycomb",
   },
   {
     label: "Edge",
-    title: "Trim",
-    spec: "Soft PVC, 8 mm profile",
-    desc: "The raised perimeter edge contains up to 1.5 liters of water, dirt, and snow. Available in 4 colors: black, gray, gold, and red. Double-stitched onto the top of the mat.",
-    facts: ["30 mm edge height", "4 color options", "Cold-resistant, no cracking"],
+    title: "Окантовка",
+    spec: "Мягкий ПВХ, 8 мм профиль",
+    desc: "Бортик по периметру удерживает внутри до 1,5 литров воды, грязи и снега. Доступна в 4 цветах: чёрная, серая, золотая и красная. Пришивается двойной строчкой поверх коврика.",
+    facts: ["Высота бортика 30 мм", "4 цвета на выбор", "Не ломается на морозе"],
     pattern: "stripes",
   },
   {
     label: "Thread & tag",
-    title: "Thread & Badge",
-    spec: "Polyester 40S/2, metal logo",
-    desc: "Heavy-duty automotive thread won't fade or rot. A metal badge with your car's marque sits on the driver's front mat — the quiet detail that separates premium from mass-market.",
-    facts: ["UV-resistant thread", "30+ brand badges", "ELITECARMATS.US side tag"],
+    title: "Нить и шильдик",
+    spec: "Полиэстер 40S/2, металлический логотип",
+    desc: "Высокопрочная автомобильная нить не выгорает и не гниёт. Металлический шильдик марки авто на переднем коврике водителя — тонкая деталь, которая отличает премиум от массового продукта.",
+    facts: ["UV-стойкая нить", "Шильдики 30+ марок", "Нашивка ELITECARMATS.US"],
     pattern: "diagonal",
   },
 ];
@@ -65,10 +65,10 @@ export function MaterialsSection() {
     <section className="py-14 lg:py-20 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <Reveal className="text-center mb-10">
-          <span className="section-label">Materials</span>
-          <h2 className="mt-4 text-3xl lg:text-4xl font-bold">What your set is made of</h2>
+          <span className="section-label">Материалы</span>
+          <h2 className="mt-4 text-3xl lg:text-4xl font-bold">Из чего сделан ваш комплект</h2>
           <p className="mt-3 text-text-dim text-base max-w-2xl mx-auto leading-relaxed">
-            Three components of a premium mat. Each chosen by spec — not by price.
+            Три составляющих премиум-коврика. Каждая выбрана по спецификации — не по цене.
           </p>
         </Reveal>
 
@@ -81,7 +81,7 @@ export function MaterialsSection() {
                   {m.label}
                 </div>
                 <div className="absolute bottom-4 right-4 text-[9px] uppercase tracking-[0.15em] text-text-faint">
-                  Photo coming soon
+                  Фото скоро
                 </div>
               </div>
               <div className="p-6 flex-1 flex flex-col">
@@ -106,7 +106,7 @@ export function MaterialsSection() {
             href="#configurator"
             className="inline-flex items-center gap-2 text-gold hover:text-gold-light text-sm uppercase tracking-[0.15em] font-medium transition-colors"
           >
-            Pick materials for your car
+            Выбрать материал для своего авто
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
             </svg>

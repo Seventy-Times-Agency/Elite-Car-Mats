@@ -38,28 +38,28 @@ export default function NotFound() {
           </text>
         </svg>
 
-        <h1 className="text-2xl lg:text-3xl font-bold mb-3">Page not found</h1>
+        <h1 className="text-2xl lg:text-3xl font-bold mb-3">Страница не найдена</h1>
         <p className="text-text-dim text-sm leading-relaxed mb-8">
-          You may have followed an outdated link or entered an incorrect URL. Use the menu or search the catalog.
+          Возможно, вы перешли по устаревшей ссылке или ввели неверный адрес. Воспользуйтесь меню или поиском в каталоге.
         </p>
         <div className="flex items-center justify-center gap-3 flex-wrap">
           <Link
             href="/"
             className="bg-gradient-to-r from-gold to-gold-light text-bg text-sm font-semibold px-5 py-3 rounded-xl shadow-[0_4px_18px_rgba(212,165,74,0.25)]"
           >
-            Home
+            На главную
           </Link>
           <Link
             href="/catalog"
             className="glass-card text-text-dim hover:text-gold text-sm px-5 py-3 rounded-xl transition-colors"
           >
-            Catalog
+            Каталог
           </Link>
           <Link
             href="/contacts"
             className="text-text-faint hover:text-gold text-sm px-3 py-3 transition-colors"
           >
-            Contact
+            Связаться
           </Link>
         </div>
       </div>

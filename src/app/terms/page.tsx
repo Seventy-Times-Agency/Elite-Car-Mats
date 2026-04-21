@@ -1,83 +1,75 @@
 import { LegalLayout } from "@/components/legal/LegalLayout";
 
 export const metadata = {
-  title: "Terms of Service",
-  description: "Terms for using the elitecarmats.us website and placing orders with Elite Car Mats.",
+  title: "Условия использования",
+  description: "Условия использования сайта и оформления заказов в Elite Car Mats.",
 };
 
 export default function TermsPage() {
   return (
     <LegalLayout
-      title="Terms of Service"
-      intro="By using elitecarmats.us and placing an order, you agree to the terms below."
-      updatedAt="April 20, 2026"
+      title="Условия использования"
+      intro="Используя сайт elitecarmats.us и оформляя заказ, вы соглашаетесь с условиями ниже."
+      updatedAt="20 апреля 2026"
     >
-      <h2>1. About us</h2>
+      <h2>1. О компании</h2>
       <p>
-        The elitecarmats.us website is owned and operated by Elite Car Mats, a company registered in the United
-        States (Rochester, NY). We manufacture and sell custom EVA floor mats.
+        Сайт elitecarmats.us принадлежит и управляется компанией Elite Car Mats, зарегистрированной в США (Rochester, NY).
+        Мы производим и продаём индивидуальные автоковрики из EVA-материала.
       </p>
 
-      <h2>2. Orders & payment</h2>
+      <h2>2. Заказы и оплата</h2>
       <ul>
-        <li>An order is considered accepted once payment is received</li>
-        <li>Prices are in U.S. dollars (USD) and include production</li>
-        <li>Sales tax is added at checkout where applicable</li>
-        <li>Shipping within the U.S. is free on orders over $99, otherwise $9 USPS Ground</li>
+        <li>Заказ считается принятым после получения оплаты</li>
+        <li>Цены указаны в долларах США (USD) и включают изготовление</li>
+        <li>Налог с продаж добавляется на этапе оформления, если применимо</li>
+        <li>Доставка по США бесплатная при заказе от $99, иначе $9 USPS Ground</li>
       </ul>
 
-      <h2>3. Production & timelines</h2>
+      <h2>3. Изготовление и сроки</h2>
       <p>
-        Every set is made to order — typically within 48 hours of payment. Standard USPS / UPS Ground shipping
-        within the U.S. takes 3–7 business days.
+        Каждый комплект изготавливается под заказ — обычно в течение 48 часов после оплаты. Стандартная доставка USPS / UPS Ground по США занимает 3–7 рабочих дней.
       </p>
 
-      <h2>4. Returns & exchanges</h2>
+      <h2>4. Возврат и обмен</h2>
       <p>
-        Full details are in our <a href="/refund">return policy</a>. In short: return within 30 days of delivery,
-        in original packaging and with no signs of use.
+        Подробности — в нашей <a href="/refund">политике возврата</a>. Вкратце: возврат в течение 30 дней с момента получения, коврики должны быть в оригинальной упаковке без следов использования.
       </p>
 
-      <h2>5. Warranty</h2>
+      <h2>5. Гарантия</h2>
       <p>
-        2 years on materials and stitching. Full details on the <a href="/warranty">warranty page</a>.
+        2 года на материалы и швы. Подробности — на странице <a href="/warranty">гарантии</a>.
       </p>
 
-      <h2>6. Intellectual property</h2>
+      <h2>6. Интеллектуальная собственность</h2>
       <p>
-        All site materials (text, design, photos, the Elite Car Mats logo) are copyrighted and belong to Elite Car
-        Mats. Unauthorized use is prohibited.
+        Все материалы сайта (тексты, дизайн, фотографии, логотип Elite Car Mats) защищены авторским правом и принадлежат Elite Car Mats. Использование без разрешения запрещено.
       </p>
       <p>
-        Car manufacturer names and logos (Toyota, BMW, Ford, etc.) belong to their respective owners and are used
-        solely to identify product compatibility.
+        Названия и логотипы автомобильных марок (Toyota, BMW, Ford и др.) — собственность их правообладателей и используются исключительно для идентификации совместимости товара.
       </p>
 
-      <h2>7. Limitation of liability</h2>
+      <h2>7. Ограничение ответственности</h2>
       <p>
-        The site is provided &ldquo;as is.&rdquo; We don&apos;t guarantee continuous availability and are not
-        liable for indirect damages. Our maximum liability for any order is limited to the amount of that order.
+        Сайт предоставляется «как есть». Мы не гарантируем непрерывную работу сайта и не несём ответственности за косвенные убытки. Максимальная ответственность по любому заказу ограничена суммой этого заказа.
       </p>
       <p>
-        Mats are designed for interior floor protection. We are not responsible for vehicle damage caused by
-        improper installation or misuse.
+        Коврики предназначены для напольной защиты салона. Мы не отвечаем за повреждения авто, вызванные неправильной установкой или использованием не по назначению.
       </p>
 
-      <h2>8. Governing law</h2>
+      <h2>8. Применимое право</h2>
       <p>
-        These terms are governed by the laws of the State of New York, USA. Any disputes are handled in the courts
-        of that state.
+        Условия регулируются законодательством штата Нью-Йорк, США. Любые споры рассматриваются в судах этого штата.
       </p>
 
-      <h2>9. Changes to these terms</h2>
+      <h2>9. Изменения условий</h2>
       <p>
-        We may update these terms. The last update date is shown at the top. By continuing to use the site after
-        changes, you agree to the updated version.
+        Мы можем изменять условия. Дата последнего обновления указана сверху. Продолжая пользоваться сайтом после изменений, вы соглашаетесь с новой редакцией.
       </p>
 
-      <h2>10. Contact</h2>
+      <h2>10. Контакты</h2>
       <p>
-        For any questions: <a href="mailto:info@elitecarmats.us">info@elitecarmats.us</a>
+        По любым вопросам: <a href="mailto:info@elitecarmats.us">info@elitecarmats.us</a>
       </p>
     </LegalLayout>
   );

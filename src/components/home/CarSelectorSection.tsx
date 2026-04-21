@@ -83,9 +83,9 @@ export function CarSelectorSection() {
     <section id="configurator" className="py-14 lg:py-20 scroll-mt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-10">
-          <span className="section-label">Configurator</span>
-          <h2 className="mt-4 text-3xl lg:text-5xl font-bold tracking-tight">Find your <span className="text-gold-gradient">perfect fit</span></h2>
-          <p className="mt-3 text-text-dim text-base max-w-lg mx-auto">Three steps to custom-cut EVA mats for your car</p>
+          <span className="section-label">Конфигуратор</span>
+          <h2 className="mt-4 text-3xl lg:text-5xl font-bold tracking-tight">Подберите <span className="text-gold-gradient">коврики</span></h2>
+          <p className="mt-3 text-text-dim text-base max-w-lg mx-auto">3 шага до идеальных EVA ковриков для вашего авто</p>
         </div>
 
         <div className="max-w-5xl mx-auto relative">
@@ -95,11 +95,11 @@ export function CarSelectorSection() {
           <div className="relative rounded-[28px] p-[1.5px] bg-gradient-to-br from-gold/60 via-gold/20 to-gold/50 shadow-[0_12px_48px_rgba(0,0,0,0.4),0_0_32px_rgba(212,165,74,0.12)]">
             <div className="rounded-[26px] bg-gradient-to-b from-[#161616] to-[#0F0F0F] p-6 sm:p-8 lg:p-10 relative overflow-hidden">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                <CustomSelect label="Make" step={1} value={brandId} display={brand?.name||""} placeholder="Select make"
+                <CustomSelect label="Марка" step={1} value={brandId} display={brand?.name||""} placeholder="Выберите марку"
                   options={brands.map((b) => ({ id: b.id, label: b.name }))} onChange={onBrand} />
-                <CustomSelect label="Model" step={2} value={modelId} display={model?.name||""} placeholder="Select model"
+                <CustomSelect label="Модель" step={2} value={modelId} display={model?.name||""} placeholder="Выберите модель"
                   options={models.map((m) => ({ id: m.id, label: m.name }))} onChange={onModel} disabled={!brandId} />
-                <CustomSelect label="Year" step={3} value={yearId} display={yearId} placeholder="Select year"
+                <CustomSelect label="Год" step={3} value={yearId} display={yearId} placeholder="Выберите год"
                   options={years.map((y) => ({ id: String(y), label: String(y) }))} onChange={setYearId} disabled={!modelId} />
               </div>
 
@@ -109,7 +109,7 @@ export function CarSelectorSection() {
                     ? "bg-gradient-to-r from-gold to-gold-light text-bg shadow-[0_4px_24px_rgba(212,165,74,0.35)] hover:shadow-[0_6px_36px_rgba(212,165,74,0.5)] hover:from-gold-light hover:to-gold"
                     : "bg-surface border border-border text-text-faint cursor-not-allowed"
                 }`}>
-                {ready ? "Show my mats →" : "Select make and model"}
+                {ready ? "Показать коврики →" : "Выберите марку и модель"}
               </button>
             </div>
           </div>

@@ -11,10 +11,10 @@ export function ProductJsonLd({ brand, model, price, description, image, url }: 
   const data = {
     "@context": "https://schema.org",
     "@type": "Product",
-    name: `EVA Floor Mats for ${brand} ${model}`,
+    name: `EVA автоковрики для ${brand} ${model}`,
     description:
       description ??
-      `Premium EVA floor mats custom-cut for the ${brand} ${model}. CNC cut from a 3D pattern, 4 edge colors available.`,
+      `Премиальные EVA коврики с индивидуальным раскроем для ${brand} ${model}. CNC-резка по 3D-лекалу, окантовка 4 цвета на выбор.`,
     brand: { "@type": "Brand", name: "Elite Car Mats" },
     category: "Auto Floor Mats",
     sku: `ECM-${brand.toLowerCase().replace(/\s+/g, "-")}-${model.toLowerCase().replace(/\s+/g, "-")}`,

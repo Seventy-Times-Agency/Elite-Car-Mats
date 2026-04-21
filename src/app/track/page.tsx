@@ -2,8 +2,8 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 export const metadata = {
-  title: "Track Order",
-  description: "Check the status of your Elite Car Mats order by number.",
+  title: "Отследить заказ",
+  description: "Проверьте статус вашего заказа EliteCarMats по номеру.",
 };
 
 async function track(formData: FormData) {
@@ -24,9 +24,9 @@ export default async function TrackPage({
   return (
     <div className="min-h-[70vh] flex items-center justify-center px-4 py-16">
       <div className="glass-card rounded-2xl p-8 w-full max-w-md">
-        <h1 className="text-2xl font-bold mb-2">Track your order</h1>
+        <h1 className="text-2xl font-bold mb-2">Отследить заказ</h1>
         <p className="text-text-dim text-sm mb-6">
-          Enter the order number from your confirmation email.
+          Введите номер заказа из письма-подтверждения.
         </p>
         <form action={track} className="space-y-4">
           <input
@@ -38,18 +38,18 @@ export default async function TrackPage({
             className="w-full glass-card rounded-xl px-4 py-3.5 text-sm focus:border-gold/40 focus:outline-none font-mono tracking-wider uppercase"
           />
           {error === "empty" && (
-            <p className="text-[11px] text-error">Please enter an order number</p>
+            <p className="text-[11px] text-error">Введите номер заказа</p>
           )}
           <button
             type="submit"
             className="w-full bg-gradient-to-r from-gold to-gold-light text-bg text-sm font-semibold tracking-wider uppercase py-3.5 rounded-xl shadow-[0_4px_24px_rgba(212,165,74,0.25)]"
           >
-            Find order
+            Найти заказ
           </button>
         </form>
         <div className="mt-6 text-center">
           <Link href="/contacts" className="text-xs text-text-dim hover:text-gold">
-            Can&apos;t find your order? Contact us
+            Не нашли заказ? Свяжитесь с нами
           </Link>
         </div>
       </div>

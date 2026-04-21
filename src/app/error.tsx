@@ -34,9 +34,9 @@ export default function Error({
           />
         </svg>
 
-        <h1 className="text-2xl lg:text-3xl font-bold mb-3">Something went wrong</h1>
+        <h1 className="text-2xl lg:text-3xl font-bold mb-3">Что-то пошло не так</h1>
         <p className="text-text-dim text-sm leading-relaxed mb-6">
-          We&apos;ve been notified. Try refreshing the page or returning to the home page.
+          Мы уже знаем об ошибке. Попробуйте обновить страницу или вернуться на главную.
         </p>
         {error.digest && (
           <p className="text-text-faint text-[11px] font-mono mb-6">
@@ -48,13 +48,13 @@ export default function Error({
             onClick={reset}
             className="bg-gradient-to-r from-gold to-gold-light text-bg text-sm font-semibold px-5 py-3 rounded-xl shadow-[0_4px_18px_rgba(212,165,74,0.25)]"
           >
-            Try again
+            Попробовать снова
           </button>
           <Link
             href="/"
             className="glass-card text-text-dim hover:text-gold text-sm px-5 py-3 rounded-xl transition-colors"
           >
-            Home
+            На главную
           </Link>
         </div>
       </div>

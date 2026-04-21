@@ -7,12 +7,12 @@ import { useRouter } from "next/navigation";
 type Status = "PENDING" | "CONFIRMED" | "PRODUCTION" | "SHIPPED" | "DELIVERED" | "CANCELLED";
 
 const STATUS_LABEL: Record<Status, string> = {
-  PENDING: "Pending",
-  CONFIRMED: "Confirmed",
-  PRODUCTION: "In production",
-  SHIPPED: "Shipped",
-  DELIVERED: "Delivered",
-  CANCELLED: "Cancelled",
+  PENDING: "Ожидает",
+  CONFIRMED: "Подтверждён",
+  PRODUCTION: "Производство",
+  SHIPPED: "Отправлен",
+  DELIVERED: "Доставлен",
+  CANCELLED: "Отменён",
 };
 
 const STATUS_COLOR: Record<Status, string> = {
@@ -66,16 +66,16 @@ export function OrderRow({
         }),
       });
       if (!res.ok) {
-        setMessage("Save failed");
+        setMessage("Ошибка сохранения");
         return;
       }
-      setMessage("Saved");
+      setMessage("Сохранено");
       router.refresh();
       setTimeout(() => setMessage(null), 2000);
     });
   };
 
-  const date = new Date(order.createdAt).toLocaleDateString("en-US", {
+  const date = new Date(order.createdAt).toLocaleDateString("ru-RU", {
     day: "2-digit",
     month: "short",
     hour: "2-digit",
@@ -101,7 +101,7 @@ export function OrderRow({
             <span className="text-text-faint text-xs">{date}</span>
           </div>
           <div className="text-sm text-text mt-1 truncate">
-            {order.customerName} · {order.email} · {order.itemsCount} item{order.itemsCount === 1 ? "" : "s"}
+            {order.customerName} · {order.email} · {order.itemsCount} поз.
           </div>
         </div>
         <div className="text-gold font-semibold text-lg shrink-0">
@@ -113,7 +113,7 @@ export function OrderRow({
         <div className="px-4 pb-4 pt-2 border-t border-border/30 space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
             <div>
-              <div className="text-text-faint uppercase tracking-wider mb-1">Phone</div>
+              <div className="text-text-faint uppercase tracking-wider mb-1">Телефон</div>
               <a href={`tel:${order.phone}`} className="text-text">{order.phone}</a>
             </div>
             <div>
@@ -125,7 +125,7 @@ export function OrderRow({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-[10px] uppercase tracking-wider text-text-faint mb-1.5">
-                Status
+                Статус
               </label>
               <select
                 value={status}
@@ -141,12 +141,12 @@ export function OrderRow({
             </div>
             <div>
               <label className="block text-[10px] uppercase tracking-wider text-text-faint mb-1.5">
-                Tracking number
+                Трек-номер
               </label>
               <input
                 value={tracking}
                 onChange={(e) => setTracking(e.target.value)}
-                placeholder="Optional"
+                placeholder="Необязательно"
                 className="w-full glass-card rounded-lg px-3 py-2 text-sm focus:border-gold/40 focus:outline-none"
               />
             </div>
@@ -158,7 +158,7 @@ export function OrderRow({
               target="_blank"
               className="text-xs text-text-dim hover:text-gold"
             >
-              Open order page →
+              Открыть страницу заказа →
             </Link>
             <div className="flex items-center gap-3">
               {message && (
@@ -169,7 +169,7 @@ export function OrderRow({
                 disabled={!hasChanges || saving}
                 className="bg-gradient-to-r from-gold to-gold-light text-bg text-xs font-semibold px-4 py-2 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed"
               >
-                {saving ? "Saving..." : "Save"}
+                {saving ? "Сохранение..." : "Сохранить"}
               </button>
             </div>
           </div>

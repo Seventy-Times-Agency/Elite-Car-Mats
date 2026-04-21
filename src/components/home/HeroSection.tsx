@@ -16,27 +16,27 @@ export function HeroSection() {
             <p className="section-label mb-5">Premium EVA Car Mats</p>
 
             <h1 className="text-[clamp(2.6rem,6.5vw,4.5rem)] font-bold leading-[1.05] tracking-tight">
-              Floor mats<br />worthy of<br /><span className="text-gold-gradient">your car</span>
+              Коврики,<br />достойные<br /><span className="text-gold-gradient">вашего авто</span>
             </h1>
 
             <p className="mt-6 text-text-dim text-base lg:text-lg max-w-lg leading-relaxed">
-              Custom-cut for your exact model. Premium EVA material. Shipping across the USA.
+              Индивидуальный раскрой под вашу модель. Премиальный EVA материал. Доставка по всем США.
             </p>
 
             <div className="mt-8 flex flex-wrap gap-4">
               <a href="#configurator" className="group inline-flex items-center gap-3 bg-gradient-to-r from-gold to-gold-light hover:from-gold-light hover:to-gold text-bg px-8 py-4 text-sm font-semibold tracking-wide uppercase transition-all duration-300 shadow-[0_4px_24px_rgba(212,165,74,0.25)] hover:shadow-[0_6px_32px_rgba(212,165,74,0.35)] rounded-lg">
-                Build My Mats
+                Подобрать коврики
                 <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                 </svg>
               </a>
               <Link href="/about" className="inline-flex items-center px-8 py-4 border border-border hover:border-gold/40 text-text-dim hover:text-gold text-sm font-medium tracking-wide uppercase transition-all duration-300 rounded-lg">
-                Learn More
+                О продукте
               </Link>
             </div>
 
             <div className="mt-12 flex gap-10 sm:gap-14 lg:gap-16">
-              {[{ v: "290+", l: "Models" }, { v: "5 years", l: "Lifespan" }, { v: "2 years", l: "Warranty" }].map((s) => (
+              {[{ v: "290+", l: "Моделей" }, { v: "5 лет", l: "Служат" }, { v: "2 года", l: "Гарантия" }].map((s) => (
                 <div key={s.l}>
                   <div className="text-3xl font-bold text-gold">{s.v}</div>
                   <div className="text-text-faint text-xs uppercase tracking-[0.15em] mt-1">{s.l}</div>

@@ -48,11 +48,11 @@ export default function CheckoutPage() {
 
   const validate = () => {
     const e: Record<string, string> = {};
-    if (form.name.trim().length < 2) e.name = "Please enter your name";
-    if (!/^[+()\-\s\d]{7,}$/.test(form.phone.trim())) e.phone = "Invalid phone number";
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) e.email = "Invalid email";
-    if (form.address.trim().length < 5) e.address = "Please enter your address";
-    if (form.zip && !/^[\d\s\-]*$/.test(form.zip)) e.zip = "Invalid ZIP code";
+    if (form.name.trim().length < 2) e.name = "Укажите имя";
+    if (!/^[+()\-\s\d]{7,}$/.test(form.phone.trim())) e.phone = "Неверный телефон";
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) e.email = "Неверный email";
+    if (form.address.trim().length < 5) e.address = "Укажите адрес";
+    if (form.zip && !/^[\d\s\-]*$/.test(form.zip)) e.zip = "Неверный ZIP";
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -94,13 +94,13 @@ export default function CheckoutPage() {
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        throw new Error(data.error || "Failed to place order");
+        throw new Error(data.error || "Не удалось оформить заказ");
       }
       const data = await res.json();
       clearCart();
       router.push(`/order/${data.orderNumber}`);
     } catch (err) {
-      setFormError(err instanceof Error ? err.message : "Submission error");
+      setFormError(err instanceof Error ? err.message : "Ошибка отправки");
       setSubmitting(false);
     }
   };
@@ -108,9 +108,9 @@ export default function CheckoutPage() {
   if (!items.length)
     return (
       <div className="py-28 text-center">
-        <h1 className="text-xl font-bold">Your cart is empty</h1>
+        <h1 className="text-xl font-bold">Корзина пуста</h1>
         <Link href="/catalog" className="mt-3 inline-block text-gold text-sm">
-          Catalog
+          Каталог
         </Link>
       </div>
     );
@@ -118,18 +118,18 @@ export default function CheckoutPage() {
   return (
     <div className="py-12 lg:py-20 min-h-screen">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h1 className="text-2xl font-bold mb-10">Checkout</h1>
+        <h1 className="text-2xl font-bold mb-10">Оформление заказа</h1>
         <form onSubmit={submit} className="grid grid-cols-1 lg:grid-cols-3 gap-10">
           <div className="lg:col-span-2 space-y-8">
             <div>
-              <span className="section-label text-[10px]">Contact</span>
+              <span className="section-label text-[10px]">Контакт</span>
               <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <input
                     name="name"
                     value={form.name}
                     onChange={onChange}
-                    placeholder="Name *"
+                    placeholder="Имя *"
                     className={`${input} ${errors.name ? inputError : ""}`}
                   />
                   {errors.name && (
@@ -141,7 +141,7 @@ export default function CheckoutPage() {
                     name="phone"
                     value={form.phone}
                     onChange={onChange}
-                    placeholder="Phone *"
+                    placeholder="Телефон *"
                     className={`${input} ${errors.phone ? inputError : ""}`}
                   />
                   {errors.phone && (
@@ -164,14 +164,14 @@ export default function CheckoutPage() {
               </div>
             </div>
             <div>
-              <span className="section-label text-[10px]">Shipping</span>
+              <span className="section-label text-[10px]">Доставка</span>
               <div className="mt-3 space-y-4">
                 <div>
                   <input
                     name="address"
                     value={form.address}
                     onChange={onChange}
-                    placeholder="Address *"
+                    placeholder="Адрес *"
                     className={`${input} ${errors.address ? inputError : ""}`}
                   />
                   {errors.address && (
@@ -183,14 +183,14 @@ export default function CheckoutPage() {
                     name="city"
                     value={form.city}
                     onChange={onChange}
-                    placeholder="City"
+                    placeholder="Город"
                     className={input}
                   />
                   <input
                     name="state"
                     value={form.state}
                     onChange={onChange}
-                    placeholder="State"
+                    placeholder="Штат"
                     className={input}
                   />
                   <div>
@@ -210,7 +210,7 @@ export default function CheckoutPage() {
                   name="comment"
                   value={form.comment}
                   onChange={onChange}
-                  placeholder="Comments"
+                  placeholder="Комментарий"
                   rows={3}
                   className={input + " resize-none"}
                 />
@@ -226,12 +226,12 @@ export default function CheckoutPage() {
               disabled={submitting}
               className="w-full bg-gradient-to-r from-gold to-gold-light text-bg text-sm font-semibold tracking-wider uppercase py-4 rounded-xl shadow-[0_4px_24px_rgba(212,165,74,0.25)] hover:shadow-[0_6px_32px_rgba(212,165,74,0.35)] transition-all disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              {submitting ? "Placing order..." : "Place order"}
+              {submitting ? "Отправляем..." : "Подтвердить заказ"}
             </button>
           </div>
           <div>
             <div className="glass-card rounded-xl p-6 sticky top-24">
-              <span className="section-label text-[10px]">Your order</span>
+              <span className="section-label text-[10px]">Ваш заказ</span>
               <div className="mt-4 space-y-3">
                 {items.map((i) => {
                   const unit = calculateItemUnitPrice(i);
@@ -257,14 +257,14 @@ export default function CheckoutPage() {
               </div>
               <div className="flex justify-between items-baseline mt-5 pt-4 border-t border-border/50">
                 <span className="text-text-dim text-xs uppercase tracking-wider">
-                  Total
+                  Итого
                 </span>
                 <span className="text-gold text-xl font-bold">
                   {formatPrice(total)}
                 </span>
               </div>
               <p className="text-[11px] text-text-faint mt-4">
-                We&apos;ll contact you to confirm
+                Мы свяжемся для подтверждения
               </p>
             </div>
           </div>

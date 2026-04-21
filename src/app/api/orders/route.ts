@@ -24,7 +24,7 @@ function resolveNames(item: OrderItemInput) {
   return {
     colorName: color?.name ?? item.colorId,
     edgeColorName: edge?.name ?? item.edgeColorId,
-    badgeName: badge ? `${badge.name} badge` : null,
+    badgeName: badge ? `Шильдик ${badge.name}` : null,
   };
 }
 

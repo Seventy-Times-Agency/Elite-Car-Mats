@@ -191,11 +191,19 @@ export const ru: Dict = {
   // EVA / edge colors
   "color.black": "Чёрный",
   "color.gray": "Серый",
+  "color.darkGray": "Тёмно-серый",
+  "color.lightGray": "Светло-серый",
   "color.gold": "Золотой",
   "color.red": "Красный",
+  "color.wine": "Бордовый",
   "color.blue": "Синий",
   "color.brown": "Коричневый",
   "color.beige": "Бежевый",
+  "color.yellow": "Жёлтый",
+  "color.green": "Зелёный",
+  "color.purple": "Фиолетовый",
+  "color.orange": "Оранжевый",
+  "color.white": "Белый",
 
   // Body types
   "body.sedan": "Седан",

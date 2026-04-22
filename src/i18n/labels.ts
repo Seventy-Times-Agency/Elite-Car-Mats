@@ -34,11 +34,19 @@ const MATSET_DESC_KEY: Record<string, string> = {
 const COLOR_KEY: Record<string, string> = {
   Чёрный: "color.black",
   Серый: "color.gray",
+  "Тёмно-серый": "color.darkGray",
+  "Светло-серый": "color.lightGray",
   Золотой: "color.gold",
   Красный: "color.red",
+  Бордовый: "color.wine",
   Синий: "color.blue",
   Коричневый: "color.brown",
   Бежевый: "color.beige",
+  Жёлтый: "color.yellow",
+  Зелёный: "color.green",
+  Фиолетовый: "color.purple",
+  Оранжевый: "color.orange",
+  Белый: "color.white",
 };
 
 function lookup(t: TFn, key: string | undefined, fallback: string): string {

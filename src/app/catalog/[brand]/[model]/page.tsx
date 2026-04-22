@@ -213,7 +213,7 @@ export default function ProductPage() {
                 <h3 className="section-label text-[10px] mb-4">
                   {t("prod.stepEdge", { color: localizedEdge })}
                 </h3>
-                <div className="grid grid-cols-4 gap-3">
+                <div className="flex flex-wrap gap-3">
                   {edgeColors.map((c) => (
                     <MatColorSwatch
                       key={c.id}
@@ -222,6 +222,7 @@ export default function ProductPage() {
                       localizedName={localizeColor(t, c.name)}
                       onClick={() => setEdge(c)}
                       size="sm"
+                      variant="solid"
                     />
                   ))}
                 </div>

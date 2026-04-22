@@ -6,9 +6,6 @@ interface ColorOption {
   hex: string;
 }
 
-/**
- * Hex → HSL lightness helper. Returns 0-100 scale.
- */
 function lightness(hex: string): number {
   const h = hex.replace("#", "");
   const r = parseInt(h.slice(0, 2), 16) / 255;
@@ -20,9 +17,9 @@ function lightness(hex: string): number {
 }
 
 /**
- * Textured color swatch that hints at the EVA honeycomb structure of the mat.
- * Works on both light and dark bases because the pattern combines light + dark
- * strokes; on light mats you see the darker outline, on dark mats the lighter.
+ * Swatch for EVA base colors (honeycomb variant) and PVC edge colors (solid
+ * variant). Both share selected / hover treatments so the picker feels
+ * consistent.
  */
 export function MatColorSwatch({
   color,
@@ -30,12 +27,14 @@ export function MatColorSwatch({
   localizedName,
   onClick,
   size = "md",
+  variant = "honeycomb",
 }: {
   color: ColorOption;
   selected: boolean;
   localizedName: string;
   onClick: () => void;
   size?: "sm" | "md";
+  variant?: "honeycomb" | "solid";
 }) {
   const isLight = lightness(color.hex) > 55;
   const dim = size === "sm" ? "w-12 h-12 rounded-xl" : "w-16 h-16 rounded-2xl";
@@ -44,8 +43,6 @@ export function MatColorSwatch({
       ? "text-[10px] tracking-[0.1em]"
       : "text-[11px] tracking-[0.12em]";
 
-  // Two honeycomb patterns — one darker outline for light bases, one lighter
-  // for dark bases. Both layered; the invisible one just vanishes.
   const darkHex = encodeURIComponent("rgba(0,0,0,0.28)");
   const lightHex = encodeURIComponent("rgba(255,255,255,0.22)");
   const hexSvg = (strokeUri: string) =>
@@ -67,27 +64,32 @@ export function MatColorSwatch({
         }`}
         style={{ backgroundColor: color.hex }}
       >
-        {/* Dark honeycomb outline — visible on light bases */}
-        <div
-          className="absolute inset-0"
-          style={{
-            backgroundImage: hexSvg(darkHex),
-            backgroundSize: "26px 45px",
-            opacity: isLight ? 0.85 : 0.35,
-          }}
-        />
-        {/* Light honeycomb outline — visible on dark bases */}
-        <div
-          className="absolute inset-0"
-          style={{
-            backgroundImage: hexSvg(lightHex),
-            backgroundSize: "26px 45px",
-            opacity: isLight ? 0.25 : 0.75,
-          }}
-        />
-        {/* Soft gloss highlight for 3D depth */}
+        {variant === "honeycomb" && (
+          <>
+            <div
+              className="absolute inset-0"
+              style={{
+                backgroundImage: hexSvg(darkHex),
+                backgroundSize: "26px 45px",
+                opacity: isLight ? 0.85 : 0.35,
+              }}
+            />
+            <div
+              className="absolute inset-0"
+              style={{
+                backgroundImage: hexSvg(lightHex),
+                backgroundSize: "26px 45px",
+                opacity: isLight ? 0.25 : 0.75,
+              }}
+            />
+          </>
+        )}
+        {/* Glossy highlight — applies to both variants for depth */}
         <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-black/25 pointer-events-none" />
-        {/* Selected check */}
+        {/* Extra hairline for very light solids so they read against the card */}
+        {variant === "solid" && isLight && (
+          <div className="absolute inset-0 ring-1 ring-inset ring-black/10 pointer-events-none" />
+        )}
         {selected && (
           <div className="absolute top-1 right-1 w-5 h-5 rounded-full bg-gold text-bg flex items-center justify-center shadow-[0_2px_8px_rgba(212,165,74,0.5)]">
             <svg
@@ -108,10 +110,8 @@ export function MatColorSwatch({
         )}
       </div>
       <span
-        className={`${label} font-semibold uppercase transition-colors ${
-          selected
-            ? "text-gold"
-            : "text-text-dim group-hover:text-text"
+        className={`${label} font-semibold uppercase transition-colors max-w-[5rem] text-center leading-tight ${
+          selected ? "text-gold" : "text-text-dim group-hover:text-text"
         }`}
       >
         {localizedName}

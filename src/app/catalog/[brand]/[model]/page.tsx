@@ -200,10 +200,10 @@ export default function ProductPage() {
                 </div>
               </div>
               <div>
-                <h3 className="section-label text-[10px] mb-4">
+                <h3 className="section-label text-[10px] mb-3">
                   {t("prod.stepColor", { color: localizedColor })}
                 </h3>
-                <div className="grid grid-cols-4 sm:grid-cols-6 gap-3 sm:gap-4">
+                <div className="flex flex-wrap gap-2.5">
                   {evaColors.map((c) => (
                     <MatColorSwatch
                       key={c.id}
@@ -216,10 +216,10 @@ export default function ProductPage() {
                 </div>
               </div>
               <div>
-                <h3 className="section-label text-[10px] mb-4">
+                <h3 className="section-label text-[10px] mb-3">
                   {t("prod.stepEdge", { color: localizedEdge })}
                 </h3>
-                <div className="flex flex-wrap gap-3">
+                <div className="flex flex-wrap gap-2.5">
                   {edgeColors.map((c) => (
                     <MatColorSwatch
                       key={c.id}

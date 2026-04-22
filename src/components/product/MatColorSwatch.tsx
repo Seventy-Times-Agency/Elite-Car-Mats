@@ -17,9 +17,9 @@ function lightness(hex: string): number {
 }
 
 /**
- * Swatch for EVA base colors (honeycomb variant) and PVC edge colors (solid
- * variant). Both share selected / hover treatments so the picker feels
- * consistent.
+ * Compact swatch for EVA base (diamond-grid variant) and PVC edge (solid
+ * variant). Keeps the visual identity of the mat surface without eating
+ * the whole step.
  */
 export function MatColorSwatch({
   color,
@@ -27,26 +27,27 @@ export function MatColorSwatch({
   localizedName,
   onClick,
   size = "md",
-  variant = "honeycomb",
+  variant = "diamond",
 }: {
   color: ColorOption;
   selected: boolean;
   localizedName: string;
   onClick: () => void;
   size?: "sm" | "md";
-  variant?: "honeycomb" | "solid";
+  variant?: "diamond" | "solid";
 }) {
   const isLight = lightness(color.hex) > 55;
-  const dim = size === "sm" ? "w-12 h-12 rounded-xl" : "w-16 h-16 rounded-2xl";
-  const label =
+  const dim = size === "sm" ? "w-9 h-9 rounded-lg" : "w-11 h-11 rounded-[10px]";
+  const labelSize =
     size === "sm"
-      ? "text-[10px] tracking-[0.1em]"
-      : "text-[11px] tracking-[0.12em]";
+      ? "text-[9px] tracking-[0.08em]"
+      : "text-[10px] tracking-[0.1em]";
 
-  const darkHex = encodeURIComponent("rgba(0,0,0,0.28)");
-  const lightHex = encodeURIComponent("rgba(255,255,255,0.22)");
-  const hexSvg = (strokeUri: string) =>
-    `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='45' viewBox='0 0 26 45'%3E%3Cpath d='M13 0 L26 7.5 L26 22.5 L13 30 L0 22.5 L0 7.5 Z' fill='none' stroke='${strokeUri}' stroke-width='1.1'/%3E%3Cpath d='M13 30 L26 37.5 L13 45 L0 37.5 Z' fill='none' stroke='${strokeUri}' stroke-width='1.1'/%3E%3C/svg%3E")`;
+  // Perfect diamond/rhombus tile — every swatch reads as a proper rhombus grid.
+  const darkHex = encodeURIComponent("rgba(0,0,0,0.3)");
+  const lightHex = encodeURIComponent("rgba(255,255,255,0.28)");
+  const rhombSvg = (strokeUri: string) =>
+    `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'%3E%3Cpath d='M7 0 L14 7 L7 14 L0 7 Z' fill='none' stroke='${strokeUri}' stroke-width='0.9'/%3E%3C/svg%3E")`;
 
   return (
     <button
@@ -54,49 +55,47 @@ export function MatColorSwatch({
       onClick={onClick}
       aria-label={localizedName}
       aria-pressed={selected}
-      className="group flex flex-col items-center gap-2 focus:outline-none"
+      className="group flex flex-col items-center gap-1.5 focus:outline-none"
     >
       <div
         className={`relative ${dim} overflow-hidden transition-all duration-200 ${
           selected
-            ? "ring-2 ring-gold ring-offset-2 ring-offset-bg scale-[1.08] shadow-[0_6px_18px_rgba(212,165,74,0.35)]"
+            ? "ring-2 ring-gold ring-offset-2 ring-offset-bg scale-[1.08] shadow-[0_4px_14px_rgba(212,165,74,0.35)]"
             : "ring-1 ring-border/60 group-hover:ring-gold/45 group-hover:scale-[1.04]"
         }`}
         style={{ backgroundColor: color.hex }}
       >
-        {variant === "honeycomb" && (
+        {variant === "diamond" && (
           <>
             <div
               className="absolute inset-0"
               style={{
-                backgroundImage: hexSvg(darkHex),
-                backgroundSize: "26px 45px",
-                opacity: isLight ? 0.85 : 0.35,
+                backgroundImage: rhombSvg(darkHex),
+                backgroundSize: "14px 14px",
+                opacity: isLight ? 0.85 : 0.4,
               }}
             />
             <div
               className="absolute inset-0"
               style={{
-                backgroundImage: hexSvg(lightHex),
-                backgroundSize: "26px 45px",
+                backgroundImage: rhombSvg(lightHex),
+                backgroundSize: "14px 14px",
                 opacity: isLight ? 0.25 : 0.75,
               }}
             />
           </>
         )}
-        {/* Glossy highlight — applies to both variants for depth */}
-        <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-black/25 pointer-events-none" />
-        {/* Extra hairline for very light solids so they read against the card */}
+        <div className="absolute inset-0 bg-gradient-to-br from-white/18 via-transparent to-black/22 pointer-events-none" />
         {variant === "solid" && isLight && (
-          <div className="absolute inset-0 ring-1 ring-inset ring-black/10 pointer-events-none" />
+          <div className="absolute inset-0 ring-1 ring-inset ring-black/10 pointer-events-none rounded-[inherit]" />
         )}
         {selected && (
-          <div className="absolute top-1 right-1 w-5 h-5 rounded-full bg-gold text-bg flex items-center justify-center shadow-[0_2px_8px_rgba(212,165,74,0.5)]">
+          <div className="absolute top-0.5 right-0.5 w-3.5 h-3.5 rounded-full bg-gold text-bg flex items-center justify-center shadow-[0_1px_4px_rgba(212,165,74,0.5)]">
             <svg
-              className="w-3 h-3"
+              className="w-2 h-2"
               fill="none"
               stroke="currentColor"
-              strokeWidth={3}
+              strokeWidth={3.5}
               viewBox="0 0 24 24"
               aria-hidden
             >
@@ -110,7 +109,7 @@ export function MatColorSwatch({
         )}
       </div>
       <span
-        className={`${label} font-semibold uppercase transition-colors max-w-[5rem] text-center leading-tight ${
+        className={`${labelSize} font-semibold uppercase transition-colors max-w-[4.5rem] text-center leading-tight whitespace-nowrap ${
           selected ? "text-gold" : "text-text-dim group-hover:text-text"
         }`}
       >

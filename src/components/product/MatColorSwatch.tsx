@@ -28,6 +28,7 @@ export function MatColorSwatch({
   onClick,
   size = "md",
   variant = "diamond",
+  showLabel = true,
 }: {
   color: ColorOption;
   selected: boolean;
@@ -35,13 +36,14 @@ export function MatColorSwatch({
   onClick: () => void;
   size?: "sm" | "md";
   variant?: "diamond" | "solid";
+  showLabel?: boolean;
 }) {
   const isLight = lightness(color.hex) > 55;
-  const dim = size === "sm" ? "w-9 h-9 rounded-lg" : "w-11 h-11 rounded-[10px]";
+  const dim = size === "sm" ? "w-8 h-8 rounded-lg" : "w-10 h-10 rounded-[10px]";
   const labelSize =
     size === "sm"
       ? "text-[9px] tracking-[0.08em]"
-      : "text-[10px] tracking-[0.1em]";
+      : "text-[10px] tracking-[0.08em]";
 
   // Perfect diamond/rhombus tile — every swatch reads as a proper rhombus grid.
   const darkHex = encodeURIComponent("rgba(0,0,0,0.3)");
@@ -108,13 +110,16 @@ export function MatColorSwatch({
           </div>
         )}
       </div>
-      <span
-        className={`${labelSize} font-semibold uppercase transition-colors max-w-[4.5rem] text-center leading-tight whitespace-nowrap ${
-          selected ? "text-gold" : "text-text-dim group-hover:text-text"
-        }`}
-      >
-        {localizedName}
-      </span>
+      {showLabel && (
+        <span
+          className={`${labelSize} font-semibold uppercase transition-colors w-14 text-center leading-[1.1] break-words hyphens-auto ${
+            selected ? "text-gold" : "text-text-dim group-hover:text-text"
+          }`}
+          title={localizedName}
+        >
+          {localizedName}
+        </span>
+      )}
     </button>
   );
 }

@@ -17,6 +17,35 @@ import {
   localizeMatSetDesc,
 } from "@/i18n/labels";
 
+function StepHeader({
+  n,
+  label,
+  value,
+}: {
+  n: number;
+  label: string;
+  value?: string;
+}) {
+  return (
+    <div className="flex items-center gap-2 mb-2.5 min-w-0">
+      <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-gold/15 text-gold text-[9px] font-bold shrink-0">
+        {n}
+      </span>
+      <span className="text-[10px] uppercase tracking-[0.18em] text-gold/75 font-semibold shrink-0">
+        {label}
+      </span>
+      {value && (
+        <>
+          <span className="text-border/60 text-xs shrink-0">·</span>
+          <span className="text-text text-xs font-medium truncate min-w-0">
+            {value}
+          </span>
+        </>
+      )}
+    </div>
+  );
+}
+
 export default function ProductPage() {
   const params = useParams();
   const t = useT();
@@ -54,6 +83,7 @@ export default function ProductPage() {
 
   const localizedColor = localizeColor(t, color.name);
   const localizedEdge = localizeColor(t, edge.name);
+  const localizedSet = localizeMatSet(t, ms.label);
 
   const add = () => {
     addItem({
@@ -98,10 +128,10 @@ export default function ProductPage() {
           </nav>
         </div>
       </div>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 lg:py-16">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
-          <div className="space-y-4 lg:sticky lg:top-24 lg:self-start">
-            <div className="aspect-[4/3] glass-card rounded-xl relative overflow-hidden p-6 lg:p-8">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-10 pb-28 lg:pb-10">
+        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] gap-6 lg:gap-10">
+          <div className="lg:sticky lg:top-24 lg:self-start">
+            <div className="aspect-[5/4] glass-card rounded-xl relative overflow-hidden p-4 lg:p-5">
               <MatPreview
                 color={color}
                 edgeColor={edge}
@@ -109,101 +139,85 @@ export default function ProductPage() {
                 brandLogoUrl={brand.logo}
                 brandName={brand.name}
               />
-              <div className="absolute top-4 left-4 text-[10px] uppercase tracking-[0.2em] text-gold/60 font-semibold">
+              <div className="absolute top-3 left-3 text-[9px] uppercase tracking-[0.2em] text-gold/60 font-semibold">
                 {t("prod.previewLabel")}
               </div>
             </div>
-
-            <div className="flex gap-3">
-              <div className="glass-card rounded-lg px-4 py-3 flex items-center gap-3 flex-1">
-                <div
-                  className="w-8 h-8 rounded-md border border-border shrink-0"
-                  style={{ backgroundColor: color.hex }}
-                />
-                <div className="min-w-0">
-                  <div className="text-[10px] uppercase tracking-wider text-text-faint">
-                    {t("prod.matLabel")}
-                  </div>
-                  <div className="text-xs text-text truncate">
-                    {localizedColor}
-                  </div>
-                </div>
-              </div>
-              <div className="glass-card rounded-lg px-4 py-3 flex items-center gap-3 flex-1">
-                <div
-                  className="w-8 h-8 rounded-md border border-border shrink-0"
-                  style={{ backgroundColor: edge.hex }}
-                />
-                <div className="min-w-0">
-                  <div className="text-[10px] uppercase tracking-wider text-text-faint">
-                    {t("prod.edgeLabel")}
-                  </div>
-                  <div className="text-xs text-text truncate">
-                    {localizedEdge}
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
+
           <div>
-            <h1 className="text-2xl lg:text-3xl font-bold">
+            <h1 className="text-xl lg:text-2xl font-bold leading-tight">
               {brand.name} {model.name}
             </h1>
-            <p className="text-text-dim text-sm mt-1">
+            <p className="text-text-dim text-xs mt-1">
               {localizeBody(t, model.bodyType)} · {t("prod.subtitleSuffix")}
             </p>
-            <div className="mt-4 flex items-baseline gap-2">
-              <span className="text-gold text-3xl font-bold">
+            <div className="mt-3 flex items-baseline gap-2">
+              <span className="text-gold text-2xl font-bold">
                 {formatPrice(unitPrice)}
               </span>
             </div>
-            <div className="mt-10 space-y-8">
+
+            <div className="mt-6 space-y-5">
+              {/* Step 1 — Year */}
               <div>
-                <h3 className="section-label text-[10px] mb-3">
-                  {t("prod.stepYear")}
-                </h3>
-                <div className="flex flex-wrap gap-2">
+                <StepHeader n={1} label={t("prod.stepYear")} value={String(year)} />
+                <div className="flex flex-wrap gap-1.5">
                   {[...model.years]
                     .sort((a, b) => b - a)
                     .map((y) => (
                       <button
                         key={y}
                         onClick={() => setYear(y)}
-                        className={`px-4 py-2.5 text-sm rounded-lg transition-all duration-200 ${year === y ? "bg-gradient-to-r from-gold to-gold-light text-bg font-medium shadow-[0_2px_12px_rgba(212,165,74,0.3)]" : "glass-card text-text-dim hover:text-gold hover:border-gold/30"}`}
+                        className={`px-2.5 py-1 text-xs font-medium rounded-md transition-all duration-200 ${
+                          year === y
+                            ? "bg-gradient-to-r from-gold to-gold-light text-bg shadow-[0_2px_10px_rgba(212,165,74,0.3)]"
+                            : "glass-card text-text-dim hover:text-gold hover:border-gold/30"
+                        }`}
                       >
                         {y}
                       </button>
                     ))}
                 </div>
               </div>
+
+              {/* Step 2 — Set */}
               <div>
-                <h3 className="section-label text-[10px] mb-3">
-                  {t("prod.stepSet")}
-                </h3>
-                <div className="grid grid-cols-2 gap-3">
+                <StepHeader n={2} label={t("prod.stepSet")} value={localizedSet} />
+                <div className="grid grid-cols-2 gap-2">
                   {matSets.map((s) => (
                     <button
                       key={s.type}
                       onClick={() => setSet(s.type)}
-                      className={`p-4 text-left rounded-xl transition-all duration-200 ${set === s.type ? "border-2 border-gold bg-gold-glow" : "glass-card glow-hover"}`}
+                      className={`px-3 py-2.5 text-left rounded-lg transition-all duration-200 ${
+                        set === s.type
+                          ? "border-2 border-gold bg-gold-glow"
+                          : "glass-card glow-hover"
+                      }`}
                     >
                       <div
-                        className={`text-sm font-medium ${set === s.type ? "text-gold" : "text-text"}`}
+                        className={`text-xs font-semibold leading-tight ${
+                          set === s.type ? "text-gold" : "text-text"
+                        }`}
                       >
                         {localizeMatSet(t, s.label)}
                       </div>
-                      <div className="text-xs text-text-dim mt-1">
+                      <div className="text-[10px] text-text-dim mt-0.5 leading-snug">
                         {localizeMatSetDesc(t, s.description)}
                       </div>
                     </button>
                   ))}
                 </div>
               </div>
+
+              {/* Step 3 — Mat color */}
               <div>
-                <h3 className="section-label text-[10px] mb-3">
-                  {t("prod.stepColor", { color: localizedColor })}
-                </h3>
-                <div className="flex flex-wrap gap-2.5">
+                <StepHeader
+                  n={3}
+                  label={t("prod.stepColor")}
+                  value={localizedColor}
+                />
+                <div className="flex flex-wrap gap-x-2 gap-y-3">
                   {evaColors.map((c) => (
                     <MatColorSwatch
                       key={c.id}
@@ -215,11 +229,15 @@ export default function ProductPage() {
                   ))}
                 </div>
               </div>
+
+              {/* Step 4 — Edge */}
               <div>
-                <h3 className="section-label text-[10px] mb-3">
-                  {t("prod.stepEdge", { color: localizedEdge })}
-                </h3>
-                <div className="flex flex-wrap gap-2.5">
+                <StepHeader
+                  n={4}
+                  label={t("prod.stepEdge")}
+                  value={localizedEdge}
+                />
+                <div className="flex flex-wrap gap-1.5">
                   {edgeColors.map((c) => (
                     <MatColorSwatch
                       key={c.id}
@@ -229,52 +247,53 @@ export default function ProductPage() {
                       onClick={() => setEdge(c)}
                       size="sm"
                       variant="solid"
+                      showLabel={false}
                     />
                   ))}
                 </div>
               </div>
+
+              {/* Step 5 — Badge */}
               <div>
-                <h3 className="section-label text-[10px] mb-3">
-                  {t("prod.stepBadge")}
-                </h3>
+                <StepHeader n={5} label={t("prod.stepBadge")} />
                 {bdg ? (
                   <label
-                    className={`flex items-center gap-4 cursor-pointer glass-card rounded-xl p-4 transition-all duration-200 ${badge ? "!border-gold/50 shadow-[0_0_18px_rgba(212,165,74,0.12)]" : "glow-hover"}`}
+                    className={`flex items-center gap-3 cursor-pointer glass-card rounded-lg p-3 transition-all duration-200 ${badge ? "!border-gold/50 shadow-[0_0_14px_rgba(212,165,74,0.12)]" : "glow-hover"}`}
                   >
                     <input
                       type="checkbox"
                       checked={badge}
                       onChange={(e) => setBadge(e.target.checked)}
-                      className="w-4 h-4 text-gold focus:ring-gold accent-[#D4A54A] rounded"
+                      className="w-4 h-4 text-gold focus:ring-gold accent-[#D4A54A] rounded shrink-0"
                     />
-                    <div className="relative w-20 h-7 rounded-[3px] overflow-hidden shrink-0 ring-1 ring-black/40 bg-[linear-gradient(180deg,#F0F0F0_0%,#C8C8C8_28%,#8E8E8E_52%,#B4B4B4_72%,#6C6C6C_100%)] flex items-center justify-center shadow-[inset_0_1px_0_rgba(255,255,255,0.7),inset_0_-1px_2px_rgba(0,0,0,0.35),0_2px_6px_rgba(0,0,0,0.5)]">
+                    <div className="relative w-16 h-5 rounded-[3px] overflow-hidden shrink-0 ring-1 ring-black/40 bg-[linear-gradient(180deg,#F0F0F0_0%,#C8C8C8_28%,#8E8E8E_52%,#B4B4B4_72%,#6C6C6C_100%)] flex items-center justify-center shadow-[inset_0_1px_0_rgba(255,255,255,0.7),inset_0_-1px_2px_rgba(0,0,0,0.35)]">
                       {brand.logo && (
                         /* eslint-disable-next-line @next/next/no-img-element */
                         <img
                           src={brand.logo}
                           alt={brand.name}
-                          className="max-w-[80%] max-h-[75%] object-contain drop-shadow-[0_1px_0_rgba(255,255,255,0.3)]"
+                          className="max-w-[80%] max-h-[75%] object-contain"
                         />
                       )}
-                      <div className="absolute inset-x-0 top-0 h-2 bg-gradient-to-b from-white/55 to-transparent pointer-events-none" />
+                      <div className="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-b from-white/55 to-transparent pointer-events-none" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <span className="text-text text-sm font-medium">
+                      <div className="text-text text-xs font-semibold truncate">
                         {t("prod.badgeName", { brand: brand.name })}
-                      </span>
-                      <p className="text-text-dim text-xs mt-0.5">
+                      </div>
+                      <div className="text-text-dim text-[10px] mt-0.5 truncate">
                         {t("prod.badgeSubtext")}
-                      </p>
+                      </div>
                     </div>
                   </label>
                 ) : (
-                  <div className="flex items-center gap-4 rounded-xl border border-border/50 bg-surface/30 p-4">
-                    <div className="w-20 h-7 rounded-[3px] border border-dashed border-border/70 flex items-center justify-center shrink-0 text-text-faint">
+                  <div className="flex items-center gap-3 rounded-lg border border-border/50 bg-surface/30 p-3">
+                    <div className="w-16 h-5 rounded-[3px] border border-dashed border-border/70 flex items-center justify-center shrink-0 text-text-faint">
                       <svg
-                        className="w-4 h-4"
+                        className="w-3 h-3"
                         fill="none"
                         stroke="currentColor"
-                        strokeWidth={1.6}
+                        strokeWidth={1.8}
                         viewBox="0 0 24 24"
                         aria-hidden
                       >
@@ -286,19 +305,21 @@ export default function ProductPage() {
                       </svg>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <span className="text-text-dim text-sm font-medium">
+                      <div className="text-text-dim text-xs font-semibold truncate">
                         {t("prod.badgeUnavailable")}
-                      </span>
-                      <p className="text-text-faint text-xs mt-0.5">
+                      </div>
+                      <div className="text-text-faint text-[10px] mt-0.5 leading-snug">
                         {t("prod.badgeUnavailableSub", { brand: brand.name })}
-                      </p>
+                      </div>
                     </div>
                   </div>
                 )}
               </div>
+
+              {/* Submit — desktop only */}
               <button
                 onClick={add}
-                className={`w-full py-4 rounded-xl text-sm font-semibold tracking-wider uppercase transition-all duration-300 ${added ? "bg-success text-bg" : "bg-gradient-to-r from-gold to-gold-light text-bg shadow-[0_4px_24px_rgba(212,165,74,0.25)] hover:shadow-[0_6px_32px_rgba(212,165,74,0.4)]"}`}
+                className={`hidden lg:block w-full py-3.5 rounded-xl text-[13px] font-semibold tracking-wider uppercase transition-all duration-300 ${added ? "bg-success text-bg" : "bg-gradient-to-r from-gold to-gold-light text-bg shadow-[0_4px_20px_rgba(212,165,74,0.25)] hover:shadow-[0_6px_28px_rgba(212,165,74,0.4)]"}`}
               >
                 {added
                   ? t("prod.addedFull")
@@ -309,11 +330,12 @@ export default function ProductPage() {
         </div>
       </div>
 
+      {/* Mobile sticky add-to-cart */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-bg/95 backdrop-blur-xl border-t border-border/50 px-4 py-3 pb-[calc(env(safe-area-inset-bottom)+0.75rem)]">
         <div className="flex items-center gap-3">
           <div className="min-w-0 flex-1">
-            <div className="text-[10px] uppercase tracking-wider text-text-faint">
-              {localizeMatSet(t, ms.label)}
+            <div className="text-[10px] uppercase tracking-wider text-text-faint truncate">
+              {localizedSet}
             </div>
             <div className="text-gold text-lg font-bold leading-tight">
               {formatPrice(unitPrice)}

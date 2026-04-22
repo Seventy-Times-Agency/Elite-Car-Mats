@@ -217,7 +217,7 @@ export default function ProductPage() {
                   label={t("prod.stepColor")}
                   value={localizedColor}
                 />
-                <div className="flex flex-wrap gap-x-2 gap-y-3">
+                <div className="flex flex-wrap gap-1.5">
                   {evaColors.map((c) => (
                     <MatColorSwatch
                       key={c.id}
@@ -225,6 +225,7 @@ export default function ProductPage() {
                       selected={color.id === c.id}
                       localizedName={localizeColor(t, c.name)}
                       onClick={() => setColor(c)}
+                      showLabel={false}
                     />
                   ))}
                 </div>

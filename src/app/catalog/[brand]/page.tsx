@@ -8,7 +8,7 @@ import { VehicleCategory } from "@/types";
 import { useT } from "@/i18n/I18nProvider";
 import { localizeBody } from "@/i18n/labels";
 
-const CATEGORY_ORDER: VehicleCategory[] = ["car", "suv", "truck"];
+const CATEGORY_ORDER: VehicleCategory[] = ["car", "suv", "truck", "commercial"];
 
 const CATEGORY_ICONS: Record<VehicleCategory, React.ReactNode> = {
   car: (
@@ -37,12 +37,24 @@ const CATEGORY_ICONS: Record<VehicleCategory, React.ReactNode> = {
       <circle cx="30" cy="20" r="2.8" stroke="currentColor" strokeWidth="1.1" fill="none" />
     </svg>
   ),
+  commercial: (
+    <svg viewBox="0 0 48 24" fill="none" className="w-full h-full" aria-hidden>
+      <path d="M3 18 L3 9 Q3 6.5, 5.5 6.5 L15 6.5 L15 18 Z" stroke="currentColor" strokeWidth="1.2" fill="none" />
+      <path d="M15 18 L15 11 L18 11 L20 14 L20 18 Z" stroke="currentColor" strokeWidth="1.2" fill="none" opacity="0.85" />
+      <rect x="20" y="7.5" width="24" height="10.5" stroke="currentColor" strokeWidth="1.2" fill="none" />
+      <line x1="3" y1="18" x2="44" y2="18" stroke="currentColor" strokeWidth="1.2" />
+      <circle cx="9" cy="20" r="2.6" stroke="currentColor" strokeWidth="1.1" fill="none" />
+      <circle cx="27" cy="20" r="2.6" stroke="currentColor" strokeWidth="1.1" fill="none" />
+      <circle cx="35" cy="20" r="2.6" stroke="currentColor" strokeWidth="1.1" fill="none" />
+    </svg>
+  ),
 };
 
 const CATEGORY_LABEL_KEY: Record<VehicleCategory, string> = {
   car: "cat.cars",
   suv: "cat.suvs",
   truck: "cat.trucks",
+  commercial: "cat.commercial",
 };
 
 export default function BrandPage() {
@@ -50,16 +62,17 @@ export default function BrandPage() {
   const t = useT();
   const brand = brands.find((b) => b.slug === params.brand);
   const [filter, setFilter] = useState<VehicleCategory | "all">("all");
+  const [query, setQuery] = useState("");
 
-  const models = useMemo(
+  const allModels = useMemo(
     () => (brand ? mockModels.filter((m) => m.brandId === brand.id) : []),
     [brand],
   );
 
   const availableCategories = useMemo(() => {
-    const set = new Set(models.map((m) => m.category));
+    const set = new Set(allModels.map((m) => m.category));
     return CATEGORY_ORDER.filter((c) => set.has(c));
-  }, [models]);
+  }, [allModels]);
 
   if (!brand)
     return (
@@ -68,14 +81,22 @@ export default function BrandPage() {
       </div>
     );
 
-  const visibleModels =
-    filter === "all" ? models : models.filter((m) => m.category === filter);
+  const byCategory =
+    filter === "all"
+      ? allModels
+      : allModels.filter((m) => m.category === filter);
+
+  const q = query.trim().toLowerCase();
+  const visibleModels = q
+    ? byCategory.filter((m) => m.name.toLowerCase().includes(q))
+    : byCategory;
+
   const showFilter = availableCategories.length > 1;
 
   return (
-    <div className="py-16 lg:py-24 min-h-screen">
+    <div className="py-12 lg:py-16 min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <nav className="mb-10 text-xs text-text-dim">
+        <nav className="mb-8 text-xs text-text-dim">
           <Link href="/catalog" className="hover:text-gold transition-colors">
             {t("brand.breadcrumbCatalog")}
           </Link>
@@ -83,79 +104,147 @@ export default function BrandPage() {
           <span className="text-text">{brand.name}</span>
         </nav>
 
-        <div className="flex items-center gap-4 mb-10">
-          {brand.logo && (
-            <div className="w-16 h-12 relative shrink-0">
-              <Image
-                src={brand.logo}
-                alt={brand.name}
-                fill
-                className="object-contain"
-                sizes="64px"
-              />
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5 mb-8">
+          <div className="flex items-center gap-4">
+            {brand.logo && (
+              <div className="w-14 h-11 relative shrink-0">
+                <Image
+                  src={brand.logo}
+                  alt={brand.name}
+                  fill
+                  className="object-contain"
+                  sizes="56px"
+                />
+              </div>
+            )}
+            <div>
+              <h1 className="text-2xl lg:text-3xl font-bold">
+                {t("brand.titlePrefix")}{" "}
+                <span className="text-gold">{brand.name}</span>
+              </h1>
+              <p className="mt-0.5 text-text-dim text-xs">
+                {t("catalog.modelsCount", { n: allModels.length })}
+              </p>
             </div>
-          )}
-          <div>
-            <h1 className="text-3xl lg:text-4xl font-bold">
-              {t("brand.titlePrefix")} <span className="text-gold">{brand.name}</span>
-            </h1>
-            <p className="mt-1 text-text-dim text-sm">{t("brand.subtitle")}</p>
+          </div>
+
+          <div className="relative w-full sm:w-64">
+            <svg
+              className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-faint pointer-events-none"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              viewBox="0 0 24 24"
+              aria-hidden
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
+              />
+            </svg>
+            <input
+              type="search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder={t("catalog.searchPh")}
+              aria-label={t("catalog.searchAria")}
+              className="w-full glass-card rounded-lg pl-10 pr-9 py-2.5 text-sm text-text placeholder:text-text-faint focus:border-gold/40 focus:outline-none transition-all"
+            />
+            {query && (
+              <button
+                onClick={() => setQuery("")}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-text-faint hover:text-gold p-1"
+                aria-label={t("catalog.clearAria")}
+              >
+                <svg
+                  className="w-3.5 h-3.5"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  viewBox="0 0 24 24"
+                  aria-hidden
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M6 18 18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            )}
           </div>
         </div>
 
         {showFilter && (
-          <div className="flex flex-wrap gap-2 mb-8">
+          <div className="flex flex-wrap gap-2 mb-7">
             <button
               onClick={() => setFilter("all")}
-              className={`px-4 py-2 text-sm rounded-lg transition-all duration-200 ${filter === "all" ? "bg-gradient-to-r from-gold to-gold-light text-bg font-medium shadow-[0_2px_12px_rgba(212,165,74,0.3)]" : "glass-card text-text-dim hover:text-gold hover:border-gold/30"}`}
+              className={`px-3.5 py-1.5 text-xs font-medium rounded-full transition-all duration-200 ${filter === "all" ? "bg-gradient-to-r from-gold to-gold-light text-bg shadow-[0_2px_12px_rgba(212,165,74,0.3)]" : "glass-card text-text-dim hover:text-gold hover:border-gold/30"}`}
             >
-              {t("brand.allFilter")} ({models.length})
+              {t("brand.allFilter")} · {allModels.length}
             </button>
             {availableCategories.map((c) => {
-              const count = models.filter((m) => m.category === c).length;
+              const count = allModels.filter((m) => m.category === c).length;
               return (
                 <button
                   key={c}
                   onClick={() => setFilter(c)}
-                  className={`px-4 py-2 text-sm rounded-lg transition-all duration-200 ${filter === c ? "bg-gradient-to-r from-gold to-gold-light text-bg font-medium shadow-[0_2px_12px_rgba(212,165,74,0.3)]" : "glass-card text-text-dim hover:text-gold hover:border-gold/30"}`}
+                  className={`px-3.5 py-1.5 text-xs font-medium rounded-full transition-all duration-200 ${filter === c ? "bg-gradient-to-r from-gold to-gold-light text-bg shadow-[0_2px_12px_rgba(212,165,74,0.3)]" : "glass-card text-text-dim hover:text-gold hover:border-gold/30"}`}
                 >
-                  {t(CATEGORY_LABEL_KEY[c])} ({count})
+                  {t(CATEGORY_LABEL_KEY[c])} · {count}
                 </button>
               );
             })}
           </div>
         )}
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2.5">
           {visibleModels.map((m) => {
-            const y = m.years[m.years.length - 1];
+            const yFirst = m.years[0];
+            const yLast = m.years[m.years.length - 1];
             return (
               <Link
                 key={m.id}
                 href={`/catalog/${brand.slug}/${m.slug}`}
-                className="group relative rounded-xl p-4 bg-gradient-to-b from-[#1A1A1A] to-[#131313] border border-border/60 hover:border-gold/50 transition-all duration-300 overflow-hidden hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,0,0,0.4),0_0_24px_rgba(212,165,74,0.08)]"
+                className="group relative rounded-xl overflow-hidden bg-[linear-gradient(180deg,#1C1C1C_0%,#121212_100%)] border border-border/60 hover:border-gold/50 transition-all duration-300 hover:-translate-y-[2px] hover:shadow-[0_8px_22px_rgba(0,0,0,0.4),0_0_18px_rgba(212,165,74,0.1)]"
               >
-                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-br from-gold/[0.06] via-transparent to-transparent pointer-events-none" aria-hidden />
-                <div className="absolute top-0 right-0 w-12 h-12 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" aria-hidden>
-                  <div className="absolute top-2.5 right-2.5 w-5 h-[1px] bg-gradient-to-l from-gold to-transparent" />
-                  <div className="absolute top-2.5 right-2.5 h-5 w-[1px] bg-gradient-to-b from-gold to-transparent" />
-                </div>
+                {/* Top accent strip */}
+                <div className="h-[2px] bg-gradient-to-r from-transparent via-gold/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
-                <div className="w-10 h-6 text-text-faint group-hover:text-gold transition-colors duration-300 mb-3">
-                  {CATEGORY_ICONS[m.category]}
-                </div>
+                <div className="p-3">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="w-8 h-5 text-gold/60 group-hover:text-gold transition-colors duration-300 shrink-0">
+                      {CATEGORY_ICONS[m.category]}
+                    </div>
+                    <span className="text-[9px] font-mono text-text-faint group-hover:text-gold/70 transition-colors tabular-nums whitespace-nowrap shrink-0">
+                      {yFirst === yLast ? yFirst : `${yFirst}–${yLast}`}
+                    </span>
+                  </div>
 
-                <h3 className="text-sm font-semibold leading-tight text-text group-hover:text-gold transition-colors duration-300 min-h-[2.6rem] line-clamp-2">
-                  {m.name}
-                </h3>
+                  <h3 className="mt-2 text-[13px] font-semibold leading-tight text-text group-hover:text-gold transition-colors duration-300 line-clamp-2 min-h-[2.4rem]">
+                    {m.name}
+                  </h3>
 
-                <div className="mt-3 pt-3 border-t border-border/40 flex items-center justify-between">
-                  <span className="text-[10px] uppercase tracking-wider text-text-faint group-hover:text-text-dim transition-colors">
-                    {localizeBody(t, m.bodyType)}
-                  </span>
-                  <span className="text-[10px] font-medium text-text-faint group-hover:text-gold/70 transition-colors tabular-nums">
-                    {m.years[0]}–{y}
-                  </span>
+                  <div className="mt-2 pt-2 border-t border-border/35 flex items-center justify-between gap-2">
+                    <span className="text-[9px] uppercase tracking-[0.12em] text-text-faint group-hover:text-text-dim transition-colors truncate">
+                      {localizeBody(t, m.bodyType)}
+                    </span>
+                    <svg
+                      className="w-3 h-3 text-gold/40 group-hover:text-gold group-hover:translate-x-0.5 transition-all shrink-0"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth={2.5}
+                      viewBox="0 0 24 24"
+                      aria-hidden
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M13 7l5 5m0 0l-5 5m5-5H6"
+                      />
+                    </svg>
+                  </div>
                 </div>
               </Link>
             );
@@ -164,7 +253,9 @@ export default function BrandPage() {
 
         {visibleModels.length === 0 && (
           <div className="text-center py-16 text-text-dim">
-            {t("brand.emptyCategory")}
+            {q
+              ? t("catalog.noResults", { query })
+              : t("brand.emptyCategory")}
           </div>
         )}
       </div>

@@ -187,10 +187,13 @@ export const uk: Dict = {
   "body.roadster": "Родстер",
   "body.minivan": "Мінівен",
   "body.van": "Фургон",
+  "body.semitruck": "Сідельний тягач",
+  "body.truckBody": "Вантажівка",
 
   "cat.cars": "Легкові",
   "cat.suvs": "SUV / Кросовери",
   "cat.trucks": "Пікапи / Фургони",
+  "cat.commercial": "Комерційні / Фури",
 
   "catalog.label": "Каталог",
   "catalog.heading": "Оберіть марку",

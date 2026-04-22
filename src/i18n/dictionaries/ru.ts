@@ -205,11 +205,14 @@ export const ru: Dict = {
   "body.roadster": "Родстер",
   "body.minivan": "Минивэн",
   "body.van": "Фургон",
+  "body.semitruck": "Седельный тягач",
+  "body.truckBody": "Грузовик",
 
   // Vehicle categories
   "cat.cars": "Легковые",
   "cat.suvs": "SUV / Кроссоверы",
   "cat.trucks": "Пикапы / Фургоны",
+  "cat.commercial": "Коммерческие / Фуры",
 
   // Catalog
   "catalog.label": "Каталог",

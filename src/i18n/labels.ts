@@ -13,6 +13,8 @@ const BODY_KEY: Record<string, string> = {
   Родстер: "body.roadster",
   Минивэн: "body.minivan",
   Фургон: "body.van",
+  "Седельный тягач": "body.semitruck",
+  Грузовик: "body.truckBody",
 };
 
 const MATSET_KEY: Record<string, string> = {

@@ -186,10 +186,13 @@ export const en: Dict = {
   "body.roadster": "Roadster",
   "body.minivan": "Minivan",
   "body.van": "Van",
+  "body.semitruck": "Semi Truck",
+  "body.truckBody": "Commercial Truck",
 
   "cat.cars": "Cars",
   "cat.suvs": "SUVs / Crossovers",
   "cat.trucks": "Pickups / Vans",
+  "cat.commercial": "Commercial / Semi Trucks",
 
   "catalog.label": "Catalog",
   "catalog.heading": "Choose your make",

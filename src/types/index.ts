@@ -6,7 +6,7 @@ export interface Brand {
   modelsCount: number;
 }
 
-export type VehicleCategory = "car" | "suv" | "truck";
+export type VehicleCategory = "car" | "suv" | "truck" | "commercial";
 
 export interface CarModel {
   id: string;

@@ -193,6 +193,9 @@ export const ru: Dict = {
   "color.gray": "Серый",
   "color.gold": "Золотой",
   "color.red": "Красный",
+  "color.blue": "Синий",
+  "color.brown": "Коричневый",
+  "color.beige": "Бежевый",
 
   // Body types
   "body.sedan": "Седан",

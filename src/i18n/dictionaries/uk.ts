@@ -176,6 +176,9 @@ export const uk: Dict = {
   "color.gray": "Сірий",
   "color.gold": "Золотий",
   "color.red": "Червоний",
+  "color.blue": "Синій",
+  "color.brown": "Коричневий",
+  "color.beige": "Бежевий",
 
   "body.sedan": "Седан",
   "body.crossover": "Кросовер",

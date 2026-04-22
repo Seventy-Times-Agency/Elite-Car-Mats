@@ -36,6 +36,9 @@ const COLOR_KEY: Record<string, string> = {
   Серый: "color.gray",
   Золотой: "color.gold",
   Красный: "color.red",
+  Синий: "color.blue",
+  Коричневый: "color.brown",
+  Бежевый: "color.beige",
 };
 
 function lookup(t: TFn, key: string | undefined, fallback: string): string {

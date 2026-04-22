@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { brands, mockModels, matSets, evaColors, edgeColors, badges } from "@/data/mock";
 import { useCart } from "@/context/CartContext";
 import { MatPreview } from "@/components/product/MatPreview";
+import { MatColorSwatch } from "@/components/product/MatColorSwatch";
 import { MatSetType } from "@/types";
 import { calculateItemUnitPrice, formatPrice } from "@/lib/pricing";
 import { ProductJsonLd } from "@/components/seo/ProductJsonLd";
@@ -193,31 +194,34 @@ export default function ProductPage() {
                 </div>
               </div>
               <div>
-                <h3 className="section-label text-[10px] mb-3">
+                <h3 className="section-label text-[10px] mb-4">
                   {t("prod.stepColor", { color: localizedColor })}
                 </h3>
-                <div className="flex gap-3">
+                <div className="grid grid-cols-4 sm:grid-cols-6 gap-3 sm:gap-4">
                   {evaColors.map((c) => (
-                    <button
+                    <MatColorSwatch
                       key={c.id}
+                      color={c}
+                      selected={color.id === c.id}
+                      localizedName={localizeColor(t, c.name)}
                       onClick={() => setColor(c)}
-                      className={`w-11 h-11 rounded-full transition-all duration-200 ${color.id === c.id ? "ring-2 ring-gold ring-offset-2 ring-offset-bg scale-110 shadow-[0_0_12px_rgba(212,165,74,0.2)]" : "ring-1 ring-border hover:ring-gold/40"}`}
-                      style={{ backgroundColor: c.hex }}
                     />
                   ))}
                 </div>
               </div>
               <div>
-                <h3 className="section-label text-[10px] mb-3">
+                <h3 className="section-label text-[10px] mb-4">
                   {t("prod.stepEdge", { color: localizedEdge })}
                 </h3>
-                <div className="flex gap-3">
+                <div className="grid grid-cols-4 gap-3">
                   {edgeColors.map((c) => (
-                    <button
+                    <MatColorSwatch
                       key={c.id}
+                      color={c}
+                      selected={edge.id === c.id}
+                      localizedName={localizeColor(t, c.name)}
                       onClick={() => setEdge(c)}
-                      className={`w-10 h-10 rounded-full transition-all duration-200 ${edge.id === c.id ? "ring-2 ring-gold ring-offset-2 ring-offset-bg scale-110" : "ring-1 ring-border hover:ring-gold/40"}`}
-                      style={{ backgroundColor: c.hex }}
+                      size="sm"
                     />
                   ))}
                 </div>

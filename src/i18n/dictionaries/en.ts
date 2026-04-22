@@ -175,6 +175,9 @@ export const en: Dict = {
   "color.gray": "Gray",
   "color.gold": "Gold",
   "color.red": "Red",
+  "color.blue": "Blue",
+  "color.brown": "Brown",
+  "color.beige": "Beige",
 
   "body.sedan": "Sedan",
   "body.crossover": "Crossover",

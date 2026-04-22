@@ -12,7 +12,11 @@ export const matSets: MatSet[] = [
 
 export const evaColors: EvaColor[] = [
   { id: "black", name: "Чёрный", hex: "#1A1A1A" },
-  { id: "gray", name: "Серый", hex: "#6B7280" },
+  { id: "gray", name: "Серый", hex: "#5B6270" },
+  { id: "red", name: "Красный", hex: "#C2332F" },
+  { id: "brown", name: "Коричневый", hex: "#4A3A30" },
+  { id: "blue", name: "Синий", hex: "#1E4FAE" },
+  { id: "beige", name: "Бежевый", hex: "#CDB98E" },
 ];
 
 export const edgeColors: EdgeColor[] = [

@@ -217,50 +217,80 @@ export function MatPreview({
             </text>
           </g>
 
-          {/* Metal brand-logo medallion — driver-side top, only when the
-              customer adds the optional badge AND supplier has one in stock. */}
+          {/* Metal brand-logo plate — rectangular chrome strip (supplier type
+              DY). Rendered on the driver-side top only when showBadge and the
+              supplier has one in stock. */}
           {showBadge && brandLogoUrl && (
-            <g transform="translate(135, 115)">
+            <g transform="translate(150, 120)">
               <defs>
-                <radialGradient id="medallion-face" cx="0.35" cy="0.3" r="0.9">
-                  <stop offset="0" stopColor="#5a5a5a" />
-                  <stop offset="0.45" stopColor="#2a2a2a" />
-                  <stop offset="1" stopColor="#0d0d0d" />
-                </radialGradient>
-                <linearGradient id="medallion-ring" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0" stopColor="#F5D680" />
-                  <stop offset="0.5" stopColor="#B8912E" />
-                  <stop offset="1" stopColor="#8C6E1C" />
+                <linearGradient id="plate-chrome" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0" stopColor="#F0F0F0" />
+                  <stop offset="0.28" stopColor="#C8C8C8" />
+                  <stop offset="0.52" stopColor="#8E8E8E" />
+                  <stop offset="0.72" stopColor="#B4B4B4" />
+                  <stop offset="1" stopColor="#6C6C6C" />
                 </linearGradient>
-                <clipPath id="medallion-clip">
-                  <circle cx="0" cy="0" r="22" />
-                </clipPath>
+                <linearGradient id="plate-bevel-top" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0" stopColor="rgba(255,255,255,0.75)" />
+                  <stop offset="1" stopColor="rgba(255,255,255,0)" />
+                </linearGradient>
               </defs>
-              {/* drop shadow under medallion */}
-              <circle cx="1.5" cy="2" r="27" fill="rgba(0,0,0,0.35)" filter="url(#innerShadow)" />
-              {/* outer metallic ring */}
-              <circle cx="0" cy="0" r="27" fill="url(#medallion-ring)" />
-              {/* inner bevel ring */}
-              <circle cx="0" cy="0" r="24" fill="#111" />
-              {/* face */}
-              <circle cx="0" cy="0" r="22" fill="url(#medallion-face)" />
-              {/* logo */}
+              {/* drop shadow */}
+              <rect
+                x="-34"
+                y="-8"
+                width="68"
+                height="16"
+                rx="2"
+                fill="rgba(0,0,0,0.45)"
+                transform="translate(1.2, 1.8)"
+              />
+              {/* chrome plate */}
+              <rect
+                x="-34"
+                y="-8"
+                width="68"
+                height="16"
+                rx="2"
+                fill="url(#plate-chrome)"
+              />
+              {/* dark edge */}
+              <rect
+                x="-34"
+                y="-8"
+                width="68"
+                height="16"
+                rx="2"
+                fill="none"
+                stroke="rgba(0,0,0,0.45)"
+                strokeWidth="0.35"
+              />
+              {/* top bevel highlight */}
+              <rect
+                x="-33"
+                y="-7.4"
+                width="66"
+                height="6"
+                rx="1.5"
+                fill="url(#plate-bevel-top)"
+              />
+              {/* logo, centered, constrained */}
               <image
                 href={brandLogoUrl}
-                x="-18"
-                y="-13"
-                width="36"
-                height="26"
+                x="-26"
+                y="-5"
+                width="52"
+                height="10"
                 preserveAspectRatio="xMidYMid meet"
-                clipPath="url(#medallion-clip)"
                 aria-label={brandName}
               />
-              {/* top highlight */}
-              <ellipse
-                cx="-4"
-                cy="-15"
-                rx="13"
-                ry="5"
+              {/* glossy streak across middle */}
+              <rect
+                x="-33"
+                y="-1"
+                width="66"
+                height="1.4"
+                rx="0.5"
                 fill="rgba(255,255,255,0.18)"
               />
             </g>

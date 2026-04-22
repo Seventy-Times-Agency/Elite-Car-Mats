@@ -247,15 +247,16 @@ export default function ProductPage() {
                       onChange={(e) => setBadge(e.target.checked)}
                       className="w-4 h-4 text-gold focus:ring-gold accent-[#D4A54A] rounded"
                     />
-                    <div className="relative w-12 h-12 rounded-full overflow-hidden shrink-0 ring-1 ring-gold/40 bg-gradient-to-br from-[#3a3a3a] via-[#1a1a1a] to-[#0a0a0a] flex items-center justify-center shadow-[inset_0_-6px_10px_rgba(0,0,0,0.5),inset_0_4px_6px_rgba(255,255,255,0.05)]">
+                    <div className="relative w-20 h-7 rounded-[3px] overflow-hidden shrink-0 ring-1 ring-black/40 bg-[linear-gradient(180deg,#F0F0F0_0%,#C8C8C8_28%,#8E8E8E_52%,#B4B4B4_72%,#6C6C6C_100%)] flex items-center justify-center shadow-[inset_0_1px_0_rgba(255,255,255,0.7),inset_0_-1px_2px_rgba(0,0,0,0.35),0_2px_6px_rgba(0,0,0,0.5)]">
                       {brand.logo && (
                         /* eslint-disable-next-line @next/next/no-img-element */
                         <img
                           src={brand.logo}
                           alt={brand.name}
-                          className="w-8 h-8 object-contain opacity-90"
+                          className="max-w-[80%] max-h-[75%] object-contain drop-shadow-[0_1px_0_rgba(255,255,255,0.3)]"
                         />
                       )}
+                      <div className="absolute inset-x-0 top-0 h-2 bg-gradient-to-b from-white/55 to-transparent pointer-events-none" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <span className="text-text text-sm font-medium">
@@ -268,9 +269,9 @@ export default function ProductPage() {
                   </label>
                 ) : (
                   <div className="flex items-center gap-4 rounded-xl border border-border/50 bg-surface/30 p-4">
-                    <div className="w-12 h-12 rounded-full border border-dashed border-border/70 flex items-center justify-center shrink-0 text-text-faint">
+                    <div className="w-20 h-7 rounded-[3px] border border-dashed border-border/70 flex items-center justify-center shrink-0 text-text-faint">
                       <svg
-                        className="w-5 h-5"
+                        className="w-4 h-4"
                         fill="none"
                         stroke="currentColor"
                         strokeWidth={1.6}

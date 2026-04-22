@@ -102,7 +102,13 @@ export default function ProductPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
           <div className="space-y-4 lg:sticky lg:top-24 lg:self-start">
             <div className="aspect-[4/3] glass-card rounded-xl relative overflow-hidden p-6 lg:p-8">
-              <MatPreview color={color} edgeColor={edge} showBadge={badge} />
+              <MatPreview
+                color={color}
+                edgeColor={edge}
+                showBadge={badge && !!bdg}
+                brandLogoUrl={brand.logo}
+                brandName={brand.name}
+              />
               <div className="absolute top-4 left-4 text-[10px] uppercase tracking-[0.2em] text-gold/60 font-semibold">
                 {t("prod.previewLabel")}
               </div>
@@ -227,19 +233,31 @@ export default function ProductPage() {
                   ))}
                 </div>
               </div>
-              {bdg && (
-                <div>
-                  <h3 className="section-label text-[10px] mb-3">
-                    {t("prod.stepBadge")}
-                  </h3>
-                  <label className="flex items-center gap-4 cursor-pointer glass-card glow-hover rounded-xl p-4">
+              <div>
+                <h3 className="section-label text-[10px] mb-3">
+                  {t("prod.stepBadge")}
+                </h3>
+                {bdg ? (
+                  <label
+                    className={`flex items-center gap-4 cursor-pointer glass-card rounded-xl p-4 transition-all duration-200 ${badge ? "!border-gold/50 shadow-[0_0_18px_rgba(212,165,74,0.12)]" : "glow-hover"}`}
+                  >
                     <input
                       type="checkbox"
                       checked={badge}
                       onChange={(e) => setBadge(e.target.checked)}
                       className="w-4 h-4 text-gold focus:ring-gold accent-[#D4A54A] rounded"
                     />
-                    <div>
+                    <div className="relative w-12 h-12 rounded-full overflow-hidden shrink-0 ring-1 ring-gold/40 bg-gradient-to-br from-[#3a3a3a] via-[#1a1a1a] to-[#0a0a0a] flex items-center justify-center shadow-[inset_0_-6px_10px_rgba(0,0,0,0.5),inset_0_4px_6px_rgba(255,255,255,0.05)]">
+                      {brand.logo && (
+                        /* eslint-disable-next-line @next/next/no-img-element */
+                        <img
+                          src={brand.logo}
+                          alt={brand.name}
+                          className="w-8 h-8 object-contain opacity-90"
+                        />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
                       <span className="text-text text-sm font-medium">
                         {t("prod.badgeName", { brand: brand.name })}
                       </span>
@@ -248,8 +266,35 @@ export default function ProductPage() {
                       </p>
                     </div>
                   </label>
-                </div>
-              )}
+                ) : (
+                  <div className="flex items-center gap-4 rounded-xl border border-border/50 bg-surface/30 p-4">
+                    <div className="w-12 h-12 rounded-full border border-dashed border-border/70 flex items-center justify-center shrink-0 text-text-faint">
+                      <svg
+                        className="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth={1.6}
+                        viewBox="0 0 24 24"
+                        aria-hidden
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z"
+                        />
+                      </svg>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <span className="text-text-dim text-sm font-medium">
+                        {t("prod.badgeUnavailable")}
+                      </span>
+                      <p className="text-text-faint text-xs mt-0.5">
+                        {t("prod.badgeUnavailableSub", { brand: brand.name })}
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
               <button
                 onClick={add}
                 className={`w-full py-4 rounded-xl text-sm font-semibold tracking-wider uppercase transition-all duration-300 ${added ? "bg-success text-bg" : "bg-gradient-to-r from-gold to-gold-light text-bg shadow-[0_4px_24px_rgba(212,165,74,0.25)] hover:shadow-[0_6px_32px_rgba(212,165,74,0.4)]"}`}

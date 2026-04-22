@@ -681,7 +681,39 @@ for (const b of brands) {
   b.modelsCount = mockModels.filter((m) => m.brandId === b.id).length;
 }
 
-export const badges: Badge[] = brands.map((b) => ({ id: b.id, brandName: b.name }));
+// Metal brand-logo badge is available only for the brands the supplier
+// stocks. Source: DWJ20260328014 invoice (28 Mar 2026).
+const BADGE_BRAND_IDS = new Set([
+  "acura",
+  "audi",
+  "bmw",
+  "cadillac",
+  "chevrolet",
+  "chrysler",
+  "dodge",
+  "ford",
+  "gmc",
+  "honda",
+  "hyundai",
+  "infiniti",
+  "jeep",
+  "kia",
+  "lexus",
+  "mazda",
+  "mercedes",
+  "mitsubishi",
+  "nissan",
+  "porsche",
+  "subaru",
+  "tesla",
+  "toyota",
+  "volkswagen",
+  "volvo",
+]);
+
+export const badges: Badge[] = brands
+  .filter((b) => BADGE_BRAND_IDS.has(b.id))
+  .map((b) => ({ id: b.id, brandName: b.name }));
 
 export const mockReviews: Review[] = [
   { id: "1", customerName: "Александр М.", carModel: "Toyota Camry 2022", text: "Отличные коврики! Встали идеально, как родные. Качество EVA на высоте — не скользят, легко моются. Рекомендую!", rating: 5, createdAt: "2026-03-15" },

@@ -235,6 +235,8 @@ export const en: Dict = {
   "prod.stepBadge": "5 — Badge",
   "prod.badgeName": "{brand} badge",
   "prod.badgeSubtext": "Metal brand logo",
+  "prod.badgeUnavailable": "Badge not available",
+  "prod.badgeUnavailableSub": "We don't stock a {brand} badge at the moment",
   "prod.addToCartFull": "Add to cart — {price}",
   "prod.addedFull": "✓ Added!",
   "prod.addedShort": "✓ Added",

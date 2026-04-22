@@ -258,6 +258,8 @@ export const ru: Dict = {
   "prod.stepBadge": "5 — Шильдик",
   "prod.badgeName": "Шильдик {brand}",
   "prod.badgeSubtext": "Металлический логотип",
+  "prod.badgeUnavailable": "Шильдик недоступен",
+  "prod.badgeUnavailableSub": "Шильдика для {brand} пока нет в наличии у поставщика",
   "prod.addToCartFull": "Добавить в корзину — {price}",
   "prod.addedFull": "✓ Добавлено!",
   "prod.addedShort": "✓ Добавлено",

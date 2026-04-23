@@ -90,7 +90,7 @@ export default function OpengraphImage() {
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", position: "relative" }}>
           <div style={{ display: "flex", gap: 56 }}>
             {[
-              { v: "290+", l: "МОДЕЛЕЙ" },
+              { v: "800+", l: "PATTERNS" },
               { v: "5 лет", l: "СЛУЖАТ" },
               { v: "2 года", l: "ГАРАНТИЯ" },
             ].map((s) => (

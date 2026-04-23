@@ -30,10 +30,10 @@ export const en: Dict = {
   "hero.subtitle":
     "Custom-cut for your exact model. Premium EVA material. Shipping across the USA.",
   "hero.learnMore": "Learn more",
-  "hero.statModels": "Models",
+  "hero.statModels": "Patterns",
   "hero.statLifespan": "Lifespan",
   "hero.statWarranty": "Warranty",
-  "hero.statModelsValue": "290+",
+  "hero.statModelsValue": "800+",
   "hero.statLifespanValue": "5 years",
   "hero.statWarrantyValue": "2 years",
 
@@ -295,7 +295,7 @@ export const en: Dict = {
     "From order to packed shipment — 4 stages, each with a QC checkpoint. Every set is made to order.",
   "process.s1Title": "Choose your model",
   "process.s1Desc":
-    "Tell us your make, model, and year — our configurator instantly pulls the matching pattern from our library of 290+ vehicles.",
+    "Tell us your make, model, and year — our configurator instantly pulls the matching pattern from our library of 800+ vehicles.",
   "process.s2Title": "Precision CNC cut",
   "process.s2Desc":
     "Our CNC plotter cuts the EVA sheet along the 3D template with ±1 mm accuracy. Every mat mirrors the exact floor contour of your car.",
@@ -346,7 +346,7 @@ export const en: Dict = {
     "What every customer gets — regardless of vehicle, trim, or shipping address.",
   "features.f1Title": "Fit for your VIN range",
   "features.f1Desc":
-    "290+ models with precision patterns by year. No gaps, no pedal interference — guaranteed fit.",
+    "800+ models with precision patterns by year. No gaps, no pedal interference — guaranteed fit.",
   "features.f2Title": "CNC-cut ±1 mm",
   "features.f2Desc":
     "Plotter-cut from a digital pattern — not eyeballed with cardboard templates. Identical fit in every pair.",
@@ -452,47 +452,48 @@ export const en: Dict = {
   // About
   "about.metaTitle": "About Us",
   "about.metaDesc":
-    "Elite Car Mats — premium EVA floor mat manufacturer for the U.S. market. Custom-cut, premium materials, 2-year warranty.",
+    "Elite Car Mats is a premium American brand of custom-cut EVA floor mats. CNC precision, hand-stitched trim, made in Rochester, NY.",
   "about.ogTitle": "About Elite Car Mats",
-  "about.ogDesc": "Premium EVA floor mat manufacturer for the U.S. market.",
-  "about.label": "About Us",
-  "about.h1Line1": "Floor mats that",
-  "about.h1Line2": "speak for your car",
+  "about.ogDesc":
+    "Premium custom-cut EVA floor mats. Made in Rochester, New York.",
+  "about.label": "About",
+  "about.h1Line1": "Floor mats engineered",
+  "about.h1Line2": "for your car alone",
   "about.subtitle":
-    "Elite Car Mats is an American brand of premium EVA floor mats. We turn an accessory that most people treat as an afterthought into a piece of engineering precision and design.",
+    "Elite Car Mats is a premium American brand of custom-cut EVA floor mats. CNC-pattern precision, hand-stitched trim, made to order for your exact make and model.",
   "about.storyLabel": "Our Story",
-  "about.storyTitle": "From a Rochester garage to a national brand",
+  "about.storyTitle": "Craftsmanship by design",
   "about.storyP1":
-    "Elite Car Mats was founded in 2023 in a small garage in Rochester, New York. The founders — Eastern European immigrants — came to the U.S. with two core values: a love for cars and German-grade attention to detail. They noticed the American floor-mat market was stuck between cheap rubber from big-box stores and prohibitively expensive OEM carpet from dealerships.",
+    "Elite Car Mats was founded in 2026 in Rochester, New York by a Ukrainian-American craftsman who wanted mats worthy of the cars they protect — not the hollow rubber at big-box stores, not overpriced OEM carpet that wears through in a season.",
   "about.storyP2":
-    "We decided to fill that gap with an honest product: premium-grade EVA, custom patterns for every VIN range, flawless edge trim, and a design worthy of premium brands. No universal \"one-size-fits-all\" mats — only the precise floor geometry of a specific model and year.",
+    "The brief was simple: build what we'd put in our own cars. Medical-grade closed-cell EVA. Patterns cut on a CNC plotter to the millimeter. Perimeter trim double-stitched by hand on industrial machines. A metal brand badge on the driver's mat if you want one. No cut corners, no gimmicks.",
   "about.storyP3":
-    "Today our catalog covers 40+ brands and 300+ models — from the Toyota Camry to the Rolls-Royce Cullinan, from the Ford F-150 to the Tesla Cybertruck. We ship to all 50 states, and every order is hand-packed with a personal thank-you note.",
+    "We're a new house with an old-world approach to the work. We launched with 800+ vehicle patterns already digitized so most American drivers can order their exact set on day one. If yours isn't in our catalog, we'll pattern it for you — that's what custom actually means.",
   "about.principlesLabel": "Principles",
-  "about.principlesTitle": "What sets Elite Car Mats apart",
+  "about.principlesTitle": "What defines the brand",
   "about.v1Title": "Precision fit",
   "about.v1Desc":
-    "Patterns cut to within ±2 mm of the floor geometry of each model. Mats sit like factory — no gaps, no pedal interference.",
+    "Patterns cut to within ±2 mm of the exact floor geometry of your model. Your mats sit like OEM — no gaps, no pedal interference.",
   "about.v2Title": "Premium EVA",
   "about.v2Desc":
-    "Density of 75–80 kg/m³ — 1.5× more than budget mats. The honeycomb structure holds up to 1.5 liters of moisture and dirt.",
-  "about.v3Title": "Handcrafted",
+    "Density of 75–80 kg/m³ — 1.5× more than budget rubber. Closed-cell honeycomb structure contains up to 1.5 liters of moisture and dirt.",
+  "about.v3Title": "Hand-stitched",
   "about.v3Desc":
-    "Edges are stitched by hand on an industrial machine. No heat-welds — only a proper thread seam that won't unravel for years.",
+    "Perimeter trim is sewn by hand on industrial machines with heavy-tensile polyester thread. No heat-welds — only a proper thread seam that holds up for years.",
   "about.v4Title": "Factory-direct",
   "about.v4Desc":
-    "We make them, we sell them. Between our factory and your car there's only a box and FedEx — no middlemen, no markups.",
+    "We pattern it, cut it, stitch it, ship it. Between our Rochester workshop and your car there's nothing but a kraft mailer and FedEx — no middlemen, no markups.",
   "about.materialLabel": "Material",
   "about.materialTitle": "Why EVA",
   "about.materialP1":
-    "Ethylene-vinyl acetate is a polymer from the world of professional sports and orthopedics. It's used in Nike soles, orthopedic insoles, and life vests. A material that handles extreme loads turned out to be a perfect fit for a car interior.",
+    "Ethylene-vinyl acetate is the polymer behind Nike midsoles, orthopedic insoles, and marine-grade life vests. A material engineered for extreme loads turns out to be ideal for a car interior that sees salt, mud, and temperature swings every day.",
   "about.materialP2":
-    "EVA doesn't absorb water, salt, or de-icing chemicals. It doesn't crack in the cold down to −40°F or deform in heat up to 160°F. It weighs 3× less than rubber and doesn't produce the usual rubbery smell inside a closed car.",
+    "EVA doesn't absorb water, salt, or de-icing chemicals. It doesn't crack at −40°F or deform at 160°F. It weighs 3× less than rubber and doesn't give off the rubbery smell you get from discount mats in a closed cabin.",
   "about.specsLabel": "TECHNICAL SPECS",
   "about.spec1K": "Density",
   "about.spec1V": "75–80 kg/m³",
   "about.spec2K": "Thickness",
-  "about.spec2V": "10 mm (base) + 3 mm (edge)",
+  "about.spec2V": "10 mm base + 3 mm edge",
   "about.spec3K": "Operating temperature",
   "about.spec3V": "−40°F to 160°F",
   "about.spec4K": "Water absorption",
@@ -501,18 +502,18 @@ export const en: Dict = {
   "about.spec5V": "5–7 years of active use",
   "about.spec6K": "Certifications",
   "about.spec6V": "RoHS, REACH (non-toxic)",
-  "about.stat1N": "40+",
-  "about.stat1L": "brands in catalog",
-  "about.stat2N": "300+",
-  "about.stat2L": "vehicle models",
-  "about.stat3N": "50",
-  "about.stat3L": "states shipped",
-  "about.stat4N": "2 years",
+  "about.stat1N": "800+",
+  "about.stat1L": "vehicle patterns",
+  "about.stat2N": "47",
+  "about.stat2L": "supported makes",
+  "about.stat3N": "USA",
+  "about.stat3L": "cut & stitched",
+  "about.stat4N": "2 yr",
   "about.stat4L": "warranty",
   "about.ctaTitleA": "Ready to protect your interior",
   "about.ctaTitleB": "the right way?",
   "about.ctaSubtitle":
-    "Open the catalog and find mats for your car in just a couple of minutes.",
+    "Open the catalog or go straight to a custom request — we respond within the hour during business hours.",
   "about.ctaBtn": "Open catalog →",
 
   // Contacts
@@ -812,7 +813,7 @@ export const en: Dict = {
   "cat.metaDesc":
     "EVA car mats catalog for every popular make: Toyota, BMW, Audi, Tesla, Ford, and 40+ more. Custom-cut for your exact model and year.",
   "cat.ogTitle": "EVA Car Mats Catalog",
-  "cat.ogDesc": "EVA mats for 290+ vehicle models. Precision fit by year.",
+  "cat.ogDesc": "EVA mats for 800+ vehicle models. Precision fit by year.",
 
   "brand.metaNotFound": "Brand not found",
   "brand.metaTitle": "{brand} Floor Mats",

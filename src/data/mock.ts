@@ -1079,8 +1079,7 @@ export const badges: Badge[] = brands
   .filter((b) => BADGE_BRAND_IDS.has(b.id))
   .map((b) => ({ id: b.id, brandName: b.name }));
 
-export const mockReviews: Review[] = [
-  { id: "1", customerName: "Александр М.", carModel: "Toyota Camry 2022", text: "Отличные коврики! Встали идеально, как родные. Качество EVA на высоте — не скользят, легко моются. Рекомендую!", rating: 5, createdAt: "2026-03-15" },
-  { id: "2", customerName: "Ирина К.", carModel: "BMW X5 2023", text: "Заказала полный комплект с багажником. Коврики пришли быстро, упаковка надёжная. Смотрятся премиально, золотая окантовка шикарна.", rating: 5, createdAt: "2026-03-10" },
-  { id: "3", customerName: "Дмитрий В.", carModel: "Tesla Model Y 2024", text: "Долго искал нормальные коврики для Теслы. Эти — лучшие. Идеальная посадка, не пахнут, выглядят дорого.", rating: 5, createdAt: "2026-02-28" },
-];
+// Reviews are populated only with real customer feedback. The earlier sample
+// testimonials were placeholders and have been removed now that the brand is
+// live; new entries will come from verified orders.
+export const mockReviews: Review[] = [];

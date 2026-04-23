@@ -118,6 +118,16 @@ export const en: Dict = {
   "co.errZip": "Invalid ZIP code",
   "co.errSubmit": "Submission error",
   "co.errOrderFail": "Failed to place order",
+  "co.payStripe": "Pay by card",
+  "co.payRedirecting": "Redirecting to payment...",
+  "co.payErr": "Could not start payment",
+
+  "pay.successTitle": "Payment successful",
+  "pay.successSub": "Thanks for your order! We've started processing it and will be in touch by email.",
+  "pay.cancelTitle": "Payment cancelled",
+  "pay.cancelSub": "Your order is saved but not paid yet. You can retry payment or get in touch.",
+  "pay.tryAgain": "Retry payment",
+  "pay.viewOrder": "View order",
 
   "ord.received": "Order received",
   "ord.number": "Order number",

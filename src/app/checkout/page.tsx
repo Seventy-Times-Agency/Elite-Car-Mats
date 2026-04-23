@@ -8,13 +8,18 @@ import {
   calculateOrderTotal,
   formatPrice,
 } from "@/lib/pricing";
-import { useT } from "@/i18n/I18nProvider";
+import { useT, useLocale } from "@/i18n/I18nProvider";
 import { localizeMatSet } from "@/i18n/labels";
+
+const STRIPE_PUBLISHABLE_KEY =
+  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ?? "";
+const STRIPE_ENABLED = STRIPE_PUBLISHABLE_KEY.length > 0;
 
 export default function CheckoutPage() {
   const router = useRouter();
   const { items, clearCart } = useCart();
   const t = useT();
+  const locale = useLocale();
   const [form, setForm] = useState({
     name: "",
     phone: "",
@@ -101,6 +106,28 @@ export default function CheckoutPage() {
         throw new Error(data.error || t("co.errOrderFail"));
       }
       const data = await res.json();
+
+      if (STRIPE_ENABLED && data.id) {
+        try {
+          const payRes = await fetch("/api/checkout/stripe", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ orderId: data.id, locale }),
+          });
+          if (payRes.ok) {
+            const payData = await payRes.json();
+            if (payData?.url) {
+              clearCart();
+              window.location.assign(payData.url);
+              return;
+            }
+          }
+          // Any non-ok response falls through to the manual-confirm flow.
+        } catch (payErr) {
+          console.warn("[checkout:stripe-fallback]", payErr);
+        }
+      }
+
       clearCart();
       router.push(`/order/${data.orderNumber}`);
     } catch (err) {
@@ -230,7 +257,13 @@ export default function CheckoutPage() {
               disabled={submitting}
               className="w-full bg-gradient-to-r from-gold to-gold-light text-bg text-sm font-semibold tracking-wider uppercase py-4 rounded-xl shadow-[0_4px_24px_rgba(212,165,74,0.25)] hover:shadow-[0_6px_32px_rgba(212,165,74,0.35)] transition-all disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              {submitting ? t("co.submitting") : t("co.submit")}
+              {submitting
+                ? STRIPE_ENABLED
+                  ? t("co.payRedirecting")
+                  : t("co.submitting")
+                : STRIPE_ENABLED
+                  ? t("co.payStripe")
+                  : t("co.submit")}
             </button>
           </div>
           <div>

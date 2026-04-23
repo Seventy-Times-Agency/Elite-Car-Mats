@@ -129,6 +129,17 @@ export const ru: Dict = {
   "co.errZip": "Неверный ZIP",
   "co.errSubmit": "Ошибка отправки",
   "co.errOrderFail": "Не удалось оформить заказ",
+  "co.payStripe": "Оплатить картой",
+  "co.payRedirecting": "Перенаправляем на оплату...",
+  "co.payErr": "Не удалось начать оплату",
+
+  // Payment result pages
+  "pay.successTitle": "Оплата прошла успешно",
+  "pay.successSub": "Спасибо за заказ! Мы уже начали обработку и свяжемся с вами по email.",
+  "pay.cancelTitle": "Оплата отменена",
+  "pay.cancelSub": "Заказ сохранён, но ещё не оплачен. Вы можете попробовать снова или связаться с нами.",
+  "pay.tryAgain": "Повторить оплату",
+  "pay.viewOrder": "Посмотреть заказ",
 
   // Order status page
   "ord.received": "Заказ принят",

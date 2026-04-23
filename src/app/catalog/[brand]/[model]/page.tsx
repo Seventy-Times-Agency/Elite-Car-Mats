@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { brands, mockModels, matSets, evaColors, edgeColors, badges } from "@/data/mock";
@@ -8,14 +8,40 @@ import { MatPreview } from "@/components/product/MatPreview";
 import { MatColorSwatch } from "@/components/product/MatColorSwatch";
 import { MatSetType } from "@/types";
 import { calculateItemUnitPrice, formatPrice } from "@/lib/pricing";
+import {
+  getVehicleProfile,
+  getAvailableMatSets,
+  getDefaultMatSet,
+  type VehicleConfigProfile,
+} from "@/lib/vehicle-profile";
 import { ProductJsonLd } from "@/components/seo/ProductJsonLd";
 import { useT } from "@/i18n/I18nProvider";
+import type { TFn } from "@/i18n/dictionary";
 import {
   localizeBody,
   localizeColor,
   localizeMatSet,
   localizeMatSetDesc,
 } from "@/i18n/labels";
+
+function pickupSetOverride(
+  profile: VehicleConfigProfile,
+  type: MatSetType,
+  t: TFn,
+): { label: string; desc: string } | null {
+  if (profile !== "pickup") return null;
+  if (type === "cargo")
+    return {
+      label: t("matset.cargoTruck"),
+      desc: t("matset.cargoTruckDesc"),
+    };
+  if (type === "full-cargo")
+    return {
+      label: t("matset.fullCargoTruck"),
+      desc: t("matset.fullCargoTruckDesc"),
+    };
+  return null;
+}
 
 function StepHeader({
   n,
@@ -63,6 +89,23 @@ export default function ProductPage() {
   const [badge, setBadge] = useState(false);
   const [added, setAdded] = useState(false);
 
+  const profile: VehicleConfigProfile = model
+    ? getVehicleProfile(model)
+    : "standard";
+  const availableSetTypes = useMemo(() => getAvailableMatSets(profile), [profile]);
+  const filteredMatSets = useMemo(
+    () => matSets.filter((s) => availableSetTypes.includes(s.type)),
+    [availableSetTypes],
+  );
+
+  // If the currently selected set isn't valid for this vehicle's profile
+  // (e.g. user navigated from a sedan to a 2-seater), snap to the default.
+  useEffect(() => {
+    if (!availableSetTypes.includes(set)) {
+      setSet(getDefaultMatSet(profile));
+    }
+  }, [profile, availableSetTypes, set]);
+
   if (!brand || !model)
     return (
       <div className="py-20 text-center">
@@ -83,16 +126,27 @@ export default function ProductPage() {
 
   const localizedColor = localizeColor(t, color.name);
   const localizedEdge = localizeColor(t, edge.name);
-  const localizedSet = localizeMatSet(t, ms.label);
+  const setOverride = pickupSetOverride(profile, set, t);
+  const localizedSet = setOverride
+    ? setOverride.label
+    : localizeMatSet(t, ms.label);
 
   const add = () => {
+    // For pickups we store the truck-bed label ("Кузов пикапа"/"Полный + Кузов")
+    // so cart / checkout / emails pick up the right localized string via
+    // labels.ts instead of showing "Багажник" for a bed.
+    const pickupLabels: Partial<Record<MatSetType, string>> =
+      profile === "pickup"
+        ? { cargo: "Кузов пикапа", "full-cargo": "Полный + Кузов" }
+        : {};
+    const storedLabel = pickupLabels[set] ?? ms.label;
     addItem({
       modelId: model.id,
       brandName: brand.name,
       modelName: model.name,
       year,
       matSet: set,
-      matSetLabel: ms.label,
+      matSetLabel: storedLabel,
       color,
       edgeColor: edge,
       badge: badge && bdg ? bdg : undefined,
@@ -184,29 +238,61 @@ export default function ProductPage() {
               {/* Step 2 — Set */}
               <div>
                 <StepHeader n={2} label={t("prod.stepSet")} value={localizedSet} />
-                <div className="grid grid-cols-2 gap-2">
-                  {matSets.map((s) => (
-                    <button
-                      key={s.type}
-                      onClick={() => setSet(s.type)}
-                      className={`px-3 py-2.5 text-left rounded-lg transition-all duration-200 ${
-                        set === s.type
-                          ? "border-2 border-gold bg-gold-glow"
-                          : "glass-card glow-hover"
-                      }`}
+                {profile !== "standard" && (
+                  <div className="mb-2.5 flex items-start gap-2 rounded-md border border-gold/15 bg-gold/[0.04] px-2.5 py-1.5">
+                    <svg
+                      className="w-3 h-3 text-gold/70 shrink-0 mt-0.5"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth={1.8}
+                      viewBox="0 0 24 24"
+                      aria-hidden
                     >
-                      <div
-                        className={`text-xs font-semibold leading-tight ${
-                          set === s.type ? "text-gold" : "text-text"
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M11.25 11.25l.041-.02a.75.75 0 01 1.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"
+                      />
+                    </svg>
+                    <span className="text-[10.5px] text-gold/85 leading-snug">
+                      {profile === "twoSeater"
+                        ? t("prod.profile2seaterHint")
+                        : profile === "semi"
+                          ? t("prod.profileSemiHint")
+                          : t("prod.profilePickupHint")}
+                    </span>
+                  </div>
+                )}
+                <div
+                  className={`grid ${filteredMatSets.length === 1 ? "grid-cols-1" : "grid-cols-2"} gap-2`}
+                >
+                  {filteredMatSets.map((s) => {
+                    const ov = pickupSetOverride(profile, s.type, t);
+                    const label = ov ? ov.label : localizeMatSet(t, s.label);
+                    const desc = ov ? ov.desc : localizeMatSetDesc(t, s.description);
+                    return (
+                      <button
+                        key={s.type}
+                        onClick={() => setSet(s.type)}
+                        className={`px-3 py-2.5 text-left rounded-lg transition-all duration-200 ${
+                          set === s.type
+                            ? "border-2 border-gold bg-gold-glow"
+                            : "glass-card glow-hover"
                         }`}
                       >
-                        {localizeMatSet(t, s.label)}
-                      </div>
-                      <div className="text-[10px] text-text-dim mt-0.5 leading-snug">
-                        {localizeMatSetDesc(t, s.description)}
-                      </div>
-                    </button>
-                  ))}
+                        <div
+                          className={`text-xs font-semibold leading-tight ${
+                            set === s.type ? "text-gold" : "text-text"
+                          }`}
+                        >
+                          {label}
+                        </div>
+                        <div className="text-[10px] text-text-dim mt-0.5 leading-snug">
+                          {desc}
+                        </div>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 

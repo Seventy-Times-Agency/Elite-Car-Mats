@@ -22,6 +22,8 @@ const MATSET_KEY: Record<string, string> = {
   "Полный комплект": "matset.full",
   Багажник: "matset.cargo",
   "Полный + Багажник": "matset.fullCargo",
+  "Кузов пикапа": "matset.cargoTruck",
+  "Полный + Кузов": "matset.fullCargoTruck",
 };
 
 const MATSET_DESC_KEY: Record<string, string> = {
@@ -29,6 +31,8 @@ const MATSET_DESC_KEY: Record<string, string> = {
   "Весь салон": "matset.fullDesc",
   "Багажное отделение": "matset.cargoDesc",
   "Салон и багажник": "matset.fullCargoDesc",
+  "Большой коврик в открытый кузов": "matset.cargoTruckDesc",
+  "Салон и кузов пикапа": "matset.fullCargoTruckDesc",
 };
 
 const COLOR_KEY: Record<string, string> = {

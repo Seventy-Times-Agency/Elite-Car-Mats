@@ -170,6 +170,13 @@ export const en: Dict = {
   "matset.cargoDesc": "Trunk / cargo area",
   "matset.fullCargo": "Full Set + Cargo",
   "matset.fullCargoDesc": "Cabin and cargo",
+  "matset.cargoTruck": "Truck Bed",
+  "matset.cargoTruckDesc": "Full-size liner for the open bed",
+  "matset.fullCargoTruck": "Full Set + Truck Bed",
+  "matset.fullCargoTruckDesc": "Cabin plus truck-bed liner",
+  "prod.profile2seaterHint": "Two-seat cabin — only front mats are available",
+  "prod.profileSemiHint": "Semi-truck cabin — only front mats are available",
+  "prod.profilePickupHint": "Pickup — a full truck-bed liner is available",
 
   "color.black": "Black",
   "color.gray": "Gray",

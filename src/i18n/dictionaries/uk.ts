@@ -171,6 +171,13 @@ export const uk: Dict = {
   "matset.cargoDesc": "Багажне відділення",
   "matset.fullCargo": "Повний + Багажник",
   "matset.fullCargoDesc": "Салон та багажник",
+  "matset.cargoTruck": "Кузов пікапа",
+  "matset.cargoTruckDesc": "Великий килимок у відкритий кузов",
+  "matset.fullCargoTruck": "Повний + Кузов",
+  "matset.fullCargoTruckDesc": "Салон та кузов пікапа",
+  "prod.profile2seaterHint": "Двомісний салон — доступні тільки передні килимки",
+  "prod.profileSemiHint": "Кабіна тягача — тільки передні килимки",
+  "prod.profilePickupHint": "Пікап — доступний великий килимок у кузов",
 
   "color.black": "Чорний",
   "color.gray": "Сірий",

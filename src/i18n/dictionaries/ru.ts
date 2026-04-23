@@ -187,6 +187,13 @@ export const ru: Dict = {
   "matset.cargoDesc": "Багажное отделение",
   "matset.fullCargo": "Полный + Багажник",
   "matset.fullCargoDesc": "Салон и багажник",
+  "matset.cargoTruck": "Кузов пикапа",
+  "matset.cargoTruckDesc": "Большой коврик в открытый кузов",
+  "matset.fullCargoTruck": "Полный + Кузов",
+  "matset.fullCargoTruckDesc": "Салон и кузов пикапа",
+  "prod.profile2seaterHint": "Двухместный салон — доступны только передние коврики",
+  "prod.profileSemiHint": "Кабина тягача — только передние коврики",
+  "prod.profilePickupHint": "Пикап — доступен большой коврик в кузов",
 
   // EVA / edge colors
   "color.black": "Чёрный",

@@ -53,8 +53,14 @@ export default function BrandPage() {
 
   if (!brand)
     return (
-      <div className="py-20 text-center">
+      <div className="py-20 text-center px-4">
         <h1 className="text-xl font-bold">{t("brand.notFound")}</h1>
+        <Link
+          href="/custom-order"
+          className="mt-5 inline-flex items-center gap-2 text-gold hover:text-gold-light text-sm transition-colors"
+        >
+          {t("custom.ctaFromSearch")}
+        </Link>
       </div>
     );
 
@@ -229,12 +235,38 @@ export default function BrandPage() {
         </div>
 
         {visibleModels.length === 0 && (
-          <div className="text-center py-16 text-text-dim">
+          <div className="text-center py-10 text-text-dim">
             {q
               ? t("catalog.noResults", { query })
               : t("brand.emptyCategory")}
           </div>
         )}
+
+        <div className="mt-8">
+          <Link
+            href={`/custom-order?make=${encodeURIComponent(brand.name)}${q ? `&model=${encodeURIComponent(query)}` : ""}`}
+            className="group relative block rounded-xl overflow-hidden border border-gold/30 bg-gradient-to-br from-[#1a1500] via-[#141110] to-[#0F0F0F] hover:border-gold/55 transition-all duration-300 hover:shadow-[0_10px_28px_rgba(0,0,0,0.5),0_0_22px_rgba(212,165,74,0.15)]"
+          >
+            <div className="relative px-4 py-4 sm:px-6 sm:py-5 flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-5">
+              <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-gold/15 text-gold shrink-0">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.7} viewBox="0 0 24 24" aria-hidden>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z" />
+                </svg>
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="text-text text-sm lg:text-base font-bold">
+                  {t("brand.customCta", { brand: brand.name })}
+                </h3>
+                <p className="mt-0.5 text-text-dim text-xs leading-relaxed">
+                  {t("brand.customCtaSub")}
+                </p>
+              </div>
+              <span className="inline-flex items-center gap-1.5 text-gold text-xs font-semibold tracking-[0.12em] uppercase whitespace-nowrap group-hover:translate-x-0.5 transition-transform">
+                {t("brand.customCtaBtn")}
+              </span>
+            </div>
+          </Link>
+        </div>
       </div>
     </div>
   );

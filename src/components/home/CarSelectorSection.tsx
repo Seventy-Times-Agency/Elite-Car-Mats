@@ -342,6 +342,16 @@ export function CarSelectorSection() {
               >
                 {ready ? t("cfg.submit") : t("cfg.submitDisabled")}
               </button>
+
+              <div className="mt-3 text-center text-[11px] text-text-faint">
+                {t("cfg.customHint")}{" "}
+                <a
+                  href="/custom-order"
+                  className="text-gold/85 hover:text-gold underline underline-offset-2 decoration-gold/30 hover:decoration-gold transition-colors"
+                >
+                  {t("cfg.customHintLink")}
+                </a>
+              </div>
             </div>
           </div>
         </div>

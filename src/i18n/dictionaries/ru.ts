@@ -235,6 +235,52 @@ export const ru: Dict = {
   "catalog.noResults": "Ничего не нашли по запросу «{query}».",
   "catalog.noResultsContact": "Не нашли свою марку? Напишите",
   "catalog.modelsCount": "{n} моделей",
+  "catalog.customCta": "Не нашли свою марку?",
+  "catalog.customCtaSub":
+    "Мы режем коврики под любую машину. Оставьте заявку — раскроим индивидуально под ваш VIN.",
+  "catalog.customCtaBtn": "Индивидуальный заказ →",
+
+  "brand.customCta": "Не нашли свою модель {brand}?",
+  "brand.customCtaSub":
+    "Если модели нет в списке — мы всё равно сможем её раскроить. Оставьте заявку.",
+  "brand.customCtaBtn": "Заказать индивидуально →",
+
+  "cfg.customHint": "Нет вашей машины?",
+  "cfg.customHintLink": "Индивидуальный заказ",
+
+  "custom.metaTitle": "Индивидуальный заказ",
+  "custom.metaDesc":
+    "Оставьте заявку на индивидуальный раскрой EVA ковриков под вашу машину.",
+  "custom.title": "Индивидуальный заказ",
+  "custom.subtitle":
+    "Если вашей марки или модели нет в каталоге — мы всё равно её раскроим. Заполните форму, наш мастер свяжется с вами в течение рабочего дня.",
+  "custom.nameLabel": "Ваше имя",
+  "custom.nameRequired": "Укажите имя",
+  "custom.emailLabel": "Email",
+  "custom.emailRequired": "Укажите email",
+  "custom.emailInvalid": "Неверный email",
+  "custom.phoneLabel": "Телефон",
+  "custom.phoneRequired": "Укажите телефон",
+  "custom.makeLabel": "Марка авто",
+  "custom.makeRequired": "Укажите марку",
+  "custom.modelLabel": "Модель",
+  "custom.modelRequired": "Укажите модель",
+  "custom.yearLabel": "Год выпуска",
+  "custom.yearRequired": "Укажите год",
+  "custom.bodyLabel": "Тип кузова",
+  "custom.bodyPh": "Седан, кроссовер, пикап…",
+  "custom.setLabel": "Желаемый комплект",
+  "custom.notesLabel": "Дополнительно",
+  "custom.notesPh":
+    "Особенности салона, пожелания по цвету, доп. опции, фото авто (ссылкой) — всё, что поможет нам раскроить точнее.",
+  "custom.submit": "Отправить заявку",
+  "custom.submitting": "Отправляем…",
+  "custom.success": "Заявка принята!",
+  "custom.successSub":
+    "Мы получили вашу заявку. Мастер свяжется с вами в течение рабочего дня.",
+  "custom.successBack": "Вернуться в каталог",
+  "custom.errGeneric": "Не удалось отправить. Попробуйте ещё раз.",
+  "custom.ctaFromSearch": "Не нашли свою машину? Оформим индивидуально →",
 
   // Brand page
   "brand.breadcrumbCatalog": "Каталог",

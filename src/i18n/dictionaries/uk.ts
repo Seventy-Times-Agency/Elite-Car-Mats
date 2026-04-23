@@ -215,6 +215,52 @@ export const uk: Dict = {
   "catalog.noResults": "Нічого не знайдено за запитом «{query}».",
   "catalog.noResultsContact": "Не знайшли свою марку? Напишіть",
   "catalog.modelsCount": "{n} моделей",
+  "catalog.customCta": "Не знайшли свою марку?",
+  "catalog.customCtaSub":
+    "Ми ріжемо килимки під будь-яке авто. Залиште заявку — розкроїмо індивідуально під ваш VIN.",
+  "catalog.customCtaBtn": "Індивідуальне замовлення →",
+
+  "brand.customCta": "Не знайшли свою модель {brand}?",
+  "brand.customCtaSub":
+    "Якщо моделі немає в списку — ми все одно зможемо її розкроїти. Залиште заявку.",
+  "brand.customCtaBtn": "Замовити індивідуально →",
+
+  "cfg.customHint": "Немає вашого авто?",
+  "cfg.customHintLink": "Індивідуальне замовлення",
+
+  "custom.metaTitle": "Індивідуальне замовлення",
+  "custom.metaDesc":
+    "Залиште заявку на індивідуальний розкрій EVA килимків під ваше авто.",
+  "custom.title": "Індивідуальне замовлення",
+  "custom.subtitle":
+    "Якщо вашої марки чи моделі немає в каталозі — ми все одно її розкроїмо. Заповніть форму, наш майстер зв'яжеться з вами протягом робочого дня.",
+  "custom.nameLabel": "Ваше ім'я",
+  "custom.nameRequired": "Вкажіть ім'я",
+  "custom.emailLabel": "Email",
+  "custom.emailRequired": "Вкажіть email",
+  "custom.emailInvalid": "Невірний email",
+  "custom.phoneLabel": "Телефон",
+  "custom.phoneRequired": "Вкажіть телефон",
+  "custom.makeLabel": "Марка авто",
+  "custom.makeRequired": "Вкажіть марку",
+  "custom.modelLabel": "Модель",
+  "custom.modelRequired": "Вкажіть модель",
+  "custom.yearLabel": "Рік випуску",
+  "custom.yearRequired": "Вкажіть рік",
+  "custom.bodyLabel": "Тип кузова",
+  "custom.bodyPh": "Седан, кросовер, пікап…",
+  "custom.setLabel": "Бажаний комплект",
+  "custom.notesLabel": "Додатково",
+  "custom.notesPh":
+    "Особливості салону, побажання щодо кольору, дод. опції, фото авто (посиланням) — все, що допоможе нам розкроїти точніше.",
+  "custom.submit": "Надіслати заявку",
+  "custom.submitting": "Надсилаємо…",
+  "custom.success": "Заявку прийнято!",
+  "custom.successSub":
+    "Ми отримали вашу заявку. Майстер зв'яжеться з вами протягом робочого дня.",
+  "custom.successBack": "Повернутись до каталогу",
+  "custom.errGeneric": "Не вдалося надіслати. Спробуйте ще раз.",
+  "custom.ctaFromSearch": "Не знайшли своє авто? Оформимо індивідуально →",
 
   "brand.breadcrumbCatalog": "Каталог",
   "brand.titlePrefix": "Килимки для",

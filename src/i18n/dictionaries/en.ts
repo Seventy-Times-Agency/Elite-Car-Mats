@@ -214,6 +214,52 @@ export const en: Dict = {
   "catalog.noResults": "No results for “{query}”.",
   "catalog.noResultsContact": "Don't see your make? Email",
   "catalog.modelsCount": "{n} models",
+  "catalog.customCta": "Don't see your make?",
+  "catalog.customCtaSub":
+    "We cut mats for any car. Submit a request and we'll pattern them custom for your VIN.",
+  "catalog.customCtaBtn": "Request custom →",
+
+  "brand.customCta": "Can't find your {brand}?",
+  "brand.customCtaSub":
+    "If the model isn't listed, we'll still pattern it. Just send us a request.",
+  "brand.customCtaBtn": "Request custom →",
+
+  "cfg.customHint": "Don't see your car?",
+  "cfg.customHintLink": "Request custom",
+
+  "custom.metaTitle": "Custom Order",
+  "custom.metaDesc":
+    "Request custom-cut EVA floor mats for any make or model we don't list.",
+  "custom.title": "Custom Order",
+  "custom.subtitle":
+    "If your make or model isn't in the catalog, we'll still cut them. Fill out the form and our cutter will get back to you within one business day.",
+  "custom.nameLabel": "Your name",
+  "custom.nameRequired": "Please enter your name",
+  "custom.emailLabel": "Email",
+  "custom.emailRequired": "Please enter an email",
+  "custom.emailInvalid": "Invalid email",
+  "custom.phoneLabel": "Phone",
+  "custom.phoneRequired": "Please enter a phone number",
+  "custom.makeLabel": "Vehicle make",
+  "custom.makeRequired": "Please enter the make",
+  "custom.modelLabel": "Model",
+  "custom.modelRequired": "Please enter the model",
+  "custom.yearLabel": "Year",
+  "custom.yearRequired": "Please enter the year",
+  "custom.bodyLabel": "Body type",
+  "custom.bodyPh": "Sedan, crossover, pickup…",
+  "custom.setLabel": "Preferred set",
+  "custom.notesLabel": "Notes",
+  "custom.notesPh":
+    "Interior details, color preferences, extras, photo links of the car — anything that helps us pattern more accurately.",
+  "custom.submit": "Submit request",
+  "custom.submitting": "Sending…",
+  "custom.success": "Request received!",
+  "custom.successSub":
+    "We've got your request. Our cutter will reach out within one business day.",
+  "custom.successBack": "Back to catalog",
+  "custom.errGeneric": "Couldn't send. Please try again.",
+  "custom.ctaFromSearch": "Don't see your car? Request a custom order →",
 
   "brand.breadcrumbCatalog": "Catalog",
   "brand.titlePrefix": "Floor mats for",

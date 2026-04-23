@@ -111,6 +111,36 @@ export function CatalogClient({ brands }: { brands: Brand[] }) {
           ))}
         </div>
       )}
+
+      {/* Custom-order CTA — always visible under the brand grid */}
+      <div className="mt-10">
+        <Link
+          href="/custom-order"
+          className="group relative block rounded-2xl overflow-hidden border border-gold/30 bg-gradient-to-br from-[#1a1500] via-[#141110] to-[#0F0F0F] hover:border-gold/55 transition-all duration-300 hover:shadow-[0_12px_32px_rgba(0,0,0,0.5),0_0_28px_rgba(212,165,74,0.18)]"
+        >
+          <div className="absolute inset-0 opacity-[0.05] pointer-events-none" style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='104' viewBox='0 0 60 104' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0 L60 17.32 L60 51.96 L30 69.28 L0 51.96 L0 17.32 Z' stroke='%23D4A54A' stroke-width='1' fill='none'/%3E%3C/svg%3E")`,
+          }} aria-hidden />
+          <div className="relative px-5 py-5 sm:px-8 sm:py-6 flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
+            <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-gold/15 text-gold shrink-0">
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth={1.6} viewBox="0 0 24 24" aria-hidden>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+              </svg>
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="text-text text-base lg:text-lg font-bold">
+                {t("catalog.customCta")}
+              </h3>
+              <p className="mt-1 text-text-dim text-sm leading-relaxed">
+                {t("catalog.customCtaSub")}
+              </p>
+            </div>
+            <span className="inline-flex items-center gap-1.5 bg-gradient-to-r from-gold to-gold-light text-bg text-xs font-semibold tracking-[0.12em] uppercase px-4 py-2.5 rounded-lg shadow-[0_2px_14px_rgba(212,165,74,0.3)] group-hover:shadow-[0_4px_22px_rgba(212,165,74,0.45)] transition-all whitespace-nowrap shrink-0">
+              {t("catalog.customCtaBtn")}
+            </span>
+          </div>
+        </Link>
+      </div>
     </>
   );
 }

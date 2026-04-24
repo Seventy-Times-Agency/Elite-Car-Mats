@@ -24,16 +24,15 @@ export interface MigrationResult {
   error?: string;
 }
 
-function directUrl(): string | null {
-  const url = process.env.DATABASE_URL;
-  if (!url) return null;
-  // ep-xxx-pooler.c-5.us-east-1.aws.neon.tech → ep-xxx.c-5.us-east-1.aws.neon.tech
-  // Leave it alone if already direct.
-  return url.replace(/-pooler(\.[^./]+\.[^./]+\.aws\.neon\.tech)/, "$1");
+function connectionUrl(): string | null {
+  // Use the URL exactly as configured — Neon's IP allowlist typically only
+  // permits the pooler endpoint from Vercel, so rewriting to -pooler-less
+  // gets us blocked with 403. The pooler does support DDL.
+  return process.env.DATABASE_URL ?? null;
 }
 
 async function execAll(): Promise<MigrationResult[]> {
-  const url = directUrl();
+  const url = connectionUrl();
   if (!url) {
     return [{ label: "setup", ok: false, error: "DATABASE_URL not set" }];
   }

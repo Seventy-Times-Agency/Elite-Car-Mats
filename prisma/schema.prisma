@@ -179,12 +179,46 @@ model Review {
 // ============================================
 
 model PromoCode {
-  id        String    @id @default(cuid())
-  code      String    @unique
-  discount  Int       // percentage
-  active    Boolean   @default(true)
-  expiresAt DateTime?
-  createdAt DateTime  @default(now())
+  id          String    @id @default(cuid())
+  code        String    @unique
+  discount    Int       // percentage 1-100
+  description String?
+  maxUses     Int?      // null = unlimited
+  usedCount   Int       @default(0)
+  minOrder    Decimal?  @db.Decimal(10, 2)
+  active      Boolean   @default(true)
+  expiresAt   DateTime?
+  createdAt   DateTime  @default(now())
+}
+
+// ============================================
+// Индивидуальные заказы (custom-order form)
+// ============================================
+
+enum CustomOrderStatus {
+  NEW
+  CONTACTED
+  QUOTED
+  CONVERTED
+  CLOSED
+}
+
+model CustomOrderRequest {
+  id         String            @id @default(cuid())
+  name       String
+  email      String
+  phone      String
+  make       String
+  model      String
+  year       String
+  bodyType   String?
+  matSet     String?
+  notes      String?
+  locale     String?
+  status     CustomOrderStatus @default(NEW)
+  adminNotes String?
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
 }
 
 // ============================================

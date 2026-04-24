@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { createOrderSchema, OrderItemInput } from "@/lib/validations/order";
 import { calculateItemUnitPrice, calculateOrderTotal } from "@/lib/pricing";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
+import { validatePromoCode, recordPromoUse } from "@/lib/promo";
 import {
   sendCustomerOrderEmail,
   sendOwnerOrderEmail,
@@ -57,9 +58,9 @@ export async function POST(request: Request) {
     );
   }
 
-  const { customer, shipping, items } = parsed.data;
+  const { customer, shipping, items, promoCode } = parsed.data;
 
-  const total = calculateOrderTotal(
+  const subtotal = calculateOrderTotal(
     items.map((i) => ({
       matSet: i.matSet,
       edgeColor: { id: i.edgeColorId },
@@ -67,6 +68,18 @@ export async function POST(request: Request) {
       quantity: i.quantity,
     })),
   );
+
+  let discount = 0;
+  let appliedPromoCode: string | null = null;
+  if (promoCode) {
+    const promoResult = await validatePromoCode(promoCode, subtotal);
+    if (promoResult.valid && promoResult.amount && promoResult.code) {
+      discount = promoResult.amount;
+      appliedPromoCode = promoResult.code;
+    }
+  }
+
+  const total = Math.max(0, subtotal - discount);
 
   let order;
   try {
@@ -81,7 +94,9 @@ export async function POST(request: Request) {
         city: shipping.city || null,
         state: shipping.state || null,
         zip: shipping.zip || null,
-        comment: shipping.comment || null,
+        comment: appliedPromoCode
+          ? `${shipping.comment || ""}${shipping.comment ? "\n\n" : ""}[promo ${appliedPromoCode} −$${discount}]`.trim()
+          : shipping.comment || null,
         total,
         items: {
           create: items.map((i) => ({
@@ -142,6 +157,7 @@ export async function POST(request: Request) {
   await Promise.all([
     sendCustomerOrderEmail(emailData),
     sendOwnerOrderEmail(emailData),
+    appliedPromoCode ? recordPromoUse(appliedPromoCode) : Promise.resolve(),
   ]);
 
   return NextResponse.json(

@@ -5,7 +5,7 @@ export const ADMIN_MAX_AGE = 60 * 60 * 24 * 7;
 
 function adminToken(): string | null {
   const password = process.env.ADMIN_PASSWORD;
-  if (!password || password.length < 6) return null;
+  if (!password || password.length < 5) return null;
   return password;
 }
 

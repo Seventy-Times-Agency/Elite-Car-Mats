@@ -39,6 +39,7 @@ export const createOrderSchema = z.object({
     comment: z.string().trim().max(1000).optional().default(""),
   }),
   items: z.array(orderItemSchema).min(1, "Корзина пуста"),
+  promoCode: z.string().trim().max(64).optional().nullable(),
 });
 
 export type CreateOrderInput = z.infer<typeof createOrderSchema>;

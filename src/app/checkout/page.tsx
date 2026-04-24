@@ -33,6 +33,14 @@ export default function CheckoutPage() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const [promoInput, setPromoInput] = useState("");
+  const [promoApplied, setPromoApplied] = useState<{
+    code: string;
+    discount: number;
+    amount: number;
+  } | null>(null);
+  const [promoError, setPromoError] = useState<string | null>(null);
+  const [promoChecking, setPromoChecking] = useState(false);
 
   const onChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -52,7 +60,43 @@ export default function CheckoutPage() {
   const inputError =
     "border-error/60 focus:border-error/80 focus:shadow-[0_0_0_1px_rgba(239,68,68,0.4)]";
 
-  const total = calculateOrderTotal(items);
+  const subtotal = calculateOrderTotal(items);
+  const discount = promoApplied?.amount ?? 0;
+  const total = Math.max(0, subtotal - discount);
+
+  const applyPromo = async () => {
+    const code = promoInput.trim().toUpperCase();
+    if (!code) return;
+    setPromoError(null);
+    setPromoChecking(true);
+    try {
+      const res = await fetch("/api/promo/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code, subtotal }),
+      });
+      const data = await res.json();
+      if (data.valid) {
+        setPromoApplied({
+          code: data.code,
+          discount: data.discount,
+          amount: data.amount,
+        });
+        setPromoInput("");
+      } else {
+        setPromoError(t(`co.promoErr.${data.error ?? "not_found"}`));
+      }
+    } catch {
+      setPromoError(t("co.promoErr.network"));
+    } finally {
+      setPromoChecking(false);
+    }
+  };
+
+  const removePromo = () => {
+    setPromoApplied(null);
+    setPromoError(null);
+  };
 
   const validate = () => {
     const e: Record<string, string> = {};
@@ -99,6 +143,7 @@ export default function CheckoutPage() {
             badgeId: i.badge?.id ?? null,
             quantity: i.quantity,
           })),
+          promoCode: promoApplied?.code ?? null,
         }),
       });
       if (!res.ok) {
@@ -292,13 +337,73 @@ export default function CheckoutPage() {
                   );
                 })}
               </div>
-              <div className="flex justify-between items-baseline mt-5 pt-4 border-t border-border/50">
-                <span className="text-text-dim text-xs uppercase tracking-wider">
-                  {t("co.total")}
-                </span>
-                <span className="text-gold text-xl font-bold">
-                  {formatPrice(total)}
-                </span>
+              <div className="mt-5 pt-4 border-t border-border/50 space-y-3">
+                <div>
+                  {promoApplied ? (
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="text-xs">
+                        <span className="text-gold font-mono">
+                          {promoApplied.code}
+                        </span>
+                        <span className="text-text-dim ml-2">
+                          −{promoApplied.discount}%
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={removePromo}
+                        className="text-[11px] text-text-faint hover:text-error uppercase tracking-wider"
+                      >
+                        {t("co.promoRemove")}
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={promoInput}
+                        onChange={(e) =>
+                          setPromoInput(e.target.value.toUpperCase())
+                        }
+                        placeholder={t("co.promoPh")}
+                        className="flex-1 glass-card rounded-lg px-3 py-2 text-xs font-mono focus:border-gold/40 focus:outline-none"
+                      />
+                      <button
+                        type="button"
+                        onClick={applyPromo}
+                        disabled={promoChecking || !promoInput.trim()}
+                        className="text-xs font-semibold uppercase tracking-wider text-gold hover:text-gold-light px-3 disabled:opacity-40"
+                      >
+                        {promoChecking ? "..." : t("co.promoApply")}
+                      </button>
+                    </div>
+                  )}
+                  {promoError && (
+                    <p className="text-[11px] text-error mt-1.5">{promoError}</p>
+                  )}
+                </div>
+                {discount > 0 && (
+                  <div className="flex justify-between items-baseline text-xs">
+                    <span className="text-text-dim">{t("co.subtotal")}</span>
+                    <span className="text-text-dim">
+                      {formatPrice(subtotal)}
+                    </span>
+                  </div>
+                )}
+                {discount > 0 && (
+                  <div className="flex justify-between items-baseline text-xs">
+                    <span className="text-gold">{t("co.discount")}</span>
+                    <span className="text-gold">−{formatPrice(discount)}</span>
+                  </div>
+                )}
+                <div className="flex justify-between items-baseline pt-2 border-t border-border/30">
+                  <span className="text-text-dim text-xs uppercase tracking-wider">
+                    {t("co.total")}
+                  </span>
+                  <span className="text-gold text-xl font-bold">
+                    {formatPrice(total)}
+                  </span>
+                </div>
               </div>
               <p className="text-[11px] text-text-faint mt-4">
                 {t("co.confirmNote")}

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { Resend } from "resend";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
+import { prisma } from "@/lib/prisma";
 
 const apiKey = process.env.RESEND_API_KEY;
 const fromAddress =
@@ -57,6 +58,27 @@ export async function POST(request: Request) {
   }
 
   const d = parsed.data;
+
+  try {
+    await prisma.customOrderRequest.create({
+      data: {
+        name: d.name,
+        email: d.email,
+        phone: d.phone,
+        make: d.make,
+        model: d.model,
+        year: d.year,
+        bodyType: d.bodyType || null,
+        matSet: d.matSet || null,
+        notes: d.notes || null,
+        locale: d.locale || null,
+      },
+    });
+  } catch (err) {
+    console.error("[custom-order:db-save-failed]", err);
+    // We still want the owner to get an email even if the DB write fails.
+  }
+
   const html = `
 <!DOCTYPE html>
 <html><body style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;background:#0F0F0F;color:#F0ECE5;padding:24px;">

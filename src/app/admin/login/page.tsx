@@ -9,7 +9,7 @@ async function login(formData: FormData) {
   "use server";
   const password = String(formData.get("password") ?? "");
   const ok = await signInAdmin(password);
-  if (ok) redirect("/admin/orders");
+  if (ok) redirect("/admin");
   redirect("/admin/login?error=1");
 }
 
@@ -18,7 +18,7 @@ export default async function AdminLoginPage({
 }: {
   searchParams: Promise<{ error?: string }>;
 }) {
-  if (await requireAdmin()) redirect("/admin/orders");
+  if (await requireAdmin()) redirect("/admin");
   const { error } = await searchParams;
   const configured = isAdminConfigured();
   const { dict, fallback } = await getDictionary();

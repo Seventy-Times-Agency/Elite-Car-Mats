@@ -3,6 +3,7 @@ import { z } from "zod";
 import { Resend } from "resend";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
 import { prisma } from "@/lib/prisma";
+import { ensureSchema } from "@/lib/db-setup";
 
 const apiKey = process.env.RESEND_API_KEY;
 const fromAddress =
@@ -33,6 +34,7 @@ function escape(v: string): string {
 }
 
 export async function POST(request: Request) {
+  await ensureSchema();
   const ip = getClientIp(request);
   const limit = rateLimit(`custom:${ip}`);
   if (!limit.ok) {

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { ensureSchema } from "@/lib/db-setup";
 import { createOrderSchema, OrderItemInput } from "@/lib/validations/order";
 import { calculateItemUnitPrice, calculateOrderTotal } from "@/lib/pricing";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
@@ -34,6 +35,8 @@ async function resolveNames(item: OrderItemInput) {
 }
 
 export async function POST(request: Request) {
+  await ensureSchema();
+
   const ip = getClientIp(request);
   const limit = rateLimit(`orders:${ip}`);
   if (!limit.ok) {

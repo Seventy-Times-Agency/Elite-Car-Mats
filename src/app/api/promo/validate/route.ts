@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
 import { validatePromoCode } from "@/lib/promo";
+import { ensureSchema } from "@/lib/db-setup";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -12,6 +13,7 @@ const schema = z.object({
 });
 
 export async function POST(request: Request) {
+  await ensureSchema();
   const ip = getClientIp(request);
   const limit = rateLimit(`promo:${ip}`);
   if (!limit.ok) {

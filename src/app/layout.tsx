@@ -18,6 +18,10 @@ const inter = localFont({
 });
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://elitecarmats.us";
+const BUILD_SHA =
+  process.env.VERCEL_GIT_COMMIT_SHA ??
+  process.env.NEXT_PUBLIC_BUILD_SHA ??
+  "local";
 
 export const viewport: Viewport = {
   themeColor: "#0F0F0F",
@@ -105,6 +109,9 @@ export default async function RootLayout({
       lang={LOCALE_HTML_LANG[locale]}
       className={`${inter.variable} h-full antialiased`}
     >
+      <head>
+        <meta name="x-build-sha" content={BUILD_SHA} />
+      </head>
       <body className="min-h-full flex flex-col">
         <a
           href="#main-content"

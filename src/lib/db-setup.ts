@@ -1,75 +1,103 @@
 import "server-only";
-import { prisma } from "./prisma";
+import { neon } from "@neondatabase/serverless";
 
 /**
  * Idempotent schema migrations that bring an older database up to the
- * current Prisma schema. Each statement uses IF NOT EXISTS / DO $$ blocks
- * so re-running them is safe.
+ * current Prisma schema. Talks to Neon over its HTTP SQL endpoint
+ * directly (not through Prisma) so we don't depend on the adapter's
+ * handling of DDL, dollar-quoted blocks, etc.
  *
- * Runs once per cold start. Called from `requireAdmin()` so the first
- * person who logs into the admin panel triggers it transparently — no
- * terminal work required.
+ * Cached one-shot: the first admin login or public DB write per cold
+ * start triggers the run; every subsequent caller awaits the same
+ * Promise and the actual SQL only executes once.
  */
-
-const STATEMENTS: string[] = [
-  // Order — Stripe integration columns
-  `ALTER TABLE "Order" ADD COLUMN IF NOT EXISTS "stripeSessionId" TEXT`,
-  `CREATE UNIQUE INDEX IF NOT EXISTS "Order_stripeSessionId_key" ON "Order"("stripeSessionId")`,
-  `ALTER TABLE "Order" ADD COLUMN IF NOT EXISTS "stripePaymentIntentId" TEXT`,
-  `ALTER TABLE "Order" ADD COLUMN IF NOT EXISTS "paidAt" TIMESTAMP(3)`,
-
-  // PromoCode — new fields
-  `ALTER TABLE "PromoCode" ADD COLUMN IF NOT EXISTS "description" TEXT`,
-  `ALTER TABLE "PromoCode" ADD COLUMN IF NOT EXISTS "maxUses" INTEGER`,
-  `ALTER TABLE "PromoCode" ADD COLUMN IF NOT EXISTS "usedCount" INTEGER NOT NULL DEFAULT 0`,
-  `ALTER TABLE "PromoCode" ADD COLUMN IF NOT EXISTS "minOrder" DECIMAL(10,2)`,
-
-  // CustomOrderRequest — new enum + table
-  `DO $$ BEGIN
-     CREATE TYPE "CustomOrderStatus" AS ENUM ('NEW','CONTACTED','QUOTED','CONVERTED','CLOSED');
-   EXCEPTION WHEN duplicate_object THEN NULL; END $$`,
-  `CREATE TABLE IF NOT EXISTS "CustomOrderRequest" (
-     "id" TEXT PRIMARY KEY,
-     "name" TEXT NOT NULL,
-     "email" TEXT NOT NULL,
-     "phone" TEXT NOT NULL,
-     "make" TEXT NOT NULL,
-     "model" TEXT NOT NULL,
-     "year" TEXT NOT NULL,
-     "bodyType" TEXT,
-     "matSet" TEXT,
-     "notes" TEXT,
-     "locale" TEXT,
-     "status" "CustomOrderStatus" NOT NULL DEFAULT 'NEW',
-     "adminNotes" TEXT,
-     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-     "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
-   )`,
-];
 
 let done: Promise<void> | null = null;
 
-async function run(): Promise<void> {
-  for (const stmt of STATEMENTS) {
-    try {
-      await prisma.$executeRawUnsafe(stmt);
-    } catch (err) {
-      console.warn("[db-setup] statement failed:", err);
-    }
+type NeonSql = ReturnType<typeof neon<false, false>>;
+
+async function exec(sql: NeonSql, label: string, stmt: string) {
+  try {
+    await sql.query(stmt);
+    console.log(`[db-setup] ✓ ${label}`);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.warn(`[db-setup] ✗ ${label}: ${msg}`);
   }
+}
+
+async function run(): Promise<void> {
+  const url = process.env.DATABASE_URL;
+  if (!url) {
+    console.warn("[db-setup] DATABASE_URL missing, skipping");
+    return;
+  }
+  const sql = neon(url) as NeonSql;
+
+  // Order — Stripe integration columns
+  await exec(sql, "order.stripeSessionId", `ALTER TABLE "Order" ADD COLUMN IF NOT EXISTS "stripeSessionId" TEXT`);
+  await exec(sql, "order.stripeSessionId unique", `CREATE UNIQUE INDEX IF NOT EXISTS "Order_stripeSessionId_key" ON "Order"("stripeSessionId")`);
+  await exec(sql, "order.stripePaymentIntentId", `ALTER TABLE "Order" ADD COLUMN IF NOT EXISTS "stripePaymentIntentId" TEXT`);
+  await exec(sql, "order.paidAt", `ALTER TABLE "Order" ADD COLUMN IF NOT EXISTS "paidAt" TIMESTAMP(3)`);
+
+  // PromoCode — new fields
+  await exec(sql, "promo.description", `ALTER TABLE "PromoCode" ADD COLUMN IF NOT EXISTS "description" TEXT`);
+  await exec(sql, "promo.maxUses", `ALTER TABLE "PromoCode" ADD COLUMN IF NOT EXISTS "maxUses" INTEGER`);
+  await exec(sql, "promo.usedCount", `ALTER TABLE "PromoCode" ADD COLUMN IF NOT EXISTS "usedCount" INTEGER NOT NULL DEFAULT 0`);
+  await exec(sql, "promo.minOrder", `ALTER TABLE "PromoCode" ADD COLUMN IF NOT EXISTS "minOrder" DECIMAL(10,2)`);
+
+  // CustomOrderStatus enum — check existence first to avoid duplicate-object errors
+  try {
+    const rows = (await sql.query(
+      `SELECT 1 AS "e" FROM pg_type WHERE typname = 'CustomOrderStatus' LIMIT 1`,
+    )) as Array<{ e: number }>;
+    if (rows.length === 0) {
+      await exec(
+        sql,
+        "enum CustomOrderStatus",
+        `CREATE TYPE "CustomOrderStatus" AS ENUM ('NEW','CONTACTED','QUOTED','CONVERTED','CLOSED')`,
+      );
+    } else {
+      console.log("[db-setup] ✓ enum CustomOrderStatus (exists)");
+    }
+  } catch (err) {
+    console.warn(
+      "[db-setup] ✗ enum CustomOrderStatus check:",
+      err instanceof Error ? err.message : err,
+    );
+  }
+
+  // CustomOrderRequest table
+  await exec(
+    sql,
+    "table CustomOrderRequest",
+    `CREATE TABLE IF NOT EXISTS "CustomOrderRequest" (
+       "id" TEXT PRIMARY KEY,
+       "name" TEXT NOT NULL,
+       "email" TEXT NOT NULL,
+       "phone" TEXT NOT NULL,
+       "make" TEXT NOT NULL,
+       "model" TEXT NOT NULL,
+       "year" TEXT NOT NULL,
+       "bodyType" TEXT,
+       "matSet" TEXT,
+       "notes" TEXT,
+       "locale" TEXT,
+       "status" "CustomOrderStatus" NOT NULL DEFAULT 'NEW',
+       "adminNotes" TEXT,
+       "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+       "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+     )`,
+  );
+
   console.log("[db-setup] schema sync complete");
 }
 
-/**
- * Cached one-shot. Subsequent calls return the same Promise and no-op.
- * Safe to call from multiple routes — only executes once per process.
- */
 export function ensureSchema(): Promise<void> {
   if (!done) {
     done = run().catch((err) => {
       console.error("[db-setup] fatal:", err);
-      // Reset so the next call can retry if this one crashed outright.
-      done = null;
+      done = null; // allow next caller to retry
     });
   }
   return done;

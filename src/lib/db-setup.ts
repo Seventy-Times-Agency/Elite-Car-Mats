@@ -102,6 +102,20 @@ async function execAll(): Promise<MigrationResult[]> {
          "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
        )`,
     );
+
+    await run(
+      "table NewsletterSubscriber",
+      `CREATE TABLE IF NOT EXISTS "NewsletterSubscriber" (
+         "id" TEXT PRIMARY KEY,
+         "email" TEXT NOT NULL,
+         "source" TEXT,
+         "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+       )`,
+    );
+    await run(
+      "NewsletterSubscriber.email unique",
+      `CREATE UNIQUE INDEX IF NOT EXISTS "NewsletterSubscriber_email_key" ON "NewsletterSubscriber"("email")`,
+    );
   } finally {
     try {
       await pool.end();

@@ -14,21 +14,20 @@ import type { MatSetType } from "@/types";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+// Hobby tier caps serverless functions at 60s; bulk inserts finish well
+// inside that, but the explicit ceiling keeps us safe on a cold cache.
+export const maxDuration = 60;
 
 /**
- * Idempotent seed of the catalog (brands, models, products, colors, badges)
- * from src/data/mock.ts into the live database.
+ * Idempotent seed of the catalog into the live database. Required so
+ * OrderItem foreign keys (productId, colorId, edgeColorId, badgeId)
+ * resolve when checkout runs.
  *
- * Required so OrderItem foreign keys (productId, colorId, edgeColorId,
- * badgeId) resolve when checkout runs. Upsert-only — repeat hits update
- * existing rows in place rather than duplicating.
+ * Uses createMany({ skipDuplicates: true }) — one INSERT per table,
+ * sub-second total. Re-running is safe: existing rows are left as-is.
  *
- * Reviews are intentionally NOT seeded — by product decision, only real
- * customer feedback lives in that table.
- *
- * Not guarded by the admin cookie on purpose: if the admin panel is broken
- * because of a missing seed we still need to be able to fix it. The
- * operations are pure upserts of already-public catalog data.
+ * Reviews are intentionally NOT seeded — only real customer feedback
+ * lives in that table.
  */
 
 const matSetToEnum: Record<MatSetType, "FRONT" | "FULL" | "CARGO" | "FULL_CARGO"> = {
@@ -46,102 +45,105 @@ interface SeedSummary {
   evaColors: number;
   edgeColors: number;
   badges: number;
+  ms: number;
 }
 
 async function seedAll(): Promise<SeedSummary> {
-  // Make sure schema is in place first.
+  const t0 = Date.now();
   await ensureSchema();
 
-  const summary: SeedSummary = {
-    brands: 0,
-    models: 0,
-    modelYears: 0,
-    products: 0,
-    evaColors: 0,
-    edgeColors: 0,
-    badges: 0,
-  };
+  // Brands
+  const brandRows = brands.map((b) => ({
+    id: b.slug,
+    name: b.name,
+    slug: b.slug,
+    logo: b.logo ?? null,
+  }));
+  await prisma.brand.createMany({ data: brandRows, skipDuplicates: true });
 
-  for (const b of brands) {
-    await prisma.brand.upsert({
-      where: { slug: b.slug },
-      update: { name: b.name, logo: b.logo ?? null },
-      create: { id: b.slug, name: b.name, slug: b.slug, logo: b.logo ?? null },
-    });
-    summary.brands++;
-  }
+  // Models
+  const modelRows = mockModels.map((m) => ({
+    id: `${m.brandId}-${m.slug}`,
+    name: m.name,
+    slug: m.slug,
+    bodyType: m.bodyType,
+    brandId: m.brandId,
+  }));
+  await prisma.model.createMany({ data: modelRows, skipDuplicates: true });
 
+  // ModelYears — flat-mapped from mockModels[].years
+  const modelYearRows: { id: string; modelId: string; year: number }[] = [];
   for (const m of mockModels) {
     const modelId = `${m.brandId}-${m.slug}`;
-    await prisma.model.upsert({
-      where: { brandId_slug: { brandId: m.brandId, slug: m.slug } },
-      update: { name: m.name, bodyType: m.bodyType },
-      create: {
-        id: modelId,
-        name: m.name,
-        slug: m.slug,
-        bodyType: m.bodyType,
-        brandId: m.brandId,
-      },
-    });
-    summary.models++;
-
     for (const year of m.years) {
-      await prisma.modelYear.upsert({
-        where: { modelId_year: { modelId, year } },
-        update: {},
-        create: { id: `${modelId}-${year}`, modelId, year },
-      });
-      summary.modelYears++;
+      modelYearRows.push({ id: `${modelId}-${year}`, modelId, year });
     }
+  }
+  await prisma.modelYear.createMany({
+    data: modelYearRows,
+    skipDuplicates: true,
+  });
 
+  // Products — one row per (model, mat-set)
+  const productRows: {
+    id: string;
+    modelId: string;
+    matSet: "FRONT" | "FULL" | "CARGO" | "FULL_CARGO";
+    price: number;
+    images: string[];
+  }[] = [];
+  for (const m of mockModels) {
+    const modelId = `${m.brandId}-${m.slug}`;
     for (const set of matSets) {
-      const enumVal = matSetToEnum[set.type];
-      await prisma.product.upsert({
-        where: { modelId_matSet: { modelId, matSet: enumVal } },
-        update: { price: MAT_SET_PRICE[set.type] },
-        create: {
-          id: `${modelId}-${set.type}`,
-          modelId,
-          matSet: enumVal,
-          price: MAT_SET_PRICE[set.type],
-          images: [],
-        },
+      productRows.push({
+        id: `${modelId}-${set.type}`,
+        modelId,
+        matSet: matSetToEnum[set.type],
+        price: MAT_SET_PRICE[set.type],
+        images: [],
       });
-      summary.products++;
     }
   }
+  await prisma.product.createMany({
+    data: productRows,
+    skipDuplicates: true,
+  });
 
-  for (let i = 0; i < evaColors.length; i++) {
-    const c = evaColors[i];
-    await prisma.evaColor.upsert({
-      where: { id: c.id },
-      update: { name: c.name, hex: c.hex, sortOrder: i },
-      create: { id: c.id, name: c.name, hex: c.hex, sortOrder: i },
-    });
-    summary.evaColors++;
-  }
+  // EVA colors
+  const evaRows = evaColors.map((c, i) => ({
+    id: c.id,
+    name: c.name,
+    hex: c.hex,
+    sortOrder: i,
+  }));
+  await prisma.evaColor.createMany({ data: evaRows, skipDuplicates: true });
 
-  for (let i = 0; i < edgeColors.length; i++) {
-    const c = edgeColors[i];
-    await prisma.edgeColor.upsert({
-      where: { id: c.id },
-      update: { name: c.name, hex: c.hex, sortOrder: i },
-      create: { id: c.id, name: c.name, hex: c.hex, sortOrder: i },
-    });
-    summary.edgeColors++;
-  }
+  // Edge colors
+  const edgeRows = edgeColors.map((c, i) => ({
+    id: c.id,
+    name: c.name,
+    hex: c.hex,
+    sortOrder: i,
+  }));
+  await prisma.edgeColor.createMany({ data: edgeRows, skipDuplicates: true });
 
-  for (const b of badges) {
-    await prisma.badge.upsert({
-      where: { id: b.id },
-      update: { brandName: b.brandName },
-      create: { id: b.id, brandName: b.brandName },
-    });
-    summary.badges++;
-  }
+  // Badges
+  const badgeRows = badges.map((b) => ({
+    id: b.id,
+    brandName: b.brandName,
+  }));
+  await prisma.badge.createMany({ data: badgeRows, skipDuplicates: true });
 
-  return summary;
+  return {
+    brands: brandRows.length,
+    models: modelRows.length,
+    modelYears: modelYearRows.length,
+    products: productRows.length,
+    evaColors: evaRows.length,
+    edgeColors: edgeRows.length,
+    badges: badgeRows.length,
+    ms: Date.now() - t0,
+  };
 }
 
 export async function GET() {

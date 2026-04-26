@@ -54,10 +54,10 @@ export const en: Dict = {
   "cookies.aria": "Cookie notice",
   "cookies.title": "We use cookies",
   "cookies.body":
-    "Essential cookies keep your cart working. Analytics cookies are only used with your consent.",
+    "We use cookies so your cart remembers your order.",
   "cookies.learnMore": "Learn more",
-  "cookies.accept": "Accept all",
-  "cookies.essential": "Essential only",
+  "cookies.accept": "Got it",
+  "cookies.dismiss": "Dismiss",
 
   "news.placeholder": "your email",
   "news.aria": "Email for subscription",

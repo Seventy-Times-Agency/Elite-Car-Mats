@@ -11,15 +11,13 @@ export function CookieBanner() {
   const t = useT();
 
   useEffect(() => {
-    const accepted =
-      typeof window !== "undefined" && localStorage.getItem(STORAGE_KEY);
-    if (!accepted) {
-      const id = setTimeout(() => setVisible(true), 800);
-      return () => clearTimeout(id);
-    }
+    if (typeof window === "undefined") return;
+    if (localStorage.getItem(STORAGE_KEY)) return;
+    const id = setTimeout(() => setVisible(true), 1200);
+    return () => clearTimeout(id);
   }, []);
 
-  const accept = () => {
+  const dismiss = () => {
     try {
       localStorage.setItem(STORAGE_KEY, new Date().toISOString());
     } catch {
@@ -34,36 +32,46 @@ export function CookieBanner() {
     <div
       role="dialog"
       aria-label={t("cookies.aria")}
-      className="fixed bottom-4 left-4 right-4 z-50 sm:left-auto sm:right-4 sm:max-w-md"
+      className="fixed inset-x-0 bottom-0 z-50 px-3 pb-3 sm:px-4 sm:pb-4 pointer-events-none"
     >
-      <div className="glass-card rounded-2xl p-5 shadow-[0_20px_60px_rgba(0,0,0,0.5)] border-gold/20">
-        <h2 className="text-sm font-semibold text-text">
-          {t("cookies.title")}
-        </h2>
-        <p className="mt-2 text-text-dim text-xs leading-relaxed">
+      <div className="pointer-events-auto mx-auto max-w-3xl flex items-center gap-3 px-4 py-2.5 rounded-xl bg-bg/95 backdrop-blur-xl border border-gold/15 shadow-[0_10px_40px_rgba(0,0,0,0.5)] animate-[slideup_0.35s_ease-out]">
+        <p className="flex-1 text-text-dim text-[12px] leading-snug">
           {t("cookies.body")}{" "}
           <Link
             href="/privacy"
-            className="text-gold hover:text-gold-light underline underline-offset-2"
+            className="text-gold hover:text-gold-light underline underline-offset-2 whitespace-nowrap"
           >
             {t("cookies.learnMore")}
           </Link>
         </p>
-        <div className="mt-4 flex gap-2">
-          <button
-            onClick={accept}
-            className="flex-1 bg-gradient-to-r from-gold to-gold-light text-bg text-xs font-semibold tracking-wider uppercase py-2.5 rounded-lg shadow-[0_2px_12px_rgba(212,165,74,0.25)]"
+        <button
+          onClick={dismiss}
+          className="shrink-0 bg-gradient-to-r from-gold to-gold-light text-bg text-[11px] font-semibold tracking-wider uppercase px-4 py-2 rounded-lg hover:shadow-[0_2px_12px_rgba(212,165,74,0.3)] transition-shadow"
+        >
+          {t("cookies.accept")}
+        </button>
+        <button
+          onClick={dismiss}
+          aria-label={t("cookies.dismiss")}
+          className="shrink-0 text-text-faint hover:text-text-dim transition-colors p-1 -mr-1"
+        >
+          <svg
+            className="w-4 h-4"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={2}
           >
-            {t("cookies.accept")}
-          </button>
-          <button
-            onClick={accept}
-            className="flex-1 text-text-dim hover:text-gold border border-border hover:border-gold/40 text-xs font-medium tracking-wider uppercase py-2.5 rounded-lg transition-colors"
-          >
-            {t("cookies.essential")}
-          </button>
-        </div>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 6l12 12M18 6L6 18" />
+          </svg>
+        </button>
       </div>
+      <style>{`
+        @keyframes slideup {
+          from { opacity: 0; transform: translateY(20px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
     </div>
   );
 }

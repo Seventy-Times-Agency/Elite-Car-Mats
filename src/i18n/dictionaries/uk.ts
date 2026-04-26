@@ -54,10 +54,10 @@ export const uk: Dict = {
   "cookies.aria": "Повідомлення про cookies",
   "cookies.title": "Ми використовуємо cookies",
   "cookies.body":
-    "Обов'язкові cookies потрібні для роботи кошика. Аналітичні — лише за вашої згоди.",
+    "Використовуємо cookies, щоб кошик пам'ятав ваше замовлення.",
   "cookies.learnMore": "Детальніше",
-  "cookies.accept": "Прийняти",
-  "cookies.essential": "Тільки потрібні",
+  "cookies.accept": "Гаразд",
+  "cookies.dismiss": "Закрити",
 
   "news.placeholder": "ваш email",
   "news.aria": "Email для підписки",

@@ -59,10 +59,10 @@ export const ru: Dict = {
   "cookies.aria": "Уведомление о cookies",
   "cookies.title": "Мы используем cookies",
   "cookies.body":
-    "Обязательные cookies нужны для работы корзины. Аналитические — только с вашего согласия.",
+    "Используем cookies, чтобы корзина запоминала ваш заказ.",
   "cookies.learnMore": "Подробнее",
-  "cookies.accept": "Принять",
-  "cookies.essential": "Только нужные",
+  "cookies.accept": "Ок",
+  "cookies.dismiss": "Закрыть",
 
   // Newsletter
   "news.placeholder": "ваш email",

@@ -2,6 +2,8 @@
 
 import { Reveal } from "@/components/common/Reveal";
 import { useT } from "@/i18n/I18nProvider";
+import { MAT_SET_PRICE, formatPrice } from "@/lib/pricing";
+import type { MatSetType } from "@/types";
 
 const edgeColors: Record<string, string> = {
   gold: "#D4A54A",
@@ -31,13 +33,22 @@ function MatSilhouette({ edge }: { edge: string }) {
 
 export function GallerySection() {
   const t = useT();
-  const items = [
-    { brand: "Toyota", model: "Camry", brandSlug: "toyota", modelSlug: "camry", year: "2023", tag: t("gallery.tagFullCargo"), color: "gold" },
-    { brand: "BMW", model: "X5", brandSlug: "bmw", modelSlug: "x5", year: "2024", tag: t("gallery.tagFull"), color: "red" },
-    { brand: "Tesla", model: "Model Y", brandSlug: "tesla", modelSlug: "model-y", year: "2024", tag: t("gallery.tagFullCargo"), color: "gray" },
-    { brand: "Ford", model: "F-150", brandSlug: "ford", modelSlug: "f-150", year: "2023", tag: t("gallery.tagFrontsCargo"), color: "black" },
-    { brand: "Audi", model: "Q5", brandSlug: "audi", modelSlug: "q5", year: "2024", tag: t("gallery.tagFull"), color: "gold" },
-    { brand: "Mercedes", model: "GLE", brandSlug: "mercedes", modelSlug: "gle", year: "2023", tag: t("gallery.tagFullCargo"), color: "red" },
+  const items: {
+    brand: string;
+    model: string;
+    brandSlug: string;
+    modelSlug: string;
+    year: string;
+    tag: string;
+    color: string;
+    matSet: MatSetType;
+  }[] = [
+    { brand: "Toyota", model: "Camry", brandSlug: "toyota", modelSlug: "camry", year: "2023", tag: t("gallery.tagFullCargo"), color: "gold", matSet: "full-cargo" },
+    { brand: "BMW", model: "X5", brandSlug: "bmw", modelSlug: "x5", year: "2024", tag: t("gallery.tagFull"), color: "red", matSet: "full" },
+    { brand: "Tesla", model: "Model Y", brandSlug: "tesla", modelSlug: "model-y", year: "2024", tag: t("gallery.tagFullCargo"), color: "gray", matSet: "full-cargo" },
+    { brand: "Ford", model: "F-150", brandSlug: "ford", modelSlug: "f-150", year: "2023", tag: t("gallery.tagFrontsCargo"), color: "black", matSet: "full-cargo" },
+    { brand: "Audi", model: "Q5", brandSlug: "audi", modelSlug: "q5", year: "2024", tag: t("gallery.tagFull"), color: "gold", matSet: "full" },
+    { brand: "Mercedes", model: "GLE", brandSlug: "mercedes", modelSlug: "gle", year: "2023", tag: t("gallery.tagFullCargo"), color: "red", matSet: "full-cargo" },
   ];
   return (
     <section className="py-14 lg:py-20 relative">
@@ -82,9 +93,6 @@ export function GallerySection() {
                   <div className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: edgeColors[it.color] }} />
                   <span className="text-[10px] uppercase tracking-[0.2em] text-text-dim">{t("gallery.preview")}</span>
                 </div>
-                <div className="absolute top-4 right-4 text-[9px] uppercase tracking-[0.15em] text-text-faint">
-                  {t("gallery.photoComing")}
-                </div>
                 <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                   <span className="inline-flex items-center gap-1.5 bg-gold text-bg text-[10px] font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full shadow-[0_4px_16px_rgba(212,165,74,0.4)]">
                     {t("gallery.order")}
@@ -104,7 +112,7 @@ export function GallerySection() {
                   </div>
                   <p className="mt-1 text-text-dim text-xs">{it.tag}</p>
                 </div>
-                <span className="text-gold text-sm font-semibold shrink-0 mt-0.5">$100</span>
+                <span className="text-gold text-sm font-semibold shrink-0 mt-0.5">{formatPrice(MAT_SET_PRICE[it.matSet])}</span>
               </div>
             </a>
           ))}

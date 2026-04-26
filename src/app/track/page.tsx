@@ -13,11 +13,15 @@ async function track(formData: FormData) {
 export default async function TrackPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; n?: string }>;
 }) {
-  const { error } = await searchParams;
+  const { error, n } = await searchParams;
   const { dict, fallback } = await getDictionary();
   const s = (k: string) => (dict[k] ?? fallback[k]) as string;
+  const sFmt = (k: string, vars: Record<string, string>): string => {
+    const tpl = (dict[k] ?? fallback[k] ?? k) as string;
+    return tpl.replace(/\{(\w+)\}/g, (_, name) => vars[name] ?? `{${name}}`);
+  };
 
   return (
     <div className="min-h-[70vh] flex items-center justify-center px-4 py-16">
@@ -29,12 +33,20 @@ export default async function TrackPage({
             type="text"
             name="orderNumber"
             placeholder="ECM-XXXXXX-XXXX"
+            defaultValue={error === "notfound" ? n ?? "" : ""}
             autoFocus
             required
             className="w-full glass-card rounded-xl px-4 py-3.5 text-sm focus:border-gold/40 focus:outline-none font-mono tracking-wider uppercase"
           />
           {error === "empty" && (
             <p className="text-[11px] text-error">{s("track.errEmpty")}</p>
+          )}
+          {error === "notfound" && (
+            <p className="text-[11px] text-error">
+              {n
+                ? sFmt("track.errNotFound", { n })
+                : s("track.errNotFoundGeneric")}
+            </p>
           )}
           <button
             type="submit"

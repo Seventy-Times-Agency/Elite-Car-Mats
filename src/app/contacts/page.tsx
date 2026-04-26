@@ -1,6 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import { useT } from "@/i18n/I18nProvider";
+
+type Status = "idle" | "sending" | "sent" | "error";
 
 export default function ContactsPage() {
   const t = useT();
@@ -8,10 +11,47 @@ export default function ContactsPage() {
     "w-full glass-card rounded-xl px-4 py-3.5 text-sm text-text placeholder:text-text-faint focus:border-gold/40 focus:outline-none focus:shadow-[0_0_0_1px_rgba(212,165,74,0.3)] transition-all";
 
   const contacts = [
-    { l: t("contacts.phoneLabel"), v: "+1 (234) 567-890", h: "tel:+1234567890" },
     { l: t("contacts.emailLabel"), v: "info@elitecarmats.us", h: "mailto:info@elitecarmats.us" },
     { l: t("contacts.addressLabel"), v: t("contacts.addressValue") },
   ];
+
+  const [status, setStatus] = useState<Status>("idle");
+  const [errMsg, setErrMsg] = useState<string | null>(null);
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (status === "sending") return;
+    const form = e.currentTarget;
+    const fd = new FormData(form);
+    const name = String(fd.get("name") ?? "").trim();
+    const email = String(fd.get("email") ?? "").trim();
+    const message = String(fd.get("message") ?? "").trim();
+    if (!name || !email || message.length < 5) {
+      setStatus("error");
+      setErrMsg(t("contacts.errInvalid"));
+      return;
+    }
+    setStatus("sending");
+    setErrMsg(null);
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ name, email, message }),
+      });
+      if (res.ok) {
+        setStatus("sent");
+        form.reset();
+      } else {
+        const data = await res.json().catch(() => ({}) as { error?: string });
+        setStatus("error");
+        setErrMsg(data?.error ?? t("contacts.errGeneric"));
+      }
+    } catch {
+      setStatus("error");
+      setErrMsg(t("contacts.errGeneric"));
+    }
+  }
 
   return (
     <div className="py-16 lg:py-24 min-h-screen">
@@ -34,15 +74,47 @@ export default function ContactsPage() {
               </div>
             ))}
           </div>
-          <form className="space-y-4">
-            <input type="text" placeholder={t("contacts.namePlaceholder")} className={input} />
-            <input type="email" placeholder={t("contacts.emailPlaceholder")} className={input} />
-            <textarea placeholder={t("contacts.messagePlaceholder")} rows={5} className={input + " resize-none"} />
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <input
+              name="name"
+              type="text"
+              required
+              maxLength={120}
+              placeholder={t("contacts.namePlaceholder")}
+              className={input}
+              disabled={status === "sending"}
+            />
+            <input
+              name="email"
+              type="email"
+              required
+              maxLength={200}
+              placeholder={t("contacts.emailPlaceholder")}
+              className={input}
+              disabled={status === "sending"}
+            />
+            <textarea
+              name="message"
+              required
+              minLength={5}
+              maxLength={4000}
+              placeholder={t("contacts.messagePlaceholder")}
+              rows={5}
+              className={input + " resize-none"}
+              disabled={status === "sending"}
+            />
+            {status === "sent" && (
+              <p className="text-[12px] text-gold">{t("contacts.sentOk")}</p>
+            )}
+            {status === "error" && errMsg && (
+              <p className="text-[12px] text-error">{errMsg}</p>
+            )}
             <button
               type="submit"
-              className="w-full bg-gradient-to-r from-gold to-gold-light text-bg text-sm font-semibold tracking-wider uppercase py-4 rounded-xl transition-all duration-300 shadow-[0_4px_20px_rgba(212,165,74,0.25)] hover:shadow-[0_6px_28px_rgba(212,165,74,0.35)]"
+              disabled={status === "sending"}
+              className="w-full bg-gradient-to-r from-gold to-gold-light text-bg text-sm font-semibold tracking-wider uppercase py-4 rounded-xl transition-all duration-300 shadow-[0_4px_20px_rgba(212,165,74,0.25)] hover:shadow-[0_6px_28px_rgba(212,165,74,0.35)] disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              {t("contacts.sendBtn")}
+              {status === "sending" ? t("contacts.sending") : t("contacts.sendBtn")}
             </button>
           </form>
         </div>

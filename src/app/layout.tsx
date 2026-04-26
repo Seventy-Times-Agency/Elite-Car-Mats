@@ -6,6 +6,7 @@ import { Footer } from "@/components/layout/Footer";
 import { FloatingCTA } from "@/components/layout/FloatingCTA";
 import { CookieBanner } from "@/components/layout/CookieBanner";
 import { CartProvider } from "@/context/CartContext";
+import { OrganizationJsonLd } from "@/components/seo/ProductJsonLd";
 import { I18nProvider } from "@/i18n/I18nProvider";
 import { getDictionary } from "@/i18n/getDictionary";
 import { LOCALE_HTML_LANG, LOCALE_OG } from "@/i18n/config";
@@ -111,6 +112,7 @@ export default async function RootLayout({
     >
       <head>
         <meta name="x-build-sha" content={BUILD_SHA} />
+        <OrganizationJsonLd />
       </head>
       <body className="min-h-full flex flex-col">
         <a

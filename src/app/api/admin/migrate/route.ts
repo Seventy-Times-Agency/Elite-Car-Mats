@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { ensureSchema, resetSchemaCache } from "@/lib/db-setup";
+import { requireAdminApi } from "@/lib/auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -9,12 +10,13 @@ export const dynamic = "force-dynamic";
  * JSON, including the full error text for anything that failed. Safe to
  * hit repeatedly — the underlying SQL is idempotent (IF NOT EXISTS).
  *
- * Not guarded behind admin cookie on purpose: we need to be able to call
- * it when the admin panel is broken because of a missing schema. The
- * operations it performs are pure-DDL and idempotent, so there's no
- * exploitable state change.
+ * Auth: admin cookie OR x-admin-token header OR ?token=ADMIN_PASSWORD
+ * query string. Same secret as the admin login — one less thing to manage.
  */
-export async function GET() {
+export async function GET(request: Request) {
+  if (!(await requireAdminApi(request))) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
   resetSchemaCache();
   const results = await ensureSchema();
   const ok = results.every((r) => r.ok);

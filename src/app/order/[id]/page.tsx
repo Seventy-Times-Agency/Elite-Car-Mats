@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { formatPrice } from "@/lib/pricing";
 import { CopyNumber } from "./CopyNumber";
@@ -96,7 +96,9 @@ export default async function OrderPage({
 }) {
   const { id } = await params;
   const order = await fetchOrder(id);
-  if (!order) notFound();
+  if (!order) {
+    redirect(`/track?error=notfound&n=${encodeURIComponent(id)}`);
+  }
 
   const { dict, fallback } = await getDictionary();
   const s = (k: string) => (dict[k] ?? fallback[k]) as string;

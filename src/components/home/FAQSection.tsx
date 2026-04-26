@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useT } from "@/i18n/I18nProvider";
+import { FaqJsonLd } from "@/components/seo/ProductJsonLd";
 
 export function FAQSection() {
   const [openIdx, setOpenIdx] = useState<number | null>(0);
@@ -20,6 +21,7 @@ export function FAQSection() {
 
   return (
     <section className="py-14 lg:py-20">
+      <FaqJsonLd items={faqs} />
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-10">
           <span className="section-label">{t("faq.label")}</span>

@@ -95,9 +95,6 @@ export function MaterialsSection() {
                 <div className="absolute top-4 left-4 text-[10px] uppercase tracking-[0.2em] text-gold font-semibold">
                   {m.label}
                 </div>
-                <div className="absolute bottom-4 right-4 text-[9px] uppercase tracking-[0.15em] text-text-faint">
-                  {t("materials.photoComing")}
-                </div>
               </div>
               <div className="p-6 flex-1 flex flex-col">
                 <h3 className="text-lg font-semibold group-hover:text-gold transition-colors">{m.title}</h3>

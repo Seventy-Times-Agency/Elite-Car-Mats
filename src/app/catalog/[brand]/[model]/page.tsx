@@ -14,7 +14,7 @@ import {
   getDefaultMatSet,
   type VehicleConfigProfile,
 } from "@/lib/vehicle-profile";
-import { ProductJsonLd } from "@/components/seo/ProductJsonLd";
+import { ProductJsonLd, BreadcrumbJsonLd } from "@/components/seo/ProductJsonLd";
 import { useT } from "@/i18n/I18nProvider";
 import type { TFn } from "@/i18n/dictionary";
 import {
@@ -162,7 +162,16 @@ export default function ProductPage() {
         brand={brand.name}
         model={model.name}
         price={unitPrice}
+        name={t("prod.jsonLdName", { brand: brand.name, model: model.name })}
+        description={t("prod.jsonLdDesc", { brand: brand.name, model: model.name })}
         url={`/catalog/${brand.slug}/${model.slug}`}
+      />
+      <BreadcrumbJsonLd
+        items={[
+          { name: t("prod.breadcrumbCatalog"), url: "/catalog" },
+          { name: brand.name, url: `/catalog/${brand.slug}` },
+          { name: model.name, url: `/catalog/${brand.slug}/${model.slug}` },
+        ]}
       />
       <div className="border-b border-border/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">

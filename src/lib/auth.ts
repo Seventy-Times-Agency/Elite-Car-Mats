@@ -1,4 +1,4 @@
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { ensureSchema } from "./db-setup";
 
 export const ADMIN_COOKIE = "ecm_admin";
@@ -21,6 +21,35 @@ export async function requireAdmin(): Promise<boolean> {
     await ensureSchema();
   }
   return ok;
+}
+
+/**
+ * Auth gate for the diagnostic /api/admin/* GET endpoints. Accepts either
+ * a logged-in admin cookie OR a matching token via x-admin-token header /
+ * ?token= query string. The token is the same value as ADMIN_PASSWORD —
+ * one secret to manage instead of two.
+ */
+export async function requireAdminApi(request: Request): Promise<boolean> {
+  const token = adminToken();
+  if (!token) return false;
+
+  // 1. Cookie path — operator already logged in.
+  const cookieStore = await cookies();
+  if (cookieStore.get(ADMIN_COOKIE)?.value === token) return true;
+
+  // 2. Header path — useful for curl from a terminal.
+  const hdr = (await headers()).get("x-admin-token");
+  if (hdr && hdr === token) return true;
+
+  // 3. Query-string path — useful for clicking the link in a browser.
+  try {
+    const url = new URL(request.url);
+    const q = url.searchParams.get("token");
+    if (q && q === token) return true;
+  } catch {
+    // ignore malformed URL
+  }
+  return false;
 }
 
 export async function signInAdmin(password: string): Promise<boolean> {

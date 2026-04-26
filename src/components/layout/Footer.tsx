@@ -12,6 +12,7 @@ export function Footer() {
       items: [
         { h: "/catalog", l: t("nav.catalog") },
         { h: "/about", l: t("footer.navAbout") },
+        { h: "/reviews", l: t("footer.navReviews") },
         { h: "/contacts", l: t("nav.contact") },
         { h: "/track", l: t("nav.track") },
       ],

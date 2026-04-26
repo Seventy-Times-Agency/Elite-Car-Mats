@@ -1,5 +1,7 @@
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { signInAdmin, requireAdmin, isAdminConfigured } from "@/lib/auth";
+import { rateLimit, getClientIpFromHeaders } from "@/lib/rate-limit";
 import { getDictionary } from "@/i18n/getDictionary";
 import { makeT } from "@/i18n/dictionary";
 
@@ -7,6 +9,14 @@ export const dynamic = "force-dynamic";
 
 async function login(formData: FormData) {
   "use server";
+  // 5 attempts per 5 minutes per IP — stops password-spraying without
+  // getting in the way of someone who fat-fingered their own password.
+  const h = await headers();
+  const ip = getClientIpFromHeaders(h);
+  const rl = rateLimit(`admin-login:${ip}`, { windowMs: 5 * 60_000, max: 5 });
+  if (!rl.ok) {
+    redirect(`/admin/login?error=throttled&retry=${rl.retryAfter}`);
+  }
   const password = String(formData.get("password") ?? "");
   const ok = await signInAdmin(password);
   if (ok) redirect("/admin");
@@ -16,13 +26,15 @@ async function login(formData: FormData) {
 export default async function AdminLoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; retry?: string }>;
 }) {
   if (await requireAdmin()) redirect("/admin");
-  const { error } = await searchParams;
+  const { error, retry } = await searchParams;
   const configured = isAdminConfigured();
   const { dict, fallback } = await getDictionary();
   const t = makeT(dict, fallback);
+  const throttled = error === "throttled";
+  const wrong = error === "1";
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
@@ -43,8 +55,13 @@ export default async function AdminLoginPage({
             required
             className="w-full glass-card rounded-xl px-4 py-3 text-sm focus:border-gold/40 focus:outline-none"
           />
-          {error && (
+          {wrong && (
             <p className="text-[11px] text-error">{t("admin.wrongPassword")}</p>
+          )}
+          {throttled && (
+            <p className="text-[11px] text-error">
+              {t("admin.throttled", { retry: retry ?? "300" })}
+            </p>
           )}
           <button
             type="submit"

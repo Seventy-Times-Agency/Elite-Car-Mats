@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { ensureSchema } from "@/lib/db-setup";
+import { requireAdminApi } from "@/lib/auth";
 import {
   brands,
   mockModels,
@@ -146,7 +147,10 @@ async function seedAll(): Promise<SeedSummary> {
   };
 }
 
-export async function GET() {
+export async function GET(request: Request) {
+  if (!(await requireAdminApi(request))) {
+    return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
+  }
   try {
     const summary = await seedAll();
     return NextResponse.json({ ok: true, ...summary });

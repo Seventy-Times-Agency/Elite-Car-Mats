@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { ensureSchema } from "@/lib/db-setup";
+import { ensureCatalogSeed } from "@/lib/db-seed";
 import { createOrderSchema, OrderItemInput } from "@/lib/validations/order";
 import { calculateItemUnitPrice, calculateOrderTotal } from "@/lib/pricing";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
@@ -9,7 +10,7 @@ import {
   sendCustomerOrderEmail,
   sendOwnerOrderEmail,
 } from "@/lib/email";
-import { evaColors, edgeColors, brands, mockModels } from "@/data/mock";
+import { evaColors, edgeColors, brands, badges, mockModels } from "@/data/mock";
 import { getDictionary } from "@/i18n/getDictionary";
 import { makeT } from "@/i18n/dictionary";
 
@@ -22,20 +23,26 @@ function generateOrderNumber(): string {
 async function resolveNames(item: OrderItemInput) {
   const color = evaColors.find((c) => c.id === item.colorId);
   const edge = edgeColors.find((c) => c.id === item.edgeColorId);
-  const badge = item.badgeId
-    ? brands.find((b) => `badge-${b.slug}` === item.badgeId)
+  const badgeRow = item.badgeId
+    ? badges.find((b) => b.id === item.badgeId)
     : null;
   const { dict, fallback } = await getDictionary();
   const t = makeT(dict, fallback);
   return {
     colorName: color?.name ?? item.colorId,
     edgeColorName: edge?.name ?? item.edgeColorId,
-    badgeName: badge ? t("email.badgeSuffix", { brand: badge.name }) : null,
+    badgeName: badgeRow
+      ? t("email.badgeSuffix", { brand: badgeRow.brandName })
+      : null,
   };
 }
 
 export async function POST(request: Request) {
   await ensureSchema();
+  // Self-heal: if the catalog tables (Brand/EdgeColor/EvaColor/Product)
+  // are still empty (operator forgot to hit /api/admin/seed), seed them
+  // now so OrderItem foreign keys resolve.
+  await ensureCatalogSeed();
 
   const ip = getClientIp(request);
   const limit = rateLimit(`orders:${ip}`);
@@ -95,6 +102,31 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         error: `Cannot find product in catalog: ${list}. Please reopen the model page and add to cart again.`,
+      },
+      { status: 400 },
+    );
+  }
+
+  // Validate that every referenced color / edge / badge id actually exists
+  // in the mock catalog. This catches stale carts in localStorage from
+  // before color-list changes and surfaces the bad value cleanly instead
+  // of dying at the FK constraint.
+  const validEvaIds = new Set(evaColors.map((c) => c.id));
+  const validEdgeIds = new Set(edgeColors.map((c) => c.id));
+  const validBadgeIds = new Set(badges.map((b) => b.id));
+  const refIssues: string[] = [];
+  for (const i of items) {
+    if (!validEvaIds.has(i.colorId))
+      refIssues.push(`EVA color "${i.colorId}"`);
+    if (!validEdgeIds.has(i.edgeColorId))
+      refIssues.push(`edge color "${i.edgeColorId}"`);
+    if (i.badgeId && !validBadgeIds.has(i.badgeId))
+      refIssues.push(`badge "${i.badgeId}"`);
+  }
+  if (refIssues.length > 0) {
+    return NextResponse.json(
+      {
+        error: `Cart references unknown options: ${[...new Set(refIssues)].join(", ")}. Please clear your cart and pick fresh options.`,
       },
       { status: 400 },
     );

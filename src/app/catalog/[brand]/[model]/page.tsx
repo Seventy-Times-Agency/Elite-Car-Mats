@@ -141,7 +141,7 @@ export default function ProductPage() {
         : {};
     const storedLabel = pickupLabels[set] ?? ms.label;
     addItem({
-      modelId: model.id,
+      modelId: `${brand.slug}-${model.slug}`,
       brandName: brand.name,
       modelName: model.name,
       year,

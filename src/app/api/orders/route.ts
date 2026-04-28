@@ -9,7 +9,7 @@ import {
   sendCustomerOrderEmail,
   sendOwnerOrderEmail,
 } from "@/lib/email";
-import { evaColors, edgeColors, brands } from "@/data/mock";
+import { evaColors, edgeColors, brands, mockModels } from "@/data/mock";
 import { getDictionary } from "@/i18n/getDictionary";
 import { makeT } from "@/i18n/dictionary";
 
@@ -63,6 +63,43 @@ export async function POST(request: Request) {
 
   const { customer, shipping, items, promoCode } = parsed.data;
 
+  // Resolve productId for each cart item from the canonical mockModels
+  // catalog. This is robust to historical bugs where cart entries stored
+  // just the model slug instead of `${brand}-${slug}` — we look up by
+  // brandName + modelName (which were always in the cart payload) and
+  // recompute the seeded Product id deterministically.
+  const itemsResolved = items.map((i) => {
+    const direct = mockModels.find(
+      (m) =>
+        m.id === i.modelId ||
+        `${m.brandId}-${m.slug}` === i.modelId,
+    );
+    const byName =
+      direct ??
+      mockModels.find(
+        (m) =>
+          m.brandName.toLowerCase() === i.brandName.toLowerCase() &&
+          m.name.toLowerCase() === i.modelName.toLowerCase(),
+      );
+    const productId = byName
+      ? `${byName.brandId}-${byName.slug}-${i.matSet}`
+      : null;
+    return { item: i, productId };
+  });
+
+  const unresolved = itemsResolved.filter((r) => !r.productId);
+  if (unresolved.length > 0) {
+    const list = unresolved
+      .map((r) => `${r.item.brandName} ${r.item.modelName}`)
+      .join(", ");
+    return NextResponse.json(
+      {
+        error: `Cannot find product in catalog: ${list}. Please reopen the model page and add to cart again.`,
+      },
+      { status: 400 },
+    );
+  }
+
   const subtotal = calculateOrderTotal(
     items.map((i) => ({
       matSet: i.matSet,
@@ -102,8 +139,8 @@ export async function POST(request: Request) {
           : shipping.comment || null,
         total,
         items: {
-          create: items.map((i) => ({
-            productId: `${i.modelId}-${i.matSet}`,
+          create: itemsResolved.map(({ item: i, productId }) => ({
+            productId: productId!,
             colorId: i.colorId,
             edgeColorId: i.edgeColorId,
             badgeId: i.badgeId || null,
@@ -119,9 +156,10 @@ export async function POST(request: Request) {
       select: { id: true, orderNumber: true, total: true },
     });
   } catch (err) {
-    console.error("Order create failed:", err);
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error("[orders] create failed:", msg);
     return NextResponse.json(
-      { error: "Failed to create order" },
+      { error: `Failed to create order: ${msg}` },
       { status: 500 },
     );
   }

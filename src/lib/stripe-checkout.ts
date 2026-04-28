@@ -65,6 +65,11 @@ export async function createCheckoutSession(
       orderNumber: input.orderNumber,
     },
     locale: input.locale ?? "auto",
+    // Tax and shipping cost are not configured yet — keep them off
+    // explicitly so a Stripe Tax / shipping-rates rollout doesn't
+    // surprise customers with charges that aren't reflected in the
+    // order total stored in our DB.
+    automatic_tax: { enabled: false },
     shipping_address_collection: {
       allowed_countries: ["US", "CA", "MX"],
     },

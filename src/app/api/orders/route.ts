@@ -176,6 +176,7 @@ export async function POST(request: Request) {
             colorId: i.colorId,
             edgeColorId: i.edgeColorId,
             badgeId: i.badgeId || null,
+            year: i.year ?? null,
             quantity: i.quantity,
             price: calculateItemUnitPrice({
               matSet: i.matSet,
@@ -198,13 +199,18 @@ export async function POST(request: Request) {
 
   const emailItems = await Promise.all(items.map(async (i) => {
     const names = await resolveNames(i);
+    const colorRow = evaColors.find((c) => c.id === i.colorId);
+    const edgeRow = edgeColors.find((c) => c.id === i.edgeColorId);
     return {
       brandName: i.brandName,
       modelName: i.modelName,
       matSet: i.matSet,
       colorName: names.colorName,
+      colorHex: colorRow?.hex ?? null,
       edgeColorName: names.edgeColorName,
+      edgeColorHex: edgeRow?.hex ?? null,
       badgeName: names.badgeName,
+      year: i.year ?? null,
       quantity: i.quantity,
       unitPrice: calculateItemUnitPrice({
         matSet: i.matSet,

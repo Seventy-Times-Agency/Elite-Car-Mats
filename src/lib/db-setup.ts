@@ -255,6 +255,7 @@ async function execAll(): Promise<MigrationResult[]> {
          "colorId" TEXT NOT NULL,
          "edgeColorId" TEXT NOT NULL,
          "badgeId" TEXT,
+         "year" INTEGER,
          "quantity" INTEGER NOT NULL DEFAULT 1,
          "price" DECIMAL(10,2),
          CONSTRAINT "OrderItem_orderId_fkey" FOREIGN KEY ("orderId")
@@ -268,6 +269,11 @@ async function execAll(): Promise<MigrationResult[]> {
          CONSTRAINT "OrderItem_badgeId_fkey" FOREIGN KEY ("badgeId")
            REFERENCES "Badge"("id") ON DELETE SET NULL ON UPDATE CASCADE
        )`,
+    );
+    // Back-compat for databases that predate the year column.
+    await run(
+      "orderItem.year",
+      `ALTER TABLE "OrderItem" ADD COLUMN IF NOT EXISTS "year" INTEGER`,
     );
 
     // ------------------------------------------------------------------

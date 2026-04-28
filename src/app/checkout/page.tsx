@@ -9,7 +9,7 @@ import {
   formatPrice,
 } from "@/lib/pricing";
 import { useT, useLocale } from "@/i18n/I18nProvider";
-import { localizeMatSet } from "@/i18n/labels";
+import { localizeMatSet, localizeColor } from "@/i18n/labels";
 
 const STRIPE_PUBLISHABLE_KEY =
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ?? "";
@@ -320,18 +320,56 @@ export default function CheckoutPage() {
                   return (
                     <div
                       key={i.id}
-                      className="text-sm border-b border-border/30 pb-3 flex justify-between gap-3"
+                      className="text-sm border-b border-border/30 pb-3 flex gap-3"
                     >
-                      <div className="min-w-0">
-                        <div className="text-text font-medium truncate">
-                          {i.brandName} {i.modelName}
-                        </div>
-                        <div className="text-text-faint text-xs mt-0.5">
-                          {localizeMatSet(t, i.matSetLabel)} × {i.quantity}
-                        </div>
+                      <div
+                        className="w-10 h-10 rounded-md border border-border/60 shrink-0 relative overflow-hidden"
+                        style={{ backgroundColor: i.color.hex }}
+                        aria-hidden
+                      >
+                        <div
+                          className="absolute inset-0 border-[2px] rounded-md"
+                          style={{ borderColor: i.edgeColor.hex }}
+                        />
                       </div>
-                      <div className="text-gold text-sm shrink-0">
-                        {formatPrice(unit * i.quantity)}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex justify-between gap-2">
+                          <div className="text-text font-medium text-[13px] truncate">
+                            {i.brandName} {i.modelName}
+                            {i.year ? <span className="text-text-faint font-normal"> · {i.year}</span> : null}
+                          </div>
+                          <div className="text-gold text-sm shrink-0">
+                            {formatPrice(unit * i.quantity)}
+                          </div>
+                        </div>
+                        <div className="text-text-faint text-[11px] mt-1">
+                          {localizeMatSet(t, i.matSetLabel)} · ×{i.quantity}
+                        </div>
+                        <div className="text-text-dim text-[10px] mt-1 flex items-center gap-1.5 flex-wrap">
+                          <span className="inline-flex items-center gap-1">
+                            <span
+                              className="w-2 h-2 rounded-sm"
+                              style={{ backgroundColor: i.color.hex }}
+                              aria-hidden
+                            />
+                            {localizeColor(t, i.color.name)}
+                          </span>
+                          <span>·</span>
+                          <span className="inline-flex items-center gap-1">
+                            <span
+                              className="w-2 h-2 rounded-full"
+                              style={{ backgroundColor: i.edgeColor.hex }}
+                              aria-hidden
+                            />
+                            {localizeColor(t, i.edgeColor.name)}
+                          </span>
+                          {i.badge && (
+                            <>
+                              <span>·</span>
+                              <span className="text-gold/90">{i.badge.brandName}</span>
+                            </>
+                          )}
+                        </div>
                       </div>
                     </div>
                   );

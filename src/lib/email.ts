@@ -29,8 +29,11 @@ interface OrderEmailItem {
   modelName: string;
   matSet: string;
   colorName: string;
+  colorHex?: string | null;
   edgeColorName: string;
+  edgeColorHex?: string | null;
   badgeName?: string | null;
+  year?: number | null;
   quantity: number;
   unitPrice: number;
 }
@@ -48,22 +51,39 @@ interface OrderEmailData {
   items: OrderEmailItem[];
 }
 
+function swatch(hex: string | null | undefined, shape: "square" | "round"): string {
+  if (!hex) return "";
+  const radius = shape === "round" ? "50%" : "2px";
+  return `<span style="display:inline-block;width:11px;height:11px;background:${hex};border:1px solid #2a2a2a;border-radius:${radius};vertical-align:middle;margin-right:5px;"></span>`;
+}
+
 function itemsTable(t: TFn, items: OrderEmailItem[]): string {
   const rows = items
     .map(
-      (i) => `
+      (i) => {
+        const titleSuffix = i.year ? ` · ${i.year}` : "";
+        const badgeRow = i.badgeName
+          ? `<div style="color:#D4A54A;font-size:12px;margin-top:4px;">+ ${i.badgeName}</div>`
+          : "";
+        return `
         <tr>
-          <td style="padding:12px 0;border-bottom:1px solid #222;">
-            <div style="color:#F0ECE5;font-weight:500;">${i.brandName} ${i.modelName}</div>
-            <div style="color:#8a8a8a;font-size:12px;margin-top:4px;">
-              ${matSetLabel(t, i.matSet)} · ${i.colorName} / ${i.edgeColorName}
-              ${i.badgeName ? ` · ${i.badgeName}` : ""} · ×${i.quantity}
+          <td style="padding:14px 0;border-bottom:1px solid #222;">
+            <div style="color:#F0ECE5;font-weight:500;">${i.brandName} ${i.modelName}${titleSuffix}</div>
+            <div style="color:#8a8a8a;font-size:12px;margin-top:6px;">
+              ${matSetLabel(t, i.matSet)} · ×${i.quantity}
             </div>
+            <div style="color:#bbb;font-size:12px;margin-top:6px;line-height:18px;">
+              ${swatch(i.colorHex, "square")}${i.colorName}
+              <span style="color:#555;margin:0 6px;">·</span>
+              ${swatch(i.edgeColorHex, "round")}${i.edgeColorName}
+            </div>
+            ${badgeRow}
           </td>
-          <td style="padding:12px 0;border-bottom:1px solid #222;text-align:right;color:#D4A54A;font-weight:600;white-space:nowrap;">
+          <td style="padding:14px 0;border-bottom:1px solid #222;text-align:right;color:#D4A54A;font-weight:600;white-space:nowrap;vertical-align:top;">
             ${formatPrice(i.unitPrice * i.quantity)}
           </td>
-        </tr>`,
+        </tr>`;
+      },
     )
     .join("");
   return rows;

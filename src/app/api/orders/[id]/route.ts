@@ -56,6 +56,7 @@ export async function GET(
       brandName: i.product.model.brand.name,
       modelName: i.product.model.name,
       matSet: i.product.matSet,
+      year: i.year ?? null,
       color: { id: i.color.id, name: i.color.name, hex: i.color.hex },
       edgeColor: { id: i.edgeColor.id, name: i.edgeColor.name, hex: i.edgeColor.hex },
       badge: i.badge ? { id: i.badge.id, brandName: i.badge.brandName } : null,

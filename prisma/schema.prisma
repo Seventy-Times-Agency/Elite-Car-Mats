@@ -155,6 +155,7 @@ model OrderItem {
   edgeColor   EdgeColor  @relation(fields: [edgeColorId], references: [id])
   badgeId     String?
   badge       Badge?     @relation(fields: [badgeId], references: [id])
+  year        Int?
   quantity    Int        @default(1)
   price       Decimal?   @db.Decimal(10, 2)
 }

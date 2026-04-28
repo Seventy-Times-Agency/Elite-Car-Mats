@@ -69,6 +69,7 @@ interface OrderResponse {
     brandName: string;
     modelName: string;
     matSet: string;
+    year: number | null;
     color: { id: string; name: string; hex: string };
     edgeColor: { id: string; name: string; hex: string };
     badge: { id: string; brandName: string } | null;
@@ -158,23 +159,58 @@ export default async function OrderPage({
                 className="flex gap-4 py-3 border-b border-border/30 last:border-0"
               >
                 <div
-                  className="w-12 h-12 rounded-lg border border-border shrink-0"
+                  className="w-14 h-14 rounded-lg border border-border/60 shrink-0 relative overflow-hidden shadow-inner"
                   style={{ backgroundColor: i.color.hex }}
-                />
+                  aria-hidden
+                >
+                  <div
+                    className="absolute inset-0 border-[3px] rounded-lg"
+                    style={{ borderColor: i.edgeColor.hex }}
+                  />
+                </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex justify-between gap-3">
                     <h3 className="text-text font-medium text-sm">
                       {i.brandName} {i.modelName}
+                      {i.year ? <span className="text-text-faint font-normal"> · {i.year}</span> : null}
                     </h3>
                     <span className="text-gold text-sm font-semibold shrink-0">
                       {formatPrice(i.price * i.quantity)}
                     </span>
                   </div>
-                  <p className="text-text-faint text-xs mt-1">
-                    {matSetLabel(i.matSet, dict, fallback)} · {i.color.name} ·{" "}
-                    {i.edgeColor.name}
-                    {i.badge ? ` · ${i.badge.brandName}` : ""} · ×{i.quantity}
+                  <p className="text-text-dim text-xs mt-1.5">
+                    {matSetLabel(i.matSet, dict, fallback)} · ×{i.quantity}
                   </p>
+                  <div className="mt-2 flex items-center gap-2 flex-wrap text-[11px] text-text-dim">
+                    <span className="inline-flex items-center gap-1.5">
+                      <span
+                        className="w-3 h-3 rounded-sm border border-border/60"
+                        style={{ backgroundColor: i.color.hex }}
+                        aria-hidden
+                      />
+                      {i.color.name}
+                    </span>
+                    <span className="text-text-faint">·</span>
+                    <span className="inline-flex items-center gap-1.5">
+                      <span
+                        className="w-3 h-3 rounded-full border border-border/40"
+                        style={{ backgroundColor: i.edgeColor.hex }}
+                        aria-hidden
+                      />
+                      {i.edgeColor.name}
+                    </span>
+                    {i.badge && (
+                      <>
+                        <span className="text-text-faint">·</span>
+                        <span className="inline-flex items-center gap-1 text-gold/90">
+                          <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+                            <path d="M12 2l2.39 4.84 5.34.78-3.86 3.76.91 5.31L12 14.17l-4.78 2.52.91-5.31L4.27 7.62l5.34-.78L12 2z" />
+                          </svg>
+                          {i.badge.brandName}
+                        </span>
+                      </>
+                    )}
+                  </div>
                 </div>
               </div>
             ))}

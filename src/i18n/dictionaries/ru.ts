@@ -113,6 +113,12 @@ export const ru: Dict = {
   "cart.perUnit": "/ шт",
   "cart.total": "Итого",
   "cart.checkout": "Оформить заказ",
+  "cart.drawerClose": "Закрыть корзину",
+  "cart.drawerRemove": "Удалить позицию",
+  "cart.drawerDecrease": "Уменьшить количество",
+  "cart.drawerIncrease": "Увеличить количество",
+  "cart.drawerContinue": "Продолжить покупки",
+  "cart.drawerSecure": "Оплата защищена · 30 дней на возврат",
 
   // Checkout
   "co.meta": "Оформление заказа",

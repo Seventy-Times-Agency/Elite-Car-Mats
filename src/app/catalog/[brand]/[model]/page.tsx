@@ -79,7 +79,7 @@ export default function ProductPage() {
   const model = mockModels.find(
     (m) => m.slug === params.model && m.brandId === brand?.id,
   );
-  const { addItem } = useCart();
+  const { addItem, openCart } = useCart();
   const [set, setSet] = useState<MatSetType>("full-cargo");
   const [color, setColor] = useState(evaColors[0]);
   const [edge, setEdge] = useState(edgeColors[0]);
@@ -152,6 +152,7 @@ export default function ProductPage() {
       badge: badge && bdg ? bdg : undefined,
       quantity: 1,
     });
+    openCart();
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
   };

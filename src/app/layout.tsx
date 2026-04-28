@@ -6,6 +6,7 @@ import { Footer } from "@/components/layout/Footer";
 import { FloatingCTA } from "@/components/layout/FloatingCTA";
 import { CookieBanner } from "@/components/layout/CookieBanner";
 import { CartProvider } from "@/context/CartContext";
+import { CartDrawer } from "@/components/cart/CartDrawer";
 import { OrganizationJsonLd } from "@/components/seo/ProductJsonLd";
 import { I18nProvider } from "@/i18n/I18nProvider";
 import { getDictionary } from "@/i18n/getDictionary";
@@ -130,6 +131,7 @@ export default async function RootLayout({
             <Footer />
             <FloatingCTA />
             <CookieBanner />
+            <CartDrawer />
           </CartProvider>
         </I18nProvider>
       </body>

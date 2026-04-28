@@ -104,6 +104,12 @@ export const uk: Dict = {
   "cart.perUnit": "/ шт",
   "cart.total": "Разом",
   "cart.checkout": "Оформити замовлення",
+  "cart.drawerClose": "Закрити кошик",
+  "cart.drawerRemove": "Видалити позицію",
+  "cart.drawerDecrease": "Зменшити кількість",
+  "cart.drawerIncrease": "Збільшити кількість",
+  "cart.drawerContinue": "Продовжити покупки",
+  "cart.drawerSecure": "Безпечна оплата · 30 днів на повернення",
 
   "co.meta": "Оформлення замовлення",
   "co.title": "Оформлення замовлення",

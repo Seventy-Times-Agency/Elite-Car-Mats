@@ -103,6 +103,12 @@ export const en: Dict = {
   "cart.perUnit": "/ ea",
   "cart.total": "Total",
   "cart.checkout": "Checkout",
+  "cart.drawerClose": "Close cart",
+  "cart.drawerRemove": "Remove item",
+  "cart.drawerDecrease": "Decrease quantity",
+  "cart.drawerIncrease": "Increase quantity",
+  "cart.drawerContinue": "Continue shopping",
+  "cart.drawerSecure": "Secure checkout · 30-day returns",
 
   "co.meta": "Checkout",
   "co.title": "Checkout",

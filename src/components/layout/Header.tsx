@@ -12,7 +12,7 @@ export function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [pastHero, setPastHero] = useState(false);
   const pathname = usePathname();
-  const { itemsCount } = useCart();
+  const { itemsCount, openCart } = useCart();
   const t = useT();
 
   useEffect(() => {
@@ -97,8 +97,9 @@ export function Header() {
             </svg>
           </a>
 
-          <Link
-            href="/cart"
+          <button
+            type="button"
+            onClick={openCart}
             className="relative text-text-dim hover:text-gold transition-colors p-1"
             aria-label={cartAria}
           >
@@ -121,7 +122,7 @@ export function Header() {
                 {itemsCount}
               </span>
             )}
-          </Link>
+          </button>
 
           <button
             onClick={() => setMenuOpen(!menuOpen)}

@@ -30,8 +30,8 @@ export function Header() {
     pastHero &&
     pathname !== "/cart" &&
     pathname !== "/checkout" &&
-    !pathname.startsWith("/admin") &&
-    !pathname.startsWith("/order/");
+    !(pathname?.startsWith("/admin") ?? false) &&
+    !(pathname?.startsWith("/order/") ?? false);
 
   const links = [
     { href: "/catalog", label: t("nav.catalog") },

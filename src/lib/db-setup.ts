@@ -34,6 +34,25 @@ async function execAll(): Promise<MigrationResult[]> {
   const pool = new Pool({ connectionString: url });
   const results: MigrationResult[] = [];
 
+  // Advisory lock so concurrent serverless invocations during a cold start
+  // can't race CREATE TABLE/TYPE statements. Postgres' CREATE TYPE is not
+  // race-safe even with IF NOT EXISTS — two parallel invocations can both
+  // see the type missing and both try to insert into pg_type. The lock is
+  // held for the lifetime of the session and released on pool.end().
+  // Postgres' advisory lock takes a bigint; we use a string literal that
+  // pg parses back to int8, sidestepping the JS BigInt-literal target
+  // restriction. The exact key is arbitrary as long as it's stable.
+  const ADVISORY_KEY = "5004603024879845377";
+  const lockClient = await pool.connect();
+  try {
+    await lockClient.query("SELECT pg_advisory_lock($1)", [ADVISORY_KEY]);
+  } catch (err) {
+    lockClient.release();
+    await pool.end().catch(() => {});
+    const msg = err instanceof Error ? err.message : String(err);
+    return [{ label: "advisory-lock", ok: false, error: msg }];
+  }
+
   const run = async (label: string, stmt: string) => {
     try {
       await pool.query(stmt);
@@ -367,7 +386,122 @@ async function execAll(): Promise<MigrationResult[]> {
       "NewsletterSubscriber.email unique",
       `CREATE UNIQUE INDEX IF NOT EXISTS "NewsletterSubscriber_email_key" ON "NewsletterSubscriber"("email")`,
     );
+
+    // ------------------------------------------------------------------
+    // Webhook idempotency ledger. One row per processed Stripe event id.
+    // ------------------------------------------------------------------
+    await run(
+      "table WebhookEvent",
+      `CREATE TABLE IF NOT EXISTS "WebhookEvent" (
+         "id" TEXT PRIMARY KEY,
+         "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+       )`,
+    );
+
+    // ------------------------------------------------------------------
+    // FK + hot-column indexes. Postgres does NOT auto-index foreign keys,
+    // so admin dashboard queries (orderBy createdAt, where status,
+    // include items) all do full scans without these.
+    // ------------------------------------------------------------------
+    await run(
+      "Model.brandId index",
+      `CREATE INDEX IF NOT EXISTS "Model_brandId_idx" ON "Model"("brandId")`,
+    );
+    await run(
+      "Order.status index",
+      `CREATE INDEX IF NOT EXISTS "Order_status_idx" ON "Order"("status")`,
+    );
+    await run(
+      "Order.createdAt index",
+      `CREATE INDEX IF NOT EXISTS "Order_createdAt_idx" ON "Order"("createdAt")`,
+    );
+    await run(
+      "Order.email index",
+      `CREATE INDEX IF NOT EXISTS "Order_email_idx" ON "Order"("email")`,
+    );
+    await run(
+      "OrderItem.orderId index",
+      `CREATE INDEX IF NOT EXISTS "OrderItem_orderId_idx" ON "OrderItem"("orderId")`,
+    );
+    await run(
+      "OrderItem.productId index",
+      `CREATE INDEX IF NOT EXISTS "OrderItem_productId_idx" ON "OrderItem"("productId")`,
+    );
+    await run(
+      "OrderItem.colorId index",
+      `CREATE INDEX IF NOT EXISTS "OrderItem_colorId_idx" ON "OrderItem"("colorId")`,
+    );
+    await run(
+      "OrderItem.edgeColorId index",
+      `CREATE INDEX IF NOT EXISTS "OrderItem_edgeColorId_idx" ON "OrderItem"("edgeColorId")`,
+    );
+    await run(
+      "OrderItem.badgeId index",
+      `CREATE INDEX IF NOT EXISTS "OrderItem_badgeId_idx" ON "OrderItem"("badgeId")`,
+    );
+    await run(
+      "Review.approved+createdAt index",
+      `CREATE INDEX IF NOT EXISTS "Review_approved_createdAt_idx" ON "Review"("approved","createdAt")`,
+    );
+    await run(
+      "PromoCode.active index",
+      `CREATE INDEX IF NOT EXISTS "PromoCode_active_idx" ON "PromoCode"("active")`,
+    );
+    await run(
+      "CustomOrderRequest.status+createdAt index",
+      `CREATE INDEX IF NOT EXISTS "CustomOrderRequest_status_createdAt_idx" ON "CustomOrderRequest"("status","createdAt")`,
+    );
+
+    // ------------------------------------------------------------------
+    // updatedAt triggers. Prisma's @updatedAt is implemented client-side
+    // — raw SQL inserts/updates won't bump the column. Define a single
+    // shared trigger function and attach it to every table that has
+    // updatedAt.
+    // ------------------------------------------------------------------
+    await run(
+      "function bump_updated_at",
+      `CREATE OR REPLACE FUNCTION bump_updated_at() RETURNS trigger AS $$
+       BEGIN
+         NEW."updatedAt" = CURRENT_TIMESTAMP;
+         RETURN NEW;
+       END;
+       $$ LANGUAGE plpgsql`,
+    );
+    const updatedAtTables = [
+      "Brand",
+      "Model",
+      "Product",
+      "Order",
+      "CustomOrderRequest",
+    ];
+    for (const tbl of updatedAtTables) {
+      await run(
+        `trigger ${tbl}.updatedAt`,
+        `DO $$
+         BEGIN
+           IF NOT EXISTS (
+             SELECT 1 FROM pg_trigger
+             WHERE tgname = '${tbl}_updatedAt_bump'
+           ) THEN
+             CREATE TRIGGER "${tbl}_updatedAt_bump"
+               BEFORE UPDATE ON "${tbl}"
+               FOR EACH ROW EXECUTE FUNCTION bump_updated_at();
+           END IF;
+         END
+         $$`,
+      );
+    }
   } finally {
+    try {
+      // Release the advisory lock and return the session to the pool
+      // before we close the pool itself.
+      await lockClient
+        .query("SELECT pg_advisory_unlock($1)", [ADVISORY_KEY])
+        .catch(() => {});
+      lockClient.release();
+    } catch {
+      // ignore
+    }
     try {
       await pool.end();
     } catch {

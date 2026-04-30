@@ -1,23 +1,47 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
+import { prisma } from "@/lib/prisma";
+import { signOrderToken } from "@/lib/order-token";
+import { rateLimit, getClientIpFromHeaders } from "@/lib/rate-limit";
 import { getDictionary } from "@/i18n/getDictionary";
 
 async function track(formData: FormData) {
   "use server";
   const raw = String(formData.get("orderNumber") ?? "").trim();
-  if (!raw) redirect("/track?error=empty");
+  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+  if (!raw || !email) redirect("/track?error=empty");
+
   const orderNumber = raw.toUpperCase().replace(/\s+/g, "");
-  redirect(`/order/${orderNumber}`);
+
+  // Rate-limit: 8 attempts per 5 min per IP. Stops casual scraping; the
+  // email match is a bigger barrier than any rate cap.
+  const h = await headers();
+  const ip = getClientIpFromHeaders(h);
+  const rl = await rateLimit(`track:${ip}`, { windowMs: 5 * 60_000, max: 8 });
+  if (!rl.ok) {
+    redirect(`/track?error=throttled&retry=${rl.retryAfter}`);
+  }
+
+  const order = await prisma.order.findFirst({
+    where: { OR: [{ id: orderNumber }, { orderNumber }] },
+    select: { id: true, orderNumber: true, email: true },
+  });
+  if (!order || order.email.toLowerCase() !== email) {
+    redirect(`/track?error=notfound&n=${encodeURIComponent(orderNumber)}`);
+  }
+  const token = signOrderToken(order.id);
+  redirect(`/order/${order.orderNumber}?t=${token}`);
 }
 
 export default async function TrackPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string; n?: string }>;
+  searchParams: Promise<{ error?: string; n?: string; retry?: string }>;
 }) {
-  const { error, n } = await searchParams;
+  const { error, n, retry } = await searchParams;
   const { dict, fallback } = await getDictionary();
-  const s = (k: string) => (dict[k] ?? fallback[k]) as string;
+  const s = (k: string) => (dict[k] ?? fallback[k] ?? k) as string;
   const sFmt = (k: string, vars: Record<string, string>): string => {
     const tpl = (dict[k] ?? fallback[k] ?? k) as string;
     return tpl.replace(/\{(\w+)\}/g, (_, name) => vars[name] ?? `{${name}}`);
@@ -33,10 +57,19 @@ export default async function TrackPage({
             type="text"
             name="orderNumber"
             placeholder="ECM-XXXXXX-XXXX"
-            defaultValue={error === "notfound" ? n ?? "" : ""}
+            defaultValue={
+              error === "notfound" || error === "auth" ? n ?? "" : ""
+            }
             autoFocus
             required
             className="w-full glass-card rounded-xl px-4 py-3.5 text-sm focus:border-gold/40 focus:outline-none font-mono tracking-wider uppercase"
+          />
+          <input
+            type="email"
+            name="email"
+            placeholder="email@example.com"
+            required
+            className="w-full glass-card rounded-xl px-4 py-3.5 text-sm focus:border-gold/40 focus:outline-none"
           />
           {error === "empty" && (
             <p className="text-[11px] text-error">{s("track.errEmpty")}</p>
@@ -46,6 +79,14 @@ export default async function TrackPage({
               {n
                 ? sFmt("track.errNotFound", { n })
                 : s("track.errNotFoundGeneric")}
+            </p>
+          )}
+          {error === "auth" && (
+            <p className="text-[11px] text-error">{s("track.errAuth")}</p>
+          )}
+          {error === "throttled" && (
+            <p className="text-[11px] text-error">
+              {sFmt("track.errThrottled", { retry: retry ?? "300" })}
             </p>
           )}
           <button

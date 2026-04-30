@@ -5,33 +5,46 @@ import { prisma } from "@/lib/prisma";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
 import { isStripeConfigured } from "@/lib/stripe";
 import { createCheckoutSession } from "@/lib/stripe-checkout";
+import { signOrderToken, verifyOrderToken } from "@/lib/order-token";
+import { calculateItemUnitPrice } from "@/lib/pricing";
+import type { MatSetType } from "@/types";
 
 const schema = z.object({
   orderId: z.string().min(1),
+  /** HMAC token issued at order creation. Required so an attacker who
+   *  guessed an orderId cannot create Stripe sessions for someone else. */
+  orderToken: z.string().min(1),
   locale: z.enum(["ru", "en", "uk"]).optional().default("en"),
 });
 
-// Stripe Checkout supports a fixed list of locales; Ukrainian is not one of
-// them as of the current Stripe API, so we fall back to `auto` there (which
-// will negotiate from the browser's Accept-Language header).
 const LOCALE_MAP: Record<string, Stripe.Checkout.SessionCreateParams.Locale> = {
   ru: "ru",
   en: "en",
-  uk: "auto",
+  uk: "auto", // Stripe Checkout has no `uk` locale yet
+};
+
+const matSetFromEnum: Record<string, MatSetType> = {
+  FRONT: "front",
+  FULL: "full",
+  CARGO: "cargo",
+  FULL_CARGO: "full-cargo",
 };
 
 /**
  * Starts a Stripe Checkout session for an already-created order.
  *
- * Flow (when Stripe is configured):
- *   1. Client POSTs the new order via /api/orders (existing behaviour)
- *   2. Client POSTs { orderId, locale } here
- *   3. We look up the order + line items, build a Checkout session, return url
- *   4. Client does `window.location = url` to redirect to Stripe
- *   5. Stripe posts back to /api/webhooks/stripe with checkout.session.completed
+ * Auth: requires the order's HMAC token (issued at /api/orders create time)
+ * — without it, this endpoint is an IDOR (anyone with an orderId could
+ * spawn a Stripe session for someone else's order).
  *
- * When Stripe is NOT configured we return 503 — the UI is expected to fall
- * back to the existing manual-confirm flow in that case.
+ * Pricing: re-derives line item prices from the server-side `pricing.ts`
+ * helper. The DB row's `price` column is treated as advisory only — if a
+ * future bug allowed it to be tampered with, Stripe would still get the
+ * canonical price.
+ *
+ * Discount: if the order's `total` is below the recomputed subtotal we
+ * issue a one-shot Stripe coupon for the difference so the displayed
+ * total on Stripe matches the DB.
  */
 export async function POST(request: Request) {
   if (!isStripeConfigured()) {
@@ -42,7 +55,7 @@ export async function POST(request: Request) {
   }
 
   const ip = getClientIp(request);
-  const limit = rateLimit(`stripe:${ip}`);
+  const limit = await rateLimit(`stripe:${ip}`);
   if (!limit.ok) {
     return NextResponse.json(
       { error: "Too many requests" },
@@ -65,7 +78,11 @@ export async function POST(request: Request) {
     );
   }
 
-  const { orderId, locale } = parsed.data;
+  const { orderId, orderToken, locale } = parsed.data;
+
+  if (!verifyOrderToken(orderId, orderToken)) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
 
   const order = await prisma.order.findUnique({
     where: { id: orderId },
@@ -85,18 +102,35 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Order not found" }, { status: 404 });
   }
 
+  // Recompute unit prices from authoritative sources (matSet enum + edge
+  // color id + badge presence). Never trust the DB-stored price column —
+  // if it ever drifts, we want Stripe to charge the correct number.
   const items = order.items.map((i) => {
-    const brandName = i.product?.model?.brand?.name ?? "Elite Car Mats";
-    const modelName = i.product?.model?.name ?? "Custom set";
+    const matSet = matSetFromEnum[i.product.matSet] ?? "full";
+    const unitPriceUsd = calculateItemUnitPrice({
+      matSet,
+      edgeColor: { id: i.edgeColor.id },
+      badge: i.badge ? { id: i.badge.id } : null,
+    });
+    const brandName = i.product.model.brand.name;
+    const modelName = i.product.model.name;
     const descBits = [i.color.name, i.edgeColor.name];
     if (i.badge) descBits.push(`+ ${i.badge.brandName} badge`);
     return {
       name: `${brandName} ${modelName}`,
       description: descBits.join(" / "),
-      unitPriceUsd: Number(i.price ?? 0),
+      unitPriceUsd,
       quantity: i.quantity,
     };
   });
+
+  const recomputedSubtotal = items.reduce(
+    (s, it) => s + it.unitPriceUsd * it.quantity,
+    0,
+  );
+  const dbTotal = Number(order.total ?? 0);
+  // Difference between subtotal and stored total is the promo discount.
+  const discountUsd = Math.max(0, recomputedSubtotal - dbTotal);
 
   try {
     const session = await createCheckoutSession({
@@ -104,6 +138,8 @@ export async function POST(request: Request) {
       orderNumber: order.orderNumber,
       customerEmail: order.email,
       items,
+      discountUsd,
+      orderToken: signOrderToken(order.id),
       locale: LOCALE_MAP[locale] ?? "auto",
     });
 
@@ -114,8 +150,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // Persist the Stripe session id so we can reconcile later if the webhook
-    // is delayed or missed.
     await prisma.order.update({
       where: { id: order.id },
       data: { stripeSessionId: session.id },

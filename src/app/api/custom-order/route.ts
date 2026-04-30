@@ -36,7 +36,7 @@ function escape(v: string): string {
 export async function POST(request: Request) {
   await ensureSchema();
   const ip = getClientIp(request);
-  const limit = rateLimit(`custom:${ip}`);
+  const limit = await rateLimit(`custom:${ip}`);
   if (!limit.ok) {
     return NextResponse.json(
       { error: "Too many requests" },

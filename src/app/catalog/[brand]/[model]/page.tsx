@@ -1,7 +1,7 @@
 "use client";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { brands, mockModels, matSets, evaColors, edgeColors, badges } from "@/data/mock";
 import { useCart } from "@/context/CartContext";
 import { MatPreview } from "@/components/product/MatPreview";
@@ -73,21 +73,14 @@ function StepHeader({
 }
 
 export default function ProductPage() {
-  const params = useParams();
+  const params = useParams<{ brand?: string; model?: string }>();
+  const searchParams = useSearchParams();
   const t = useT();
-  const brand = brands.find((b) => b.slug === params.brand);
+  const brand = brands.find((b) => b.slug === params?.brand);
   const model = mockModels.find(
-    (m) => m.slug === params.model && m.brandId === brand?.id,
+    (m) => m.slug === params?.model && m.brandId === brand?.id,
   );
   const { addItem, openCart } = useCart();
-  const [set, setSet] = useState<MatSetType>("full-cargo");
-  const [color, setColor] = useState(evaColors[0]);
-  const [edge, setEdge] = useState(edgeColors[0]);
-  const [year, setYear] = useState(
-    model ? model.years[model.years.length - 1] : 0,
-  );
-  const [badge, setBadge] = useState(false);
-  const [added, setAdded] = useState(false);
 
   const profile: VehicleConfigProfile = model
     ? getVehicleProfile(model)
@@ -98,6 +91,23 @@ export default function ProductPage() {
     [availableSetTypes],
   );
 
+  const [set, setSet] = useState<MatSetType>(() => getDefaultMatSet(profile));
+  const [color, setColor] = useState(evaColors[0]);
+  const [edge, setEdge] = useState(edgeColors[0]);
+  const [year, setYear] = useState(() => {
+    if (!model) return 0;
+    // Honour ?year=YYYY from the home configurator if it matches a real year
+    // for this model — otherwise fall back to the most recent.
+    const fromUrl = Number(searchParams?.get("year") ?? "");
+    if (Number.isFinite(fromUrl) && model.years.includes(fromUrl)) {
+      return fromUrl;
+    }
+    return model.years[model.years.length - 1];
+  });
+  const [badge, setBadge] = useState(false);
+  const [added, setAdded] = useState(false);
+  const addedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   // If the currently selected set isn't valid for this vehicle's profile
   // (e.g. user navigated from a sedan to a 2-seater), snap to the default.
   useEffect(() => {
@@ -105,6 +115,14 @@ export default function ProductPage() {
       setSet(getDefaultMatSet(profile));
     }
   }, [profile, availableSetTypes, set]);
+
+  // Don't leak the "added" timeout across navigations / unmounts — would
+  // otherwise trigger setState on an unmounted component (React 19 warns).
+  useEffect(() => {
+    return () => {
+      if (addedTimerRef.current) clearTimeout(addedTimerRef.current);
+    };
+  }, []);
 
   if (!brand || !model)
     return (
@@ -154,7 +172,8 @@ export default function ProductPage() {
     });
     openCart();
     setAdded(true);
-    setTimeout(() => setAdded(false), 2000);
+    if (addedTimerRef.current) clearTimeout(addedTimerRef.current);
+    addedTimerRef.current = setTimeout(() => setAdded(false), 2000);
   };
 
   return (

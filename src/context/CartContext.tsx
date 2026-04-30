@@ -25,38 +25,104 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 const CART_STORAGE_KEY = "elitecarmats-cart";
+const CART_SCHEMA_VERSION = 2;
+// Hard-cap so a future bug in `addItem` can't run away into the GBs.
+const MAX_CART_ITEMS = 50;
+
+function isObject(x: unknown): x is Record<string, unknown> {
+  return typeof x === "object" && x !== null;
+}
+
+/**
+ * Defensive parse — drops items that don't have the shape current code
+ * expects. After a schema bump (e.g. adding `matSetLabel`), older saved
+ * carts would otherwise crash render at the first `localizeMatSet(...)`.
+ */
+function loadCart(): CartItem[] {
+  if (typeof window === "undefined") return [];
+  let raw: string | null;
+  try {
+    raw = window.localStorage.getItem(CART_STORAGE_KEY);
+  } catch {
+    return [];
+  }
+  if (!raw) return [];
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    return [];
+  }
+  // v1 stored a plain array; v2+ stores `{ v, items }`. Treat anything we
+  // don't recognize as a fresh cart.
+  let candidate: unknown;
+  if (Array.isArray(parsed)) {
+    candidate = parsed;
+  } else if (isObject(parsed) && Array.isArray(parsed.items)) {
+    candidate = parsed.items;
+  } else {
+    return [];
+  }
+  const out: CartItem[] = [];
+  for (const it of candidate as unknown[]) {
+    if (!isObject(it)) continue;
+    if (
+      typeof it.id !== "string" ||
+      typeof it.modelId !== "string" ||
+      typeof it.brandName !== "string" ||
+      typeof it.modelName !== "string" ||
+      typeof it.year !== "number" ||
+      typeof it.matSet !== "string" ||
+      typeof it.matSetLabel !== "string" ||
+      typeof it.quantity !== "number" ||
+      !isObject(it.color) ||
+      !isObject(it.edgeColor)
+    ) {
+      continue;
+    }
+    out.push(it as unknown as CartItem);
+    if (out.length >= MAX_CART_ITEMS) break;
+  }
+  return out;
+}
+
+function saveCart(items: CartItem[]): void {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(
+      CART_STORAGE_KEY,
+      JSON.stringify({ v: CART_SCHEMA_VERSION, items }),
+    );
+  } catch {
+    // QuotaExceeded etc. — silently ignore; in-memory state still works.
+  }
+}
 
 export function CartProvider({ children }: { children: ReactNode }) {
-  const [items, setItems] = useState<CartItem[]>([]);
-  const [loaded, setLoaded] = useState(false);
+  // Lazy initialiser: load the cart synchronously on first render so we
+  // don't have a "first render = []" flash that lets a fast-clicker drop
+  // their saved cart between mount and the load effect.
+  const [items, setItems] = useState<CartItem[]>(() => loadCart());
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
-    const stored = localStorage.getItem(CART_STORAGE_KEY);
-    if (stored) {
-      try {
-        setItems(JSON.parse(stored));
-      } catch {
-        // ignore corrupted data
-      }
-    }
-    setLoaded(true);
-  }, []);
+    saveCart(items);
+  }, [items]);
 
-  useEffect(() => {
-    if (loaded) {
-      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
-    }
-  }, [items, loaded]);
-
-  // Lock body scroll while the drawer is open.
+  // Lock body scroll while the drawer is open. Capture the original value
+  // once at component mount — re-running on every isOpen flip would otherwise
+  // capture "hidden" the second time and "restore" to hidden on unmount.
   useEffect(() => {
     if (typeof document === "undefined") return;
     const original = document.body.style.overflow;
-    document.body.style.overflow = isOpen ? "hidden" : original;
     return () => {
       document.body.style.overflow = original;
     };
+  }, []);
+
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    document.body.style.overflow = isOpen ? "hidden" : "";
   }, [isOpen]);
 
   const addItem = useCallback((item: Omit<CartItem, "id">) => {
@@ -64,6 +130,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       const existing = prev.find(
         (i) =>
           i.modelId === item.modelId &&
+          i.year === item.year &&
           i.matSet === item.matSet &&
           i.color.id === item.color.id &&
           i.edgeColor.id === item.edgeColor.id &&
@@ -76,6 +143,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
             : i,
         );
       }
+      if (prev.length >= MAX_CART_ITEMS) return prev;
       return [...prev, { ...item, id: crypto.randomUUID() }];
     });
   }, []);
@@ -85,9 +153,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const updateQuantity = useCallback((id: string, quantity: number) => {
-    if (quantity < 1) return;
+    if (!Number.isFinite(quantity) || quantity < 1) {
+      setItems((prev) => prev.filter((i) => i.id !== id));
+      return;
+    }
+    const safe = Math.min(99, Math.floor(quantity));
     setItems((prev) =>
-      prev.map((i) => (i.id === id ? { ...i, quantity } : i)),
+      prev.map((i) => (i.id === id ? { ...i, quantity: safe } : i)),
     );
   }, []);
 

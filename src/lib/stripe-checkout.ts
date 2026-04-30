@@ -19,6 +19,11 @@ export interface CreateCheckoutSessionInput {
   orderId: string;
   customerEmail: string;
   items: CheckoutLineItem[];
+  /** Discount in whole USD applied to the order subtotal. Translated into a
+   *  Stripe-side coupon so the customer sees the price they were quoted. */
+  discountUsd?: number;
+  /** Token for the magic order URL embedded in the success_url. */
+  orderToken?: string;
   /** Preferred locale for Stripe Checkout UI. Falls back to auto. */
   locale?: Stripe.Checkout.SessionCreateParams.Locale;
 }
@@ -54,6 +59,32 @@ export async function createCheckoutSession(
       },
     }));
 
+  // Translate the order-level promo discount into a one-shot Stripe coupon
+  // so the displayed total on Stripe matches what we stored in the DB.
+  let discounts: Stripe.Checkout.SessionCreateParams.Discount[] | undefined;
+  if (input.discountUsd && input.discountUsd > 0) {
+    try {
+      const coupon = await stripe.coupons.create({
+        amount_off: Math.round(input.discountUsd * 100),
+        currency: "usd",
+        duration: "once",
+        name: `Promo (${input.orderNumber})`,
+        max_redemptions: 1,
+      });
+      discounts = [{ coupon: coupon.id }];
+    } catch (err) {
+      // If coupon creation fails we still want to charge the customer the
+      // pre-discount line items rather than block checkout. Log it loudly.
+      console.error("[stripe-checkout] coupon create failed:", err);
+    }
+  }
+
+  const successQs = new URLSearchParams({
+    session_id: "{CHECKOUT_SESSION_ID}",
+    order: input.orderNumber,
+  });
+  if (input.orderToken) successQs.set("t", input.orderToken);
+
   const session = await stripe.checkout.sessions.create({
     mode: "payment",
     payment_method_types: ["card"],
@@ -65,15 +96,18 @@ export async function createCheckoutSession(
       orderNumber: input.orderNumber,
     },
     locale: input.locale ?? "auto",
-    // Tax and shipping cost are not configured yet — keep them off
-    // explicitly so a Stripe Tax / shipping-rates rollout doesn't
-    // surprise customers with charges that aren't reflected in the
-    // order total stored in our DB.
+    ...(discounts ? { discounts } : {}),
     automatic_tax: { enabled: false },
     shipping_address_collection: {
       allowed_countries: ["US", "CA", "MX"],
     },
-    success_url: `${SITE}/checkout/success?session_id={CHECKOUT_SESSION_ID}&order=${encodeURIComponent(input.orderNumber)}`,
+    // {CHECKOUT_SESSION_ID} is a Stripe placeholder, so we have to
+    // hand-build the query string and inject it (URLSearchParams encodes
+    // the braces).
+    success_url: `${SITE}/checkout/success?${successQs.toString().replace(
+      "%7BCHECKOUT_SESSION_ID%7D",
+      "{CHECKOUT_SESSION_ID}",
+    )}`,
     cancel_url: `${SITE}/checkout/cancel?order=${encodeURIComponent(input.orderNumber)}`,
   });
 

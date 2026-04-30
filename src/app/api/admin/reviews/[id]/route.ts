@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { requireAdmin } from "@/lib/auth";
+import { requireAdmin, checkAdminCsrf } from "@/lib/auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -18,6 +18,9 @@ export async function PATCH(
   request: Request,
   context: { params: Promise<{ id: string }> },
 ) {
+  if (!checkAdminCsrf(request)) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
   if (!(await requireAdmin())) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -38,11 +41,17 @@ export async function PATCH(
     );
   }
 
+  // Explicit field whitelist — never `data: parsed.data`.
+  const data: Record<string, unknown> = {};
+  if (parsed.data.approved !== undefined) data.approved = parsed.data.approved;
+  if (parsed.data.customerName !== undefined)
+    data.customerName = parsed.data.customerName;
+  if (parsed.data.carModel !== undefined) data.carModel = parsed.data.carModel;
+  if (parsed.data.text !== undefined) data.text = parsed.data.text;
+  if (parsed.data.rating !== undefined) data.rating = parsed.data.rating;
+
   try {
-    const review = await prisma.review.update({
-      where: { id },
-      data: parsed.data,
-    });
+    const review = await prisma.review.update({ where: { id }, data });
     return NextResponse.json({ review });
   } catch (err) {
     console.error("[admin:reviews:update]", err);
@@ -51,9 +60,12 @@ export async function PATCH(
 }
 
 export async function DELETE(
-  _request: Request,
+  request: Request,
   context: { params: Promise<{ id: string }> },
 ) {
+  if (!checkAdminCsrf(request)) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
   if (!(await requireAdmin())) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }

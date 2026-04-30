@@ -1,11 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useT, useLocale } from "@/i18n/I18nProvider";
 
 export default function CustomOrderPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen" />}>
+      <CustomOrderBody />
+    </Suspense>
+  );
+}
+
+function CustomOrderBody() {
   const t = useT();
   const locale = useLocale();
   const sp = useSearchParams();

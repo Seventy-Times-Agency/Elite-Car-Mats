@@ -193,11 +193,13 @@ export const ru: Dict = {
   "track.meta": "Отследить заказ",
   "track.metaDesc": "Проверьте статус вашего заказа Elite Car Mats по номеру.",
   "track.title": "Отследить заказ",
-  "track.subtitle": "Введите номер заказа из письма-подтверждения.",
+  "track.subtitle": "Введите номер заказа и email, указанный при оформлении.",
   "track.submit": "Найти заказ",
-  "track.errEmpty": "Введите номер заказа",
-  "track.errNotFound": "Заказ {n} не найден. Проверьте номер.",
-  "track.errNotFoundGeneric": "Заказ не найден. Проверьте номер.",
+  "track.errEmpty": "Введите номер заказа и email",
+  "track.errNotFound": "Заказ {n} с таким email не найден. Проверьте оба поля.",
+  "track.errNotFoundGeneric": "Заказ не найден. Проверьте номер и email.",
+  "track.errAuth": "Откройте ссылку из письма-подтверждения или авторизуйтесь ниже по email, который указали при оформлении.",
+  "track.errThrottled": "Слишком много попыток. Повторите через {retry}с.",
   "track.contactMissing": "Не нашли заказ? Свяжитесь с нами",
 
   // 404

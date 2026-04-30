@@ -16,7 +16,7 @@ export async function POST(request: Request) {
   // 3 messages per 10 minutes per IP — stops form-spam without blocking a
   // real visitor who sent two questions back-to-back.
   const ip = getClientIp(request);
-  const rl = rateLimit(`contact:${ip}`, { windowMs: 10 * 60_000, max: 3 });
+  const rl = await rateLimit(`contact:${ip}`, { windowMs: 10 * 60_000, max: 3 });
   if (!rl.ok) {
     return NextResponse.json(
       { ok: false, error: "Too many messages. Try again later." },

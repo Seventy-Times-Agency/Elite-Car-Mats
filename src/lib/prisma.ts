@@ -5,6 +5,11 @@ import ws from "ws";
 
 neonConfig.webSocketConstructor = ws;
 
+// We deliberately cache the PrismaClient on globalThis in production too —
+// each cold-start lambda would otherwise spin up a fresh Neon WS pool, and
+// under burst load that leaks connections until the lambda freezes. Vercel's
+// per-instance global is reused across handler invocations within the same
+// container, which is exactly the lifetime we want.
 const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient };
 
 function createClient(): PrismaClient {
@@ -19,7 +24,7 @@ function createClient(): PrismaClient {
 function getClient(): PrismaClient {
   if (globalForPrisma.prisma) return globalForPrisma.prisma;
   const client = createClient();
-  if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = client;
+  globalForPrisma.prisma = client;
   return client;
 }
 

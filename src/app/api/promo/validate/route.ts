@@ -15,7 +15,7 @@ const schema = z.object({
 export async function POST(request: Request) {
   await ensureSchema();
   const ip = getClientIp(request);
-  const limit = rateLimit(`promo:${ip}`);
+  const limit = await rateLimit(`promo:${ip}`);
   if (!limit.ok) {
     return NextResponse.json(
       { valid: false, error: "rate_limited" },

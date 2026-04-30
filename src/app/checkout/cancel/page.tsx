@@ -1,10 +1,11 @@
 "use client";
 
+import { Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useT } from "@/i18n/I18nProvider";
 
-export default function CheckoutCancelPage() {
+function CancelBody() {
   const t = useT();
   const sp = useSearchParams();
   const orderNumber = sp?.get("order") ?? "";
@@ -41,7 +42,7 @@ export default function CheckoutCancelPage() {
           </Link>
           {orderNumber && (
             <Link
-              href={`/order/${orderNumber}`}
+              href={`/track?n=${encodeURIComponent(orderNumber)}`}
               className="glass-card text-text-dim hover:text-gold text-xs font-semibold tracking-[0.15em] uppercase px-5 py-3 rounded-lg transition-colors"
             >
               {t("pay.viewOrder")}
@@ -50,5 +51,13 @@ export default function CheckoutCancelPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function CheckoutCancelPage() {
+  return (
+    <Suspense fallback={<div className="min-h-[70vh]" />}>
+      <CancelBody />
+    </Suspense>
   );
 }

@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { requireAdmin } from "@/lib/auth";
+import { requireAdmin, checkAdminCsrf } from "@/lib/auth";
 import { sendShippedEmail } from "@/lib/email";
+import { verifyOrderToken, signOrderToken } from "@/lib/order-token";
 
 const updateSchema = z.object({
   status: z
@@ -12,7 +13,7 @@ const updateSchema = z.object({
 });
 
 export async function GET(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
@@ -35,6 +36,16 @@ export async function GET(
 
   if (!order) {
     return NextResponse.json({ error: "Order not found" }, { status: 404 });
+  }
+
+  // Authorization: the requester must either be a logged-in admin OR
+  // present a valid HMAC token signed against the order's id.
+  const url = new URL(request.url);
+  const token = url.searchParams.get("t");
+  const tokenOk = verifyOrderToken(order.id, token);
+  const adminOk = !tokenOk && (await requireAdmin());
+  if (!tokenOk && !adminOk) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
   return NextResponse.json({
@@ -70,6 +81,9 @@ export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  if (!checkAdminCsrf(request)) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
   if (!(await requireAdmin())) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -133,6 +147,7 @@ export async function PATCH(
       customerName: existing.customerName,
       customerEmail: existing.email,
       trackingNumber: updated.trackingNumber!,
+      orderToken: signOrderToken(updated.id),
     });
   }
 

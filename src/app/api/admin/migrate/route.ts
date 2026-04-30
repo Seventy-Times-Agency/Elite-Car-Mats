@@ -1,20 +1,26 @@
 import { NextResponse } from "next/server";
 import { ensureSchema, resetSchemaCache } from "@/lib/db-setup";
-import { requireAdminApi } from "@/lib/auth";
+import { requireAdminApi, checkAdminCsrf } from "@/lib/auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 /**
- * Diagnostic endpoint. GET it and see per-statement migration results as
- * JSON, including the full error text for anything that failed. Safe to
- * hit repeatedly — the underlying SQL is idempotent (IF NOT EXISTS).
+ * Diagnostic endpoint. Triggers a fresh idempotent schema sync and returns
+ * per-statement results as JSON.
  *
- * Auth: admin cookie OR x-admin-token header OR ?token=ADMIN_PASSWORD
- * query string. Same secret as the admin login — one less thing to manage.
+ * Auth: admin cookie OR `x-admin-token` header (matches ADMIN_API_TOKEN
+ *       env var). The previous `?token=` query-string path was removed —
+ *       query strings leak into access logs and Referer headers.
+ *
+ * Method: POST only — GET-with-side-effects opens up CSRF surface (a
+ *         logged-in admin clicking a malicious link would silently hit it).
  */
-export async function GET(request: Request) {
-  if (!(await requireAdminApi(request))) {
+export async function POST(request: Request) {
+  if (!checkAdminCsrf(request)) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+  if (!(await requireAdminApi())) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   resetSchemaCache();

@@ -152,12 +152,16 @@ export default function CheckoutPage() {
       }
       const data = await res.json();
 
-      if (STRIPE_ENABLED && data.id) {
+      if (STRIPE_ENABLED && data.id && data.orderToken) {
         try {
           const payRes = await fetch("/api/checkout/stripe", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ orderId: data.id, locale }),
+            body: JSON.stringify({
+              orderId: data.id,
+              orderToken: data.orderToken,
+              locale,
+            }),
           });
           if (payRes.ok) {
             const payData = await payRes.json();
@@ -174,7 +178,10 @@ export default function CheckoutPage() {
       }
 
       clearCart();
-      router.push(`/order/${data.orderNumber}`);
+      const tokenQs = data.orderToken
+        ? `?t=${encodeURIComponent(data.orderToken)}`
+        : "";
+      router.push(`/order/${data.orderNumber}${tokenQs}`);
     } catch (err) {
       setFormError(err instanceof Error ? err.message : t("co.errSubmit"));
       setSubmitting(false);

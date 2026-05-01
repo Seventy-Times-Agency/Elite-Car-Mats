@@ -1,13 +1,18 @@
 "use client";
 
+import { Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useT } from "@/i18n/I18nProvider";
 
-export default function CheckoutSuccessPage() {
+function SuccessBody() {
   const t = useT();
   const sp = useSearchParams();
   const orderNumber = sp?.get("order") ?? "";
+  const token = sp?.get("t") ?? "";
+  const orderHref = orderNumber
+    ? `/order/${encodeURIComponent(orderNumber)}${token ? `?t=${encodeURIComponent(token)}` : ""}`
+    : "";
 
   return (
     <div className="min-h-[70vh] flex items-center justify-center px-4 py-16">
@@ -43,9 +48,9 @@ export default function CheckoutSuccessPage() {
           </div>
         )}
         <div className="mt-6 flex items-center justify-center gap-3 flex-wrap">
-          {orderNumber && (
+          {orderHref && (
             <Link
-              href={`/order/${orderNumber}`}
+              href={orderHref}
               className="bg-gradient-to-r from-gold to-gold-light text-bg text-xs font-semibold tracking-[0.15em] uppercase px-5 py-3 rounded-lg shadow-[0_4px_20px_rgba(212,165,74,0.25)]"
             >
               {t("pay.viewOrder")}
@@ -60,5 +65,13 @@ export default function CheckoutSuccessPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function CheckoutSuccessPage() {
+  return (
+    <Suspense fallback={<div className="min-h-[70vh]" />}>
+      <SuccessBody />
+    </Suspense>
   );
 }

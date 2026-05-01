@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { ensureSchema } from "@/lib/db-setup";
-import { requireAdminApi } from "@/lib/auth";
+import { requireAdminApi, checkAdminCsrf } from "@/lib/auth";
 import {
   brands,
   mockModels,
@@ -147,8 +147,11 @@ async function seedAll(): Promise<SeedSummary> {
   };
 }
 
-export async function GET(request: Request) {
-  if (!(await requireAdminApi(request))) {
+export async function POST(request: Request) {
+  if (!checkAdminCsrf(request)) {
+    return NextResponse.json({ ok: false, error: "Forbidden" }, { status: 403 });
+  }
+  if (!(await requireAdminApi())) {
     return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
   }
   try {

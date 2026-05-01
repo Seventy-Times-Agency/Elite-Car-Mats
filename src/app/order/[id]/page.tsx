@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { headers } from "next/headers";
+import { prisma } from "@/lib/prisma";
+import { requireAdmin } from "@/lib/auth";
+import { verifyOrderToken } from "@/lib/order-token";
 import { formatPrice } from "@/lib/pricing";
 import { CopyNumber } from "./CopyNumber";
 import { getDictionary } from "@/i18n/getDictionary";
@@ -50,55 +52,42 @@ function matSetLabel(code: string, dict: Dict, fallback: Dict): string {
   return (dict[key] ?? fallback[key] ?? code) as string;
 }
 
-interface OrderResponse {
-  id: string;
-  orderNumber: string;
-  status: string;
-  customerName: string;
-  email: string;
-  phone: string;
-  address: string;
-  city: string | null;
-  state: string | null;
-  zip: string | null;
-  total: number;
-  trackingNumber: string | null;
-  createdAt: string;
-  items: Array<{
-    id: string;
-    brandName: string;
-    modelName: string;
-    matSet: string;
-    year: number | null;
-    color: { id: string; name: string; hex: string };
-    edgeColor: { id: string; name: string; hex: string };
-    badge: { id: string; brandName: string } | null;
-    quantity: number;
-    price: number;
-  }>;
-}
-
-async function fetchOrder(id: string): Promise<OrderResponse | null> {
-  const h = await headers();
-  const host = h.get("host");
-  const proto = h.get("x-forwarded-proto") ?? "http";
-  const res = await fetch(`${proto}://${host}/api/orders/${id}`, {
-    cache: "no-store",
-  });
-  if (res.status === 404) return null;
-  if (!res.ok) throw new Error(`Failed to fetch order: ${res.status}`);
-  return res.json();
-}
-
 export default async function OrderPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ t?: string }>;
 }) {
   const { id } = await params;
-  const order = await fetchOrder(id);
+  const { t: token } = await searchParams;
+
+  const order = await prisma.order.findFirst({
+    where: { OR: [{ id }, { orderNumber: id }] },
+    include: {
+      items: {
+        include: {
+          product: { include: { model: { include: { brand: true } } } },
+          color: true,
+          edgeColor: true,
+          badge: true,
+        },
+      },
+    },
+  });
+
   if (!order) {
     redirect(`/track?error=notfound&n=${encodeURIComponent(id)}`);
+  }
+
+  // Auth: token in URL OR admin cookie. Without either, treat as if the
+  // order doesn't exist (don't leak existence) — bounce to /track.
+  const tokenOk = verifyOrderToken(order.id, token ?? null);
+  if (!tokenOk) {
+    const adminOk = await requireAdmin();
+    if (!adminOk) {
+      redirect(`/track?error=auth&n=${encodeURIComponent(order.orderNumber)}`);
+    }
   }
 
   const { dict, fallback } = await getDictionary();
@@ -171,15 +160,15 @@ export default async function OrderPage({
                 <div className="flex-1 min-w-0">
                   <div className="flex justify-between gap-3">
                     <h3 className="text-text font-medium text-sm">
-                      {i.brandName} {i.modelName}
+                      {i.product.model.brand.name} {i.product.model.name}
                       {i.year ? <span className="text-text-faint font-normal"> · {i.year}</span> : null}
                     </h3>
                     <span className="text-gold text-sm font-semibold shrink-0">
-                      {formatPrice(i.price * i.quantity)}
+                      {formatPrice(Number(i.price ?? 0) * i.quantity)}
                     </span>
                   </div>
                   <p className="text-text-dim text-xs mt-1.5">
-                    {matSetLabel(i.matSet, dict, fallback)} · ×{i.quantity}
+                    {matSetLabel(i.product.matSet, dict, fallback)} · ×{i.quantity}
                   </p>
                   <div className="mt-2 flex items-center gap-2 flex-wrap text-[11px] text-text-dim">
                     <span className="inline-flex items-center gap-1.5">
@@ -220,7 +209,7 @@ export default async function OrderPage({
               {s("ord.total")}
             </span>
             <span className="text-gold text-xl font-bold">
-              {formatPrice(order.total)}
+              {formatPrice(Number(order.total ?? 0))}
             </span>
           </div>
         </div>

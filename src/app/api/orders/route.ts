@@ -2,17 +2,20 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { ensureSchema } from "@/lib/db-setup";
 import { ensureCatalogSeed } from "@/lib/db-seed";
-import { createOrderSchema, OrderItemInput } from "@/lib/validations/order";
+import { createOrderSchema } from "@/lib/validations/order";
 import { calculateItemUnitPrice, calculateOrderTotal } from "@/lib/pricing";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
-import { validatePromoCode, recordPromoUse } from "@/lib/promo";
+import { validatePromoCode, tryConsumePromoUse } from "@/lib/promo";
+import { isStripeConfigured } from "@/lib/stripe";
 import {
   sendCustomerOrderEmail,
   sendOwnerOrderEmail,
 } from "@/lib/email";
+import { signOrderToken } from "@/lib/order-token";
 import { evaColors, edgeColors, brands, badges, mockModels } from "@/data/mock";
 import { getDictionary } from "@/i18n/getDictionary";
 import { makeT } from "@/i18n/dictionary";
+import type { OrderItemInput } from "@/lib/validations/order";
 
 function generateOrderNumber(): string {
   const ts = Date.now().toString(36).toUpperCase();
@@ -38,14 +41,14 @@ async function resolveNames(item: OrderItemInput) {
 }
 
 export async function POST(request: Request) {
+  // Schema is bootstrapped by the admin login flow / cron — but on a brand
+  // new deploy where the very first hit happens to be a public POST we still
+  // want it to succeed. Cached after first run.
   await ensureSchema();
-  // Self-heal: if the catalog tables (Brand/EdgeColor/EvaColor/Product)
-  // are still empty (operator forgot to hit /api/admin/seed), seed them
-  // now so OrderItem foreign keys resolve.
   await ensureCatalogSeed();
 
   const ip = getClientIp(request);
-  const limit = rateLimit(`orders:${ip}`);
+  const limit = await rateLimit(`orders:${ip}`);
   if (!limit.ok) {
     return NextResponse.json(
       { error: "Too many requests. Please wait a moment." },
@@ -132,6 +135,19 @@ export async function POST(request: Request) {
     );
   }
 
+  // Defensive guard: ensure brandName matches a known brand. This is purely
+  // for cleaner error reporting — the productId resolution above already
+  // covered the substantive check.
+  const knownBrandNames = new Set(brands.map((b) => b.name.toLowerCase()));
+  for (const i of items) {
+    if (!knownBrandNames.has(i.brandName.toLowerCase())) {
+      return NextResponse.json(
+        { error: `Unknown brand "${i.brandName}"` },
+        { status: 400 },
+      );
+    }
+  }
+
   const subtotal = calculateOrderTotal(
     items.map((i) => ({
       matSet: i.matSet,
@@ -141,106 +157,181 @@ export async function POST(request: Request) {
     })),
   );
 
-  let discount = 0;
-  let appliedPromoCode: string | null = null;
+  // Pre-validate the promo code so we can short-circuit invalid codes
+  // before opening a transaction. The actual usage decrement happens
+  // inside the tx via tryConsumePromoUse for atomicity.
+  let promoPreview: { code: string; amount: number; discount: number } | null = null;
   if (promoCode) {
-    const promoResult = await validatePromoCode(promoCode, subtotal);
-    if (promoResult.valid && promoResult.amount && promoResult.code) {
-      discount = promoResult.amount;
-      appliedPromoCode = promoResult.code;
+    const v = await validatePromoCode(promoCode, subtotal);
+    if (v.valid && v.code && typeof v.amount === "number") {
+      promoPreview = { code: v.code, amount: v.amount, discount: v.discount ?? 0 };
     }
   }
 
-  const total = Math.max(0, subtotal - discount);
-
-  let order;
+  let createdOrder;
   try {
-    order = await prisma.order.create({
-      data: {
-        orderNumber: generateOrderNumber(),
-        status: "PENDING",
-        customerName: customer.name,
-        phone: customer.phone,
-        email: customer.email,
-        address: shipping.address,
-        city: shipping.city || null,
-        state: shipping.state || null,
-        zip: shipping.zip || null,
-        comment: appliedPromoCode
-          ? `${shipping.comment || ""}${shipping.comment ? "\n\n" : ""}[promo ${appliedPromoCode} −$${discount}]`.trim()
-          : shipping.comment || null,
-        total,
-        items: {
-          create: itemsResolved.map(({ item: i, productId }) => ({
-            productId: productId!,
-            colorId: i.colorId,
-            edgeColorId: i.edgeColorId,
-            badgeId: i.badgeId || null,
-            year: i.year ?? null,
-            quantity: i.quantity,
-            price: calculateItemUnitPrice({
-              matSet: i.matSet,
-              edgeColor: { id: i.edgeColorId },
-              badge: i.badgeId ? { id: i.badgeId } : null,
-            }),
-          })),
+    createdOrder = await prisma.$transaction(async (tx) => {
+      let appliedDiscount = 0;
+      let appliedCode: string | null = null;
+      if (promoPreview) {
+        const consumed = await tryConsumePromoUse(tx, promoPreview.code);
+        if (consumed) {
+          appliedCode = promoPreview.code;
+          appliedDiscount = promoPreview.amount;
+        }
+        // If the atomic consume failed (race lost / just expired), we
+        // proceed without the discount rather than failing the order.
+      }
+      const total = Math.max(0, subtotal - appliedDiscount);
+      return tx.order.create({
+        data: {
+          orderNumber: generateOrderNumber(),
+          status: "PENDING",
+          customerName: customer.name,
+          phone: customer.phone,
+          email: customer.email,
+          address: shipping.address,
+          city: shipping.city || null,
+          state: shipping.state || null,
+          zip: shipping.zip || null,
+          comment: appliedCode
+            ? `${shipping.comment || ""}${shipping.comment ? "\n\n" : ""}[promo ${appliedCode} −$${appliedDiscount}]`.trim()
+            : shipping.comment || null,
+          total,
+          items: {
+            create: itemsResolved.map(({ item: i, productId }) => ({
+              productId: productId!,
+              colorId: i.colorId,
+              edgeColorId: i.edgeColorId,
+              badgeId: i.badgeId || null,
+              year: i.year ?? null,
+              quantity: i.quantity,
+              price: calculateItemUnitPrice({
+                matSet: i.matSet,
+                edgeColor: { id: i.edgeColorId },
+                badge: i.badgeId ? { id: i.badgeId } : null,
+              }),
+            })),
+          },
         },
-      },
-      select: { id: true, orderNumber: true, total: true },
+        select: {
+          id: true,
+          orderNumber: true,
+          total: true,
+          customerName: true,
+          email: true,
+          phone: true,
+          address: true,
+          city: true,
+          state: true,
+          zip: true,
+        },
+      });
     });
   } catch (err) {
+    // Never leak DB internals into the client response — log and emit a
+    // generic message. The detailed cause stays in server logs.
     const msg = err instanceof Error ? err.message : String(err);
     console.error("[orders] create failed:", msg);
     return NextResponse.json(
-      { error: `Failed to create order: ${msg}` },
+      { error: "Failed to create order. Please try again." },
       { status: 500 },
     );
   }
 
-  const emailItems = await Promise.all(items.map(async (i) => {
-    const names = await resolveNames(i);
-    const colorRow = evaColors.find((c) => c.id === i.colorId);
-    const edgeRow = edgeColors.find((c) => c.id === i.edgeColorId);
-    return {
-      brandName: i.brandName,
-      modelName: i.modelName,
-      matSet: i.matSet,
-      colorName: names.colorName,
-      colorHex: colorRow?.hex ?? null,
-      edgeColorName: names.edgeColorName,
-      edgeColorHex: edgeRow?.hex ?? null,
-      badgeName: names.badgeName,
-      year: i.year ?? null,
-      quantity: i.quantity,
-      unitPrice: calculateItemUnitPrice({
+  // Skip the "thanks for your order" email when payments are wired up —
+  // it'll fire from the Stripe webhook on `checkout.session.completed`,
+  // so customers who abandon Stripe never get falsely confirmed. We do
+  // still notify the owner immediately so they see the lead.
+  if (!isStripeConfigured()) {
+    const emailItems = await Promise.all(items.map(async (i) => {
+      const names = await resolveNames(i);
+      const colorRow = evaColors.find((c) => c.id === i.colorId);
+      const edgeRow = edgeColors.find((c) => c.id === i.edgeColorId);
+      return {
+        brandName: i.brandName,
+        modelName: i.modelName,
         matSet: i.matSet,
-        edgeColor: { id: i.edgeColorId },
-        badge: i.badgeId ? { id: i.badgeId } : null,
-      }),
+        colorName: names.colorName,
+        colorHex: colorRow?.hex ?? null,
+        edgeColorName: names.edgeColorName,
+        edgeColorHex: edgeRow?.hex ?? null,
+        badgeName: names.badgeName,
+        year: i.year ?? null,
+        quantity: i.quantity,
+        unitPrice: calculateItemUnitPrice({
+          matSet: i.matSet,
+          edgeColor: { id: i.edgeColorId },
+          badge: i.badgeId ? { id: i.badgeId } : null,
+        }),
+      };
+    }));
+    const emailData = {
+      orderNumber: createdOrder.orderNumber,
+      orderToken: signOrderToken(createdOrder.id),
+      customerName: customer.name,
+      customerEmail: customer.email,
+      phone: customer.phone,
+      address: shipping.address,
+      city: shipping.city || null,
+      state: shipping.state || null,
+      zip: shipping.zip || null,
+      total: Number(createdOrder.total ?? 0),
+      items: emailItems,
     };
-  }));
-
-  const emailData = {
-    orderNumber: order.orderNumber,
-    customerName: customer.name,
-    customerEmail: customer.email,
-    phone: customer.phone,
-    address: shipping.address,
-    city: shipping.city || null,
-    state: shipping.state || null,
-    zip: shipping.zip || null,
-    total,
-    items: emailItems,
-  };
-
-  await Promise.all([
-    sendCustomerOrderEmail(emailData),
-    sendOwnerOrderEmail(emailData),
-    appliedPromoCode ? recordPromoUse(appliedPromoCode) : Promise.resolve(),
-  ]);
+    // Fire-and-forget: emails never fail the order.
+    Promise.all([
+      sendCustomerOrderEmail(emailData),
+      sendOwnerOrderEmail(emailData),
+    ]).catch((err) => console.error("[orders] email send failed:", err));
+  } else {
+    // Stripe path: notify the owner now (so they see the lead even if the
+    // customer abandons the Stripe session). The customer email moves to
+    // the webhook.
+    const emailItems = await Promise.all(items.map(async (i) => {
+      const names = await resolveNames(i);
+      const colorRow = evaColors.find((c) => c.id === i.colorId);
+      const edgeRow = edgeColors.find((c) => c.id === i.edgeColorId);
+      return {
+        brandName: i.brandName,
+        modelName: i.modelName,
+        matSet: i.matSet,
+        colorName: names.colorName,
+        colorHex: colorRow?.hex ?? null,
+        edgeColorName: names.edgeColorName,
+        edgeColorHex: edgeRow?.hex ?? null,
+        badgeName: names.badgeName,
+        year: i.year ?? null,
+        quantity: i.quantity,
+        unitPrice: calculateItemUnitPrice({
+          matSet: i.matSet,
+          edgeColor: { id: i.edgeColorId },
+          badge: i.badgeId ? { id: i.badgeId } : null,
+        }),
+      };
+    }));
+    sendOwnerOrderEmail({
+      orderNumber: createdOrder.orderNumber,
+      orderToken: signOrderToken(createdOrder.id),
+      customerName: customer.name,
+      customerEmail: customer.email,
+      phone: customer.phone,
+      address: shipping.address,
+      city: shipping.city || null,
+      state: shipping.state || null,
+      zip: shipping.zip || null,
+      total: Number(createdOrder.total ?? 0),
+      items: emailItems,
+    }).catch((err) => console.error("[orders] owner email failed:", err));
+  }
 
   return NextResponse.json(
-    { id: order.id, orderNumber: order.orderNumber, total: Number(order.total) },
+    {
+      id: createdOrder.id,
+      orderNumber: createdOrder.orderNumber,
+      total: Number(createdOrder.total ?? 0),
+      orderToken: signOrderToken(createdOrder.id),
+    },
     { status: 201 },
   );
 }

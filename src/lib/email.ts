@@ -40,6 +40,9 @@ interface OrderEmailItem {
 
 interface OrderEmailData {
   orderNumber: string;
+  /** HMAC token gating /order/[id] access. Required for the customer-facing
+   *  email; the owner email link uses /admin and ignores it. */
+  orderToken?: string;
   customerName: string;
   customerEmail: string;
   phone: string;
@@ -49,6 +52,11 @@ interface OrderEmailData {
   zip?: string | null;
   total: number;
   items: OrderEmailItem[];
+}
+
+function orderUrl(orderNumber: string, token?: string): string {
+  const base = `${siteUrl}/order/${encodeURIComponent(orderNumber)}`;
+  return token ? `${base}?t=${encodeURIComponent(token)}` : base;
 }
 
 function swatch(hex: string | null | undefined, shape: "square" | "round"): string {
@@ -133,7 +141,7 @@ export async function sendCustomerOrderEmail(data: OrderEmailData): Promise<void
       </tr>
     </table>
     <div style="text-align:center;margin-top:32px;">
-      <a href="${siteUrl}/order/${data.orderNumber}" style="display:inline-block;background:linear-gradient(to right,#D4A54A,#E5BC5F);color:#0F0F0F;text-decoration:none;padding:14px 28px;border-radius:10px;font-weight:600;font-size:13px;letter-spacing:0.1em;text-transform:uppercase;">${t("email.custTrackBtn")}</a>
+      <a href="${orderUrl(data.orderNumber, data.orderToken)}" style="display:inline-block;background:linear-gradient(to right,#D4A54A,#E5BC5F);color:#0F0F0F;text-decoration:none;padding:14px 28px;border-radius:10px;font-weight:600;font-size:13px;letter-spacing:0.1em;text-transform:uppercase;">${t("email.custTrackBtn")}</a>
     </div>
   `,
   );
@@ -221,6 +229,7 @@ export async function sendShippedEmail(params: {
   customerName: string;
   customerEmail: string;
   trackingNumber: string;
+  orderToken?: string;
 }): Promise<void> {
   const t = await buildT();
   const html = baseTemplate(
@@ -233,7 +242,7 @@ export async function sendShippedEmail(params: {
       <div style="color:#D4A54A;font-size:18px;font-weight:700;margin-top:6px;font-family:monospace;">${params.trackingNumber}</div>
     </div>
     <div style="text-align:center;">
-      <a href="${siteUrl}/order/${params.orderNumber}" style="color:#D4A54A;font-size:13px;">${t("email.shipOrderLink", { orderNumber: params.orderNumber })}</a>
+      <a href="${orderUrl(params.orderNumber, params.orderToken)}" style="color:#D4A54A;font-size:13px;">${t("email.shipOrderLink", { orderNumber: params.orderNumber })}</a>
     </div>
   `,
   );

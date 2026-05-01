@@ -13,7 +13,7 @@ async function login(formData: FormData) {
   // getting in the way of someone who fat-fingered their own password.
   const h = await headers();
   const ip = getClientIpFromHeaders(h);
-  const rl = rateLimit(`admin-login:${ip}`, { windowMs: 5 * 60_000, max: 5 });
+  const rl = await rateLimit(`admin-login:${ip}`, { windowMs: 5 * 60_000, max: 5 });
   if (!rl.ok) {
     redirect(`/admin/login?error=throttled&retry=${rl.retryAfter}`);
   }

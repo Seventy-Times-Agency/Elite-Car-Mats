@@ -34,6 +34,7 @@ model Model {
   updatedAt DateTime  @updatedAt
 
   @@unique([brandId, slug])
+  @@index([brandId])
 }
 
 model ModelYear {
@@ -141,6 +142,10 @@ model Order {
   items                 OrderItem[]
   createdAt             DateTime    @default(now())
   updatedAt             DateTime    @updatedAt
+
+  @@index([status])
+  @@index([createdAt])
+  @@index([email])
 }
 
 model OrderItem {
@@ -158,6 +163,12 @@ model OrderItem {
   year        Int?
   quantity    Int        @default(1)
   price       Decimal?   @db.Decimal(10, 2)
+
+  @@index([orderId])
+  @@index([productId])
+  @@index([colorId])
+  @@index([edgeColorId])
+  @@index([badgeId])
 }
 
 // ============================================
@@ -173,6 +184,8 @@ model Review {
   photos       String[]
   approved     Boolean  @default(false)
   createdAt    DateTime @default(now())
+
+  @@index([approved, createdAt])
 }
 
 // ============================================
@@ -190,6 +203,8 @@ model PromoCode {
   active      Boolean   @default(true)
   expiresAt   DateTime?
   createdAt   DateTime  @default(now())
+
+  @@index([active])
 }
 
 // ============================================
@@ -220,6 +235,15 @@ model CustomOrderRequest {
   adminNotes String?
   createdAt  DateTime          @default(now())
   updatedAt  DateTime          @updatedAt
+
+  @@index([status, createdAt])
+}
+
+// Stripe webhook idempotency ledger. One row per processed event id —
+// claimed via INSERT ... ON CONFLICT DO NOTHING in the webhook handler.
+model WebhookEvent {
+  id        String   @id
+  createdAt DateTime @default(now())
 }
 
 // ============================================

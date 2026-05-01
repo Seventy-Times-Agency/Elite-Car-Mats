@@ -3,6 +3,10 @@ import type Stripe from "stripe";
 import { prisma } from "@/lib/prisma";
 import { isStripeConfigured, getWebhookSecret } from "@/lib/stripe";
 import { constructWebhookEvent } from "@/lib/stripe-checkout";
+import { sendCustomerOrderEmail } from "@/lib/email";
+import { signOrderToken } from "@/lib/order-token";
+import { calculateItemUnitPrice } from "@/lib/pricing";
+import type { MatSetType } from "@/types";
 
 // Webhooks must see the raw body for signature verification. In the App
 // Router there is no body parser to disable — the route reads
@@ -17,6 +21,92 @@ function orderIdFromSession(session: Stripe.Checkout.Session): string | null {
     (session.metadata?.orderId as string | undefined) ??
     null
   );
+}
+
+const matSetFromEnum: Record<string, MatSetType> = {
+  FRONT: "front",
+  FULL: "full",
+  CARGO: "cargo",
+  FULL_CARGO: "full-cargo",
+};
+
+/**
+ * Process a Stripe event id idempotently. Returns true if this is the first
+ * time we've seen the id and processing should proceed; false if it was
+ * already handled. The "WebhookEvent" table is created lazily on first use
+ * (the runtime DDL flow in db-setup.ts doesn't know about it yet because
+ * it's a new table — we declare it via raw SQL here for safety).
+ */
+async function claimEvent(eventId: string): Promise<boolean> {
+  // Lazy table creation — re-runs are no-ops thanks to IF NOT EXISTS.
+  await prisma.$executeRaw`
+    CREATE TABLE IF NOT EXISTS "WebhookEvent" (
+      "id" TEXT PRIMARY KEY,
+      "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+    )
+  `;
+  try {
+    const inserted = await prisma.$executeRaw`
+      INSERT INTO "WebhookEvent"("id") VALUES (${eventId})
+      ON CONFLICT ("id") DO NOTHING
+    `;
+    return inserted === 1;
+  } catch (err) {
+    console.error("[stripe-webhook] claimEvent failed:", err);
+    // Fail closed-ish: if we can't record the claim, allow processing but
+    // rely on the per-row status guard further down to keep things
+    // idempotent. Better than silently dropping a real payment.
+    return true;
+  }
+}
+
+async function sendCustomerConfirmation(orderId: string): Promise<void> {
+  const order = await prisma.order.findUnique({
+    where: { id: orderId },
+    include: {
+      items: {
+        include: {
+          product: { include: { model: { include: { brand: true } } } },
+          color: true,
+          edgeColor: true,
+          badge: true,
+        },
+      },
+    },
+  });
+  if (!order) return;
+  await sendCustomerOrderEmail({
+    orderNumber: order.orderNumber,
+    orderToken: signOrderToken(order.id),
+    customerName: order.customerName,
+    customerEmail: order.email,
+    phone: order.phone,
+    address: order.address,
+    city: order.city,
+    state: order.state,
+    zip: order.zip,
+    total: Number(order.total ?? 0),
+    items: order.items.map((i) => {
+      const matSet = matSetFromEnum[i.product.matSet] ?? "full";
+      return {
+        brandName: i.product.model.brand.name,
+        modelName: i.product.model.name,
+        matSet,
+        colorName: i.color.name,
+        colorHex: i.color.hex,
+        edgeColorName: i.edgeColor.name,
+        edgeColorHex: i.edgeColor.hex,
+        badgeName: i.badge ? `+ ${i.badge.brandName} badge` : null,
+        year: i.year ?? null,
+        quantity: i.quantity,
+        unitPrice: calculateItemUnitPrice({
+          matSet,
+          edgeColor: { id: i.edgeColor.id },
+          badge: i.badge ? { id: i.badge.id } : null,
+        }),
+      };
+    }),
+  });
 }
 
 export async function POST(request: Request) {
@@ -44,6 +134,15 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true, skipped: "no-event" });
   }
 
+  // Idempotency: claim this event id before doing any side effects. Stripe
+  // re-delivers on transient failures, so a 200-OK response after a partial
+  // run can otherwise double-send emails or double-decrement stock.
+  const fresh = await claimEvent(event.id);
+  if (!fresh) {
+    console.log(`[stripe-webhook] ${event.id} already processed`);
+    return NextResponse.json({ ok: true, idempotent: true });
+  }
+
   console.log(`[stripe-webhook] ${event.id} ${event.type}`);
 
   try {
@@ -56,8 +155,8 @@ export async function POST(request: Request) {
             typeof session.payment_intent === "string"
               ? session.payment_intent
               : (session.payment_intent?.id ?? null);
-          // updateMany with a status guard so re-delivery of the same event
-          // doesn't clobber paidAt or move a CANCELLED order back to CONFIRMED.
+          // updateMany with status guard — the second concurrent webhook
+          // for the same id sees rows=0 and skips the email send below.
           const res = await prisma.order.updateMany({
             where: { id: orderId, status: "PENDING" },
             data: {
@@ -69,6 +168,13 @@ export async function POST(request: Request) {
           console.log(
             `[stripe-webhook] ${event.id} order=${orderId} paid (rows=${res.count})`,
           );
+          if (res.count === 1) {
+            try {
+              await sendCustomerConfirmation(orderId);
+            } catch (err) {
+              console.error("[stripe-webhook] confirmation email failed:", err);
+            }
+          }
         } else {
           console.log(
             `[stripe-webhook] ${event.id} skipped: orderId=${orderId} payment_status=${session.payment_status}`,
@@ -87,6 +193,13 @@ export async function POST(request: Request) {
           console.log(
             `[stripe-webhook] ${event.id} order=${orderId} async-paid (rows=${res.count})`,
           );
+          if (res.count === 1) {
+            try {
+              await sendCustomerConfirmation(orderId);
+            } catch (err) {
+              console.error("[stripe-webhook] confirmation email failed:", err);
+            }
+          }
         }
         break;
       }
@@ -108,7 +221,6 @@ export async function POST(request: Request) {
       // Useful for refund flows later on:
       // case "charge.refunded": ...
       default:
-        // Ignore other events but log so we can decide if we want them later.
         console.log(`[stripe-webhook] ${event.id} ignored type=${event.type}`);
         break;
     }

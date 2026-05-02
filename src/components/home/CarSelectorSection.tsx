@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useRef, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { brands, mockModels } from "@/data/mock";
+import { brands, mockModels } from "@/data/catalog";
 import { useT } from "@/i18n/I18nProvider";
 
 interface Option {

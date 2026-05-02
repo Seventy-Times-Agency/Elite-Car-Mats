@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { prisma } from "@/lib/prisma";
-import { rateLimit, getClientIp } from "@/lib/rate-limit";
+import { prisma } from "@/lib/db/prisma";
+import { rateLimit, getClientIp } from "@/lib/security/rate-limit";
 
 const schema = z.object({
   email: z.string().trim().email(),

@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
-import { prisma } from "@/lib/prisma";
-import { requireAdmin } from "@/lib/auth";
+import { prisma } from "@/lib/db/prisma";
+import { requireAdmin } from "@/lib/security/auth";
 import { formatPrice } from "@/lib/pricing";
 import { OrderRow } from "./OrderRow";
 import { AdminShell } from "@/components/admin/AdminShell";

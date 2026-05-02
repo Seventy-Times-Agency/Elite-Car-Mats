@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { brands, mockModels } from "@/data/mock";
+import { brands, mockModels } from "@/data/catalog";
 import { MAT_SET_PRICE } from "@/lib/pricing";
 import { getDictionary } from "@/i18n/getDictionary";
 import { makeT } from "@/i18n/dictionary";

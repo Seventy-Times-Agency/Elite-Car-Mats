@@ -1,5 +1,5 @@
 import "server-only";
-import { prisma } from "./prisma";
+import { prisma } from "@/lib/db/prisma";
 
 export interface PromoValidationResult {
   valid: boolean;

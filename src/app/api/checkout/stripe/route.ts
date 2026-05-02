@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
 import type Stripe from "stripe";
 import { z } from "zod";
-import { prisma } from "@/lib/prisma";
-import { rateLimit, getClientIp } from "@/lib/rate-limit";
-import { isStripeConfigured } from "@/lib/stripe";
-import { createCheckoutSession } from "@/lib/stripe-checkout";
-import { signOrderToken, verifyOrderToken } from "@/lib/order-token";
+import { prisma } from "@/lib/db/prisma";
+import { rateLimit, getClientIp } from "@/lib/security/rate-limit";
+import { isStripeConfigured } from "@/lib/payments/stripe";
+import { createCheckoutSession } from "@/lib/payments/stripe-checkout";
+import { signOrderToken, verifyOrderToken } from "@/lib/security/order-token";
 import { calculateItemUnitPrice } from "@/lib/pricing";
 import type { MatSetType } from "@/types";
 

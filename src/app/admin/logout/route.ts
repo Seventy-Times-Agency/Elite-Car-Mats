@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { signOutAdmin } from "@/lib/auth";
+import { signOutAdmin } from "@/lib/security/auth";
 
 export async function POST(request: Request) {
   await signOutAdmin();

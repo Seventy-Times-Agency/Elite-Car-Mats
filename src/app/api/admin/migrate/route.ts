@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { ensureSchema, resetSchemaCache } from "@/lib/db-setup";
-import { requireAdminApi, checkAdminCsrf } from "@/lib/auth";
+import { ensureSchema, resetSchemaCache } from "@/lib/db/setup";
+import { requireAdminApi, checkAdminCsrf } from "@/lib/security/auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";

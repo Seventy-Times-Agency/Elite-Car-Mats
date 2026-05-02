@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 import type Stripe from "stripe";
-import { prisma } from "@/lib/prisma";
-import { isStripeConfigured, getWebhookSecret } from "@/lib/stripe";
-import { constructWebhookEvent } from "@/lib/stripe-checkout";
+import { prisma } from "@/lib/db/prisma";
+import { isStripeConfigured, getWebhookSecret } from "@/lib/payments/stripe";
+import { constructWebhookEvent } from "@/lib/payments/stripe-checkout";
 import { sendCustomerOrderEmail } from "@/lib/email";
-import { signOrderToken } from "@/lib/order-token";
+import { signOrderToken } from "@/lib/security/order-token";
 import { calculateItemUnitPrice } from "@/lib/pricing";
 import type { MatSetType } from "@/types";
 

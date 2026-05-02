@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
-import { prisma } from "@/lib/prisma";
-import { signOrderToken } from "@/lib/order-token";
-import { rateLimit, getClientIpFromHeaders } from "@/lib/rate-limit";
+import { prisma } from "@/lib/db/prisma";
+import { signOrderToken } from "@/lib/security/order-token";
+import { rateLimit, getClientIpFromHeaders } from "@/lib/security/rate-limit";
 import { getDictionary } from "@/i18n/getDictionary";
 
 async function track(formData: FormData) {

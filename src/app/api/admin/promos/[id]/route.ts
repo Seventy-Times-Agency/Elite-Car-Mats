@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { prisma } from "@/lib/prisma";
-import { requireAdmin, checkAdminCsrf } from "@/lib/auth";
+import { prisma } from "@/lib/db/prisma";
+import { requireAdmin, checkAdminCsrf } from "@/lib/security/auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";

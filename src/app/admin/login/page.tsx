@@ -1,7 +1,7 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { signInAdmin, requireAdmin, isAdminConfigured } from "@/lib/auth";
-import { rateLimit, getClientIpFromHeaders } from "@/lib/rate-limit";
+import { signInAdmin, requireAdmin, isAdminConfigured } from "@/lib/security/auth";
+import { rateLimit, getClientIpFromHeaders } from "@/lib/security/rate-limit";
 import { getDictionary } from "@/i18n/getDictionary";
 import { makeT } from "@/i18n/dictionary";
 

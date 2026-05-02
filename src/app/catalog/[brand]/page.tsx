@@ -3,7 +3,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useParams } from "next/navigation";
-import { brands, mockModels } from "@/data/mock";
+import { brands, mockModels } from "@/data/catalog";
 import { VehicleCategory } from "@/types";
 import { useT } from "@/i18n/I18nProvider";
 import { localizeBody } from "@/i18n/labels";

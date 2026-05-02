@@ -7,8 +7,8 @@ import {
   edgeColors,
   matSets,
   badges,
-} from "@/data/mock";
-import { MAT_SET_PRICE } from "./pricing";
+} from "@/data/catalog";
+import { MAT_SET_PRICE } from "@/lib/pricing";
 import type { MatSetType } from "@/types";
 
 /**

@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { prisma } from "@/lib/prisma";
-import { requireAdmin, checkAdminCsrf } from "@/lib/auth";
+import { prisma } from "@/lib/db/prisma";
+import { requireAdmin, checkAdminCsrf } from "@/lib/security/auth";
 import { sendShippedEmail } from "@/lib/email";
-import { verifyOrderToken, signOrderToken } from "@/lib/order-token";
+import { verifyOrderToken, signOrderToken } from "@/lib/security/order-token";
 
 const updateSchema = z.object({
   status: z

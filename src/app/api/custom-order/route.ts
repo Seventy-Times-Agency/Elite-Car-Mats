@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { Resend } from "resend";
-import { rateLimit, getClientIp } from "@/lib/rate-limit";
-import { prisma } from "@/lib/prisma";
-import { ensureSchema } from "@/lib/db-setup";
+import { rateLimit, getClientIp } from "@/lib/security/rate-limit";
+import { prisma } from "@/lib/db/prisma";
+import { ensureSchema } from "@/lib/db/setup";
 
 const apiKey = process.env.RESEND_API_KEY;
 const fromAddress =

@@ -1,18 +1,18 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import { ensureSchema } from "@/lib/db-setup";
-import { ensureCatalogSeed } from "@/lib/db-seed";
+import { prisma } from "@/lib/db/prisma";
+import { ensureSchema } from "@/lib/db/setup";
+import { ensureCatalogSeed } from "@/lib/db/seed";
 import { createOrderSchema } from "@/lib/validations/order";
 import { calculateItemUnitPrice, calculateOrderTotal } from "@/lib/pricing";
-import { rateLimit, getClientIp } from "@/lib/rate-limit";
+import { rateLimit, getClientIp } from "@/lib/security/rate-limit";
 import { validatePromoCode, tryConsumePromoUse } from "@/lib/promo";
-import { isStripeConfigured } from "@/lib/stripe";
+import { isStripeConfigured } from "@/lib/payments/stripe";
 import {
   sendCustomerOrderEmail,
   sendOwnerOrderEmail,
 } from "@/lib/email";
-import { signOrderToken } from "@/lib/order-token";
-import { evaColors, edgeColors, brands, badges, mockModels } from "@/data/mock";
+import { signOrderToken } from "@/lib/security/order-token";
+import { evaColors, edgeColors, brands, badges, mockModels } from "@/data/catalog";
 import { getDictionary } from "@/i18n/getDictionary";
 import { makeT } from "@/i18n/dictionary";
 import type { OrderItemInput } from "@/lib/validations/order";

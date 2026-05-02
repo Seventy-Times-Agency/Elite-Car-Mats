@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import { ensureSchema } from "@/lib/db-setup";
-import { requireAdminApi, checkAdminCsrf } from "@/lib/auth";
+import { prisma } from "@/lib/db/prisma";
+import { ensureSchema } from "@/lib/db/setup";
+import { requireAdminApi, checkAdminCsrf } from "@/lib/security/auth";
 import {
   brands,
   mockModels,
@@ -9,7 +9,7 @@ import {
   edgeColors,
   matSets,
   badges,
-} from "@/data/mock";
+} from "@/data/catalog";
 import { MAT_SET_PRICE } from "@/lib/pricing";
 import type { MatSetType } from "@/types";
 

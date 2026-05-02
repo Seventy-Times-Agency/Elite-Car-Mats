@@ -1,6 +1,6 @@
 import { cookies, headers } from "next/headers";
 import { createHmac, randomBytes, timingSafeEqual, scryptSync } from "node:crypto";
-import { ensureSchema } from "./db-setup";
+import { ensureSchema } from "@/lib/db/setup";
 
 export const ADMIN_COOKIE = "ecm_admin";
 export const ADMIN_MAX_AGE = 60 * 60 * 24; // 24 hours, sliding (re-issued on each requireAdmin)

@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { prisma } from "@/lib/prisma";
-import { requireAdmin } from "@/lib/auth";
-import { verifyOrderToken } from "@/lib/order-token";
+import { prisma } from "@/lib/db/prisma";
+import { requireAdmin } from "@/lib/security/auth";
+import { verifyOrderToken } from "@/lib/security/order-token";
 import { formatPrice } from "@/lib/pricing";
 import { CopyNumber } from "./CopyNumber";
 import { getDictionary } from "@/i18n/getDictionary";

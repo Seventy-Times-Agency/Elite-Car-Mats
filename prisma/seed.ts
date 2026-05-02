@@ -9,8 +9,8 @@ import {
   evaColors,
   edgeColors,
   matSets,
-  mockReviews,
-} from "../src/data/mock";
+} from "../src/data/catalog";
+import { mockReviews } from "../src/data/reviews";
 import { MAT_SET_PRICE } from "../src/lib/pricing";
 import { MatSetType } from "../src/types";
 

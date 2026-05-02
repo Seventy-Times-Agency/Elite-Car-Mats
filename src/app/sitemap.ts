@@ -1,5 +1,5 @@
 import { MetadataRoute } from "next";
-import { brands, mockModels } from "@/data/mock";
+import { brands, mockModels } from "@/data/catalog";
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://elitecarmats.us";
 

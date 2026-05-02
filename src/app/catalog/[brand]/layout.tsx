@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { brands } from "@/data/mock";
+import { brands } from "@/data/catalog";
 import { getDictionary } from "@/i18n/getDictionary";
 import { makeT } from "@/i18n/dictionary";
 

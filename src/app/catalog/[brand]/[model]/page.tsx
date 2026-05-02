@@ -2,7 +2,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useParams, useSearchParams } from "next/navigation";
-import { brands, mockModels, matSets, evaColors, edgeColors, badges } from "@/data/mock";
+import { brands, mockModels, matSets, evaColors, edgeColors, badges } from "@/data/catalog";
 import { useCart } from "@/context/CartContext";
 import { MatPreview } from "@/components/product/MatPreview";
 import { MatColorSwatch } from "@/components/product/MatColorSwatch";

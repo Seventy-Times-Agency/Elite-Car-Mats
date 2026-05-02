@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { rateLimit, getClientIp } from "@/lib/rate-limit";
+import { rateLimit, getClientIp } from "@/lib/security/rate-limit";
 import { validatePromoCode } from "@/lib/promo";
-import { ensureSchema } from "@/lib/db-setup";
+import { ensureSchema } from "@/lib/db/setup";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";

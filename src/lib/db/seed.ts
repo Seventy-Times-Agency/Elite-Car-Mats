@@ -8,7 +8,8 @@ import {
   matSets,
   badges,
 } from "@/data/catalog";
-import { MAT_SET_PRICE } from "@/lib/pricing";
+import { getMatSetPrice } from "@/lib/pricing";
+import { getVehicleProfile } from "@/lib/vehicle-profile";
 import type { MatSetType } from "@/types";
 
 /**
@@ -90,12 +91,13 @@ async function runSeed(): Promise<CatalogSeedSummary> {
   }[] = [];
   for (const m of mockModels) {
     const modelId = `${m.brandId}-${m.slug}`;
+    const profile = getVehicleProfile(m);
     for (const set of matSets) {
       productRows.push({
         id: `${modelId}-${set.type}`,
         modelId,
         matSet: matSetToEnum[set.type],
-        price: MAT_SET_PRICE[set.type],
+        price: getMatSetPrice(profile, set.type),
         images: [],
       });
     }

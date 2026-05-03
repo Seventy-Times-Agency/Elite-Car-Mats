@@ -2,7 +2,7 @@
 
 import { Reveal } from "@/components/common/Reveal";
 import { useT } from "@/i18n/I18nProvider";
-import { MAT_SET_PRICE, formatPrice } from "@/lib/pricing";
+import { calculateItemUnitPrice, formatPrice } from "@/lib/pricing";
 import type { MatSetType } from "@/types";
 
 const edgeColors: Record<string, string> = {
@@ -46,7 +46,7 @@ export function GallerySection() {
     { brand: "Toyota", model: "Camry", brandSlug: "toyota", modelSlug: "camry", year: "2023", tag: t("gallery.tagFullCargo"), color: "gold", matSet: "full-cargo" },
     { brand: "BMW", model: "X5", brandSlug: "bmw", modelSlug: "x5", year: "2024", tag: t("gallery.tagFull"), color: "red", matSet: "full" },
     { brand: "Tesla", model: "Model Y", brandSlug: "tesla", modelSlug: "model-y", year: "2024", tag: t("gallery.tagFullCargo"), color: "gray", matSet: "full-cargo" },
-    { brand: "Ford", model: "F-150", brandSlug: "ford", modelSlug: "f-150", year: "2023", tag: t("gallery.tagFrontsCargo"), color: "black", matSet: "full-cargo" },
+    { brand: "Ford", model: "F-150", brandSlug: "ford", modelSlug: "f-150", year: "2023", tag: t("gallery.tagFull"), color: "black", matSet: "full" },
     { brand: "Audi", model: "Q5", brandSlug: "audi", modelSlug: "q5", year: "2024", tag: t("gallery.tagFull"), color: "gold", matSet: "full" },
     { brand: "Mercedes", model: "GLE", brandSlug: "mercedes", modelSlug: "gle", year: "2023", tag: t("gallery.tagFullCargo"), color: "red", matSet: "full-cargo" },
   ];
@@ -112,7 +112,15 @@ export function GallerySection() {
                   </div>
                   <p className="mt-1 text-text-dim text-xs">{it.tag}</p>
                 </div>
-                <span className="text-gold text-sm font-semibold shrink-0 mt-0.5">{formatPrice(MAT_SET_PRICE[it.matSet])}</span>
+                <span className="text-gold text-sm font-semibold shrink-0 mt-0.5">
+                  {formatPrice(
+                    calculateItemUnitPrice({
+                      matSet: it.matSet,
+                      modelId: `${it.brandSlug}-${it.modelSlug}`,
+                      edgeColor: { id: it.color },
+                    }),
+                  )}
+                </span>
               </div>
             </a>
           ))}

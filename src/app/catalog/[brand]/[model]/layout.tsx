@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { brands, mockModels } from "@/data/catalog";
-import { MAT_SET_PRICE } from "@/lib/pricing";
+import { getMatSetPrice } from "@/lib/pricing";
+import { getVehicleProfile, getDefaultMatSet } from "@/lib/vehicle-profile";
 import { getDictionary } from "@/i18n/getDictionary";
 import { makeT } from "@/i18n/dictionary";
 
@@ -18,7 +19,8 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const t = makeT(dict, fallback);
   if (!brand || !model) return { title: t("prod.metaNotFound") };
 
-  const price = MAT_SET_PRICE.full;
+  const profile = getVehicleProfile(model);
+  const price = getMatSetPrice(profile, getDefaultMatSet(profile));
   const yMin = model.years[0];
   const yMax = model.years[model.years.length - 1];
   const vars = {

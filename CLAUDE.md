@@ -118,9 +118,15 @@ What's **done** (don't redo):
 
 Still **TODO** (in priority order):
 
-1. **Real prices** — `lib/pricing.ts` ships placeholder `$100` for every
-   set; `EDGE_SURCHARGE` and `BADGE_PRICE` are zero. Need real numbers
-   from supplier before opening sales.
+1. **Two-seater pricing review** — the strict 2-seater profile
+   (roadsters, supercars) currently reuses the sedan price table:
+   front row $119, cargo $79, both together $198. Confirm with the
+   supplier whether smaller cabin mats / no rear-cabin product warrants
+   a different price before opening sales for those models.
+2. **Pickup truck-bed liner** — we no longer sell a bed liner (pickups
+   only get the cabin set at $119). If supplier comes back with a real
+   bed-liner product, restore the `pickup` profile's `cargo` /
+   `full-cargo` options in `data/catalog/mat-sets.ts`.
 2. **Real product photos** — replace the SVG mat preview + Wikipedia car
    thumbnails as soon as supplier sends shots.
 3. **Texture choice** (honeycomb / rhombus) and **Heel Pad** option in

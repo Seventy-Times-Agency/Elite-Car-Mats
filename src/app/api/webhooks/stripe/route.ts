@@ -101,6 +101,7 @@ async function sendCustomerConfirmation(orderId: string): Promise<void> {
         quantity: i.quantity,
         unitPrice: calculateItemUnitPrice({
           matSet,
+          modelId: i.product.modelId,
           edgeColor: { id: i.edgeColor.id },
           badge: i.badge ? { id: i.badge.id } : null,
         }),

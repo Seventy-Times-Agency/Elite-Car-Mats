@@ -2,46 +2,26 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useParams, useSearchParams } from "next/navigation";
-import { brands, mockModels, matSets, evaColors, edgeColors, badges } from "@/data/catalog";
+import { brands, mockModels, evaColors, edgeColors, badges } from "@/data/catalog";
+import { MAT_SETS_BY_PROFILE } from "@/data/catalog/mat-sets";
 import { useCart } from "@/context/CartContext";
 import { MatPreview } from "@/components/product/MatPreview";
 import { MatColorSwatch } from "@/components/product/MatColorSwatch";
 import { MatSetType } from "@/types";
-import { calculateItemUnitPrice, formatPrice } from "@/lib/pricing";
+import { BADGE_PRICE, calculateItemUnitPrice, formatPrice } from "@/lib/pricing";
 import {
   getVehicleProfile,
-  getAvailableMatSets,
   getDefaultMatSet,
   type VehicleConfigProfile,
 } from "@/lib/vehicle-profile";
 import { ProductJsonLd, BreadcrumbJsonLd } from "@/components/seo/ProductJsonLd";
 import { useT } from "@/i18n/I18nProvider";
-import type { TFn } from "@/i18n/dictionary";
 import {
   localizeBody,
   localizeColor,
   localizeMatSet,
   localizeMatSetDesc,
 } from "@/i18n/labels";
-
-function pickupSetOverride(
-  profile: VehicleConfigProfile,
-  type: MatSetType,
-  t: TFn,
-): { label: string; desc: string } | null {
-  if (profile !== "pickup") return null;
-  if (type === "cargo")
-    return {
-      label: t("matset.cargoTruck"),
-      desc: t("matset.cargoTruckDesc"),
-    };
-  if (type === "full-cargo")
-    return {
-      label: t("matset.fullCargoTruck"),
-      desc: t("matset.fullCargoTruckDesc"),
-    };
-  return null;
-}
 
 function StepHeader({
   n,
@@ -85,10 +65,10 @@ export default function ProductPage() {
   const profile: VehicleConfigProfile = model
     ? getVehicleProfile(model)
     : "standard";
-  const availableSetTypes = useMemo(() => getAvailableMatSets(profile), [profile]);
-  const filteredMatSets = useMemo(
-    () => matSets.filter((s) => availableSetTypes.includes(s.type)),
-    [availableSetTypes],
+  const profileMatSets = useMemo(() => MAT_SETS_BY_PROFILE[profile], [profile]);
+  const availableSetTypes = useMemo(
+    () => profileMatSets.map((s) => s.type),
+    [profileMatSets],
   );
 
   const [set, setSet] = useState<MatSetType>(() => getDefaultMatSet(profile));
@@ -135,36 +115,28 @@ export default function ProductPage() {
     );
 
   const bdg = badges.find((b) => b.brandName === brand.name);
-  const ms = matSets.find((s) => s.type === set)!;
+  const ms =
+    profileMatSets.find((s) => s.type === set) ?? profileMatSets[0];
+  const cartModelId = `${brand.slug}-${model.slug}`;
   const unitPrice = calculateItemUnitPrice({
-    matSet: set,
+    matSet: ms.type,
+    modelId: cartModelId,
     edgeColor: { id: edge.id },
     badge: badge && bdg ? { id: bdg.id } : null,
   });
 
   const localizedColor = localizeColor(t, color.name);
   const localizedEdge = localizeColor(t, edge.name);
-  const setOverride = pickupSetOverride(profile, set, t);
-  const localizedSet = setOverride
-    ? setOverride.label
-    : localizeMatSet(t, ms.label);
+  const localizedSet = localizeMatSet(t, ms.label);
 
   const add = () => {
-    // For pickups we store the truck-bed label ("Кузов пикапа"/"Полный + Кузов")
-    // so cart / checkout / emails pick up the right localized string via
-    // labels.ts instead of showing "Багажник" for a bed.
-    const pickupLabels: Partial<Record<MatSetType, string>> =
-      profile === "pickup"
-        ? { cargo: "Кузов пикапа", "full-cargo": "Полный + Кузов" }
-        : {};
-    const storedLabel = pickupLabels[set] ?? ms.label;
     addItem({
-      modelId: `${brand.slug}-${model.slug}`,
+      modelId: cartModelId,
       brandName: brand.name,
       modelName: model.name,
       year,
-      matSet: set,
-      matSetLabel: storedLabel,
+      matSet: ms.type,
+      matSetLabel: ms.label,
       color,
       edgeColor: edge,
       badge: badge && bdg ? bdg : undefined,
@@ -288,17 +260,18 @@ export default function ProductPage() {
                         ? t("prod.profile2seaterHint")
                         : profile === "semi"
                           ? t("prod.profileSemiHint")
-                          : t("prod.profilePickupHint")}
+                          : profile === "minivan"
+                            ? t("prod.profileMinivanHint")
+                            : t("prod.profilePickupHint")}
                     </span>
                   </div>
                 )}
                 <div
-                  className={`grid ${filteredMatSets.length === 1 ? "grid-cols-1" : "grid-cols-2"} gap-2`}
+                  className={`grid ${profileMatSets.length === 1 ? "grid-cols-1" : "grid-cols-2"} gap-2`}
                 >
-                  {filteredMatSets.map((s) => {
-                    const ov = pickupSetOverride(profile, s.type, t);
-                    const label = ov ? ov.label : localizeMatSet(t, s.label);
-                    const desc = ov ? ov.desc : localizeMatSetDesc(t, s.description);
+                  {profileMatSets.map((s) => {
+                    const label = localizeMatSet(t, s.label);
+                    const desc = localizeMatSetDesc(t, s.description);
                     return (
                       <button
                         key={s.type}
@@ -398,7 +371,9 @@ export default function ProductPage() {
                         {t("prod.badgeName", { brand: brand.name })}
                       </div>
                       <div className="text-text-dim text-[10px] mt-0.5 truncate">
-                        {t("prod.badgeSubtext")}
+                        {t("prod.badgeSubtext", {
+                          price: `+${formatPrice(BADGE_PRICE)}`,
+                        })}
                       </div>
                     </div>
                   </label>

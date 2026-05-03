@@ -18,21 +18,39 @@ const BODY_KEY: Record<string, string> = {
 };
 
 const MATSET_KEY: Record<string, string> = {
+  // Sedan / SUV / minivan / pickup cabin
+  "Перед + зад": "matset.cabin",
+  "Полный комплект": "matset.fullCargo",
+  "Только багажник": "matset.cargo",
+  // Two-seaters
+  "Только первый ряд": "matset.frontOnly",
+  "Всё вместе": "matset.everything",
+  // Semi-truck cabin
+  Кабина: "matset.semiCabin",
+  // Minivan-specific
+  "Перед + середина": "matset.minivanFrontMid",
+  "Перед + середина + зад": "matset.minivanThreeRow",
+  // Legacy labels — kept so old cart entries still localize cleanly
   Передние: "matset.fronts",
-  "Полный комплект": "matset.full",
   Багажник: "matset.cargo",
   "Полный + Багажник": "matset.fullCargo",
-  "Кузов пикапа": "matset.cargoTruck",
-  "Полный + Кузов": "matset.fullCargoTruck",
+  "Кузов пикапа": "matset.cabin",
+  "Полный + Кузов": "matset.fullCargo",
 };
 
 const MATSET_DESC_KEY: Record<string, string> = {
-  "Водитель + пассажир": "matset.frontsDesc",
-  "Весь салон": "matset.fullDesc",
+  "Водитель + пассажир": "matset.frontOnlyDesc",
+  "Весь салон (4 коврика)": "matset.cabinDesc",
   "Багажное отделение": "matset.cargoDesc",
   "Салон и багажник": "matset.fullCargoDesc",
-  "Большой коврик в открытый кузов": "matset.cargoTruckDesc",
-  "Салон и кузов пикапа": "matset.fullCargoTruckDesc",
+  "Все три ряда + багажник": "matset.minivanFullDesc",
+  "Все три ряда сидений": "matset.minivanThreeRowDesc",
+  "1-й и 2-й ряд": "matset.minivanFrontMidDesc",
+  "Большой комплект в кабину тягача": "matset.semiCabinDesc",
+  // Legacy descriptions
+  "Весь салон": "matset.cabinDesc",
+  "Большой коврик в открытый кузов": "matset.cabinDesc",
+  "Салон и кузов пикапа": "matset.fullCargoDesc",
 };
 
 const COLOR_KEY: Record<string, string> = {

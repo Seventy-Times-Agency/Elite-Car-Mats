@@ -1,19 +1,30 @@
 import type { CarModel, MatSetType } from "@/types";
+import { mockModels } from "@/data/catalog/models";
 
 /**
  * How the vehicle's interior shapes the mat-set options we sell:
  *
- *  - `standard`  — regular sedan / SUV / crossover / hatch / minivan. All four
- *                  set types apply.
+ *  - `standard`  — regular sedan / SUV / crossover / hatch with two rows
+ *                  of seats + a trunk. Sells front-and-rear cabin sets,
+ *                  trunk-only, and full kit (cabin + trunk).
+ *  - `minivan`   — minivan with three rows of seats + a trunk. Adds a
+ *                  middle-row dimension on top of the standard sets.
  *  - `twoSeater` — strict 2-seat cabin (roadsters, supercars, 2-seat coupes
- *                  with no usable rear row). No "full set" / "cargo" sets —
- *                  only Fronts.
- *  - `pickup`    — truck with open bed. Cabin sets work like standard; the
- *                  "cargo" option becomes a larger truck-bed liner instead.
- *  - `semi`      — Class 6-8 semi / box truck. Only front mats (cargo area is
- *                  a trailer / separate bed, not a car floor).
+ *                  with no usable rear row). No 3-row cabin set —
+ *                  only "front row only" / cargo / both.
+ *  - `pickup`    — truck with open bed, two-row cabin. We don't sell a
+ *                  truck-bed liner anymore, so this profile only offers
+ *                  the front-and-rear cabin set.
+ *  - `semi`      — Class 6-8 semi / box truck. Only one big front-cabin
+ *                  set (cargo area is a trailer / separate bed, not a
+ *                  car floor).
  */
-export type VehicleConfigProfile = "standard" | "twoSeater" | "pickup" | "semi";
+export type VehicleConfigProfile =
+  | "standard"
+  | "minivan"
+  | "twoSeater"
+  | "pickup"
+  | "semi";
 
 /**
  * Model IDs that have a strict 2-seat cabin (no usable rear seats).
@@ -98,8 +109,11 @@ export function getVehicleProfile(model: CarModel): VehicleConfigProfile {
   if (model.bodyType === "Седельный тягач") return "semi";
   if (model.bodyType === "Грузовик") return "semi";
 
-  // Pickups keep full-cabin options + a larger truck-bed liner
+  // Pickups: two-row cabin, no truck-bed liner anymore
   if (model.bodyType === "Пикап") return "pickup";
+
+  // Minivans: three rows of seats + trunk
+  if (model.bodyType === "Минивэн") return "minivan";
 
   // Strict 2-seaters
   if (STRICT_TWO_SEATER_IDS.has(model.id)) return "twoSeater";
@@ -112,17 +126,59 @@ export function getAvailableMatSets(
 ): MatSetType[] {
   switch (profile) {
     case "semi":
-    case "twoSeater":
       return ["front"];
     case "pickup":
+      return ["full"];
+    case "twoSeater":
+      return ["front", "cargo", "full-cargo"];
+    case "minivan":
+      return ["front", "full", "cargo", "full-cargo"];
     case "standard":
     default:
-      return ["front", "full", "cargo", "full-cargo"];
+      return ["full", "cargo", "full-cargo"];
   }
 }
 
 export function getDefaultMatSet(profile: VehicleConfigProfile): MatSetType {
-  return profile === "semi" || profile === "twoSeater"
-    ? "front"
-    : "full-cargo";
+  switch (profile) {
+    case "semi":
+    case "twoSeater":
+      return "front";
+    case "pickup":
+      return "full";
+    case "minivan":
+      return "full-cargo";
+    case "standard":
+    default:
+      return "full-cargo";
+  }
+}
+
+/**
+ * Resolve a vehicle profile from a cart-item / order-item modelId.
+ *
+ * The cart stores `modelId` as `${brandSlug}-${modelSlug}` (matching the
+ * id we seed into Prisma), but legacy carts may carry just the model slug.
+ * We try both shapes; fall back to "standard" if nothing matches.
+ */
+let modelByIdCache: Map<string, CarModel> | null = null;
+function getModelIndex(): Map<string, CarModel> {
+  if (modelByIdCache) return modelByIdCache;
+  const idx = new Map<string, CarModel>();
+  for (const m of mockModels) {
+    idx.set(`${m.brandId}-${m.slug}`, m);
+    // Last-write-wins for plain slugs is fine — this lookup is a fallback
+    // only and the canonical id is `${brandId}-${slug}`.
+    idx.set(m.id, m);
+  }
+  modelByIdCache = idx;
+  return idx;
+}
+
+export function findProfileByModelId(
+  modelId: string | undefined | null,
+): VehicleConfigProfile {
+  if (!modelId) return "standard";
+  const m = getModelIndex().get(modelId);
+  return m ? getVehicleProfile(m) : "standard";
 }

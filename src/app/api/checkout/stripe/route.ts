@@ -109,6 +109,7 @@ export async function POST(request: Request) {
     const matSet = matSetFromEnum[i.product.matSet] ?? "full";
     const unitPriceUsd = calculateItemUnitPrice({
       matSet,
+      modelId: i.product.modelId,
       edgeColor: { id: i.edgeColor.id },
       badge: i.badge ? { id: i.badge.id } : null,
     });

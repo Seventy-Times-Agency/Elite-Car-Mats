@@ -91,10 +91,9 @@ export async function POST(request: Request) {
           m.brandName.toLowerCase() === i.brandName.toLowerCase() &&
           m.name.toLowerCase() === i.modelName.toLowerCase(),
       );
-    const productId = byName
-      ? `${byName.brandId}-${byName.slug}-${i.matSet}`
-      : null;
-    return { item: i, productId };
+    const modelId = byName ? `${byName.brandId}-${byName.slug}` : null;
+    const productId = modelId ? `${modelId}-${i.matSet}` : null;
+    return { item: i, modelId, productId };
   });
 
   const unresolved = itemsResolved.filter((r) => !r.productId);
@@ -149,8 +148,9 @@ export async function POST(request: Request) {
   }
 
   const subtotal = calculateOrderTotal(
-    items.map((i) => ({
+    itemsResolved.map(({ item: i, modelId }) => ({
       matSet: i.matSet,
+      modelId: modelId ?? i.modelId,
       edgeColor: { id: i.edgeColorId },
       badge: i.badgeId ? { id: i.badgeId } : null,
       quantity: i.quantity,
@@ -199,7 +199,7 @@ export async function POST(request: Request) {
             : shipping.comment || null,
           total,
           items: {
-            create: itemsResolved.map(({ item: i, productId }) => ({
+            create: itemsResolved.map(({ item: i, modelId, productId }) => ({
               productId: productId!,
               colorId: i.colorId,
               edgeColorId: i.edgeColorId,
@@ -208,6 +208,7 @@ export async function POST(request: Request) {
               quantity: i.quantity,
               price: calculateItemUnitPrice({
                 matSet: i.matSet,
+                modelId: modelId ?? i.modelId,
                 edgeColor: { id: i.edgeColorId },
                 badge: i.badgeId ? { id: i.badgeId } : null,
               }),
@@ -244,7 +245,7 @@ export async function POST(request: Request) {
   // so customers who abandon Stripe never get falsely confirmed. We do
   // still notify the owner immediately so they see the lead.
   if (!isStripeConfigured()) {
-    const emailItems = await Promise.all(items.map(async (i) => {
+    const emailItems = await Promise.all(itemsResolved.map(async ({ item: i, modelId }) => {
       const names = await resolveNames(i);
       const colorRow = evaColors.find((c) => c.id === i.colorId);
       const edgeRow = edgeColors.find((c) => c.id === i.edgeColorId);
@@ -261,6 +262,7 @@ export async function POST(request: Request) {
         quantity: i.quantity,
         unitPrice: calculateItemUnitPrice({
           matSet: i.matSet,
+          modelId: modelId ?? i.modelId,
           edgeColor: { id: i.edgeColorId },
           badge: i.badgeId ? { id: i.badgeId } : null,
         }),
@@ -288,7 +290,7 @@ export async function POST(request: Request) {
     // Stripe path: notify the owner now (so they see the lead even if the
     // customer abandons the Stripe session). The customer email moves to
     // the webhook.
-    const emailItems = await Promise.all(items.map(async (i) => {
+    const emailItems = await Promise.all(itemsResolved.map(async ({ item: i, modelId }) => {
       const names = await resolveNames(i);
       const colorRow = evaColors.find((c) => c.id === i.colorId);
       const edgeRow = edgeColors.find((c) => c.id === i.edgeColorId);
@@ -305,6 +307,7 @@ export async function POST(request: Request) {
         quantity: i.quantity,
         unitPrice: calculateItemUnitPrice({
           matSet: i.matSet,
+          modelId: modelId ?? i.modelId,
           edgeColor: { id: i.edgeColorId },
           badge: i.badgeId ? { id: i.badgeId } : null,
         }),

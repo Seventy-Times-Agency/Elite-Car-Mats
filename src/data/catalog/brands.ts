@@ -67,6 +67,83 @@ export const brands: Brand[] = [
   { id: "isuzu", name: "Isuzu Commercial", slug: "isuzu", logo: brandLogo("isuzu"), modelsCount: 0 },
 ];
 
+/**
+ * US-market popularity rank — approximate 2024–2025 sales-volume order
+ * (Cox Automotive / GoodCarBadCar). Lower number = more popular.
+ *
+ * Three buckets:
+ *   1–49   : active passenger brands sorted by US sales
+ *   50–69  : commercial Class-8 / vocational truck makers (own bucket so
+ *            mixing them into the consumer list doesn't push Tesla below
+ *            Freightliner just because we ship more semi-mats one quarter)
+ *   90–99  : discontinued US brands — kept for the existing-fleet
+ *            customers who still drive a 2008 Pontiac G6, but always
+ *            sorted to the end of the popularity view.
+ */
+export const BRAND_POPULARITY: Record<string, number> = {
+  toyota: 1,
+  ford: 2,
+  chevrolet: 3,
+  honda: 4,
+  nissan: 5,
+  hyundai: 6,
+  kia: 7,
+  ram: 8,
+  gmc: 9,
+  jeep: 10,
+  subaru: 11,
+  tesla: 12,
+  mazda: 13,
+  bmw: 14,
+  volkswagen: 15,
+  mercedes: 16,
+  lexus: 17,
+  dodge: 18,
+  buick: 19,
+  audi: 20,
+  cadillac: 21,
+  acura: 22,
+  chrysler: 23,
+  lincoln: 24,
+  mitsubishi: 25,
+  volvo: 26,
+  porsche: 27,
+  mini: 28,
+  infiniti: 29,
+  "land-rover": 30,
+  genesis: 31,
+  jaguar: 32,
+  "alfa-romeo": 33,
+  fiat: 34,
+  rivian: 35,
+  polestar: 36,
+  lucid: 37,
+  bentley: 38,
+  maserati: 39,
+  "rolls-royce": 40,
+  "aston-martin": 41,
+  lamborghini: 42,
+  mclaren: 43,
+  // Class-8 / vocational truck bucket
+  freightliner: 50,
+  "volvo-trucks": 51,
+  peterbilt: 52,
+  mack: 53,
+  international: 54,
+  kenworth: 55,
+  "western-star": 56,
+  hino: 57,
+  isuzu: 58,
+  // Discontinued — sorted last
+  hummer: 90,
+  pontiac: 91,
+  saturn: 92,
+  oldsmobile: 93,
+  mercury: 94,
+  saab: 95,
+  scion: 96,
+};
+
 // Metal brand-logo badge is available only for the brands the supplier
 // stocks. Source: DWJ20260328014 invoice (28 Mar 2026).
 const BADGE_BRAND_IDS = new Set([

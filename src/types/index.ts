@@ -1,12 +1,24 @@
+export type VehicleCategory = "car" | "suv" | "truck" | "commercial";
+
 export interface Brand {
   id: string;
   name: string;
   slug: string;
   logo?: string;
   modelsCount: number;
+  /**
+   * US-market popularity rank — lower = more popular. Hydrated from
+   * `BRAND_POPULARITY` in `data/catalog/brands.ts`. Brands without an
+   * explicit rank fall back to 999 so they sort to the end.
+   */
+  popularity?: number;
+  /**
+   * Distinct VehicleCategory values present across this brand's models.
+   * Hydrated in `data/catalog/index.ts`. Used by the catalog body-type
+   * filter to hide brands that don't have any matching models.
+   */
+  categories?: VehicleCategory[];
 }
-
-export type VehicleCategory = "car" | "suv" | "truck" | "commercial";
 
 export interface CarModel {
   id: string;

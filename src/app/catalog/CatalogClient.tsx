@@ -3,22 +3,52 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useMemo, useState } from "react";
-import { Brand } from "@/types";
+import { Brand, VehicleCategory } from "@/types";
 import { useT } from "@/i18n/I18nProvider";
+
+type SortMode = "popular" | "alpha";
+type CategoryFilter = "all" | VehicleCategory;
+
+const CATEGORY_ORDER: VehicleCategory[] = ["car", "suv", "truck", "commercial"];
 
 export function CatalogClient({ brands }: { brands: Brand[] }) {
   const [query, setQuery] = useState("");
+  const [sort, setSort] = useState<SortMode>("popular");
+  const [category, setCategory] = useState<CategoryFilter>("all");
   const t = useT();
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return brands;
-    return brands.filter((b) => b.name.toLowerCase().includes(q));
-  }, [brands, query]);
+    let list = brands;
+    if (category !== "all") {
+      list = list.filter((b) => b.categories?.includes(category));
+    }
+    if (q) {
+      list = list.filter((b) => b.name.toLowerCase().includes(q));
+    }
+    if (sort === "alpha") {
+      return [...list].sort((a, b) => a.name.localeCompare(b.name));
+    }
+    // Popular sort comes from the server, but re-apply after filtering
+    // so a category filter still respects rank order.
+    return [...list].sort((a, b) => {
+      const pa = a.popularity ?? 999;
+      const pb = b.popularity ?? 999;
+      if (pa !== pb) return pa - pb;
+      return a.name.localeCompare(b.name);
+    });
+  }, [brands, query, sort, category]);
+
+  // Hide a category chip if no brand in the current full list covers it.
+  const availableCategories = useMemo(() => {
+    const seen = new Set<VehicleCategory>();
+    for (const b of brands) for (const c of b.categories ?? []) seen.add(c);
+    return CATEGORY_ORDER.filter((c) => seen.has(c));
+  }, [brands]);
 
   return (
     <>
-      <div className="max-w-md mx-auto mb-8">
+      <div className="max-w-md mx-auto mb-6">
         <div className="relative">
           <svg
             className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-text-faint pointer-events-none"
@@ -60,6 +90,48 @@ export function CatalogClient({ brands }: { brands: Brand[] }) {
               </svg>
             </button>
           )}
+        </div>
+      </div>
+
+      {/* Category filter + sort toggle */}
+      <div
+        className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
+        aria-label={t("catalog.filtersAria")}
+      >
+        <div
+          role="group"
+          aria-label={t("catalog.filterAria")}
+          className="flex flex-wrap gap-1.5 justify-center sm:justify-start"
+        >
+          <FilterChip
+            active={category === "all"}
+            onClick={() => setCategory("all")}
+            label={t("catalog.filterAll")}
+          />
+          {availableCategories.map((c) => (
+            <FilterChip
+              key={c}
+              active={category === c}
+              onClick={() => setCategory(c)}
+              label={t(`catalog.filter.${c}`)}
+            />
+          ))}
+        </div>
+        <div
+          role="group"
+          aria-label={t("catalog.sortAria")}
+          className="inline-flex self-center sm:self-auto rounded-lg border border-border/60 p-0.5 text-[11px] font-semibold uppercase tracking-wider"
+        >
+          <SortBtn
+            active={sort === "popular"}
+            onClick={() => setSort("popular")}
+            label={t("catalog.sortPopular")}
+          />
+          <SortBtn
+            active={sort === "alpha"}
+            onClick={() => setSort("alpha")}
+            label={t("catalog.sortAlpha")}
+          />
         </div>
       </div>
 
@@ -142,5 +214,55 @@ export function CatalogClient({ brands }: { brands: Brand[] }) {
         </Link>
       </div>
     </>
+  );
+}
+
+function FilterChip({
+  active,
+  onClick,
+  label,
+}: {
+  active: boolean;
+  onClick: () => void;
+  label: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      className={`px-3 py-1.5 rounded-full text-[11px] font-semibold uppercase tracking-wider transition-all duration-200 ${
+        active
+          ? "bg-gradient-to-r from-gold to-gold-light text-bg shadow-[0_2px_10px_rgba(212,165,74,0.25)]"
+          : "glass-card text-text-dim hover:text-gold hover:border-gold/30"
+      }`}
+    >
+      {label}
+    </button>
+  );
+}
+
+function SortBtn({
+  active,
+  onClick,
+  label,
+}: {
+  active: boolean;
+  onClick: () => void;
+  label: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      className={`px-3 py-1.5 rounded-md transition-colors duration-200 ${
+        active
+          ? "bg-gold/15 text-gold"
+          : "text-text-dim hover:text-gold"
+      }`}
+    >
+      {label}
+    </button>
   );
 }

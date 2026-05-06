@@ -12,13 +12,20 @@
  *   categoryLabels — UI labels for car / suv / truck / commercial buckets
  */
 
-import { brands as brandsList } from "./brands";
+import type { VehicleCategory } from "@/types";
+import { brands as brandsList, BRAND_POPULARITY } from "./brands";
 import { mockModels as modelsList } from "./models";
 
-// Hydrate brand.modelsCount from the model list. Done here (not in
-// brands.ts) to avoid a circular import.
+// Hydrate brand.modelsCount, popularity and the set of distinct
+// VehicleCategory values its models cover. Done here (not in brands.ts)
+// because it depends on the model list and we want a single pass.
 for (const b of brandsList) {
-  b.modelsCount = modelsList.filter((m) => m.brandId === b.id).length;
+  const myModels = modelsList.filter((m) => m.brandId === b.id);
+  b.modelsCount = myModels.length;
+  b.popularity = BRAND_POPULARITY[b.id] ?? 999;
+  const cats = new Set<VehicleCategory>();
+  for (const m of myModels) cats.add(m.category);
+  b.categories = Array.from(cats);
 }
 
 export const brands = brandsList;

@@ -6,10 +6,26 @@ interface Props {
   description?: string;
   image?: string;
   url: string;
+  /**
+   * Optional aggregate rating. **Only pass real numbers from real
+   * verified-purchase reviews** — Google flags fabricated rating data
+   * as a manual penalty risk. Until reviews are seeded the field stays
+   * undefined and we omit it from the JSON-LD entirely.
+   */
+  aggregateRating?: { ratingValue: number; reviewCount: number };
 }
 
-export function ProductJsonLd({ brand, model, price, name, description, image, url }: Props) {
-  const data = {
+export function ProductJsonLd({
+  brand,
+  model,
+  price,
+  name,
+  description,
+  image,
+  url,
+  aggregateRating,
+}: Props) {
+  const data: Record<string, unknown> = {
     "@context": "https://schema.org",
     "@type": "Product",
     name: name ?? `EVA car floor mats for ${brand} ${model}`,
@@ -42,6 +58,16 @@ export function ProductJsonLd({ brand, model, price, name, description, image, u
       },
     },
   };
+
+  if (aggregateRating && aggregateRating.reviewCount > 0) {
+    data.aggregateRating = {
+      "@type": "AggregateRating",
+      ratingValue: aggregateRating.ratingValue.toFixed(1),
+      reviewCount: aggregateRating.reviewCount,
+      bestRating: "5",
+      worstRating: "1",
+    };
+  }
 
   return (
     <script

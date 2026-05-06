@@ -16,6 +16,36 @@ export const en: Dict = {
   "nav.ctaMobile": "Build my mats",
   "nav.skipToContent": "Skip to main content",
 
+  "ann.aria": "Site announcements",
+  "ann.ships": "Ships from Rochester, NY",
+  "ann.freeShipping": "Free US shipping",
+  "ann.returns": "30-day returns",
+
+  "trust.secure": "Secure Stripe checkout",
+  "trust.returns": "30-day returns",
+  "trust.ships": "Ships from Rochester, NY",
+
+  "prod.faq.label": "FAQ",
+  "prod.faq.heading": "Frequently asked",
+  "prod.faq.fit.q": "Will these mats actually fit my {brand} {model}?",
+  "prod.faq.fit.a":
+    "Yes — every set is CNC-cut from a 3D template specific to your model and year. Pick the year on this page, place the order, and the pattern is matched to your exact trim. If something doesn't sit right when you receive it, we'll re-cut it free.",
+  "prod.faq.material.q": "What is the material?",
+  "prod.faq.material.a":
+    "Premium closed-cell EVA foam, ~10 mm thick. Doesn't absorb water, doesn't crack in cold, doesn't fade in sun, doesn't off-gas a chemical smell. The honeycomb pattern traps water, snow, salt and dirt instead of pushing it back onto the carpet underneath.",
+  "prod.faq.lead.q": "How long does it take to make?",
+  "prod.faq.lead.a":
+    "Production takes 2–3 business days. Once cut, the set ships the same or next day from our Rochester, NY workshop.",
+  "prod.faq.shipping.q": "How fast will I get my order?",
+  "prod.faq.shipping.a":
+    "Free USPS Priority shipping to all 50 states — typically 2–4 business days after dispatch. You'll get a tracking number by email the moment the package leaves us.",
+  "prod.faq.wash.q": "How do I clean them?",
+  "prod.faq.wash.a":
+    "Pull them out, hose them down, and let them dry. EVA doesn't soak up water, so there's no waiting for fabric to dry. Mild soap is fine for stubborn dirt — no harsh solvents, no power-washer at point-blank range.",
+  "prod.faq.warranty.q": "What if something is wrong?",
+  "prod.faq.warranty.a":
+    "30-day return policy and a 2-year warranty against manufacturing defects. If a mat doesn't fit or arrives with a flaw, email info@elitecarmats.us and we'll re-cut or refund — your call.",
+
   "cta.orderNow": "Order now",
   "cta.orderElite": "Order Elite",
   "cta.buildMats": "Build my mats",
@@ -93,6 +123,7 @@ export const en: Dict = {
   "footer.allContacts": "All contacts →",
   "footer.rights": "All rights reserved.",
   "footer.madeIn": "Premium EVA · Made in USA",
+  "footer.ccpa": "Do Not Sell or Share My Personal Information",
 
   "cart.meta": "Cart",
   "cart.emptyTitle": "Your cart is empty",
@@ -276,6 +307,16 @@ export const en: Dict = {
   "catalog.noResults": "No results for “{query}”.",
   "catalog.noResultsContact": "Don't see your make? Email",
   "catalog.modelsCount": "{n} models",
+  "catalog.sortPopular": "Popular",
+  "catalog.sortAlpha": "A–Z",
+  "catalog.sortAria": "Sort makes",
+  "catalog.filtersAria": "Catalog filters",
+  "catalog.filterAria": "Filter by vehicle type",
+  "catalog.filterAll": "All",
+  "catalog.filter.car": "Cars",
+  "catalog.filter.suv": "SUVs",
+  "catalog.filter.truck": "Pickups & vans",
+  "catalog.filter.commercial": "Commercial",
   "catalog.customCta": "Don't see your make?",
   "catalog.customCtaSub":
     "We cut mats for any car. Submit a request and we'll pattern them custom for your VIN.",
@@ -782,6 +823,13 @@ export const en: Dict = {
     "We may update this policy. The last update date is shown at the top. For material changes, we'll also email customers with active orders.",
   "privacy.s8H": "8. Contact",
   "privacy.s8P": "Elite Car Mats · Rochester, NY, USA · ",
+  "privacy.ccpaH": "9. California residents (CCPA / CPRA)",
+  "privacy.ccpaP1":
+    "If you live in California, you have the right to know what personal information we collect, to request that we delete it, and to opt out of any \"sale\" or \"sharing\" of your personal information as those terms are defined under the California Consumer Privacy Act and the California Privacy Rights Act. We do not sell or share your personal information for cross-context behavioral advertising and we do not knowingly collect data from minors under 16. The information we hold is limited to what is needed to take, fulfill and ship your order (name, email, phone, shipping address, order history) plus standard server logs.",
+  "privacy.ccpaP2Pre":
+    "To exercise your CCPA rights — including \"Do Not Sell or Share My Personal Information\" — email ",
+  "privacy.ccpaP2Post":
+    " from the address on your order and we will respond within 45 days. We will never charge you, deny service, or change pricing because you exercised these rights.",
 
   // Terms
   "terms.metaTitle": "Terms of Service",

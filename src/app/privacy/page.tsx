@@ -57,6 +57,14 @@ export default function PrivacyPage() {
         {t("privacy.s8P")}
         <a href="mailto:info@elitecarmats.us">info@elitecarmats.us</a>
       </p>
+
+      <h2 id="ccpa">{t("privacy.ccpaH")}</h2>
+      <p>{t("privacy.ccpaP1")}</p>
+      <p>
+        {t("privacy.ccpaP2Pre")}
+        <a href="mailto:info@elitecarmats.us">info@elitecarmats.us</a>
+        {t("privacy.ccpaP2Post")}
+      </p>
     </LegalLayout>
   );
 }

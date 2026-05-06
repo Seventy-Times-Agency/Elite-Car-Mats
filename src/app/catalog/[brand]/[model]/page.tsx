@@ -15,6 +15,7 @@ import {
   type VehicleConfigProfile,
 } from "@/lib/vehicle-profile";
 import { ProductJsonLd, BreadcrumbJsonLd } from "@/components/seo/ProductJsonLd";
+import { ProductFaq } from "@/components/product/ProductFaq";
 import { useT } from "@/i18n/I18nProvider";
 import {
   localizeBody,
@@ -420,6 +421,8 @@ export default function ProductPage() {
           </div>
         </div>
       </div>
+
+      <ProductFaq brand={brand.name} model={model.name} />
 
       {/* Mobile sticky add-to-cart */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-bg/95 backdrop-blur-xl border-t border-border/50 px-4 py-3 pb-[calc(env(safe-area-inset-bottom)+0.75rem)]">

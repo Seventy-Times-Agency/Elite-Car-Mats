@@ -4,8 +4,10 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { useCart } from "@/context/CartContext";
+import { useWishlist } from "@/context/WishlistContext";
 import { useT } from "@/i18n/I18nProvider";
 import { LanguageSwitcher } from "./LanguageSwitcher";
+import { HeaderSearch } from "./HeaderSearch";
 
 export function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -13,6 +15,7 @@ export function Header() {
   const [pastHero, setPastHero] = useState(false);
   const pathname = usePathname();
   const { itemsCount, openCart } = useCart();
+  const { count: wishCount } = useWishlist();
   const t = useT();
 
   useEffect(() => {
@@ -73,7 +76,9 @@ export function Header() {
           ))}
         </nav>
 
-        <div className="flex items-center gap-3 lg:gap-4">
+        <div className="flex items-center gap-2 lg:gap-3">
+          <HeaderSearch />
+
           <LanguageSwitcher />
 
           <a
@@ -96,6 +101,36 @@ export function Header() {
               />
             </svg>
           </a>
+
+          <Link
+            href="/wishlist"
+            className="relative text-text-dim hover:text-gold transition-colors p-1.5"
+            aria-label={
+              wishCount > 0
+                ? t("nav.wishAriaWithCount", { n: wishCount })
+                : t("nav.wishAriaEmpty")
+            }
+          >
+            <svg
+              className="w-[20px] h-[20px]"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={1.7}
+              viewBox="0 0 24 24"
+              aria-hidden
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M21 8.25c0-2.485-2.099-4.5-4.687-4.5-1.935 0-3.597 1.126-4.313 2.733-.715-1.607-2.378-2.733-4.312-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z"
+              />
+            </svg>
+            {wishCount > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 bg-gold text-bg text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                {wishCount}
+              </span>
+            )}
+          </Link>
 
           <button
             type="button"

@@ -12,6 +12,8 @@ export const en: Dict = {
   "nav.closeMenu": "Close menu",
   "nav.cartAriaEmpty": "Cart",
   "nav.cartAriaWithCount": "Cart, {n} items",
+  "nav.wishAriaEmpty": "Wishlist",
+  "nav.wishAriaWithCount": "Wishlist, {n} saved",
   "nav.ctaShort": "Shop",
   "nav.ctaMobile": "Build my mats",
   "nav.skipToContent": "Skip to main content",
@@ -24,6 +26,36 @@ export const en: Dict = {
   "trust.secure": "Secure Stripe checkout",
   "trust.returns": "30-day returns",
   "trust.ships": "Ships from Rochester, NY",
+
+  "wish.label": "Wishlist",
+  "wish.title": "Saved for later",
+  "wish.count": "{n} saved",
+  "wish.clear": "Clear",
+  "wish.emptyTitle": "Nothing saved yet",
+  "wish.emptyBody":
+    "Tap the heart on any model to keep it here while you shop around.",
+  "wish.browse": "Browse catalog",
+  "wish.addAria": "Save to wishlist",
+  "wish.removeAria": "Remove from wishlist",
+  "wish.addTitle": "Save for later",
+  "wish.removeTitle": "Saved — click to remove",
+
+  "search.openAria": "Open search",
+  "search.dialogAria": "Search the catalog",
+  "search.inputAria": "Search makes and models",
+  "search.closeAria": "Close search",
+  "search.placeholder": "Search makes and models…",
+  "search.empty": "Start typing — Toyota, Camry, Tesla Model 3…",
+  "search.noHits":
+    "No catalog match for \"{query}\".",
+  "search.requestCustom": "Request custom for this model",
+  "search.kindBrand": "Make",
+  "search.kindModel": "Model",
+  "search.resultsAria": "Search results",
+  "search.hint": "↑↓ navigate · enter open · esc close",
+
+  "brand.intro":
+    "Custom-cut EVA floor mats for your {brand} — {count} models supported. Every set is CNC-cut from a 3D template specific to your year and trim, then sewn with the colored edge of your choice. Made and shipped from Rochester, NY in 2–3 business days.",
 
   "prod.faq.label": "FAQ",
   "prod.faq.heading": "Frequently asked",

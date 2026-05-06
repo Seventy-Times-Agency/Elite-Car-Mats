@@ -16,6 +16,7 @@ import {
 } from "@/lib/vehicle-profile";
 import { ProductJsonLd, BreadcrumbJsonLd } from "@/components/seo/ProductJsonLd";
 import { ProductFaq } from "@/components/product/ProductFaq";
+import { WishlistButton } from "@/components/product/WishlistButton";
 import { useT } from "@/i18n/I18nProvider";
 import {
   localizeBody,
@@ -202,12 +203,24 @@ export default function ProductPage() {
           </div>
 
           <div>
-            <h1 className="text-xl lg:text-2xl font-bold leading-tight">
-              {brand.name} {model.name}
-            </h1>
-            <p className="text-text-dim text-xs mt-1">
-              {localizeBody(t, model.bodyType)} · {t("prod.subtitleSuffix")}
-            </p>
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0 flex-1">
+                <h1 className="text-xl lg:text-2xl font-bold leading-tight">
+                  {brand.name} {model.name}
+                </h1>
+                <p className="text-text-dim text-xs mt-1">
+                  {localizeBody(t, model.bodyType)} · {t("prod.subtitleSuffix")}
+                </p>
+              </div>
+              <WishlistButton
+                modelId={cartModelId}
+                brandSlug={brand.slug}
+                modelSlug={model.slug}
+                brandName={brand.name}
+                modelName={model.name}
+                bodyType={model.bodyType}
+              />
+            </div>
             <div className="mt-3 flex items-baseline gap-2">
               <span className="text-gold text-2xl font-bold">
                 {formatPrice(unitPrice)}

@@ -12,6 +12,8 @@ export const uk: Dict = {
   "nav.closeMenu": "Закрити меню",
   "nav.cartAriaEmpty": "Кошик",
   "nav.cartAriaWithCount": "Кошик, {n} товар(ів)",
+  "nav.wishAriaEmpty": "Обране",
+  "nav.wishAriaWithCount": "Обране, {n} збережено",
   "nav.ctaShort": "Підібрати",
   "nav.ctaMobile": "Підібрати килимки",
   "nav.skipToContent": "Перейти до вмісту",
@@ -24,6 +26,36 @@ export const uk: Dict = {
   "trust.secure": "Захищена оплата Stripe",
   "trust.returns": "Повернення 30 днів",
   "trust.ships": "Відправка з Рочестера, NY",
+
+  "wish.label": "Обране",
+  "wish.title": "Збережені моделі",
+  "wish.count": "{n} збережено",
+  "wish.clear": "Очистити",
+  "wish.emptyTitle": "Поки нічого не збережено",
+  "wish.emptyBody":
+    "Натисніть ❤ на будь-якій моделі — вона з'явиться тут, поки ви обираєте.",
+  "wish.browse": "Відкрити каталог",
+  "wish.addAria": "Зберегти в обране",
+  "wish.removeAria": "Прибрати з обраного",
+  "wish.addTitle": "Зберегти на потім",
+  "wish.removeTitle": "Збережено — натисніть, щоб прибрати",
+
+  "search.openAria": "Відкрити пошук",
+  "search.dialogAria": "Пошук по каталогу",
+  "search.inputAria": "Пошук марок і моделей",
+  "search.closeAria": "Закрити пошук",
+  "search.placeholder": "Знайти марку або модель…",
+  "search.empty": "Почніть друкувати — Toyota, Camry, Tesla Model 3…",
+  "search.noHits":
+    "У каталозі немає збігів за «{query}».",
+  "search.requestCustom": "Замовити індивідуально під цю модель",
+  "search.kindBrand": "Марка",
+  "search.kindModel": "Модель",
+  "search.resultsAria": "Результати пошуку",
+  "search.hint": "↑↓ навігація · enter відкрити · esc закрити",
+
+  "brand.intro":
+    "EVA-килимки під ваш {brand} — підтримуємо {count} моделей. Кожен комплект ріжеться на ЧПУ за 3D-лекалом під конкретний рік і комплектацію, окантовка будь-якого кольору на вибір. Робимо та відправляємо з Рочестера (NY) за 2–3 робочих дні.",
 
   "prod.faq.label": "Питання",
   "prod.faq.heading": "Часті питання",

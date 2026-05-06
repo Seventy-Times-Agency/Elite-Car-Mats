@@ -7,6 +7,8 @@ import { brands, mockModels } from "@/data/catalog";
 import { VehicleCategory } from "@/types";
 import { useT } from "@/i18n/I18nProvider";
 import { localizeBody } from "@/i18n/labels";
+import { BreadcrumbJsonLd } from "@/components/seo/ProductJsonLd";
+import { TrustBadges } from "@/components/common/TrustBadges";
 
 const CATEGORY_ORDER: VehicleCategory[] = ["car", "suv", "truck", "commercial"];
 
@@ -78,6 +80,12 @@ export default function BrandPage() {
 
   return (
     <div className="py-12 lg:py-16 min-h-screen">
+      <BreadcrumbJsonLd
+        items={[
+          { name: t("brand.breadcrumbCatalog"), url: "/catalog" },
+          { name: brand.name, url: `/catalog/${brand.slug}` },
+        ]}
+      />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <nav className="mb-8 text-xs text-text-dim">
           <Link href="/catalog" className="hover:text-gold transition-colors">
@@ -156,6 +164,22 @@ export default function BrandPage() {
                 </svg>
               </button>
             )}
+          </div>
+        </div>
+
+        {/* Brand value-prop intro — short, evergreen, SEO-friendly. Same
+            three-bullet trust strip we use on checkout, here as a row of
+            quiet benefit chips so the page reads as a landing instead of
+            a barebones model list. */}
+        <div className="mb-7 rounded-xl border border-border/40 bg-surface/30 px-4 py-4 sm:px-5 sm:py-5">
+          <p className="text-sm text-text-dim leading-relaxed">
+            {t("brand.intro", {
+              brand: brand.name,
+              count: allModels.length,
+            })}
+          </p>
+          <div className="mt-4">
+            <TrustBadges compact />
           </div>
         </div>
 

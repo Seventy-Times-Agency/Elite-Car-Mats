@@ -13,6 +13,8 @@ export const ru: Dict = {
   "nav.closeMenu": "Закрыть меню",
   "nav.cartAriaEmpty": "Корзина",
   "nav.cartAriaWithCount": "Корзина, {n} товара",
+  "nav.wishAriaEmpty": "Избранное",
+  "nav.wishAriaWithCount": "Избранное, {n} сохранено",
   "nav.ctaShort": "Подобрать",
   "nav.ctaMobile": "Подобрать коврики",
   "nav.skipToContent": "Перейти к содержимому",
@@ -25,6 +27,36 @@ export const ru: Dict = {
   "trust.secure": "Защищённая оплата Stripe",
   "trust.returns": "Возврат 30 дней",
   "trust.ships": "Отправка из Рочестера, NY",
+
+  "wish.label": "Избранное",
+  "wish.title": "Сохранённые модели",
+  "wish.count": "{n} сохранено",
+  "wish.clear": "Очистить",
+  "wish.emptyTitle": "Пока ничего не сохранено",
+  "wish.emptyBody":
+    "Нажмите ❤ на любой модели — она появится здесь, пока вы выбираете.",
+  "wish.browse": "Открыть каталог",
+  "wish.addAria": "Сохранить в избранное",
+  "wish.removeAria": "Убрать из избранного",
+  "wish.addTitle": "Сохранить на потом",
+  "wish.removeTitle": "Сохранено — нажмите, чтобы убрать",
+
+  "search.openAria": "Открыть поиск",
+  "search.dialogAria": "Поиск по каталогу",
+  "search.inputAria": "Поиск марок и моделей",
+  "search.closeAria": "Закрыть поиск",
+  "search.placeholder": "Найти марку или модель…",
+  "search.empty": "Начните печатать — Toyota, Camry, Tesla Model 3…",
+  "search.noHits":
+    "В каталоге нет совпадений по «{query}».",
+  "search.requestCustom": "Заказать индивидуально под эту модель",
+  "search.kindBrand": "Марка",
+  "search.kindModel": "Модель",
+  "search.resultsAria": "Результаты поиска",
+  "search.hint": "↑↓ навигация · enter открыть · esc закрыть",
+
+  "brand.intro":
+    "EVA-коврики под ваш {brand} — поддерживаем {count} моделей. Каждый комплект режется на ЧПУ по 3D-лекалу под конкретный год и комплектацию, окантовка любого цвета на выбор. Делаем и отправляем из Рочестера (NY) за 2–3 рабочих дня.",
 
   "prod.faq.label": "Вопросы",
   "prod.faq.heading": "Частые вопросы",

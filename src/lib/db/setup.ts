@@ -399,6 +399,39 @@ async function execAll(): Promise<MigrationResult[]> {
     );
 
     // ------------------------------------------------------------------
+    // Blog. Single-table CMS — markdown body, optional cover image,
+    // optional locale (null = visible in every locale).
+    // ------------------------------------------------------------------
+    await run(
+      "table Post",
+      `CREATE TABLE IF NOT EXISTS "Post" (
+         "id" TEXT PRIMARY KEY,
+         "slug" TEXT NOT NULL,
+         "title" TEXT NOT NULL,
+         "excerpt" TEXT NOT NULL,
+         "content" TEXT NOT NULL,
+         "coverImage" TEXT,
+         "published" BOOLEAN NOT NULL DEFAULT FALSE,
+         "publishedAt" TIMESTAMP(3),
+         "locale" TEXT,
+         "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+         "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+       )`,
+    );
+    await run(
+      "Post.slug unique",
+      `CREATE UNIQUE INDEX IF NOT EXISTS "Post_slug_key" ON "Post"("slug")`,
+    );
+    await run(
+      "Post.published index",
+      `CREATE INDEX IF NOT EXISTS "Post_published_publishedAt_idx" ON "Post"("published","publishedAt")`,
+    );
+    await run(
+      "Post.locale index",
+      `CREATE INDEX IF NOT EXISTS "Post_locale_idx" ON "Post"("locale")`,
+    );
+
+    // ------------------------------------------------------------------
     // FK + hot-column indexes. Postgres does NOT auto-index foreign keys,
     // so admin dashboard queries (orderBy createdAt, where status,
     // include items) all do full scans without these.
@@ -473,6 +506,7 @@ async function execAll(): Promise<MigrationResult[]> {
       "Product",
       "Order",
       "CustomOrderRequest",
+      "Post",
     ];
     for (const tbl of updatedAtTables) {
       await run(

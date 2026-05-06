@@ -256,3 +256,27 @@ model NewsletterSubscriber {
   source    String?
   createdAt DateTime @default(now())
 }
+
+// ============================================
+// Blog
+// ============================================
+
+model Post {
+  id          String    @id @default(cuid())
+  slug        String    @unique
+  title       String
+  excerpt     String
+  content     String    // Markdown
+  coverImage  String?   // optional URL
+  published   Boolean   @default(false)
+  publishedAt DateTime?
+  // Locale of the post body. For v1 posts are single-locale; the public
+  // /blog page only shows posts whose locale matches the visitor's
+  // active language (or all languages if locale is null = "neutral").
+  locale      String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([published, publishedAt])
+  @@index([locale])
+}

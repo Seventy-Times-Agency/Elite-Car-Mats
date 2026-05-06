@@ -1,9 +1,12 @@
-import { brands } from "@/data/catalog";
 import { CatalogClient } from "./CatalogClient";
 import { getDictionary } from "@/i18n/getDictionary";
 import { makeT } from "@/i18n/dictionary";
+import { getMergedCatalog } from "@/lib/catalog-merge";
+
+export const dynamic = "force-dynamic";
 
 export default async function CatalogPage() {
+  const { brands } = await getMergedCatalog();
   // Server-side default order is popularity (lower rank = more popular).
   // The client component lets the user flip to alphabetical.
   const ranked = [...brands].sort((a, b) => {

@@ -432,6 +432,76 @@ async function execAll(): Promise<MigrationResult[]> {
     );
 
     // ------------------------------------------------------------------
+    // Per-(profile, matSet) price overrides. Server billing paths
+    // pass these to lib/pricing.ts so customers are billed at the
+    // most recent admin-set price even before the code defaults are
+    // updated by a redeploy.
+    // ------------------------------------------------------------------
+    await run(
+      "table MatSetPriceOverride",
+      `CREATE TABLE IF NOT EXISTS "MatSetPriceOverride" (
+         "id" TEXT PRIMARY KEY,
+         "profile" TEXT NOT NULL,
+         "matSet" TEXT NOT NULL,
+         "price" DECIMAL(10,2) NOT NULL,
+         "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+         "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+       )`,
+    );
+    await run(
+      "MatSetPriceOverride.profile_matSet unique",
+      `CREATE UNIQUE INDEX IF NOT EXISTS "MatSetPriceOverride_profile_matSet_key" ON "MatSetPriceOverride"("profile","matSet")`,
+    );
+
+    // ------------------------------------------------------------------
+    // Custom catalog — admin-added brands and models that aren't in
+    // src/data/catalog/. Public catalog read paths merge these on top
+    // of the code lists. Slug clashes with code-based rows are filtered
+    // out at merge time.
+    // ------------------------------------------------------------------
+    await run(
+      "table CustomBrand",
+      `CREATE TABLE IF NOT EXISTS "CustomBrand" (
+         "id" TEXT PRIMARY KEY,
+         "slug" TEXT NOT NULL,
+         "name" TEXT NOT NULL,
+         "logo" TEXT,
+         "popularity" INTEGER,
+         "categories" TEXT[] NOT NULL DEFAULT '{}',
+         "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+         "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+       )`,
+    );
+    await run(
+      "CustomBrand.slug unique",
+      `CREATE UNIQUE INDEX IF NOT EXISTS "CustomBrand_slug_key" ON "CustomBrand"("slug")`,
+    );
+
+    await run(
+      "table CustomModel",
+      `CREATE TABLE IF NOT EXISTS "CustomModel" (
+         "id" TEXT PRIMARY KEY,
+         "brandId" TEXT NOT NULL,
+         "slug" TEXT NOT NULL,
+         "name" TEXT NOT NULL,
+         "bodyType" TEXT NOT NULL,
+         "category" TEXT NOT NULL,
+         "years" TEXT NOT NULL,
+         "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+         "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+         CONSTRAINT "CustomModel_brandId_fkey" FOREIGN KEY ("brandId") REFERENCES "CustomBrand"("id") ON DELETE CASCADE
+       )`,
+    );
+    await run(
+      "CustomModel.brandId_slug unique",
+      `CREATE UNIQUE INDEX IF NOT EXISTS "CustomModel_brandId_slug_key" ON "CustomModel"("brandId","slug")`,
+    );
+    await run(
+      "CustomModel.brandId index",
+      `CREATE INDEX IF NOT EXISTS "CustomModel_brandId_idx" ON "CustomModel"("brandId")`,
+    );
+
+    // ------------------------------------------------------------------
     // FK + hot-column indexes. Postgres does NOT auto-index foreign keys,
     // so admin dashboard queries (orderBy createdAt, where status,
     // include items) all do full scans without these.
@@ -507,6 +577,9 @@ async function execAll(): Promise<MigrationResult[]> {
       "Order",
       "CustomOrderRequest",
       "Post",
+      "MatSetPriceOverride",
+      "CustomBrand",
+      "CustomModel",
     ];
     for (const tbl of updatedAtTables) {
       await run(

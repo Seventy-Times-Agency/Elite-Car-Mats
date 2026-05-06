@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
-import { brands, mockModels } from "@/data/catalog";
+import { getMergedCatalog } from "@/lib/catalog-merge";
 import { getMatSetPrice } from "@/lib/pricing";
+import { loadPriceOverrides } from "@/lib/pricing-overrides";
 import { getVehicleProfile, getDefaultMatSet } from "@/lib/vehicle-profile";
 import { getDictionary } from "@/i18n/getDictionary";
 import { makeT } from "@/i18n/dictionary";
@@ -11,8 +12,9 @@ interface Params {
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { brand: brandSlug, model: modelSlug } = await params;
+  const { brands, models } = await getMergedCatalog();
   const brand = brands.find((b) => b.slug === brandSlug);
-  const model = mockModels.find(
+  const model = models.find(
     (m) => m.slug === modelSlug && m.brandId === brand?.id,
   );
   const { dict, fallback } = await getDictionary();
@@ -20,7 +22,8 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   if (!brand || !model) return { title: t("prod.metaNotFound") };
 
   const profile = getVehicleProfile(model);
-  const price = getMatSetPrice(profile, getDefaultMatSet(profile));
+  const overrides = await loadPriceOverrides();
+  const price = getMatSetPrice(profile, getDefaultMatSet(profile), overrides);
   const yMin = model.years[0];
   const yMax = model.years[model.years.length - 1];
   const vars = {

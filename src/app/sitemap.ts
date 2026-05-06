@@ -1,11 +1,12 @@
 import { MetadataRoute } from "next";
-import { brands, mockModels } from "@/data/catalog";
 import { listAllPublishedSlugs } from "@/lib/blog";
+import { getMergedCatalog } from "@/lib/catalog-merge";
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://elitecarmats.us";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
+  const { brands, models } = await getMergedCatalog();
 
   const staticPages: MetadataRoute.Sitemap = [
     { url: SITE, lastModified: now, changeFrequency: "weekly", priority: 1.0 },
@@ -28,7 +29,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
-  const modelPages: MetadataRoute.Sitemap = mockModels.map((m) => {
+  const modelPages: MetadataRoute.Sitemap = models.map((m) => {
     const brand = brands.find((b) => b.id === m.brandId);
     return {
       url: `${SITE}/catalog/${brand?.slug ?? m.brandId}/${m.slug}`,

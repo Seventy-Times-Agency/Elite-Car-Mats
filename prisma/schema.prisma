@@ -280,3 +280,77 @@ model Post {
   @@index([published, publishedAt])
   @@index([locale])
 }
+
+// ============================================
+// Price overrides
+// ============================================
+//
+// Admin-editable per-(profile, matSet) price overrides. The code-based
+// price table in src/data/catalog/mat-sets.ts remains the source of truth
+// for the public storefront's *display* (cart drawer, product page etc.
+// run client-side and read prices synchronously). Server-side billing
+// paths — /api/orders, /api/checkout/stripe, the Stripe webhook —
+// load overrides from this table and pass them through to
+// calculateItemUnitPrice so customers are always billed at the latest
+// price. After admin saves a change, the public storefront catches
+// up at the next Vercel redeploy.
+
+model MatSetPriceOverride {
+  id        String   @id @default(cuid())
+  profile   String   // VehicleConfigProfile: standard | pickup | twoSeater | semi | minivan
+  matSet    String   // MatSetType: front | full | cargo | full-cargo
+  price     Decimal  @db.Decimal(10, 2)
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+
+  @@unique([profile, matSet])
+}
+
+// ============================================
+// Custom catalog (admin-managed extras)
+// ============================================
+//
+// The bulk of the catalog (~60 brands, ~700 models) lives in code at
+// src/data/catalog/. These tables let admins add brands or models that
+// aren't in code without a redeploy. Public catalog read paths merge:
+//   code-based brands/models  +  CustomBrand / CustomModel rows
+// Slug uniqueness is enforced inside this DB scope only — pre-existing
+// code-based slugs aren't in this table, so a clash would only surface
+// at merge time (we filter customs whose slug collides with code).
+
+model CustomBrand {
+  id          String        @id @default(cuid())
+  slug        String        @unique
+  name        String
+  logo        String?
+  popularity  Int?
+  // VehicleCategory list (car / suv / truck / commercial). Stored as a
+  // simple string array — no enum, since we already store the same
+  // category string under Model.bodyType for code-based rows.
+  categories  String[]      @default([])
+  models      CustomModel[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([slug])
+}
+
+model CustomModel {
+  id        String       @id @default(cuid())
+  brandId   String
+  brand     CustomBrand  @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  slug      String
+  name      String
+  bodyType  String
+  // VehicleCategory: car | suv | truck | commercial
+  category  String
+  // Comma-separated year list, e.g. "2020,2021,2022,2023". Kept as
+  // a single string (rather than int[]) to match the pattern used by
+  // the existing code-based ModelYear/years[] formats.
+  years     String
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  @@unique([brandId, slug])
+  @@index([brandId])
+}

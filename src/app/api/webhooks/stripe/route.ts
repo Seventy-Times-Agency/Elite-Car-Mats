@@ -6,6 +6,7 @@ import { constructWebhookEvent } from "@/lib/payments/stripe-checkout";
 import { sendCustomerOrderEmail } from "@/lib/email";
 import { signOrderToken } from "@/lib/security/order-token";
 import { calculateItemUnitPrice } from "@/lib/pricing";
+import { loadPriceOverrides } from "@/lib/pricing-overrides";
 import type { MatSetType } from "@/types";
 
 // Webhooks must see the raw body for signature verification. In the App
@@ -75,6 +76,7 @@ async function sendCustomerConfirmation(orderId: string): Promise<void> {
     },
   });
   if (!order) return;
+  const overrides = await loadPriceOverrides();
   await sendCustomerOrderEmail({
     orderNumber: order.orderNumber,
     orderToken: signOrderToken(order.id),
@@ -99,12 +101,15 @@ async function sendCustomerConfirmation(orderId: string): Promise<void> {
         badgeName: i.badge ? `+ ${i.badge.brandName} badge` : null,
         year: i.year ?? null,
         quantity: i.quantity,
-        unitPrice: calculateItemUnitPrice({
-          matSet,
-          modelId: i.product.modelId,
-          edgeColor: { id: i.edgeColor.id },
-          badge: i.badge ? { id: i.badge.id } : null,
-        }),
+        unitPrice: calculateItemUnitPrice(
+          {
+            matSet,
+            modelId: i.product.modelId,
+            edgeColor: { id: i.edgeColor.id },
+            badge: i.badge ? { id: i.badge.id } : null,
+          },
+          overrides,
+        ),
       };
     }),
   });

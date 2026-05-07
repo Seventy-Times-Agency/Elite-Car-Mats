@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { Reveal } from "@/components/common/Reveal";
 import { useT } from "@/i18n/I18nProvider";
 
@@ -36,9 +37,21 @@ function PatternFill({ kind }: { kind: string }) {
   );
 }
 
+interface MaterialCard {
+  label: string;
+  title: string;
+  spec: string;
+  desc: string;
+  facts: string[];
+  pattern: string;
+  /** Optional real photo. When set, replaces the decorative PatternFill. */
+  image?: string;
+  imageAlt?: string;
+}
+
 export function MaterialsSection() {
   const t = useT();
-  const materials = [
+  const materials: MaterialCard[] = [
     {
       label: t("materials.baseLabel"),
       title: t("materials.baseTitle"),
@@ -62,6 +75,8 @@ export function MaterialsSection() {
         t("materials.edgeFact3"),
       ],
       pattern: "stripes",
+      image: "/material-edge.jpg",
+      imageAlt: t("materials.edgeImageAlt"),
     },
     {
       label: t("materials.threadLabel"),
@@ -91,8 +106,21 @@ export function MaterialsSection() {
           {materials.map((m) => (
             <a href="#configurator" key={m.title} className="group glass-card glow-hover rounded-2xl overflow-hidden flex flex-col">
               <div className="relative aspect-[4/3] bg-gradient-to-br from-bg-elevated to-bg border-b border-border/40 overflow-hidden">
-                <PatternFill kind={m.pattern} />
-                <div className="absolute top-4 left-4 text-[10px] uppercase tracking-[0.2em] text-gold font-semibold">
+                {m.image ? (
+                  <Image
+                    src={m.image}
+                    alt={m.imageAlt ?? ""}
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 33vw"
+                    className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+                  />
+                ) : (
+                  <PatternFill kind={m.pattern} />
+                )}
+                {/* Subtle gradient under the label so it stays legible
+                    over a real photo. No-op on the pattern fills. */}
+                <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-black/55 to-transparent pointer-events-none" />
+                <div className="absolute top-4 left-4 text-[10px] uppercase tracking-[0.2em] text-gold font-semibold drop-shadow-[0_2px_6px_rgba(0,0,0,0.8)]">
                   {m.label}
                 </div>
               </div>

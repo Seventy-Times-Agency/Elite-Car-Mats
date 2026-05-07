@@ -448,6 +448,7 @@ export const storefront: Dict = {
   "materials.edgeFact1": "Висота бортика 30 мм",
   "materials.edgeFact2": "4 кольори на вибір",
   "materials.edgeFact3": "Не ламається на морозі",
+  "materials.edgeImageAlt": "Крупний план окантовки EVA-килимка: жовта нашивка ELITECARMATS.US пришита до тканинної крайки на тлі чорної сотової текстури",
   "materials.threadLabel": "Thread & tag",
   "materials.threadTitle": "Нитка і шильдик",
   "materials.threadSpec": "Поліестер 40S/2, металевий логотип",

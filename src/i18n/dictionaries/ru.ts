@@ -1039,6 +1039,9 @@ export const ru: Dict = {
   "admin.pricingMetallicBadge": "Металлический бейдж бренда",
   "admin.pricingEdgeRow": "Окантовка — {id}",
   "admin.pricingNoSurcharge": "Без доплаты",
+  "admin.pricingFeedH": "Google Shopping feed",
+  "admin.pricingFeedP":
+    "Отдайте этот URL в Merchant Center: Products → Feeds → Add data source. Обновляется на edge каждый час.",
 
   "admin.catalogTitle": "Каталог",
   "admin.catalogSubtitle":

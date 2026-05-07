@@ -7,7 +7,9 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: "*",
-        allow: "/",
+        // Allow the catalog + the Google Shopping feed; everything
+        // else under /api stays disallowed.
+        allow: ["/", "/api/feed.xml"],
         disallow: ["/admin", "/api", "/order/", "/cart", "/checkout"],
       },
     ],

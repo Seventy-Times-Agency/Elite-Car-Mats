@@ -105,8 +105,8 @@ export const en: Dict = {
   "hero.titleLine2": "worthy of",
   "hero.titleLine3": "your car",
   "hero.subtitle":
-    "Custom-cut for your exact model. Premium EVA material. Shipping across the USA.",
-  "hero.learnMore": "Learn more",
+    "Cut from a 3D template for your exact make, model and year. Premium closed-cell EVA. Free US shipping, ships in 2–3 days from Rochester, NY.",
+  "hero.learnMore": "How it's made",
   "hero.statModels": "Patterns",
   "hero.statLifespan": "Lifespan",
   "hero.statWarranty": "Warranty",
@@ -117,37 +117,38 @@ export const en: Dict = {
   "cfg.label": "Configurator",
   "cfg.titleA": "Find your",
   "cfg.titleB": "perfect fit",
-  "cfg.subtitle": "Three steps to custom-cut EVA mats for your car",
+  "cfg.subtitle": "Pick your make, model and year — we'll cut a set to fit.",
   "cfg.make": "Make",
   "cfg.makePh": "Select make",
   "cfg.model": "Model",
   "cfg.modelPh": "Select model",
   "cfg.year": "Year",
   "cfg.yearPh": "Select year",
-  "cfg.submit": "Show my mats →",
-  "cfg.submitDisabled": "Select make and model",
+  "cfg.submit": "Build my set →",
+  "cfg.submitDisabled": "Pick a make and model first",
   "cfg.noResults": "No results",
 
   "cookies.aria": "Cookie notice",
-  "cookies.title": "We use cookies",
+  "cookies.title": "Cookies",
   "cookies.body":
-    "We use cookies so your cart remembers your order.",
+    "We use cookies to remember your cart and language between visits.",
   "cookies.learnMore": "Learn more",
   "cookies.accept": "Got it",
   "cookies.dismiss": "Dismiss",
 
-  "news.placeholder": "your email",
-  "news.aria": "Email for subscription",
-  "news.btn": "OK",
-  "news.success": "You're in. We'll email you the moment we launch.",
-  "news.legal": "One email at launch. No spam, ever.",
-  "news.errFail": "Subscription failed",
-  "news.errGeneric": "Error",
+  "news.placeholder": "Your email",
+  "news.aria": "Email address",
+  "news.btn": "Notify me",
+  "news.success": "You're in. We'll email you when we ship the first sets.",
+  "news.legal": "One email at launch. We don't sell or share your address.",
+  "news.errFail": "We couldn't sign you up — try again?",
+  "news.errGeneric": "Something went wrong.",
 
   "floatcta.order": "Order now",
 
-  "footer.tagline": "Premium EVA car mats custom-fit to your vehicle. Made in the USA.",
-  "footer.launchUpdates": "Get launch updates",
+  "footer.tagline":
+    "Premium EVA car mats, CNC-cut for your exact make, model and year. Hand-finished in Rochester, NY.",
+  "footer.launchUpdates": "Launch updates",
   "footer.navTitle": "Navigation",
   "footer.navAbout": "About us",
   "footer.navBlog": "Blog",
@@ -156,10 +157,12 @@ export const en: Dict = {
   "revs.metaDesc": "Verified customer reviews of Elite Car Mats premium EVA floor mats.",
   "revs.label": "Reviews",
   "revs.title": "What customers say",
-  "revs.subtitle": "Verified reviews from real customers who ordered.",
-  "revs.basedOn": "{n} reviews",
+  "revs.subtitle":
+    "Verified reviews from people who actually got mats from us.",
+  "revs.basedOn": "Based on {n} verified reviews",
   "revs.emptyTitle": "No reviews yet",
-  "revs.emptyBody": "We're just launching. Be one of the first customers and share your experience after your mats arrive.",
+  "revs.emptyBody":
+    "We just launched. Be one of our first customers — we'll ask for a review once your set arrives, and you'll get a discount on your next order.",
   "revs.emptyCta": "Browse catalog",
   "footer.infoTitle": "Information",
   "footer.infoShip": "Shipping",
@@ -170,12 +173,12 @@ export const en: Dict = {
   "footer.contactTitle": "Contact",
   "footer.allContacts": "All contacts →",
   "footer.rights": "All rights reserved.",
-  "footer.madeIn": "Premium EVA · Made in USA",
+  "footer.madeIn": "Premium EVA · Made in Rochester, NY",
   "footer.ccpa": "Do Not Sell or Share My Personal Information",
 
   "cart.meta": "Cart",
   "cart.emptyTitle": "Your cart is empty",
-  "cart.emptySubtitle": "Add mats from the catalog",
+  "cart.emptySubtitle": "Pick a car from the catalog and we'll cut a set.",
   "cart.toCatalog": "Catalog",
   "cart.title": "Cart",
   "cart.clear": "Clear",
@@ -187,7 +190,7 @@ export const en: Dict = {
   "cart.drawerDecrease": "Decrease quantity",
   "cart.drawerIncrease": "Increase quantity",
   "cart.drawerContinue": "Continue shopping",
-  "cart.drawerSecure": "Secure checkout · 30-day returns",
+  "cart.drawerSecure": "Secure Stripe checkout · 30-day returns",
 
   "co.meta": "Checkout",
   "co.title": "Checkout",
@@ -203,9 +206,10 @@ export const en: Dict = {
   "co.comments": "Comments",
   "co.yourOrder": "Your order",
   "co.total": "Total",
-  "co.confirmNote": "We'll contact you to confirm",
+  "co.confirmNote":
+    "You'll get an order confirmation by email within minutes.",
   "co.submit": "Place order",
-  "co.submitting": "Placing order...",
+  "co.submitting": "Placing your order…",
   "co.errName": "Please enter your name",
   "co.errPhone": "Invalid phone number",
   "co.errEmail": "Invalid email",
@@ -213,9 +217,9 @@ export const en: Dict = {
   "co.errZip": "Invalid ZIP code",
   "co.errSubmit": "Submission error",
   "co.errOrderFail": "Failed to place order",
-  "co.payStripe": "Pay by card",
-  "co.payRedirecting": "Redirecting to payment...",
-  "co.payErr": "Could not start payment",
+  "co.payStripe": "Pay with card",
+  "co.payRedirecting": "Sending you to checkout…",
+  "co.payErr": "Couldn't start payment",
   "co.subtotal": "Subtotal",
   "co.discount": "Discount",
   "co.promoPh": "Promo code",
@@ -231,10 +235,12 @@ export const en: Dict = {
   "co.promoErr.invalid_json": "Request error",
   "co.promoErr.network": "Network error",
 
-  "pay.successTitle": "Payment successful",
-  "pay.successSub": "Thanks for your order! We've started processing it and will be in touch by email.",
+  "pay.successTitle": "Payment received",
+  "pay.successSub":
+    "Thanks for your order. We're already cutting your set — you'll get tracking by email the moment it ships.",
   "pay.cancelTitle": "Payment cancelled",
-  "pay.cancelSub": "Your order is saved but not paid yet. You can retry payment or get in touch.",
+  "pay.cancelSub":
+    "Your order is saved but not paid yet. You can retry payment below, or email us if you ran into trouble.",
   "pay.tryAgain": "Retry payment",
   "pay.viewOrder": "View order",
 
@@ -258,8 +264,9 @@ export const en: Dict = {
   "track.meta": "Track Order",
   "track.metaDesc": "Check the status of your Elite Car Mats order by number.",
   "track.title": "Track your order",
-  "track.subtitle": "Enter your order number and the email you used at checkout.",
-  "track.submit": "Find order",
+  "track.subtitle":
+    "Enter your order number and the email you used at checkout.",
+  "track.submit": "Find my order",
   "track.errEmpty": "Please enter both your order number and email",
   "track.errNotFound": "We couldn't match order {n} with that email. Double-check both fields.",
   "track.errNotFoundGeneric": "Order not found. Double-check the number and email.",
@@ -269,14 +276,14 @@ export const en: Dict = {
 
   "nf.title": "Page not found",
   "nf.subtitle":
-    "You may have followed an outdated link or entered an incorrect URL. Use the menu or search the catalog.",
+    "Looks like that link is dead. Use the menu above or search the catalog for your car.",
   "nf.home": "Home",
   "nf.catalog": "Catalog",
   "nf.contact": "Contact",
 
   "err.title": "Something went wrong",
   "err.subtitle":
-    "We've been notified. Try refreshing the page or returning to the home page.",
+    "Our side, not yours. We've been notified — give it a moment and try again.",
   "err.tryAgain": "Try again",
   "err.home": "Home",
 
@@ -347,13 +354,13 @@ export const en: Dict = {
   "cat.commercial": "Commercial / Semi Trucks",
 
   "catalog.label": "Catalog",
-  "catalog.heading": "Choose your make",
-  "catalog.stats": "{brands} brands · {models} models",
-  "catalog.searchPh": "Find a make…",
+  "catalog.heading": "Pick your make",
+  "catalog.stats": "{brands} makes · {models} models supported",
+  "catalog.searchPh": "Search makes…",
   "catalog.searchAria": "Search makes",
   "catalog.clearAria": "Clear search",
-  "catalog.noResults": "No results for “{query}”.",
-  "catalog.noResultsContact": "Don't see your make? Email",
+  "catalog.noResults": "Nothing matches “{query}”.",
+  "catalog.noResultsContact": "Drive something we don't list? Email",
   "catalog.modelsCount": "{n} models",
   "catalog.sortPopular": "Popular",
   "catalog.sortAlpha": "A–Z",
@@ -365,25 +372,25 @@ export const en: Dict = {
   "catalog.filter.suv": "SUVs",
   "catalog.filter.truck": "Pickups & vans",
   "catalog.filter.commercial": "Commercial",
-  "catalog.customCta": "Don't see your make?",
+  "catalog.customCta": "Drive something we don't list?",
   "catalog.customCtaSub":
-    "We cut mats for any car. Submit a request and we'll pattern them custom for your VIN.",
+    "We can cut mats for any car. Send your VIN and we'll pattern a custom set for you.",
   "catalog.customCtaBtn": "Request custom →",
 
-  "brand.customCta": "Can't find your {brand}?",
+  "brand.customCta": "Don't see your {brand}?",
   "brand.customCtaSub":
-    "If the model isn't listed, we'll still pattern it. Just send us a request.",
+    "If the model isn't on the list yet, we can still cut a custom set — send us your VIN.",
   "brand.customCtaBtn": "Request custom →",
 
   "cfg.customHint": "Don't see your car?",
-  "cfg.customHintLink": "Request custom",
+  "cfg.customHintLink": "Request a custom set",
 
   "custom.metaTitle": "Custom Order",
   "custom.metaDesc":
     "Request custom-cut EVA floor mats for any make or model we don't list.",
-  "custom.title": "Custom Order",
+  "custom.title": "Custom order",
   "custom.subtitle":
-    "If your make or model isn't in the catalog, we'll still cut them. Fill out the form and our cutter will get back to you within one business day.",
+    "Drive something we don't list yet? Send us the details — our cutter will get back within one business day with a quote.",
   "custom.nameLabel": "Your name",
   "custom.nameRequired": "Please enter your name",
   "custom.emailLabel": "Email",
@@ -402,25 +409,25 @@ export const en: Dict = {
   "custom.setLabel": "Preferred set",
   "custom.notesLabel": "Notes",
   "custom.notesPh":
-    "Interior details, color preferences, extras, photo links of the car — anything that helps us pattern more accurately.",
-  "custom.submit": "Submit request",
+    "Trim level, color preferences, photo links of your car — anything that helps us cut a better pattern.",
+  "custom.submit": "Send request",
   "custom.submitting": "Sending…",
-  "custom.success": "Request received!",
+  "custom.success": "Got it!",
   "custom.successSub":
-    "We've got your request. Our cutter will reach out within one business day.",
+    "Request received. Our cutter will reach out within one business day with a quote.",
   "custom.successBack": "Back to catalog",
-  "custom.errGeneric": "Couldn't send. Please try again.",
-  "custom.ctaFromSearch": "Don't see your car? Request a custom order →",
+  "custom.errGeneric": "Couldn't send — give it another try?",
+  "custom.ctaFromSearch": "Don't see your car? Request a custom set →",
 
   "brand.breadcrumbCatalog": "Catalog",
   "brand.titlePrefix": "Floor mats for",
-  "brand.subtitle": "Choose your model",
+  "brand.subtitle": "Pick your model",
   "brand.allFilter": "All",
-  "brand.notFound": "Not found",
-  "brand.emptyCategory": "No models in this category yet.",
+  "brand.notFound": "We don't list that brand.",
+  "brand.emptyCategory": "Nothing in this category yet.",
 
   "prod.breadcrumbCatalog": "Catalog",
-  "prod.notFound": "Not found",
+  "prod.notFound": "We don't list that model yet.",
   "prod.previewLabel": "Preview",
   "prod.matLabel": "Mat",
   "prod.edgeLabel": "Edge",
@@ -1018,6 +1025,9 @@ export const en: Dict = {
   "admin.pricingMetallicBadge": "Metallic brand badge",
   "admin.pricingEdgeRow": "Edge surcharge — {id}",
   "admin.pricingNoSurcharge": "No surcharge",
+  "admin.pricingFeedH": "Google Shopping feed",
+  "admin.pricingFeedP":
+    "Submit this URL to Merchant Center under Products → Feeds → Add data source. Refreshes hourly at the edge.",
 
   "admin.catalogTitle": "Catalog",
   "admin.catalogSubtitle":
@@ -1187,20 +1197,20 @@ export const en: Dict = {
   "brand.metaTitle": "{brand} Floor Mats",
   "brand.metaDesc":
     "Premium EVA floor mats for {brand}: custom-cut for every model and year. Free U.S. shipping on orders over $99.",
-  "brand.ogTitle": "{brand} Floor Mats — Elite Car Mats",
+  "brand.ogTitle": "{brand} floor mats · Elite Car Mats",
   "brand.ogDesc":
-    "EVA mats for {brand}. {count} models. Precision fit by year.",
+    "Premium EVA floor mats for {brand} — {count} models, cut to your exact year. Made in Rochester, NY.",
 
   "prod.metaNotFound": "Model not found",
-  "prod.metaTitle": "EVA Floor Mats for {brand} {model}",
+  "prod.metaTitle": "{brand} {model} EVA floor mats",
   "prod.metaDesc":
-    "Premium EVA floor mats for {brand} {model} {yMin}–{yMax}. Custom-cut, 4 edge colors. From ${price}. U.S. shipping.",
-  "prod.ogTitle": "{brand} {model} — EVA Floor Mats",
+    "Custom-cut EVA floor mats for the {brand} {model} ({yMin}–{yMax}). From ${price}. CNC-cut from a 3D template, free US shipping, 30-day returns.",
+  "prod.ogTitle": "{brand} {model} — premium EVA floor mats",
   "prod.ogDesc":
-    "Precision fit for your {brand} {model}. From ${price}.",
-  "prod.jsonLdName": "EVA Floor Mats for {brand} {model}",
+    "Cut for your exact {brand} {model}. From ${price}. Made in Rochester, NY.",
+  "prod.jsonLdName": "EVA floor mats for {brand} {model}",
   "prod.jsonLdDesc":
-    "Premium EVA floor mats custom-cut for the {brand} {model}. CNC cut from a 3D pattern, 4 edge colors available.",
+    "Premium closed-cell EVA floor mats custom-cut for the {brand} {model}. CNC-cut to a 3D template, choice of edge color, made in Rochester, NY.",
 
   // Email templates
   "email.ecm": "ELITE CAR MATS",
@@ -1212,9 +1222,9 @@ export const en: Dict = {
   "email.matSetFullCargo": "Complete Set",
   "email.badgeSuffix": "{brand} badge",
   "email.custSubject": "Order {orderNumber} received — Elite Car Mats",
-  "email.custH1": "Thank you for your order, {name}!",
+  "email.custH1": "Thanks for your order, {name}!",
   "email.custP":
-    "Your order has been received. We'll reach out shortly to confirm the details.",
+    "We've got your order. Production starts today — you'll get a tracking number by email the moment it ships from our Rochester workshop.",
   "email.orderNumberLabel": "Order number",
   "email.totalLabel": "Total",
   "email.custTrackBtn": "Track order",

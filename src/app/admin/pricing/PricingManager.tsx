@@ -99,6 +99,20 @@ export function PricingManager({
         <strong className="font-semibold">{t("admin.pricingNoticeH")}:</strong>{" "}
         {t("admin.pricingNoticeP")}
       </div>
+      <div className="rounded-xl border border-border/50 bg-surface/30 px-4 py-3 text-[11px] text-text-dim leading-relaxed flex flex-wrap items-center gap-x-3 gap-y-1">
+        <span className="font-semibold uppercase tracking-wider text-text">
+          {t("admin.pricingFeedH")}
+        </span>
+        <span>{t("admin.pricingFeedP")}</span>
+        <a
+          href="/api/feed.xml"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-gold hover:text-gold-light underline underline-offset-2 font-mono"
+        >
+          /api/feed.xml
+        </a>
+      </div>
 
       {profiles.map((p) => (
         <section key={p.profile}>

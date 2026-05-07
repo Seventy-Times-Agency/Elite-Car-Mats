@@ -74,7 +74,13 @@ export default function ProductClient({
     [profileMatSets],
   );
 
-  const [set, setSet] = useState<MatSetType>(() => getDefaultMatSet(profile));
+  const [set, setSet] = useState<MatSetType>(() => {
+    // Honour ?set=full from Google Shopping deep-links; if it isn't a
+    // valid type for this vehicle's profile, fall back to the default.
+    const fromUrl = searchParams?.get("set") as MatSetType | null;
+    if (fromUrl && availableSetTypes.includes(fromUrl)) return fromUrl;
+    return getDefaultMatSet(profile);
+  });
   const [color, setColor] = useState(evaColors[0]);
   const [edge, setEdge] = useState(edgeColors[0]);
   const [year, setYear] = useState(() => {

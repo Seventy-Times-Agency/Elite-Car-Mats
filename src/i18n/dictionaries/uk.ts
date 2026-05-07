@@ -1014,6 +1014,9 @@ export const uk: Dict = {
   "admin.pricingMetallicBadge": "Металевий бейдж бренду",
   "admin.pricingEdgeRow": "Окантовка — {id}",
   "admin.pricingNoSurcharge": "Без доплати",
+  "admin.pricingFeedH": "Google Shopping feed",
+  "admin.pricingFeedP":
+    "Віддайте цей URL у Merchant Center: Products → Feeds → Add data source. Оновлюється на edge щогодини.",
 
   "admin.catalogTitle": "Каталог",
   "admin.catalogSubtitle":

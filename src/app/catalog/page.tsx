@@ -1,10 +1,20 @@
-import { brands } from "@/data/catalog";
 import { CatalogClient } from "./CatalogClient";
 import { getDictionary } from "@/i18n/getDictionary";
 import { makeT } from "@/i18n/dictionary";
+import { getMergedCatalog } from "@/lib/catalog-merge";
+
+export const dynamic = "force-dynamic";
 
 export default async function CatalogPage() {
-  const sorted = [...brands].sort((a, b) => a.name.localeCompare(b.name));
+  const { brands } = await getMergedCatalog();
+  // Server-side default order is popularity (lower rank = more popular).
+  // The client component lets the user flip to alphabetical.
+  const ranked = [...brands].sort((a, b) => {
+    const pa = a.popularity ?? 999;
+    const pb = b.popularity ?? 999;
+    if (pa !== pb) return pa - pb;
+    return a.name.localeCompare(b.name);
+  });
   const { dict, fallback } = await getDictionary();
   const t = makeT(dict, fallback);
   const totalModels = brands.reduce((acc, b) => acc + b.modelsCount, 0);
@@ -22,7 +32,7 @@ export default async function CatalogPage() {
           </h1>
           <p className="mt-3 text-text-dim text-sm">{statsStr}</p>
         </div>
-        <CatalogClient brands={sorted} />
+        <CatalogClient brands={ranked} />
       </div>
     </div>
   );

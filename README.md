@@ -1,203 +1,254 @@
-# EliteCarMats
+# Elite Car Mats
 
-Premium EVA car-mat e-commerce storefront for the U.S. market.
-Production: **https://elitecarmats.us** (Vercel, autodeploys from `main`).
+Premium EVA car-mat e-commerce site for the U.S. market.
+Production: **[elitecarmats.us](https://elitecarmats.us)** (Vercel,
+auto-deploy from `main`).
 
 ## Stack
 
-| Layer       | Choice                                           |
-|-------------|--------------------------------------------------|
-| Framework   | Next.js 16 (App Router, Turbopack) + React 19    |
-| Language    | TypeScript                                       |
-| Styling     | Tailwind v4 (`@theme inline` in `globals.css`)   |
-| Animations  | Framer Motion (light, only Hero + mobile menu)   |
-| Database    | Postgres on Neon (`@neondatabase/serverless`)    |
-| ORM         | Prisma 7 (`@prisma/adapter-neon`)                |
-| Payments    | Stripe Checkout (optional — falls back to manual)|
-| Email       | Resend                                           |
-| Rate limit  | Upstash Redis (in-memory fallback for dev)       |
-| Hosting     | Vercel                                           |
+- **Next.js 16** (App Router, Turbopack) + **React 19** + TypeScript
+- **Tailwind v4**, dark luxury theme (black `#0F0F0F` + gold `#D4A54A`)
+- **Postgres on Neon** via `@prisma/adapter-neon` + **Prisma 7**
+- **Stripe Checkout** (optional flag — falls back to manual confirm)
+- **Resend** for transactional email
+- **Upstash Redis** for cross-instance rate-limiting
+- Local Inter font (Google Fonts intentionally avoided — flaky on
+  Vercel)
 
-## Local development
+## Quick start
 
 ```bash
-cp .env.example .env       # fill in DATABASE_URL + ADMIN_PASSWORD at minimum
-npm install
-npm run dev                # http://localhost:3000
+npm install            # also runs `prisma generate` post-install
+cp .env.example .env   # fill in DATABASE_URL, ADMIN_PASSWORD, etc.
+npm run dev            # http://localhost:3000
 ```
 
-Useful scripts:
+The catalog seeds itself on the first public POST or
+`POST /api/admin/seed`. The DB schema bootstraps on the first
+admin login (`ensureSchema()` runs under an advisory lock so
+parallel cold starts don't race `CREATE TYPE`).
 
-| Command                  | What it does                                          |
-|--------------------------|-------------------------------------------------------|
-| `npm run dev`            | Next dev server with Turbopack                        |
-| `npm run build`          | `prisma generate && next build`                       |
-| `npm run lint`           | ESLint                                                |
-| `npm run prisma:migrate` | Run Prisma dev migrations                             |
-| `npm run prisma:deploy`  | Apply Prisma migrations (production)                  |
-| `npm run prisma:studio`  | GUI over the live DB                                  |
-| `npm run db:seed`        | Seed catalog from `src/data/catalog/*` via `prisma/seed.ts` |
-
-The runtime also self-heals: the first authenticated admin login (or first
-public POST) calls `ensureSchema()` (`src/lib/db/setup.ts`) which runs
-idempotent `CREATE TABLE/INDEX/TRIGGER IF NOT EXISTS` statements under a
-Postgres advisory lock. The catalog seed in `src/lib/db/seed.ts` runs on
-the first order if the catalog tables are empty.
-
-## Repo layout
+## Project layout
 
 ```
 src/
-├── app/                       Next.js App Router
-│   ├── (root pages)           /, /catalog, /about, /contacts, etc.
-│   ├── admin/                 password-gated dashboard
-│   │   ├── orders, promos, reviews, custom-orders, newsletter
-│   │   └── login / logout
-│   ├── api/
-│   │   ├── orders/            POST /create, GET/PATCH /[id]
-│   │   ├── checkout/stripe/   create Stripe Checkout session
-│   │   ├── webhooks/stripe/   idempotent Stripe webhook handler
-│   │   ├── promo/validate/    public promo-code validator
-│   │   ├── contact/           contact-form mailer
-│   │   ├── custom-order/      custom-order request
-│   │   ├── newsletter/        public subscribe
-│   │   └── admin/             gated migrate / seed / promos / reviews / …
-│   ├── checkout/              checkout + success / cancel pages
-│   ├── order/[id]/            customer order view (HMAC-token gated)
-│   ├── track/                 order-number + email lookup form
-│   └── catalog/[brand]/[model] product configurator
-├── components/                React components, grouped by area
-│   ├── layout/                Header, Footer, FloatingCTA
-│   ├── home/                  Hero, CarSelector, Features, FAQ, Reviews
-│   ├── product/               MatPreview, MatColorSwatch
-│   ├── cart/                  CartDrawer
-│   ├── admin/                 dashboard widgets
-│   ├── seo/                   ProductJsonLd, BreadcrumbJsonLd
-│   ├── legal/                 boilerplate page wrappers
-│   └── common/                Reveal etc.
-├── context/CartContext.tsx    localStorage-backed cart
+├── app/                          pages + API routes (App Router)
+│   ├── admin/                    operator dashboard
+│   ├── api/                      JSON + xml endpoints
+│   ├── blog/                     public /blog list + /blog/[slug]
+│   ├── catalog/                  brand grid → brand page → product page
+│   ├── checkout/  cart/  order/  track/  wishlist/
+│   ├── about/  contacts/  delivery/  warranty/  refund/
+│   │   privacy/  terms/
+│   └── sitemap.ts robots.ts
+├── components/                   layout / product / cart / common /
+│                                 seo / admin / home / legal
+├── context/                      CartContext + WishlistContext
+│                                 (localStorage)
 ├── data/
-│   ├── catalog/               source-of-truth catalog (split below)
-│   │   ├── brands.ts          ~50 brand records + badges allowlist
-│   │   ├── models.ts          ~700+ CarModel rows w/ year ranges
-│   │   ├── colors.ts          evaColors + edgeColors
-│   │   ├── mat-sets.ts        4 set types + categoryLabels
-│   │   └── index.ts           re-export aggregator
-│   ├── reviews.ts             customer reviews seed (currently empty)
-│   └── mock.ts                deprecated re-export shim — see catalog/
-├── i18n/                      en / ru / uk dictionaries + helpers
-├── lib/
-│   ├── pricing.ts             unit-price math (placeholder $100 for now)
-│   ├── promo.ts               validate + atomic consume (race-safe)
-│   ├── vehicle-profile.ts     2-seater / pickup / standard set rules
-│   ├── validations/           zod schemas (orders, …)
-│   ├── security/
-│   │   ├── auth.ts            HMAC session cookie + scrypt password
-│   │   ├── order-token.ts     HMAC tokens for /order/<n>?t=
-│   │   └── rate-limit.ts      Upstash Redis adapter + in-memory fallback
-│   ├── payments/
-│   │   ├── stripe.ts          lazy-loaded Stripe SDK
-│   │   └── stripe-checkout.ts session create + webhook verify
-│   ├── db/
-│   │   ├── prisma.ts          PrismaClient singleton on globalThis
-│   │   ├── setup.ts           runtime DDL (idempotent, advisory-locked)
-│   │   └── seed.ts            catalog bootstrap from data/catalog
-│   └── email/
-│       ├── transport.ts       Resend wrapper + orderUrl helper
-│       ├── templates/         per-message HTML builders
-│       │   ├── base.ts        shared baseTemplate, swatch, itemsTable
-│       │   ├── order-customer.ts
-│       │   ├── order-owner.ts
-│       │   ├── shipped.ts
-│       │   └── contact.ts
-│       └── index.ts           re-export sendXEmail()
-├── types/                     shared types
-└── generated/prisma/          generated client (gitignored in CI)
-
-prisma/
-├── schema.prisma              source of truth for the schema
-└── seed.ts                    one-shot upsert of catalog + reviews
+│   └── catalog/                  source-of-truth catalog
+│                                 (~60 brands, ~700 models)
+├── i18n/
+│   ├── config.ts dictionary.ts getDictionary.ts
+│   │   I18nProvider.tsx labels.ts
+│   └── dictionaries/
+│       ├── en.ts ru.ts uk.ts        thin aggregators
+│       └── {en,ru,uk}/
+│           ├── storefront.ts        public-facing keys (~770 each)
+│           └── operations.ts        admin + email keys (~245 each)
+└── lib/
+    ├── pricing.ts pricing-overrides.ts  billing maths + overrides
+    ├── catalog-merge.ts                 code catalog ⊎ DB customs
+    ├── markdown.ts blog.ts              markdown engine + queries
+    ├── promo.ts vehicle-profile.ts
+    ├── validations/                     zod schemas
+    ├── security/                        auth + order-token + rate-limit
+    ├── payments/                        Stripe SDK + checkout helper
+    ├── db/                              prisma + DDL bootstrap + seed
+    └── email/                           Resend transport + templates
 ```
 
-## Environment variables
+## Features
 
-Required to boot:
+### Customer-facing
 
-| Var                  | Purpose                                                  |
-|----------------------|----------------------------------------------------------|
-| `DATABASE_URL`       | Neon Postgres pooled connection string                   |
-| `ADMIN_PASSWORD`     | Min 12 chars; common passwords (`admin`, `password`, …) refused |
-| `SESSION_SECRET`     | 32-byte hex, signs admin session cookie                  |
-| `ORDER_TOKEN_SECRET` | 32-byte hex, signs `/order/<n>?t=` tokens                |
-| `NEXT_PUBLIC_SITE_URL` | `https://elitecarmats.us`                              |
+- **Catalog** with US-popularity sort (default) and body-type filter
+  chips: Cars / SUVs / Pickups & vans / Commercial.
+- **Header search** dialog with autocomplete across every brand and
+  model — keyboard-first, **⌘K / Ctrl-K** shortcut.
+- **Product configurator** — year, set type (profile-aware: sedan,
+  pickup, two-seater, semi, minivan), mat colour, edge colour,
+  optional metal brand badge.
+- **Wishlist** at `/wishlist` (localStorage, capped at 100 saves).
+- **Cart drawer** with promo code + Stripe Checkout / manual confirm.
+- **Order tracking** at `/track` (HMAC-token URLs that survive email
+  forwarding) + per-IP rate limit.
+- **Custom-order form** for vehicles not in the catalog.
+- **Blog** at `/blog` with markdown body + Schema.org Article.
+- **3 locales** — English (default), Russian, Ukrainian.
+- **A11y** — WCAG-compliant form labels, `aria-pressed` toggles,
+  skip-to-content link, `prefers-reduced-motion` respected.
+
+### Operator panel (`/admin`)
+
+| Page                | What                                          |
+|---------------------|-----------------------------------------------|
+| `/admin`            | Daily / weekly / monthly revenue, AOV (30 d), top-5 models, recent orders |
+| `/admin/orders`     | Status timeline, tracking number, owner email re-send |
+| `/admin/pricing`    | Live editor for per-(profile, matSet) price overrides + Google Shopping feed URL |
+| `/admin/catalog`    | Additive CRUD for brands & models not in code |
+| `/admin/blog`       | Markdown post editor with publish toggle and locale filter |
+| `/admin/promos`     | Discount codes (atomic redemption)            |
+| `/admin/reviews`    | Moderate customer reviews                     |
+| `/admin/custom-orders` | Leads from the public custom-order form    |
+| `/admin/newsletter` | Subscribers + CSV export                      |
+
+### SEO & marketing
+
+- Sitemap covers static + brand + model + custom + blog URLs.
+- **Schema.org** — Product (with optional AggregateRating), Offer
+  (shipping + return policy), Organization, BreadcrumbList,
+  FAQPage, Article.
+- **OpenGraph** images per page.
+- **Google Merchant Center feed** at `/api/feed.xml` — RSS 2.0 with
+  the `g:` namespace, one item per (brand × model × matSet),
+  picks up admin price overrides automatically.
+
+### Security
+
+- HMAC-signed admin sessions; optional scrypt password hashing.
+- CSRF token check on every admin state-changing endpoint.
+- Per-IP rate-limit on order, contact and promo endpoints
+  (Upstash Redis when configured, in-memory fallback for dev).
+- Stripe webhook idempotency ledger (`WebhookEvent` table).
+- HSTS / X-Frame-Options DENY / `frame-ancestors` /
+  Referrer-Policy / Permissions-Policy / X-Content-Type-Options
+  headers.
+- IP picker prefers `x-vercel-forwarded-for` (signed by the
+  platform) over client-controlled headers.
+- Markdown renderer HTML-escapes input first, then interprets
+  blocks — pasted `<script>` is rendered as text.
+- CCPA / CPRA section + footer "Do Not Sell or Share My Personal
+  Information" link.
+
+## Environment
+
+Required:
+
+| Var                          | Purpose                              |
+|------------------------------|--------------------------------------|
+| `DATABASE_URL`               | Neon Postgres pooler URL             |
+| `ADMIN_PASSWORD`             | ≥12 chars, blocked-list rejected     |
+| `SESSION_SECRET`             | 32 random hex bytes                  |
+| `ORDER_TOKEN_SECRET`         | 32 random hex bytes                  |
+| `NEXT_PUBLIC_SITE_URL`       | `https://elitecarmats.us`            |
 
 Strongly recommended:
 
-| Var                       | Purpose                                          |
-|---------------------------|--------------------------------------------------|
-| `UPSTASH_REDIS_REST_URL`  | shared rate-limit counter across lambdas         |
-| `UPSTASH_REDIS_REST_TOKEN`| ↑                                                |
-| `RESEND_API_KEY`          | transactional email                              |
-| `EMAIL_FROM`              | `EliteCarMats <orders@elitecarmats.us>`          |
-| `OWNER_EMAIL`             | inbox for new-order alerts                       |
+| Var                                  | Purpose                          |
+|--------------------------------------|----------------------------------|
+| `UPSTASH_REDIS_REST_URL` / `_TOKEN`  | Cross-instance rate-limit        |
+| `RESEND_API_KEY`                     | Transactional email              |
+| `EMAIL_FROM`, `OWNER_EMAIL`          | Sender + leads inbox             |
 
 Optional:
 
-| Var                                  | Purpose                              |
-|--------------------------------------|--------------------------------------|
-| `ADMIN_PASSWORD_HASH`                | scrypt hash, supersedes plain passwd |
-| `ADMIN_API_TOKEN`                    | bearer for `x-admin-token`           |
-| `STRIPE_SECRET_KEY`                  | enables Stripe Checkout flow         |
-| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | client-side Stripe.js                |
-| `STRIPE_WEBHOOK_SECRET`              | signs incoming `/api/webhooks/stripe`|
+| Var                                    | Purpose                          |
+|----------------------------------------|----------------------------------|
+| `STRIPE_SECRET_KEY`                    | Live Stripe Checkout             |
+| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`   | Stripe.js                        |
+| `STRIPE_WEBHOOK_SECRET`                | Webhook signature                |
+| `ADMIN_PASSWORD_HASH`                  | scrypt hash; supersedes plain    |
+| `ADMIN_API_TOKEN`                      | `x-admin-token` curl access      |
 
-See `.env.example` for the canonical template + generation snippets.
+See `.env.example` for the canonical list with notes.
 
-## Order flow
+## Pricing model
 
-1. **Cart**: `CartContext` keeps items in `localStorage` (schema-validated,
-   year-aware dedup).
-2. **POST `/api/orders`**: opens a `$transaction`, atomically consumes promo
-   via `tryConsumePromoUse`, creates the row, returns `{id, orderNumber,
-   orderToken}`. Owner email fires immediately (so leads aren't lost on
-   abandoned Stripe checkouts).
-3. **Stripe path** (when configured): client POSTs `/api/checkout/stripe`
-   with `{orderId, orderToken, locale}`. The route re-derives line-item
-   prices from `lib/pricing.ts` (DB row is advisory only) and translates
-   the promo discount into a one-shot Stripe coupon so what Stripe shows
-   matches the DB total.
-4. **Webhook** `/api/webhooks/stripe` claims the event id in the
-   `WebhookEvent` ledger (idempotent), flips `Order.status` PENDING →
-   CONFIRMED via a guarded `updateMany`, then sends the customer's
-   confirmation email.
-5. **No-Stripe path**: customer email + redirect to
-   `/order/<orderNumber>?t=<orderToken>`.
+`src/lib/pricing.ts` is the single source of truth for prices. The
+default price table lives in `src/data/catalog/mat-sets.ts`, keyed
+by vehicle profile:
 
-## Security highlights
+- **Sedan / SUV (default):** front+rear $119, cargo $79, full $198
+- **Minivan (3 rows):** front+middle $119, all 3 rows $198,
+  cargo $79, full $277
+- **Pickup:** cabin $119
+- **Two-seater (roadster, supercar):** first row $119, cargo $79,
+  both $198 — flagged for supplier review
+- **Semi-truck:** cabin $119
+- **Metallic brand badge:** +$9 (only where the supplier stocks it)
 
-- Admin sessions are HMAC-signed tokens (24h, sliding); cookie value is
-  never the password.
-- `/api/orders/[id]` GET requires the per-order HMAC token or admin auth
-  — guards against IDOR even though order numbers contain a timestamp.
-- `/track` requires order number + matching customer email before issuing
-  a token, with a 5-min IP-based rate-limit.
-- `checkAdminCsrf` on every state-changing admin endpoint, on top of
-  `sameSite: "strict"` cookies.
-- `next.config.ts` ships HSTS, `X-Frame-Options DENY`, `frame-ancestors`,
-  `Referrer-Policy`, `Permissions-Policy`, `X-Content-Type-Options`.
-- `/api/promo/validate` collapses every failure mode to a generic
-  `invalid` so the endpoint can't be used to enumerate live codes.
+Every server billing path
+(`/api/orders`, `/api/checkout/stripe`, `/api/webhooks/stripe`)
+loads `loadPriceOverrides()` from the `MatSetPriceOverride` table
+and passes it through `calculateItemUnitPrice(...)`. Admin can
+change prices live at `/admin/pricing`; the customer is billed at
+the new price on the very next request.
+
+The cart drawer and product page run client-side and keep showing
+the code default until the next Vercel deploy. The admin editor's
+banner spells this out so the operator isn't surprised.
+
+## Catalog model
+
+The bulk of the catalog (~60 brands, ~700 models) lives in code at
+`src/data/catalog/`. `lib/catalog-merge.ts#getMergedCatalog()`
+merges that with admin-managed `CustomBrand` / `CustomModel` rows,
+filtering custom slugs that clash with code slugs (code wins). The
+public catalog (`/catalog`, `/catalog/<brand>`,
+`/catalog/<brand>/<model>`) reads through this merge — server
+components fetch the merged catalog and pass `brand` + `models` as
+props to client children — so admin additions show up immediately
+without a redeploy.
+
+## i18n
+
+Three locales: `en` (default), `ru`, `uk`. Locale is a cookie
+(`ecm_locale`), not a path prefix — every URL serves every
+language. Each locale's keys are split between two files:
+
+- `dictionaries/<locale>/storefront.ts` — public-facing UI strings
+- `dictionaries/<locale>/operations.ts` — admin panel + email
+  templates
+
+The aggregator (`dictionaries/<locale>.ts`) merges them with
+`{ ...storefront, ...operations }`. Add new keys to whichever
+sibling matches their audience and to all three locales in the
+same commit.
 
 ## Deployment
 
-`main` branch = production. Pushes trigger Vercel build. After any change
-to `prisma/schema.prisma` make sure `ensureSchema()` covers the new
-columns (it usually does — check `src/lib/db/setup.ts`), or run
-`npm run prisma:deploy` against the live DB.
+- Vercel Pro, auto-deploy on push to `main`.
+- Postgres on Neon, pooler URL in `DATABASE_URL`.
+- DNS at GoDaddy → nameservers pointed at Vercel.
 
-For first-deploy bootstrap call `POST /api/admin/seed` (admin cookie
-required) to populate the catalog.
+First-time setup of a fresh project:
+
+1. Set the env vars above on Vercel.
+2. First admin login (`/admin/login`) triggers `ensureSchema()`
+   and creates every table under the advisory lock.
+3. `POST /api/admin/seed` (or the first public order) mirrors the
+   code catalog into Postgres.
+4. Verify the domain on Resend so customer emails ship from
+   `orders@elitecarmats.us`.
+5. Submit `https://elitecarmats.us/api/feed.xml` to **Google
+   Merchant Center → Products → Feeds → Add data source**. Daily
+   fetch is fine; the feed itself caches at the edge for an hour.
+
+## Scripts
+
+```bash
+npm run dev            # next dev (Turbopack)
+npm run build          # prisma generate + next build
+npm run start          # production
+npm run lint           # eslint
+npm run prisma:generate
+npm run prisma:migrate
+npm run prisma:deploy
+npm run prisma:studio
+npm run db:seed
+```
 
 ## License
 
-Proprietary — internal Seventy Times Agency project.
+Proprietary. © Elite Car Mats. All rights reserved.

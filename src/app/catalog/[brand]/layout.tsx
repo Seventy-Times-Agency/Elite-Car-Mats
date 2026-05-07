@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { brands } from "@/data/catalog";
+import { getMergedCatalog } from "@/lib/catalog-merge";
 import { getDictionary } from "@/i18n/getDictionary";
 import { makeT } from "@/i18n/dictionary";
 
@@ -9,6 +9,7 @@ interface Params {
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { brand: slug } = await params;
+  const { brands } = await getMergedCatalog();
   const brand = brands.find((b) => b.slug === slug);
   const { dict, fallback } = await getDictionary();
   const t = makeT(dict, fallback);

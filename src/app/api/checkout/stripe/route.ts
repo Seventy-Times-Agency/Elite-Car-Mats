@@ -7,6 +7,7 @@ import { isStripeConfigured } from "@/lib/payments/stripe";
 import { createCheckoutSession } from "@/lib/payments/stripe-checkout";
 import { signOrderToken, verifyOrderToken } from "@/lib/security/order-token";
 import { calculateItemUnitPrice } from "@/lib/pricing";
+import { loadPriceOverrides } from "@/lib/pricing-overrides";
 import type { MatSetType } from "@/types";
 
 const schema = z.object({
@@ -105,14 +106,21 @@ export async function POST(request: Request) {
   // Recompute unit prices from authoritative sources (matSet enum + edge
   // color id + badge presence). Never trust the DB-stored price column —
   // if it ever drifts, we want Stripe to charge the correct number.
+  // Admin price overrides feed in here too — same DB the order route
+  // used at creation, so checkout total matches the order total even
+  // if admin changed prices in between.
+  const overrides = await loadPriceOverrides();
   const items = order.items.map((i) => {
     const matSet = matSetFromEnum[i.product.matSet] ?? "full";
-    const unitPriceUsd = calculateItemUnitPrice({
-      matSet,
-      modelId: i.product.modelId,
-      edgeColor: { id: i.edgeColor.id },
-      badge: i.badge ? { id: i.badge.id } : null,
-    });
+    const unitPriceUsd = calculateItemUnitPrice(
+      {
+        matSet,
+        modelId: i.product.modelId,
+        edgeColor: { id: i.edgeColor.id },
+        badge: i.badge ? { id: i.badge.id } : null,
+      },
+      overrides,
+    );
     const brandName = i.product.model.brand.name;
     const modelName = i.product.model.name;
     const descBits = [i.color.name, i.edgeColor.name];

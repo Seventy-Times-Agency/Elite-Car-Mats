@@ -2,10 +2,12 @@ import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { Header } from "@/components/layout/Header";
+import { AnnouncementBar } from "@/components/layout/AnnouncementBar";
 import { Footer } from "@/components/layout/Footer";
 import { FloatingCTA } from "@/components/layout/FloatingCTA";
 import { CookieBanner } from "@/components/layout/CookieBanner";
 import { CartProvider } from "@/context/CartContext";
+import { WishlistProvider } from "@/context/WishlistContext";
 import { CartDrawer } from "@/components/cart/CartDrawer";
 import { OrganizationJsonLd } from "@/components/seo/ProductJsonLd";
 import { I18nProvider } from "@/i18n/I18nProvider";
@@ -81,12 +83,12 @@ export async function generateMetadata(): Promise<Metadata> {
       },
     },
     alternates: {
+      // Same canonical URL serves all three locales — locale is a cookie,
+      // not a path prefix — so per-locale hreflang would all point at the
+      // same URL and Google would ignore (or worse, flag) it. We keep
+      // canonical only; if/when we move locales onto path prefixes
+      // (/en, /ru, /uk) the alternates map gets restored.
       canonical: SITE,
-      languages: {
-        ru: SITE,
-        en: SITE,
-        uk: SITE,
-      },
     },
     formatDetection: {
       telephone: true,
@@ -124,14 +126,17 @@ export default async function RootLayout({
         </a>
         <I18nProvider locale={locale} dict={dict} fallback={fallback}>
           <CartProvider>
-            <Header />
-            <main id="main-content" className="flex-1">
-              {children}
-            </main>
-            <Footer />
-            <FloatingCTA />
-            <CookieBanner />
-            <CartDrawer />
+            <WishlistProvider>
+              <AnnouncementBar />
+              <Header />
+              <main id="main-content" className="flex-1">
+                {children}
+              </main>
+              <Footer />
+              <FloatingCTA />
+              <CookieBanner />
+              <CartDrawer />
+            </WishlistProvider>
           </CartProvider>
         </I18nProvider>
       </body>

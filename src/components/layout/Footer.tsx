@@ -11,6 +11,7 @@ export function Footer() {
       t: t("footer.navTitle"),
       items: [
         { h: "/catalog", l: t("nav.catalog") },
+        { h: "/blog", l: t("footer.navBlog") },
         { h: "/about", l: t("footer.navAbout") },
         { h: "/reviews", l: t("footer.navReviews") },
         { h: "/contacts", l: t("nav.contact") },
@@ -95,8 +96,16 @@ export function Footer() {
         </div>
 
         <div className="mt-10 pt-6 border-t border-border/30 flex flex-col sm:flex-row items-center justify-between gap-3 text-text-faint text-xs tracking-wide">
-          <div>
-            © {new Date().getFullYear()} Elite Car Mats. {t("footer.rights")}
+          <div className="flex flex-col sm:flex-row items-center gap-x-4 gap-y-1 text-center sm:text-left">
+            <span>
+              © {new Date().getFullYear()} Elite Car Mats. {t("footer.rights")}
+            </span>
+            <Link
+              href="/privacy#ccpa"
+              className="text-[11px] hover:text-gold transition-colors"
+            >
+              {t("footer.ccpa")}
+            </Link>
           </div>
           <div className="text-[10px] uppercase tracking-[0.15em]">
             {t("footer.madeIn")}

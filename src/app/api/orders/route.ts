@@ -4,6 +4,7 @@ import { ensureSchema } from "@/lib/db/setup";
 import { ensureCatalogSeed } from "@/lib/db/seed";
 import { createOrderSchema } from "@/lib/validations/order";
 import { calculateItemUnitPrice, calculateOrderTotal } from "@/lib/pricing";
+import { loadPriceOverrides } from "@/lib/pricing-overrides";
 import { rateLimit, getClientIp } from "@/lib/security/rate-limit";
 import { validatePromoCode, tryConsumePromoUse } from "@/lib/promo";
 import { isStripeConfigured } from "@/lib/payments/stripe";
@@ -147,6 +148,11 @@ export async function POST(request: Request) {
     }
   }
 
+  // Single DB read for admin-set price overrides — used to bill the
+  // customer at the latest rate even before code defaults are pushed.
+  // Empty Map on DB error so checkout never blocks on a Neon hiccup.
+  const overrides = await loadPriceOverrides();
+
   const subtotal = calculateOrderTotal(
     itemsResolved.map(({ item: i, modelId }) => ({
       matSet: i.matSet,
@@ -155,6 +161,7 @@ export async function POST(request: Request) {
       badge: i.badgeId ? { id: i.badgeId } : null,
       quantity: i.quantity,
     })),
+    overrides,
   );
 
   // Pre-validate the promo code so we can short-circuit invalid codes
@@ -206,12 +213,15 @@ export async function POST(request: Request) {
               badgeId: i.badgeId || null,
               year: i.year ?? null,
               quantity: i.quantity,
-              price: calculateItemUnitPrice({
-                matSet: i.matSet,
-                modelId: modelId ?? i.modelId,
-                edgeColor: { id: i.edgeColorId },
-                badge: i.badgeId ? { id: i.badgeId } : null,
-              }),
+              price: calculateItemUnitPrice(
+                {
+                  matSet: i.matSet,
+                  modelId: modelId ?? i.modelId,
+                  edgeColor: { id: i.edgeColorId },
+                  badge: i.badgeId ? { id: i.badgeId } : null,
+                },
+                overrides,
+              ),
             })),
           },
         },
@@ -260,12 +270,15 @@ export async function POST(request: Request) {
         badgeName: names.badgeName,
         year: i.year ?? null,
         quantity: i.quantity,
-        unitPrice: calculateItemUnitPrice({
-          matSet: i.matSet,
-          modelId: modelId ?? i.modelId,
-          edgeColor: { id: i.edgeColorId },
-          badge: i.badgeId ? { id: i.badgeId } : null,
-        }),
+        unitPrice: calculateItemUnitPrice(
+          {
+            matSet: i.matSet,
+            modelId: modelId ?? i.modelId,
+            edgeColor: { id: i.edgeColorId },
+            badge: i.badgeId ? { id: i.badgeId } : null,
+          },
+          overrides,
+        ),
       };
     }));
     const emailData = {
@@ -305,12 +318,15 @@ export async function POST(request: Request) {
         badgeName: names.badgeName,
         year: i.year ?? null,
         quantity: i.quantity,
-        unitPrice: calculateItemUnitPrice({
-          matSet: i.matSet,
-          modelId: modelId ?? i.modelId,
-          edgeColor: { id: i.edgeColorId },
-          badge: i.badgeId ? { id: i.badgeId } : null,
-        }),
+        unitPrice: calculateItemUnitPrice(
+          {
+            matSet: i.matSet,
+            modelId: modelId ?? i.modelId,
+            edgeColor: { id: i.edgeColorId },
+            badge: i.badgeId ? { id: i.badgeId } : null,
+          },
+          overrides,
+        ),
       };
     }));
     sendOwnerOrderEmail({

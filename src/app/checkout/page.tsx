@@ -10,6 +10,7 @@ import {
 } from "@/lib/pricing";
 import { useT, useLocale } from "@/i18n/I18nProvider";
 import { localizeMatSet, localizeColor } from "@/i18n/labels";
+import { TrustBadges } from "@/components/common/TrustBadges";
 
 const STRIPE_PUBLISHABLE_KEY =
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ?? "";
@@ -213,6 +214,9 @@ export default function CheckoutPage() {
                     value={form.name}
                     onChange={onChange}
                     placeholder={t("co.name")}
+                    aria-label={t("co.name")}
+                    autoComplete="name"
+                    required
                     className={`${input} ${errors.name ? inputError : ""}`}
                   />
                   {errors.name && (
@@ -222,9 +226,13 @@ export default function CheckoutPage() {
                 <div>
                   <input
                     name="phone"
+                    type="tel"
                     value={form.phone}
                     onChange={onChange}
                     placeholder={t("co.phone")}
+                    aria-label={t("co.phone")}
+                    autoComplete="tel"
+                    required
                     className={`${input} ${errors.phone ? inputError : ""}`}
                   />
                   {errors.phone && (
@@ -238,6 +246,9 @@ export default function CheckoutPage() {
                     value={form.email}
                     onChange={onChange}
                     placeholder={t("co.email")}
+                    aria-label={t("co.email")}
+                    autoComplete="email"
+                    required
                     className={`${input} ${errors.email ? inputError : ""}`}
                   />
                   {errors.email && (
@@ -255,6 +266,9 @@ export default function CheckoutPage() {
                     value={form.address}
                     onChange={onChange}
                     placeholder={t("co.address")}
+                    aria-label={t("co.address")}
+                    autoComplete="street-address"
+                    required
                     className={`${input} ${errors.address ? inputError : ""}`}
                   />
                   {errors.address && (
@@ -267,6 +281,8 @@ export default function CheckoutPage() {
                     value={form.city}
                     onChange={onChange}
                     placeholder={t("co.city")}
+                    aria-label={t("co.city")}
+                    autoComplete="address-level2"
                     className={input}
                   />
                   <input
@@ -274,6 +290,8 @@ export default function CheckoutPage() {
                     value={form.state}
                     onChange={onChange}
                     placeholder={t("co.state")}
+                    aria-label={t("co.state")}
+                    autoComplete="address-level1"
                     className={input}
                   />
                   <div>
@@ -282,6 +300,9 @@ export default function CheckoutPage() {
                       value={form.zip}
                       onChange={onChange}
                       placeholder={t("co.zip")}
+                      aria-label={t("co.zip")}
+                      autoComplete="postal-code"
+                      inputMode="numeric"
                       className={`${input} ${errors.zip ? inputError : ""}`}
                     />
                     {errors.zip && (
@@ -294,6 +315,7 @@ export default function CheckoutPage() {
                   value={form.comment}
                   onChange={onChange}
                   placeholder={t("co.comments")}
+                  aria-label={t("co.comments")}
                   rows={3}
                   className={input + " resize-none"}
                 />
@@ -453,6 +475,9 @@ export default function CheckoutPage() {
               <p className="text-[11px] text-text-faint mt-4">
                 {t("co.confirmNote")}
               </p>
+              <div className="mt-5 pt-4 border-t border-border/30">
+                <TrustBadges />
+              </div>
             </div>
           </div>
         </form>

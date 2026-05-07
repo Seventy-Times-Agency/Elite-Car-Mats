@@ -450,6 +450,7 @@ export const storefront: Dict = {
   "materials.edgeFact2": "4 color options",
   "materials.edgeFact3": "Cold-resistant, no cracking",
   "materials.edgeImageAlt": "Close-up of the EVA mat edge: yellow ELITECARMATS.US brand tag stitched into the fabric trim against the black honeycomb texture",
+  "materials.baseImageAlt": "Extreme macro of the premium black EVA foam surface — crisp hexagonal honeycomb cells catching warm gold rim-light from the side",
   "materials.threadLabel": "Thread & tag",
   "materials.threadTitle": "Thread & Badge",
   "materials.threadSpec": "Polyester 40S/2, metal logo",

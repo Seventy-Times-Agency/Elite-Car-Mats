@@ -63,6 +63,8 @@ export function MaterialsSection() {
         t("materials.baseFact3"),
       ],
       pattern: "honeycomb",
+      image: "/material-base.jpg",
+      imageAlt: t("materials.baseImageAlt"),
     },
     {
       label: t("materials.edgeLabel"),

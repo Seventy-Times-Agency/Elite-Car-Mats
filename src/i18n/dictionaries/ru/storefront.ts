@@ -447,6 +447,7 @@ export const storefront: Dict = {
   "materials.edgeFact2": "4 цвета на выбор",
   "materials.edgeFact3": "Не ломается на морозе",
   "materials.edgeImageAlt": "Крупный план окантовки EVA-коврика: жёлтая нашивка ELITECARMATS.US пришита к тканевой кромке на фоне чёрной сотовой текстуры",
+  "materials.baseImageAlt": "Макро поверхности премиальной чёрной EVA-пены — чёткие шестиугольные соты с тёплой золотой подсветкой сбоку",
   "materials.threadLabel": "Thread & tag",
   "materials.threadTitle": "Нить и шильдик",
   "materials.threadSpec": "Полиэстер 40S/2, металлический логотип",

@@ -11,6 +11,7 @@ export const orderItemSchema = z.object({
   colorId: z.string().min(1),
   edgeColorId: z.string().min(1),
   badgeId: z.string().optional().nullable(),
+  heelPad: z.boolean().optional().default(false),
   quantity: z.number().int().min(1).max(99),
 });
 

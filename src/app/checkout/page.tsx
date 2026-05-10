@@ -142,6 +142,7 @@ export default function CheckoutPage() {
             colorId: i.color.id,
             edgeColorId: i.edgeColor.id,
             badgeId: i.badge?.id ?? null,
+            heelPad: i.heelPad ?? false,
             quantity: i.quantity,
           })),
           promoCode: promoApplied?.code ?? null,
@@ -396,6 +397,12 @@ export default function CheckoutPage() {
                             <>
                               <span>·</span>
                               <span className="text-gold/90">{i.badge.brandName}</span>
+                            </>
+                          )}
+                          {i.heelPad && (
+                            <>
+                              <span>·</span>
+                              <span className="text-gold/90">{t("cart.drawerHeelPadChip")}</span>
                             </>
                           )}
                         </div>

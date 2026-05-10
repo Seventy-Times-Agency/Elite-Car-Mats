@@ -191,6 +191,14 @@ export function CartDrawer() {
                             </span>
                           </>
                         )}
+                        {item.heelPad && (
+                          <>
+                            <span className="text-text-faint">·</span>
+                            <span className="text-gold/90">
+                              {t("cart.drawerHeelPadChip")}
+                            </span>
+                          </>
+                        )}
                       </div>
                     </div>
 

@@ -8,7 +8,12 @@ import { useCart } from "@/context/CartContext";
 import { MatPreview } from "@/components/product/MatPreview";
 import { MatColorSwatch } from "@/components/product/MatColorSwatch";
 import type { Brand, CarModel, MatSetType } from "@/types";
-import { BADGE_PRICE, calculateItemUnitPrice, formatPrice } from "@/lib/pricing";
+import {
+  BADGE_PRICE,
+  HEEL_PAD_PRICE,
+  calculateItemUnitPrice,
+  formatPrice,
+} from "@/lib/pricing";
 import {
   getVehicleProfile,
   getDefaultMatSet,
@@ -94,6 +99,7 @@ export default function ProductClient({
     return model.years[model.years.length - 1];
   });
   const [badge, setBadge] = useState(false);
+  const [heelPad, setHeelPad] = useState(false);
   const [added, setAdded] = useState(false);
   const addedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -132,6 +138,7 @@ export default function ProductClient({
     modelId: cartModelId,
     edgeColor: { id: edge.id },
     badge: badge && bdg ? { id: bdg.id } : null,
+    heelPad,
   });
 
   const localizedColor = localizeColor(t, color.name);
@@ -149,6 +156,7 @@ export default function ProductClient({
       color,
       edgeColor: edge,
       badge: badge && bdg ? bdg : undefined,
+      heelPad,
       quantity: 1,
     });
     openCart();
@@ -426,6 +434,42 @@ export default function ProductClient({
                     </div>
                   </div>
                 )}
+              </div>
+
+              {/* Step 6 — Heel pad */}
+              <div>
+                <StepHeader n={6} label={t("prod.stepHeelPad")} />
+                <label
+                  className={`flex items-center gap-3 cursor-pointer glass-card rounded-lg p-3 transition-all duration-200 ${heelPad ? "!border-gold/50 shadow-[0_0_14px_rgba(212,165,74,0.12)]" : "glow-hover"}`}
+                >
+                  <input
+                    type="checkbox"
+                    checked={heelPad}
+                    onChange={(e) => setHeelPad(e.target.checked)}
+                    className="w-4 h-4 text-gold focus:ring-gold accent-[#D4A54A] rounded shrink-0"
+                  />
+                  <div className="relative w-16 h-10 rounded-md overflow-hidden shrink-0 ring-1 ring-black/40 bg-[linear-gradient(135deg,#C8C8C8_0%,#7A7A7A_50%,#A8A8A8_100%)] flex items-center justify-center shadow-[inset_0_1px_0_rgba(255,255,255,0.6),inset_0_-1px_2px_rgba(0,0,0,0.4)]">
+                    <div
+                      className="absolute inset-1.5 rounded-sm opacity-60"
+                      style={{
+                        backgroundImage:
+                          "repeating-linear-gradient(90deg, rgba(0,0,0,0.55) 0 2px, transparent 2px 4px)",
+                      }}
+                      aria-hidden
+                    />
+                    <div className="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-b from-white/45 to-transparent pointer-events-none" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-text text-xs font-semibold truncate">
+                      {t("prod.heelPadName")}
+                    </div>
+                    <div className="text-text-dim text-[10px] mt-0.5 truncate">
+                      {t("prod.heelPadSubtext", {
+                        price: `+${formatPrice(HEEL_PAD_PRICE)}`,
+                      })}
+                    </div>
+                  </div>
+                </label>
               </div>
 
               {/* Submit — desktop only */}

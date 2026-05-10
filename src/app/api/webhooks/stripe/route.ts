@@ -107,6 +107,7 @@ async function sendCustomerConfirmation(orderId: string): Promise<void> {
             modelId: i.product.modelId,
             edgeColor: { id: i.edgeColor.id },
             badge: i.badge ? { id: i.badge.id } : null,
+            heelPad: i.heelPad ?? false,
           },
           overrides,
         ),

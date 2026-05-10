@@ -82,6 +82,8 @@ export interface CartItem {
   color: EvaColor;
   edgeColor: EdgeColor;
   badge?: Badge;
+  /** Aluminum heel pad add-on (+$17). */
+  heelPad?: boolean;
   quantity: number;
   price?: number;
 }

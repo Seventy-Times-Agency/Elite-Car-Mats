@@ -118,6 +118,7 @@ export async function POST(request: Request) {
         modelId: i.product.modelId,
         edgeColor: { id: i.edgeColor.id },
         badge: i.badge ? { id: i.badge.id } : null,
+        heelPad: i.heelPad ?? false,
       },
       overrides,
     );
@@ -125,6 +126,7 @@ export async function POST(request: Request) {
     const modelName = i.product.model.name;
     const descBits = [i.color.name, i.edgeColor.name];
     if (i.badge) descBits.push(`+ ${i.badge.brandName} badge`);
+    if (i.heelPad) descBits.push(`+ aluminum heel pad`);
     return {
       name: `${brandName} ${modelName}`,
       description: descBits.join(" / "),

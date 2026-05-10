@@ -134,7 +134,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
           i.matSet === item.matSet &&
           i.color.id === item.color.id &&
           i.edgeColor.id === item.edgeColor.id &&
-          i.badge?.id === item.badge?.id,
+          i.badge?.id === item.badge?.id &&
+          (i.heelPad ?? false) === (item.heelPad ?? false),
       );
       if (existing) {
         return prev.map((i) =>

@@ -64,6 +64,7 @@ export default function CartPage() {
                     {localizeColor(t, item.color.name)} ·{" "}
                     {localizeColor(t, item.edgeColor.name)}
                     {item.badge ? ` · ${item.badge.brandName}` : ""}
+                    {item.heelPad ? ` · ${t("cart.drawerHeelPadChip")}` : ""}
                   </p>
                   <div className="flex items-center gap-3 mt-3">
                     <button

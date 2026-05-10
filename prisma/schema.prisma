@@ -160,6 +160,11 @@ model OrderItem {
   edgeColor   EdgeColor  @relation(fields: [edgeColorId], references: [id])
   badgeId     String?
   badge       Badge?     @relation(fields: [badgeId], references: [id])
+  // Aluminum heel pad — driver-side reinforced metal plate add-on.
+  // Flat $17 upcharge regardless of mat set; persisted per-item so
+  // we can re-render the original configuration on the order page
+  // and so the Stripe webhook can describe the line-item correctly.
+  heelPad     Boolean    @default(false)
   year        Int?
   quantity    Int        @default(1)
   price       Decimal?   @db.Decimal(10, 2)

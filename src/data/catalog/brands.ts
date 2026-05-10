@@ -47,6 +47,9 @@ export const brands: Brand[] = [
   { id: "toyota", name: "Toyota", slug: "toyota", logo: brandLogo("toyota"), modelsCount: 0 },
   { id: "volkswagen", name: "Volkswagen", slug: "volkswagen", logo: brandLogo("volkswagen"), modelsCount: 0 },
   { id: "volvo", name: "Volvo", slug: "volvo", logo: brandLogo("volvo"), modelsCount: 0 },
+  // New US-market entrants (post-2020 launches)
+  { id: "vinfast", name: "VinFast", slug: "vinfast", logo: brandLogo("vinfast"), modelsCount: 0 },
+  { id: "fisker", name: "Fisker", slug: "fisker", logo: brandLogo("fisker"), modelsCount: 0 },
   // Discontinued US brands — still a large in-use fleet
   { id: "pontiac", name: "Pontiac", slug: "pontiac", logo: brandLogo("pontiac"), modelsCount: 0 },
   { id: "saturn", name: "Saturn", slug: "saturn", logo: brandLogo("saturn"), modelsCount: 0 },
@@ -55,6 +58,8 @@ export const brands: Brand[] = [
   { id: "hummer", name: "Hummer", slug: "hummer", logo: brandLogo("hummer"), modelsCount: 0 },
   { id: "saab", name: "Saab", slug: "saab", logo: brandLogo("saab"), modelsCount: 0 },
   { id: "scion", name: "Scion", slug: "scion", logo: brandLogo("scion"), modelsCount: 0 },
+  { id: "smart", name: "Smart", slug: "smart", logo: brandLogo("smart"), modelsCount: 0 },
+  { id: "suzuki", name: "Suzuki", slug: "suzuki", logo: brandLogo("suzuki"), modelsCount: 0 },
   // Commercial truck brands (Class 8 semi-trucks, vocational trucks)
   { id: "freightliner", name: "Freightliner", slug: "freightliner", logo: brandLogo("freightliner"), modelsCount: 0 },
   { id: "kenworth", name: "Kenworth", slug: "kenworth", logo: brandLogo("kenworth"), modelsCount: 0 },
@@ -124,6 +129,8 @@ export const BRAND_POPULARITY: Record<string, number> = {
   "aston-martin": 41,
   lamborghini: 42,
   mclaren: 43,
+  vinfast: 44,
+  fisker: 45,
   // Class-8 / vocational truck bucket
   freightliner: 50,
   "volvo-trucks": 51,
@@ -142,6 +149,8 @@ export const BRAND_POPULARITY: Record<string, number> = {
   mercury: 94,
   saab: 95,
   scion: 96,
+  smart: 97,
+  suzuki: 98,
 };
 
 // Metal brand-logo badge is available only for the brands the supplier

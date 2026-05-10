@@ -274,6 +274,7 @@ async function execAll(): Promise<MigrationResult[]> {
          "colorId" TEXT NOT NULL,
          "edgeColorId" TEXT NOT NULL,
          "badgeId" TEXT,
+         "heelPad" BOOLEAN NOT NULL DEFAULT FALSE,
          "year" INTEGER,
          "quantity" INTEGER NOT NULL DEFAULT 1,
          "price" DECIMAL(10,2),
@@ -289,10 +290,14 @@ async function execAll(): Promise<MigrationResult[]> {
            REFERENCES "Badge"("id") ON DELETE SET NULL ON UPDATE CASCADE
        )`,
     );
-    // Back-compat for databases that predate the year column.
+    // Back-compat for databases that predate optional columns.
     await run(
       "orderItem.year",
       `ALTER TABLE "OrderItem" ADD COLUMN IF NOT EXISTS "year" INTEGER`,
+    );
+    await run(
+      "orderItem.heelPad",
+      `ALTER TABLE "OrderItem" ADD COLUMN IF NOT EXISTS "heelPad" BOOLEAN NOT NULL DEFAULT FALSE`,
     );
 
     // ------------------------------------------------------------------

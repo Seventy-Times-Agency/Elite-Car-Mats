@@ -22,6 +22,13 @@ export const EDGE_SURCHARGE: Record<string, number> = {
 /** Metallic brand badge add-on. Flat surcharge regardless of mat set. */
 export const BADGE_PRICE = 9;
 
+/**
+ * Aluminum heel pad — driver-side reinforced metal plate that protects
+ * the EVA mat from heel wear. Flat upcharge regardless of mat set or
+ * vehicle profile.
+ */
+export const HEEL_PAD_PRICE = 17;
+
 export const CURRENCY = "USD";
 export const CURRENCY_SYMBOL = "$";
 
@@ -85,6 +92,8 @@ export interface PriceableItem {
   modelId?: string;
   edgeColor: { id: string };
   badge?: { id: string } | null;
+  /** Driver-side aluminum heel pad add-on. Adds HEEL_PAD_PRICE. */
+  heelPad?: boolean;
   quantity: number;
 }
 
@@ -94,6 +103,7 @@ export function calculateItemUnitPrice(
     modelId?: string;
     edgeColor: { id: string };
     badge?: { id: string } | null | undefined;
+    heelPad?: boolean;
   },
   overrides?: PriceOverrideMap,
 ): number {
@@ -101,7 +111,8 @@ export function calculateItemUnitPrice(
   const base = getMatSetPrice(profile, item.matSet, overrides);
   const edge = EDGE_SURCHARGE[item.edgeColor.id] ?? 0;
   const badge = item.badge ? BADGE_PRICE : 0;
-  return base + edge + badge;
+  const heelPad = item.heelPad ? HEEL_PAD_PRICE : 0;
+  return base + edge + badge + heelPad;
 }
 
 export function calculateItemTotal(

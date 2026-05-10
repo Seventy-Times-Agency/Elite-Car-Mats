@@ -262,6 +262,8 @@ export const mockModels: CarModel[] = [
   m("canyon","gmc","GMC","Canyon","canyon",Y(2004,2025),"Пикап"),
   m("hummer-ev","gmc","GMC","Hummer EV","hummer-ev",Y(2022,2025),"Пикап"),
   m("yukon-xl","gmc","GMC","Yukon XL","yukon-xl",Y(2021,2025),"Внедорожник"),
+  m("sierra-ev","gmc","GMC","Sierra EV","sierra-ev",Y(2024,2025),"Пикап"),
+  m("hummer-ev-suv","gmc","GMC","Hummer EV SUV","hummer-ev-suv",Y(2023,2025),"Внедорожник"),
   // Honda
   m("element","honda","Honda","Element","element",Y(2003,2011),"Кроссовер"),
   m("prelude","honda","Honda","Prelude","prelude",Y(1990,2001),"Купе"),
@@ -800,6 +802,14 @@ export const mockModels: CarModel[] = [
   m("cullinan","rolls-royce","Rolls-Royce","Cullinan","cullinan",Y(2019,2025),"Внедорожник"),
   m("spectre","rolls-royce","Rolls-Royce","Spectre","spectre",Y(2024,2025),"Купе"),
 
+  // ================== NEW US-MARKET ENTRANTS ==================
+  // VinFast (entered the US market in 2023)
+  m("vf-8","vinfast","VinFast","VF 8","vf-8",Y(2023,2025),"Кроссовер"),
+  m("vf-9","vinfast","VinFast","VF 9","vf-9",Y(2024,2025),"Кроссовер"),
+  // Fisker (Ocean SUV — Fisker Inc. shipped through 2024; existing fleet still on the road)
+  m("fisker-ocean","fisker","Fisker","Ocean","ocean",Y(2023,2024),"Кроссовер"),
+  m("fisker-karma","fisker","Fisker","Karma","karma",Y(2011,2012),"Седан"),
+
   // ================== DISCONTINUED U.S. BRANDS ==================
   // Pontiac (ended 2010)
   m("firebird","pontiac","Pontiac","Firebird","firebird",Y(1990,2002),"Купе"),
@@ -876,6 +886,23 @@ export const mockModels: CarModel[] = [
   m("scion-ia","scion","Scion","iA","scion-ia",Y(2016,2016),"Седан"),
   m("scion-im","scion","Scion","iM","scion-im",Y(2016,2016),"Хэтчбек"),
   m("scion-xa","scion","Scion","xA","scion-xa",Y(2004,2006),"Хэтчбек"),
+  // Smart (US passenger market 2008–2019)
+  m("smart-fortwo","smart","Smart","ForTwo","fortwo",Y(2008,2019),"Купе"),
+  m("smart-fortwo-ed","smart","Smart","ForTwo Electric Drive","fortwo-ed",Y(2013,2019),"Купе"),
+  // Suzuki (US passenger market through 2012; long-tail fleet still active)
+  m("suzuki-grand-vitara","suzuki","Suzuki","Grand Vitara","grand-vitara",Y(1999,2013),"Внедорожник"),
+  m("suzuki-vitara","suzuki","Suzuki","Vitara","vitara",Y(1990,1998),"Внедорожник"),
+  m("suzuki-samurai","suzuki","Suzuki","Samurai","samurai",Y(1990,1995),"Внедорожник"),
+  m("suzuki-sx4","suzuki","Suzuki","SX4","sx4",Y(2007,2013),"Хэтчбек"),
+  m("suzuki-kizashi","suzuki","Suzuki","Kizashi","kizashi",Y(2010,2013),"Седан"),
+  m("suzuki-equator","suzuki","Suzuki","Equator","equator",Y(2009,2012),"Пикап"),
+  m("suzuki-xl7","suzuki","Suzuki","XL7","xl7",Y(2007,2009),"Кроссовер"),
+  m("suzuki-aerio","suzuki","Suzuki","Aerio","aerio",Y(2002,2007),"Седан"),
+  m("suzuki-forenza","suzuki","Suzuki","Forenza","forenza",Y(2004,2008),"Седан"),
+  m("suzuki-reno","suzuki","Suzuki","Reno","reno",Y(2005,2008),"Хэтчбек"),
+  m("suzuki-verona","suzuki","Suzuki","Verona","verona",Y(2004,2006),"Седан"),
+  m("suzuki-swift","suzuki","Suzuki","Swift","swift",Y(1990,2001),"Хэтчбек"),
+  m("suzuki-esteem","suzuki","Suzuki","Esteem","esteem",Y(1995,2002),"Седан"),
 
   // ================== COMMERCIAL TRUCKS (Class 6-8) ==================
   // Freightliner

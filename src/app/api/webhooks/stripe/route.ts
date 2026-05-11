@@ -7,6 +7,7 @@ import { sendCustomerOrderEmail } from "@/lib/email";
 import { signOrderToken } from "@/lib/security/order-token";
 import { calculateItemUnitPrice } from "@/lib/pricing";
 import { loadPriceOverrides } from "@/lib/pricing-overrides";
+import { pushOrderToShipstation } from "@/lib/shipping/shipstation";
 import type { MatSetType } from "@/types";
 
 // Webhooks must see the raw body for signature verification. In the App
@@ -58,6 +59,32 @@ async function claimEvent(eventId: string): Promise<boolean> {
     // rely on the per-row status guard further down to keep things
     // idempotent. Better than silently dropping a real payment.
     return true;
+  }
+}
+
+/**
+ * Push the order to ShipStation if the integration is enabled. Failures
+ * are logged but never thrown — Stripe must always get its 200 OK so it
+ * doesn't keep retrying. Missed pushes can be reconciled from the admin
+ * UI later.
+ */
+async function pushToShipstationSafely(orderId: string): Promise<void> {
+  try {
+    const result = await pushOrderToShipstation(orderId);
+    if (result.ok) {
+      console.log(
+        `[stripe-webhook] order=${orderId} pushed to shipstation id=${result.shipstationOrderId}`,
+      );
+    } else {
+      console.log(
+        `[stripe-webhook] order=${orderId} shipstation skip: ${result.reason}`,
+      );
+    }
+  } catch (err) {
+    console.error(
+      `[stripe-webhook] shipstation push failed for order=${orderId}:`,
+      err,
+    );
   }
 }
 
@@ -181,6 +208,7 @@ export async function POST(request: Request) {
             } catch (err) {
               console.error("[stripe-webhook] confirmation email failed:", err);
             }
+            await pushToShipstationSafely(orderId);
           }
         } else {
           console.log(
@@ -206,6 +234,7 @@ export async function POST(request: Request) {
             } catch (err) {
               console.error("[stripe-webhook] confirmation email failed:", err);
             }
+            await pushToShipstationSafely(orderId);
           }
         }
         break;

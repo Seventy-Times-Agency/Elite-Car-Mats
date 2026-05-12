@@ -10,7 +10,6 @@ import {
   edgeColors,
   matSets,
 } from "../src/data/catalog";
-import { mockReviews } from "../src/data/reviews";
 import { MAT_SET_PRICE } from "../src/lib/pricing";
 import { MatSetType } from "../src/types";
 
@@ -110,29 +109,6 @@ async function main() {
       where: { id },
       update: { brandName: b.name },
       create: { id, brandName: b.name },
-    });
-  }
-
-  console.log("Seeding reviews...");
-  for (const r of mockReviews) {
-    await prisma.review.upsert({
-      where: { id: r.id },
-      update: {
-        customerName: r.customerName,
-        carModel: r.carModel,
-        text: r.text,
-        rating: r.rating,
-        approved: true,
-      },
-      create: {
-        id: r.id,
-        customerName: r.customerName,
-        carModel: r.carModel,
-        text: r.text,
-        rating: r.rating,
-        approved: true,
-        createdAt: new Date(r.createdAt),
-      },
     });
   }
 

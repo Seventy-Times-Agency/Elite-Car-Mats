@@ -21,8 +21,7 @@ import type { MatSetType } from "@/types";
  * the catalog is in place — so even if the operator forgot to run the seed
  * endpoint manually, the first incoming order self-heals the DB.
  *
- * Cached one-shot per process, like ensureSchema. Use forceCatalogSeed()
- * if you need to re-run.
+ * Cached one-shot per process, like ensureSchema.
  */
 
 const matSetToEnum: Record<MatSetType, "FRONT" | "FULL" | "CARGO" | "FULL_CARGO"> = {
@@ -170,11 +169,3 @@ export function ensureCatalogSeed(): Promise<CatalogSeedSummary> {
   return cached;
 }
 
-export function forceCatalogSeed(): Promise<CatalogSeedSummary> {
-  cached = null;
-  return runSeed().then((s) => ({ ...s, ranSeed: true }));
-}
-
-export function resetCatalogSeedCache(): void {
-  cached = null;
-}

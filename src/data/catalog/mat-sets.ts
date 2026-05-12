@@ -1,4 +1,4 @@
-import type { MatSet, MatSetType, VehicleCategory } from "@/types";
+import type { MatSet, MatSetType } from "@/types";
 import type { VehicleConfigProfile } from "@/lib/vehicle-profile";
 
 /**
@@ -137,9 +137,3 @@ export const matSets: MatSet[] = [
   { type: "full-cargo", label: "Полный комплект", description: "Салон и багажник" },
 ];
 
-export const categoryLabels: Record<VehicleCategory, string> = {
-  car: "Легковые",
-  suv: "SUV / Кроссоверы",
-  truck: "Пикапы / Фургоны",
-  commercial: "Коммерческие / Фуры",
-};

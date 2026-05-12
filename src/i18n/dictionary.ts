@@ -30,7 +30,6 @@ export function makeT(dict: Dict, fallbackDict: Dict): TFn {
     const v = get(key);
     if (typeof v === "string") return interpolate(v, vars);
     if (v === undefined && process.env.NODE_ENV !== "production") {
-      // eslint-disable-next-line no-console
       console.warn(`[i18n] missing key: ${key}`);
     }
     return key;

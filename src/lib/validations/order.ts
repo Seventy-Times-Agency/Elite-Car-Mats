@@ -39,7 +39,10 @@ export const createOrderSchema = z.object({
       .default(""),
     comment: z.string().trim().max(1000).optional().default(""),
   }),
-  items: z.array(orderItemSchema).min(1, "Корзина пуста"),
+  items: z
+    .array(orderItemSchema)
+    .min(1, "Корзина пуста")
+    .max(50, "Слишком много позиций в заказе"),
   promoCode: z.string().trim().max(64).optional().nullable(),
 });
 

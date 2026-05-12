@@ -1,3 +1,4 @@
+import { randomBytes } from "node:crypto";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
 import { ensureSchema } from "@/lib/db/setup";
@@ -20,7 +21,7 @@ import type { OrderItemInput } from "@/lib/validations/order";
 
 function generateOrderNumber(): string {
   const ts = Date.now().toString(36).toUpperCase();
-  const rand = Math.random().toString(36).slice(2, 6).toUpperCase();
+  const rand = randomBytes(4).toString("hex").toUpperCase();
   return `ECM-${ts}-${rand}`;
 }
 

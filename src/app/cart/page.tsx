@@ -17,7 +17,20 @@ export default function CartPage() {
   if (items.length === 0)
     return (
       <div className="py-28 text-center">
-        <div className="text-5xl mb-4 opacity-20">🛒</div>
+        <svg
+          viewBox="0 0 24 24"
+          className="w-14 h-14 mx-auto mb-4 text-text-faint"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={1.4}
+          aria-hidden
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"
+          />
+        </svg>
         <h1 className="text-xl font-bold">{t("cart.emptyTitle")}</h1>
         <p className="mt-2 text-text-dim text-sm">{t("cart.emptySubtitle")}</p>
         <Link
@@ -70,16 +83,18 @@ export default function CartPage() {
                     <button
                       onClick={() => updateQuantity(item.id, item.quantity - 1)}
                       disabled={item.quantity <= 1}
-                      className="w-7 h-7 rounded border border-border text-text-dim hover:border-gold hover:text-gold text-sm transition-colors disabled:opacity-30"
+                      aria-label="Decrease quantity"
+                      className="w-9 h-9 rounded-md border border-border text-text-dim hover:border-gold hover:text-gold text-base transition-colors disabled:opacity-30"
                     >
-                      -
+                      −
                     </button>
                     <span className="text-text text-sm w-6 text-center">
                       {item.quantity}
                     </span>
                     <button
                       onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                      className="w-7 h-7 rounded border border-border text-text-dim hover:border-gold hover:text-gold text-sm transition-colors"
+                      aria-label="Increase quantity"
+                      className="w-9 h-9 rounded-md border border-border text-text-dim hover:border-gold hover:text-gold text-base transition-colors"
                     >
                       +
                     </button>

@@ -64,7 +64,8 @@ export interface LoadedOrder {
 }
 
 function buildSku(it: LoadedOrder["items"][number]): string {
-  const matSet = MAT_SET_FROM_ENUM[it.product.matSet] ?? "full";
+  const matSet = MAT_SET_FROM_ENUM[it.product.matSet];
+  if (!matSet) throw new Error(`Unknown matSet enum: ${it.product.matSet}`);
   const parts = [
     it.product.model.brand.name,
     it.product.model.name,
@@ -85,7 +86,8 @@ function buildSku(it: LoadedOrder["items"][number]): string {
 }
 
 function buildItemName(it: LoadedOrder["items"][number]): string {
-  const matSet = MAT_SET_FROM_ENUM[it.product.matSet] ?? "full";
+  const matSet = MAT_SET_FROM_ENUM[it.product.matSet];
+  if (!matSet) throw new Error(`Unknown matSet enum: ${it.product.matSet}`);
   const bits = [
     `${it.product.model.brand.name} ${it.product.model.name}`,
     it.year ? String(it.year) : null,
@@ -129,7 +131,8 @@ export function mapOrderToShipstation(
 ): SsCreateOrderRequest {
   // ItemCharacteristics used by both weight estimation and unit-price math.
   const itemDescriptors = order.items.map((it) => {
-    const matSet = MAT_SET_FROM_ENUM[it.product.matSet] ?? "full";
+    const matSet = MAT_SET_FROM_ENUM[it.product.matSet];
+  if (!matSet) throw new Error(`Unknown matSet enum: ${it.product.matSet}`);
     return {
       matSet,
       hasBadge: !!it.badge,

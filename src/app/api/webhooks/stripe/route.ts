@@ -116,7 +116,8 @@ async function sendCustomerConfirmation(orderId: string): Promise<void> {
     zip: order.zip,
     total: Number(order.total ?? 0),
     items: order.items.map((i) => {
-      const matSet = matSetFromEnum[i.product.matSet] ?? "full";
+      const matSet = matSetFromEnum[i.product.matSet];
+      if (!matSet) throw new Error(`Unknown matSet enum: ${i.product.matSet}`);
       return {
         brandName: i.product.model.brand.name,
         modelName: i.product.model.name,

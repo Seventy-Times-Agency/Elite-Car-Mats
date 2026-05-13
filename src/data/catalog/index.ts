@@ -9,7 +9,6 @@
  *   evaColors     — base mat colours
  *   edgeColors    — surrounding-edge colours
  *   badges        — metal logo badges (only for brands the supplier stocks)
- *   categoryLabels — UI labels for car / suv / truck / commercial buckets
  */
 
 import type { VehicleCategory } from "@/types";
@@ -32,5 +31,5 @@ export const brands = brandsList;
 export const mockModels = modelsList;
 
 export { evaColors, edgeColors } from "./colors";
-export { matSets, categoryLabels } from "./mat-sets";
+export { matSets } from "./mat-sets";
 export { badges } from "./brands";

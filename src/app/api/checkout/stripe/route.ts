@@ -111,7 +111,8 @@ export async function POST(request: Request) {
   // if admin changed prices in between.
   const overrides = await loadPriceOverrides();
   const items = order.items.map((i) => {
-    const matSet = matSetFromEnum[i.product.matSet] ?? "full";
+    const matSet = matSetFromEnum[i.product.matSet];
+    if (!matSet) throw new Error(`Unknown matSet enum: ${i.product.matSet}`);
     const unitPriceUsd = calculateItemUnitPrice(
       {
         matSet,

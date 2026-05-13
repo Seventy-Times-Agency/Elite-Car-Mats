@@ -90,8 +90,12 @@ export function HeaderSearch() {
 
   const hits = useMemo(() => searchCatalog(query), [query]);
 
-  // Reset highlight when result list changes shape.
+  // Reset highlight when result list changes shape — query is an
+  // external input (keystrokes), and we want the highlighted hit to
+  // snap back to the top of the freshly-filtered list. setState-in-
+  // effect lint rule is meant for inits, not reactive resets.
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setActiveIdx(0);
   }, [query]);
 

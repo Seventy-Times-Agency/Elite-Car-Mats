@@ -79,13 +79,21 @@ export default function ProductClient({
     [profileMatSets],
   );
 
-  const [set, setSet] = useState<MatSetType>(() => {
+  const [setRaw, setSet] = useState<MatSetType>(() => {
     // Honour ?set=full from Google Shopping deep-links; if it isn't a
     // valid type for this vehicle's profile, fall back to the default.
     const fromUrl = searchParams?.get("set") as MatSetType | null;
     if (fromUrl && availableSetTypes.includes(fromUrl)) return fromUrl;
     return getDefaultMatSet(profile);
   });
+  // Derived view of the chosen set. If the user navigates from a sedan
+  // to a 2-seater without ever clicking the step (e.g. via search), the
+  // raw state lags behind the profile — fall back to the profile default
+  // for rendering and price math while keeping the raw state intact for
+  // when they navigate back.
+  const set: MatSetType = availableSetTypes.includes(setRaw)
+    ? setRaw
+    : getDefaultMatSet(profile);
   const [color, setColor] = useState(evaColors[0]);
   const [edge, setEdge] = useState(edgeColors[0]);
   const [year, setYear] = useState(() => {
@@ -102,14 +110,6 @@ export default function ProductClient({
   const [heelPad, setHeelPad] = useState(false);
   const [added, setAdded] = useState(false);
   const addedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  // If the currently selected set isn't valid for this vehicle's profile
-  // (e.g. user navigated from a sedan to a 2-seater), snap to the default.
-  useEffect(() => {
-    if (!availableSetTypes.includes(set)) {
-      setSet(getDefaultMatSet(profile));
-    }
-  }, [profile, availableSetTypes, set]);
 
   // Don't leak the "added" timeout across navigations / unmounts — would
   // otherwise trigger setState on an unmounted component (React 19 warns).

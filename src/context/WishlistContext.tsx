@@ -4,7 +4,6 @@ import {
   createContext,
   useCallback,
   useContext,
-  useEffect,
   useMemo,
   useState,
   type ReactNode,
@@ -86,11 +85,10 @@ function save(items: WishlistItem[]) {
 }
 
 export function WishlistProvider({ children }: { children: ReactNode }) {
-  const [items, setItems] = useState<WishlistItem[]>([]);
-
-  useEffect(() => {
-    setItems(load());
-  }, []);
+  // Lazy init: read localStorage once on first render so a fast click
+  // can't drop the saved list during the mount → effect gap. Same
+  // pattern as CartContext.
+  const [items, setItems] = useState<WishlistItem[]>(() => load());
 
   const persist = useCallback((next: WishlistItem[]) => {
     setItems(next);

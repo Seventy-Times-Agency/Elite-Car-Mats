@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useT } from "@/i18n/I18nProvider";
 
 export default function AboutPage() {
@@ -119,12 +120,12 @@ export default function AboutPage() {
           <p className="mt-5 text-text-dim text-base max-w-xl mx-auto">
             {t("about.ctaSubtitle")}
           </p>
-          <a
+          <Link
             href="/catalog"
             className="mt-8 inline-block px-8 py-4 rounded-xl bg-gradient-to-r from-gold to-gold-light text-bg text-sm font-semibold tracking-[0.15em] uppercase shadow-[0_4px_24px_rgba(212,165,74,0.3)] hover:shadow-[0_6px_32px_rgba(212,165,74,0.45)] transition-all"
           >
             {t("about.ctaBtn")}
-          </a>
+          </Link>
         </div>
       </section>
     </div>

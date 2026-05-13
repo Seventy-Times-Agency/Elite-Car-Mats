@@ -245,23 +245,32 @@ export default function ProductClient({
             <div className="mt-6 space-y-5">
               {/* Step 1 — Year */}
               <div>
-                <StepHeader n={1} label={t("prod.stepYear")} value={String(year)} />
-                <div className="flex flex-wrap gap-1.5">
-                  {[...model.years]
-                    .sort((a, b) => b - a)
-                    .map((y) => (
-                      <button
-                        key={y}
-                        onClick={() => setYear(y)}
-                        className={`px-2.5 py-1 text-xs font-medium rounded-md transition-all duration-200 ${
-                          year === y
-                            ? "bg-gradient-to-r from-gold to-gold-light text-bg shadow-[0_2px_10px_rgba(212,165,74,0.3)]"
-                            : "glass-card text-text-dim hover:text-gold hover:border-gold/30"
-                        }`}
-                      >
-                        {y}
-                      </button>
-                    ))}
+                <StepHeader n={1} label={t("prod.stepYear")} />
+                <div className="relative">
+                  <select
+                    value={year}
+                    onChange={(e) => setYear(Number(e.target.value))}
+                    className="w-full appearance-none glass-card rounded-lg px-3.5 py-3 pr-10 text-sm font-medium text-text cursor-pointer focus:outline-none focus:border-gold/50 hover:border-gold/30 transition-colors"
+                    aria-label={t("prod.stepYear")}
+                  >
+                    {[...model.years]
+                      .sort((a, b) => b - a)
+                      .map((y) => (
+                        <option key={y} value={y} className="bg-bg text-text">
+                          {y}
+                        </option>
+                      ))}
+                  </select>
+                  <svg
+                    className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gold/70"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={2.2}
+                    viewBox="0 0 24 24"
+                    aria-hidden
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                  </svg>
                 </div>
               </div>
 
@@ -400,11 +409,12 @@ export default function ProductClient({
                         {t("prod.badgeName", { brand: brand.name })}
                       </div>
                       <div className="text-text-dim text-[10px] mt-0.5 truncate">
-                        {t("prod.badgeSubtext", {
-                          price: `+${formatPrice(BADGE_PRICE)}`,
-                        })}
+                        {t("prod.badgeSubtext")}
                       </div>
                     </div>
+                    <span className="shrink-0 inline-flex items-center rounded-md bg-gold/10 px-2 py-1 text-[11px] font-bold text-gold ring-1 ring-gold/30">
+                      +{formatPrice(BADGE_PRICE)}
+                    </span>
                   </label>
                 ) : (
                   <div className="flex items-center gap-3 rounded-lg border border-border/50 bg-surface/30 p-3">
@@ -464,19 +474,51 @@ export default function ProductClient({
                       {t("prod.heelPadName")}
                     </div>
                     <div className="text-text-dim text-[10px] mt-0.5 truncate">
-                      {t("prod.heelPadSubtext", {
-                        price: `+${formatPrice(HEEL_PAD_PRICE)}`,
-                      })}
+                      {t("prod.heelPadSubtext")}
                     </div>
                   </div>
+                  <span className="shrink-0 inline-flex items-center rounded-md bg-gold/10 px-2 py-1 text-[11px] font-bold text-gold ring-1 ring-gold/30">
+                    +{formatPrice(HEEL_PAD_PRICE)}
+                  </span>
                 </label>
               </div>
 
               {/* Submit — desktop only */}
               <button
                 onClick={add}
-                className={`hidden lg:block w-full py-3.5 rounded-xl text-[13px] font-semibold tracking-wider uppercase transition-all duration-300 ${added ? "bg-success text-bg" : "bg-gradient-to-r from-gold to-gold-light text-bg shadow-[0_4px_20px_rgba(212,165,74,0.25)] hover:shadow-[0_6px_28px_rgba(212,165,74,0.4)]"}`}
+                className={`hidden lg:flex w-full py-4 rounded-xl text-[13px] font-semibold tracking-wider uppercase transition-all duration-300 items-center justify-center gap-2.5 ${added ? "bg-success text-bg" : "bg-gradient-to-r from-gold to-gold-light text-bg shadow-[0_4px_20px_rgba(212,165,74,0.25)] hover:shadow-[0_6px_28px_rgba(212,165,74,0.4)] hover:-translate-y-0.5 active:translate-y-0"}`}
               >
+                {added ? (
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={2.5}
+                    viewBox="0 0 24 24"
+                    aria-hidden
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M4.5 12.75l6 6 9-13.5"
+                    />
+                  </svg>
+                ) : (
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={2.2}
+                    viewBox="0 0 24 24"
+                    aria-hidden
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"
+                    />
+                  </svg>
+                )}
                 {added
                   ? t("prod.addedFull")
                   : t("prod.addToCartFull", { price: formatPrice(unitPrice) })}
@@ -501,8 +543,30 @@ export default function ProductClient({
           </div>
           <button
             onClick={add}
-            className={`px-5 py-3 rounded-xl text-xs font-semibold tracking-[0.15em] uppercase shrink-0 transition-all duration-300 ${added ? "bg-success text-bg" : "bg-gradient-to-r from-gold to-gold-light text-bg shadow-[0_4px_18px_rgba(212,165,74,0.3)]"}`}
+            className={`flex items-center gap-1.5 px-5 py-3 rounded-xl text-xs font-semibold tracking-[0.15em] uppercase shrink-0 transition-all duration-300 ${added ? "bg-success text-bg" : "bg-gradient-to-r from-gold to-gold-light text-bg shadow-[0_4px_18px_rgba(212,165,74,0.3)] active:scale-[0.97]"}`}
           >
+            <svg
+              className="w-3.5 h-3.5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2.4}
+              viewBox="0 0 24 24"
+              aria-hidden
+            >
+              {added ? (
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M4.5 12.75l6 6 9-13.5"
+                />
+              ) : (
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"
+                />
+              )}
+            </svg>
             {added ? t("prod.addedShort") : t("prod.addToCartShort")}
           </button>
         </div>

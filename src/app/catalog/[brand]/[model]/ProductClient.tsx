@@ -208,6 +208,7 @@ export default function ProductClient({
                 color={color}
                 edgeColor={edge}
                 showBadge={badge && !!bdg}
+                showHeelPad={heelPad}
                 brandLogoUrl={brand.logo}
                 brandName={brand.name}
               />
@@ -301,43 +302,52 @@ export default function ProductClient({
               </span>
             </div>
 
-            <div className="mt-6 space-y-5">
-              {/* Step 1 — Year */}
-              <div>
-                <StepHeader n={1} label={t("prod.stepYear")} />
-                <div className="relative">
-                  <select
-                    value={year}
-                    onChange={(e) => setYear(Number(e.target.value))}
-                    className="w-full appearance-none glass-card rounded-lg px-3.5 py-3 pr-10 text-sm font-medium text-text cursor-pointer focus:outline-none focus:border-gold/50 hover:border-gold/30 transition-colors"
-                    aria-label={t("prod.stepYear")}
-                  >
-                    {[...model.years]
-                      .sort((a, b) => b - a)
-                      .map((y) => (
-                        <option key={y} value={y} className="bg-bg text-text">
-                          {y}
-                        </option>
-                      ))}
-                  </select>
-                  <svg
-                    className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gold/70"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={2.2}
-                    viewBox="0 0 24 24"
-                    aria-hidden
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                  </svg>
-                </div>
+            {/* Year picker — promoted out of the step list because it's a
+                "which generation of this car do you have" qualifier, not
+                a configurator choice. Sits between the trust strip and
+                the configurator so the user confirms fit before styling. */}
+            <div className="mt-5 flex items-center gap-2.5">
+              <label
+                htmlFor="year-picker"
+                className="text-[10px] uppercase tracking-[0.18em] text-text-dim font-semibold"
+              >
+                {t("prod.stepYear")}
+              </label>
+              <div className="relative">
+                <select
+                  id="year-picker"
+                  value={year}
+                  onChange={(e) => setYear(Number(e.target.value))}
+                  className="appearance-none rounded-md bg-bg/40 border border-border/60 hover:border-gold/40 text-text text-xs font-semibold pl-2.5 pr-7 py-1.5 cursor-pointer focus:outline-none focus:border-gold/60 transition-colors"
+                  aria-label={t("prod.stepYear")}
+                >
+                  {[...model.years]
+                    .sort((a, b) => b - a)
+                    .map((y) => (
+                      <option key={y} value={y} className="bg-bg text-text">
+                        {y}
+                      </option>
+                    ))}
+                </select>
+                <svg
+                  className="pointer-events-none absolute right-1.5 top-1/2 -translate-y-1/2 w-3 h-3 text-gold/70"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={2.2}
+                  viewBox="0 0 24 24"
+                  aria-hidden
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
               </div>
+            </div>
 
-              {/* Step 2 — Set */}
-              <div>
-                <StepHeader n={2} label={t("prod.stepSet")} value={localizedSet} />
+            <div className="mt-6 space-y-4">
+              {/* Section 1 — Set */}
+              <section className="glass-card rounded-xl p-4">
+                <StepHeader n={1} label={t("prod.stepSet")} value={localizedSet} />
                 {profile !== "standard" && (
-                  <div className="mb-2.5 flex items-start gap-2 rounded-md border border-gold/15 bg-gold/[0.04] px-2.5 py-1.5">
+                  <div className="mb-3 flex items-start gap-2 rounded-md border border-gold/15 bg-gold/[0.04] px-2.5 py-1.5">
                     <svg
                       className="w-3 h-3 text-gold/70 shrink-0 mt-0.5"
                       fill="none"
@@ -376,7 +386,7 @@ export default function ProductClient({
                         className={`px-3 py-2.5 text-left rounded-lg transition-all duration-200 ${
                           set === s.type
                             ? "border-2 border-gold bg-gold-glow"
-                            : "glass-card glow-hover"
+                            : "border border-border/50 bg-bg/30 hover:border-gold/30 hover:bg-bg/50"
                         }`}
                       >
                         <div
@@ -393,154 +403,155 @@ export default function ProductClient({
                     );
                   })}
                 </div>
-              </div>
+              </section>
 
-              {/* Step 3 — Mat color */}
-              <div>
+              {/* Section 2 — Style (mat color + edge color, one decision) */}
+              <section className="glass-card rounded-xl p-4">
                 <StepHeader
-                  n={3}
-                  label={t("prod.stepColor")}
-                  value={localizedColor}
+                  n={2}
+                  label={t("prod.stepStyle")}
+                  value={`${localizedColor} · ${localizedEdge}`}
                 />
-                <div className="flex flex-wrap gap-1.5">
-                  {evaColors.map((c) => (
-                    <MatColorSwatch
-                      key={c.id}
-                      color={c}
-                      selected={color.id === c.id}
-                      localizedName={localizeColor(t, c.name)}
-                      onClick={() => setColor(c)}
-                      showLabel={false}
-                    />
-                  ))}
+                <div className="space-y-4">
+                  <div>
+                    <div className="text-[10px] uppercase tracking-[0.15em] text-text-dim font-semibold mb-2">
+                      {t("prod.stepColor")}
+                    </div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {evaColors.map((c) => (
+                        <MatColorSwatch
+                          key={c.id}
+                          color={c}
+                          selected={color.id === c.id}
+                          localizedName={localizeColor(t, c.name)}
+                          onClick={() => setColor(c)}
+                          showLabel={false}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-[10px] uppercase tracking-[0.15em] text-text-dim font-semibold mb-2">
+                      {t("prod.stepEdge")}
+                    </div>
+                    <div className="grid grid-cols-7 gap-1.5">
+                      {edgeColors.map((c) => (
+                        <MatColorSwatch
+                          key={c.id}
+                          color={c}
+                          selected={edge.id === c.id}
+                          localizedName={localizeColor(t, c.name)}
+                          onClick={() => setEdge(c)}
+                          size="sm"
+                          variant="solid"
+                          showLabel={false}
+                        />
+                      ))}
+                    </div>
+                  </div>
                 </div>
-              </div>
+              </section>
 
-              {/* Step 4 — Edge */}
-              <div>
-                <StepHeader
-                  n={4}
-                  label={t("prod.stepEdge")}
-                  value={localizedEdge}
-                />
-                <div className="grid grid-cols-7 gap-1.5">
-                  {edgeColors.map((c) => (
-                    <MatColorSwatch
-                      key={c.id}
-                      color={c}
-                      selected={edge.id === c.id}
-                      localizedName={localizeColor(t, c.name)}
-                      onClick={() => setEdge(c)}
-                      size="sm"
-                      variant="solid"
-                      showLabel={false}
-                    />
-                  ))}
-                </div>
-              </div>
+              {/* Section 3 — Add-ons (badge + heel pad in one block) */}
+              <section className="glass-card rounded-xl p-4">
+                <StepHeader n={3} label={t("prod.stepAddons")} />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {bdg ? (
+                    <label
+                      className={`flex items-center gap-3 cursor-pointer rounded-lg p-3 transition-all duration-200 border ${badge ? "border-gold/60 bg-gold-glow shadow-[0_0_14px_rgba(212,165,74,0.12)]" : "border-border/50 bg-bg/30 hover:border-gold/30 hover:bg-bg/50"}`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={badge}
+                        onChange={(e) => setBadge(e.target.checked)}
+                        className="w-4 h-4 text-gold focus:ring-gold accent-[#D4A54A] rounded shrink-0"
+                      />
+                      <div className="relative w-14 h-5 rounded-[3px] overflow-hidden shrink-0 ring-1 ring-black/40 bg-[linear-gradient(180deg,#F0F0F0_0%,#C8C8C8_28%,#8E8E8E_52%,#B4B4B4_72%,#6C6C6C_100%)] flex items-center justify-center shadow-[inset_0_1px_0_rgba(255,255,255,0.7),inset_0_-1px_2px_rgba(0,0,0,0.35)]">
+                        {brand.logo && (
+                          /* eslint-disable-next-line @next/next/no-img-element */
+                          <img
+                            src={brand.logo}
+                            alt={brand.name}
+                            className="max-w-[80%] max-h-[75%] object-contain"
+                          />
+                        )}
+                        <div className="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-b from-white/55 to-transparent pointer-events-none" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-text text-[11px] font-semibold truncate">
+                          {t("prod.stepBadge")}
+                        </div>
+                        <div className="text-text-dim text-[10px] mt-0.5 truncate">
+                          {t("prod.badgeSubtext")}
+                        </div>
+                      </div>
+                      <span className="shrink-0 inline-flex items-center rounded-md bg-gold/10 px-2 py-1 text-[11px] font-bold text-gold ring-1 ring-gold/30">
+                        +{formatPrice(BADGE_PRICE)}
+                      </span>
+                    </label>
+                  ) : (
+                    <div className="flex items-center gap-3 rounded-lg border border-border/40 bg-surface/30 p-3">
+                      <div className="w-14 h-5 rounded-[3px] border border-dashed border-border/70 flex items-center justify-center shrink-0 text-text-faint">
+                        <svg
+                          className="w-3 h-3"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth={1.8}
+                          viewBox="0 0 24 24"
+                          aria-hidden
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z"
+                          />
+                        </svg>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-text-dim text-[11px] font-semibold truncate">
+                          {t("prod.badgeUnavailable")}
+                        </div>
+                        <div className="text-text-faint text-[10px] mt-0.5 leading-snug truncate">
+                          {t("prod.badgeUnavailableSub", { brand: brand.name })}
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
-              {/* Step 5 — Badge */}
-              <div>
-                <StepHeader n={5} label={t("prod.stepBadge")} />
-                {bdg ? (
                   <label
-                    className={`flex items-center gap-3 cursor-pointer glass-card rounded-lg p-3 transition-all duration-200 ${badge ? "!border-gold/50 shadow-[0_0_14px_rgba(212,165,74,0.12)]" : "glow-hover"}`}
+                    className={`flex items-center gap-3 cursor-pointer rounded-lg p-3 transition-all duration-200 border ${heelPad ? "border-gold/60 bg-gold-glow shadow-[0_0_14px_rgba(212,165,74,0.12)]" : "border-border/50 bg-bg/30 hover:border-gold/30 hover:bg-bg/50"}`}
                   >
                     <input
                       type="checkbox"
-                      checked={badge}
-                      onChange={(e) => setBadge(e.target.checked)}
+                      checked={heelPad}
+                      onChange={(e) => setHeelPad(e.target.checked)}
                       className="w-4 h-4 text-gold focus:ring-gold accent-[#D4A54A] rounded shrink-0"
                     />
-                    <div className="relative w-16 h-5 rounded-[3px] overflow-hidden shrink-0 ring-1 ring-black/40 bg-[linear-gradient(180deg,#F0F0F0_0%,#C8C8C8_28%,#8E8E8E_52%,#B4B4B4_72%,#6C6C6C_100%)] flex items-center justify-center shadow-[inset_0_1px_0_rgba(255,255,255,0.7),inset_0_-1px_2px_rgba(0,0,0,0.35)]">
-                      {brand.logo && (
-                        /* eslint-disable-next-line @next/next/no-img-element */
-                        <img
-                          src={brand.logo}
-                          alt={brand.name}
-                          className="max-w-[80%] max-h-[75%] object-contain"
-                        />
-                      )}
-                      <div className="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-b from-white/55 to-transparent pointer-events-none" />
+                    <div className="relative w-14 h-8 rounded-md overflow-hidden shrink-0 ring-1 ring-black/40 bg-[linear-gradient(135deg,#C8C8C8_0%,#7A7A7A_50%,#A8A8A8_100%)] flex items-center justify-center shadow-[inset_0_1px_0_rgba(255,255,255,0.6),inset_0_-1px_2px_rgba(0,0,0,0.4)]">
+                      <div
+                        className="absolute inset-1.5 rounded-sm opacity-60"
+                        style={{
+                          backgroundImage:
+                            "repeating-linear-gradient(90deg, rgba(0,0,0,0.55) 0 2px, transparent 2px 4px)",
+                        }}
+                        aria-hidden
+                      />
+                      <div className="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-b from-white/45 to-transparent pointer-events-none" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="text-text text-xs font-semibold truncate">
-                        {t("prod.badgeName", { brand: brand.name })}
+                      <div className="text-text text-[11px] font-semibold truncate">
+                        {t("prod.heelPadName")}
                       </div>
                       <div className="text-text-dim text-[10px] mt-0.5 truncate">
-                        {t("prod.badgeSubtext")}
+                        {t("prod.heelPadSubtext")}
                       </div>
                     </div>
                     <span className="shrink-0 inline-flex items-center rounded-md bg-gold/10 px-2 py-1 text-[11px] font-bold text-gold ring-1 ring-gold/30">
-                      +{formatPrice(BADGE_PRICE)}
+                      +{formatPrice(HEEL_PAD_PRICE)}
                     </span>
                   </label>
-                ) : (
-                  <div className="flex items-center gap-3 rounded-lg border border-border/50 bg-surface/30 p-3">
-                    <div className="w-16 h-5 rounded-[3px] border border-dashed border-border/70 flex items-center justify-center shrink-0 text-text-faint">
-                      <svg
-                        className="w-3 h-3"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth={1.8}
-                        viewBox="0 0 24 24"
-                        aria-hidden
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z"
-                        />
-                      </svg>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="text-text-dim text-xs font-semibold truncate">
-                        {t("prod.badgeUnavailable")}
-                      </div>
-                      <div className="text-text-faint text-[10px] mt-0.5 leading-snug">
-                        {t("prod.badgeUnavailableSub", { brand: brand.name })}
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Step 6 — Heel pad */}
-              <div>
-                <StepHeader n={6} label={t("prod.stepHeelPad")} />
-                <label
-                  className={`flex items-center gap-3 cursor-pointer glass-card rounded-lg p-3 transition-all duration-200 ${heelPad ? "!border-gold/50 shadow-[0_0_14px_rgba(212,165,74,0.12)]" : "glow-hover"}`}
-                >
-                  <input
-                    type="checkbox"
-                    checked={heelPad}
-                    onChange={(e) => setHeelPad(e.target.checked)}
-                    className="w-4 h-4 text-gold focus:ring-gold accent-[#D4A54A] rounded shrink-0"
-                  />
-                  <div className="relative w-16 h-10 rounded-md overflow-hidden shrink-0 ring-1 ring-black/40 bg-[linear-gradient(135deg,#C8C8C8_0%,#7A7A7A_50%,#A8A8A8_100%)] flex items-center justify-center shadow-[inset_0_1px_0_rgba(255,255,255,0.6),inset_0_-1px_2px_rgba(0,0,0,0.4)]">
-                    <div
-                      className="absolute inset-1.5 rounded-sm opacity-60"
-                      style={{
-                        backgroundImage:
-                          "repeating-linear-gradient(90deg, rgba(0,0,0,0.55) 0 2px, transparent 2px 4px)",
-                      }}
-                      aria-hidden
-                    />
-                    <div className="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-b from-white/45 to-transparent pointer-events-none" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="text-text text-xs font-semibold truncate">
-                      {t("prod.heelPadName")}
-                    </div>
-                    <div className="text-text-dim text-[10px] mt-0.5 truncate">
-                      {t("prod.heelPadSubtext")}
-                    </div>
-                  </div>
-                  <span className="shrink-0 inline-flex items-center rounded-md bg-gold/10 px-2 py-1 text-[11px] font-bold text-gold ring-1 ring-gold/30">
-                    +{formatPrice(HEEL_PAD_PRICE)}
-                  </span>
-                </label>
-              </div>
+                </div>
+              </section>
 
               {/* Submit — desktop only */}
               <button

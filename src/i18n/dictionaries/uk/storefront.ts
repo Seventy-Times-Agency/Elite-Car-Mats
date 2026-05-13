@@ -399,6 +399,8 @@ export const storefront: Dict = {
   "prod.subtitleSuffix": "EVA килимки",
   "prod.stepYear": "Рік",
   "prod.stepSet": "Комплект",
+  "prod.stepStyle": "Стиль",
+  "prod.stepAddons": "Доповнення",
   "prod.stepColor": "Колір килимка",
   "prod.stepEdge": "Окантовка",
   "prod.stepBadge": "Шильдик",

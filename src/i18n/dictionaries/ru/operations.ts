@@ -237,6 +237,8 @@ export const operations: Dict = {
   "email.matSetCargo": "Только багажник",
   "email.matSetFullCargo": "Полный комплект",
   "email.badgeSuffix": "Шильдик {brand}",
+  "email.heelPadSuffix": "Алюминиевая накладка под педаль",
+  "email.noteLabel": "Комментарий",
   "email.custSubject": "Заказ {orderNumber} принят — EliteCarMats",
   "email.custH1": "Спасибо за заказ, {name}!",
   "email.custP": "Ваш заказ принят. Мы свяжемся для подтверждения в ближайшее время.",

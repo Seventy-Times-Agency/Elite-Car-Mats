@@ -104,6 +104,10 @@ async function sendCustomerConfirmation(orderId: string): Promise<void> {
   });
   if (!order) return;
   const overrides = await loadPriceOverrides();
+  // Strip the internal promo annotation we glue onto Order.comment for
+  // ShipStation — only show the customer's original note in their inbox.
+  const customerComment =
+    order.comment?.replace(/\s*\n*\s*\[promo [^\]]+\]\s*$/, "").trim() || null;
   await sendCustomerOrderEmail({
     orderNumber: order.orderNumber,
     orderToken: signOrderToken(order.id),
@@ -114,6 +118,7 @@ async function sendCustomerConfirmation(orderId: string): Promise<void> {
     city: order.city,
     state: order.state,
     zip: order.zip,
+    comment: customerComment,
     total: Number(order.total ?? 0),
     items: order.items.map((i) => {
       const matSet = matSetFromEnum[i.product.matSet];
@@ -127,6 +132,7 @@ async function sendCustomerConfirmation(orderId: string): Promise<void> {
         edgeColorName: i.edgeColor.name,
         edgeColorHex: i.edgeColor.hex,
         badgeName: i.badge ? `+ ${i.badge.brandName} badge` : null,
+        heelPad: i.heelPad ?? false,
         year: i.year ?? null,
         quantity: i.quantity,
         unitPrice: calculateItemUnitPrice(

@@ -4,6 +4,7 @@ import { send, ownerEmail, siteUrl } from "../transport";
 import {
   baseTemplate,
   buildT,
+  commentBlock,
   itemsTable,
   type OrderEmailData,
 } from "./base";
@@ -33,6 +34,7 @@ export async function sendOwnerOrderEmail(
         <td style="padding-top:16px;text-align:right;color:#D4A54A;font-size:20px;font-weight:700;">${formatPrice(data.total)}</td>
       </tr>
     </table>
+    ${commentBlock(t, data.comment)}
     <div style="text-align:center;margin-top:32px;">
       <a href="${siteUrl}/admin/orders" style="color:#D4A54A;font-size:13px;">${t("email.ownerOpenAdmin")}</a>
     </div>

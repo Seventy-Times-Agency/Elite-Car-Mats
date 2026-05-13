@@ -4,6 +4,7 @@ import { send, orderUrl } from "../transport";
 import {
   baseTemplate,
   buildT,
+  commentBlock,
   itemsTable,
   type OrderEmailData,
 } from "./base";
@@ -28,6 +29,7 @@ export async function sendCustomerOrderEmail(
         <td style="padding-top:16px;text-align:right;color:#D4A54A;font-size:20px;font-weight:700;">${formatPrice(data.total)}</td>
       </tr>
     </table>
+    ${commentBlock(t, data.comment)}
     <div style="text-align:center;margin-top:32px;">
       <a href="${orderUrl(data.orderNumber, data.orderToken)}" style="display:inline-block;background:linear-gradient(to right,#D4A54A,#E5BC5F);color:#0F0F0F;text-decoration:none;padding:14px 28px;border-radius:10px;font-weight:600;font-size:13px;letter-spacing:0.1em;text-transform:uppercase;">${t("email.custTrackBtn")}</a>
     </div>

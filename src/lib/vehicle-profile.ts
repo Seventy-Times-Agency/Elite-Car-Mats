@@ -140,17 +140,18 @@ export function getAvailableMatSets(
 }
 
 export function getDefaultMatSet(profile: VehicleConfigProfile): MatSetType {
+  // Default = first item in MAT_SETS_BY_PROFILE[profile]. Mirrors the
+  // configurator's first option so we don't open the page on the most
+  // expensive set ($277 full-cargo) and scare entry-level buyers.
   switch (profile) {
     case "semi":
     case "twoSeater":
+    case "minivan":
       return "front";
     case "pickup":
-      return "full";
-    case "minivan":
-      return "full-cargo";
     case "standard":
     default:
-      return "full-cargo";
+      return "full";
   }
 }
 

@@ -28,14 +28,27 @@ function generateOrderNumber(): string {
 async function resolveNames(item: OrderItemInput) {
   const color = evaColors.find((c) => c.id === item.colorId);
   const edge = edgeColors.find((c) => c.id === item.edgeColorId);
+  // The set is already validated against the catalog higher up in POST
+  // (`validEvaIds` / `validEdgeIds`) — if we get here without a match,
+  // the catalog code is out of sync with the request and we'd rather
+  // 500 loudly than put raw cuids into the customer's email.
+  if (!color) {
+    throw new Error(`Unknown EVA color id: ${item.colorId}`);
+  }
+  if (!edge) {
+    throw new Error(`Unknown edge color id: ${item.edgeColorId}`);
+  }
   const badgeRow = item.badgeId
     ? badges.find((b) => b.id === item.badgeId)
     : null;
+  if (item.badgeId && !badgeRow) {
+    throw new Error(`Unknown badge id: ${item.badgeId}`);
+  }
   const { dict, fallback } = await getDictionary();
   const t = makeT(dict, fallback);
   return {
-    colorName: color?.name ?? item.colorId,
-    edgeColorName: edge?.name ?? item.edgeColorId,
+    colorName: color.name,
+    edgeColorName: edge.name,
     badgeName: badgeRow
       ? t("email.badgeSuffix", { brand: badgeRow.brandName })
       : null,
@@ -272,6 +285,7 @@ export async function POST(request: Request) {
         edgeColorName: names.edgeColorName,
         edgeColorHex: edgeRow?.hex ?? null,
         badgeName: names.badgeName,
+        heelPad: i.heelPad ?? false,
         year: i.year ?? null,
         quantity: i.quantity,
         unitPrice: calculateItemUnitPrice(
@@ -296,6 +310,9 @@ export async function POST(request: Request) {
       city: shipping.city || null,
       state: shipping.state || null,
       zip: shipping.zip || null,
+      // Pass the customer's raw note (without the internal promo
+      // annotation we glue onto Order.comment for ShipStation).
+      comment: shipping.comment || null,
       total: Number(createdOrder.total ?? 0),
       items: emailItems,
     };
@@ -321,6 +338,7 @@ export async function POST(request: Request) {
         edgeColorName: names.edgeColorName,
         edgeColorHex: edgeRow?.hex ?? null,
         badgeName: names.badgeName,
+        heelPad: i.heelPad ?? false,
         year: i.year ?? null,
         quantity: i.quantity,
         unitPrice: calculateItemUnitPrice(
@@ -345,6 +363,7 @@ export async function POST(request: Request) {
       city: shipping.city || null,
       state: shipping.state || null,
       zip: shipping.zip || null,
+      comment: shipping.comment || null,
       total: Number(createdOrder.total ?? 0),
       items: emailItems,
     }).catch((err) => console.error("[orders] owner email failed:", err));

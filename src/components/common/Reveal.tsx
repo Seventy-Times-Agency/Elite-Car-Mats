@@ -11,16 +11,19 @@ interface Props {
 
 export function Reveal({ children, delay = 0, className = "", as: Tag = "div" }: Props) {
   const ref = useRef<HTMLElement>(null);
-  const [visible, setVisible] = useState(false);
+  // Initial state: visible from the start on browsers without
+  // IntersectionObserver — keeps content reachable for legacy clients
+  // and SSR (where window doesn't exist) without a setState-in-effect.
+  const [visible, setVisible] = useState(
+    () =>
+      typeof window !== "undefined" &&
+      typeof IntersectionObserver === "undefined",
+  );
 
   useEffect(() => {
+    if (typeof IntersectionObserver === "undefined") return;
     const el = ref.current;
     if (!el) return;
-
-    if (typeof IntersectionObserver === "undefined") {
-      setVisible(true);
-      return;
-    }
 
     const obs = new IntersectionObserver(
       (entries) => {

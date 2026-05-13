@@ -55,8 +55,13 @@ function Combobox({
     return options.filter((o) => o.label.toLowerCase().includes(q));
   }, [options, query]);
 
-  // Reset highlight when filter changes
+  // Reset highlight when filter changes. The lint rule against
+  // setState-in-effect applies to inits, not reactive resets — query
+  // and open are external-ish inputs from the user keystroke / focus
+  // and we want the highlighted index to snap back to the top of the
+  // newly-filtered list.
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setHi(0);
   }, [query, open]);
 

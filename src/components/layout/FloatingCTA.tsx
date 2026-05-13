@@ -7,11 +7,17 @@ import { useT } from "@/i18n/I18nProvider";
 export function FloatingCTA() {
   const pathname = usePathname();
   const t = useT();
+  // Hide on flows where it adds clutter: cart, checkout, admin, order detail,
+  // and the product detail page (it already has its own sticky add-to-cart
+  // bar on mobile + a primary CTA on desktop, so the floating one would
+  // double up and overlap the sticky bar at the bottom).
+  const onProductPage = /^\/catalog\/[^/]+\/[^/]+/.test(pathname ?? "");
   if (
     pathname === "/cart" ||
     pathname === "/checkout" ||
     (pathname?.startsWith("/admin") ?? false) ||
-    (pathname?.startsWith("/order/") ?? false)
+    (pathname?.startsWith("/order/") ?? false) ||
+    onProductPage
   )
     return null;
 
@@ -19,7 +25,7 @@ export function FloatingCTA() {
     <div className="fixed bottom-6 right-6 z-40">
       <Link
         href="/catalog"
-        className="group flex items-center gap-2 bg-gold hover:bg-gold-light text-dark px-5 py-3 shadow-lg shadow-gold/20 transition-all duration-300 text-sm font-medium tracking-wide uppercase"
+        className="group flex items-center gap-2 bg-gold hover:bg-gold-light text-bg px-5 py-3 shadow-lg shadow-gold/20 transition-all duration-300 text-sm font-medium tracking-wide uppercase"
       >
         {t("floatcta.order")}
         <svg

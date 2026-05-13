@@ -57,7 +57,7 @@ export function MatColorSwatch({
       onClick={onClick}
       aria-label={localizedName}
       aria-pressed={selected}
-      className="group flex flex-col items-center gap-1.5 focus:outline-none"
+      className="group flex flex-col items-center gap-1.5"
     >
       <div
         className={`relative ${dim} overflow-hidden transition-all duration-200 ${

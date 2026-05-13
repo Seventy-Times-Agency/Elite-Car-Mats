@@ -128,8 +128,9 @@ export async function POST(request: Request) {
     const descBits = [i.color.name, i.edgeColor.name];
     if (i.badge) descBits.push(`+ ${i.badge.brandName} badge`);
     if (i.heelPad) descBits.push(`+ aluminum heel pad`);
+    const yearSuffix = i.year ? ` · ${i.year}` : "";
     return {
-      name: `${brandName} ${modelName}`,
+      name: `${brandName} ${modelName}${yearSuffix}`,
       description: descBits.join(" / "),
       unitPriceUsd,
       quantity: i.quantity,

@@ -31,6 +31,9 @@ export default async function AdminNewsletterPage() {
       subtitle={`${t("admin.newsletterCount")}: ${serialized.length}`}
       actions={
         serialized.length > 0 ? (
+          // CSV export — points at an API route that streams a file
+          // download, so it has to be a hard <a> (not next/link).
+          // eslint-disable-next-line @next/next/no-html-link-for-pages
           <a
             href="/api/admin/newsletter/export"
             className="glass-card text-gold hover:bg-gold/5 text-xs font-semibold tracking-wider uppercase px-4 py-2 rounded-lg transition-colors"

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Reveal } from "@/components/common/Reveal";
 import { useT } from "@/i18n/I18nProvider";
 import { calculateItemUnitPrice, formatPrice } from "@/lib/pricing";
@@ -63,7 +64,7 @@ export function GallerySection() {
               {t("gallery.subtitle")}
             </p>
           </div>
-          <a
+          <Link
             href="/catalog"
             className="inline-flex items-center gap-2 text-gold hover:text-gold-light text-sm uppercase tracking-[0.15em] font-medium transition-colors shrink-0"
           >
@@ -71,7 +72,7 @@ export function GallerySection() {
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
             </svg>
-          </a>
+          </Link>
         </Reveal>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">

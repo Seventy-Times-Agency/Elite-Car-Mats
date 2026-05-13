@@ -16,7 +16,7 @@ export function AnnouncementBar() {
     <div
       role="region"
       aria-label={t("ann.aria")}
-      className="hidden sm:block bg-bg-deep/95 border-b border-gold/10 text-text-faint"
+      className="block bg-bg-deep/95 border-b border-gold/10 text-text-faint"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-8 flex items-center justify-center gap-x-6 gap-y-1 text-[10.5px] uppercase tracking-[0.18em] font-semibold flex-wrap">
         <span className="inline-flex items-center gap-1.5">

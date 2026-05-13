@@ -87,7 +87,10 @@ export async function createCheckoutSession(
 
   const session = await stripe.checkout.sessions.create({
     mode: "payment",
-    payment_method_types: ["card"],
+    // Let Stripe auto-detect the right payment methods for the customer's
+    // device — Apple Pay / Google Pay / Link surface automatically on
+    // mobile once the domain is verified, which lifts mobile conversion
+    // significantly vs the card-only flow.
     line_items,
     customer_email: input.customerEmail,
     client_reference_id: input.orderId,

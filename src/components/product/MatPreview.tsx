@@ -13,6 +13,8 @@ interface MatPreviewProps {
   showBadge?: boolean;
   brandLogoUrl?: string;
   brandName?: string;
+  /** Render the aluminum heel pad (top-left driver area) when true. */
+  showHeelPad?: boolean;
 }
 
 function isLight(hex: string): boolean {
@@ -30,6 +32,7 @@ export function MatPreview({
   showBadge,
   brandLogoUrl,
   brandName,
+  showHeelPad,
 }: MatPreviewProps) {
   const light = isLight(color.hex);
   const cellWall = light ? "rgba(0,0,0,0.20)" : "rgba(255,255,255,0.08)";
@@ -170,6 +173,73 @@ export function MatPreview({
           {/* Fixation hole (heel pad area) */}
           <circle cx="480" cy="340" r="8" fill="rgba(0,0,0,0.35)" />
           <circle cx="480" cy="340" r="4" fill={color.hex} opacity="0.4" />
+
+          {/* Aluminum heel pad — top-left driver area, only when the
+              customer added the pad in step 4. Position roughly under
+              the gas pedal for left-hand-drive US market. */}
+          {showHeelPad && (
+            <g transform="translate(120, 130)">
+              <defs>
+                <linearGradient id="heelpad-grad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0" stopColor="#D8D8D8" />
+                  <stop offset="0.45" stopColor="#7A7A7A" />
+                  <stop offset="1" stopColor="#A8A8A8" />
+                </linearGradient>
+                <linearGradient id="heelpad-shine" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0" stopColor="rgba(255,255,255,0.55)" />
+                  <stop offset="1" stopColor="rgba(255,255,255,0)" />
+                </linearGradient>
+                <pattern
+                  id="heelpad-ribs"
+                  width="6"
+                  height="6"
+                  patternUnits="userSpaceOnUse"
+                >
+                  <rect width="3" height="6" fill="rgba(0,0,0,0.4)" />
+                </pattern>
+              </defs>
+              {/* drop shadow */}
+              <rect
+                x="-42"
+                y="-30"
+                width="84"
+                height="60"
+                rx="6"
+                fill="rgba(0,0,0,0.5)"
+                transform="translate(2, 3)"
+              />
+              {/* base plate */}
+              <rect
+                x="-42"
+                y="-30"
+                width="84"
+                height="60"
+                rx="6"
+                fill="url(#heelpad-grad)"
+                stroke="rgba(0,0,0,0.4)"
+                strokeWidth="0.6"
+              />
+              {/* vertical ribs */}
+              <rect
+                x="-38"
+                y="-26"
+                width="76"
+                height="52"
+                rx="3"
+                fill="url(#heelpad-ribs)"
+                opacity="0.55"
+              />
+              {/* top bevel highlight */}
+              <rect
+                x="-41"
+                y="-29"
+                width="82"
+                height="14"
+                rx="4"
+                fill="url(#heelpad-shine)"
+              />
+            </g>
+          )}
 
           {/* Sewn brand tag (ELITECARMATS.US) — always present on every mat */}
           <g transform="translate(440, 395)">

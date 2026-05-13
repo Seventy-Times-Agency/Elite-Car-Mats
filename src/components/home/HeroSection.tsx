@@ -45,7 +45,7 @@ export function HeroSection() {
                 { v: t("hero.statWarrantyValue"), l: t("hero.statWarranty") },
               ].map((s) => (
                 <div key={s.l}>
-                  <div className="text-3xl font-bold text-gold">{s.v}</div>
+                  <div className="text-3xl font-bold text-gold tabular-nums">{s.v}</div>
                   <div className="text-text-faint text-xs uppercase tracking-[0.15em] mt-1">{s.l}</div>
                 </div>
               ))}
@@ -59,7 +59,7 @@ export function HeroSection() {
             initial={{ opacity: 0, x: 24 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.15 }}
-            className="hidden lg:block relative"
+            className="block relative"
           >
             <div className="relative aspect-[5/4] max-w-xl mx-auto">
               {/* Gold glow behind */}

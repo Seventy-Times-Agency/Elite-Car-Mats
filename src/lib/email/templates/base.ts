@@ -12,6 +12,8 @@ export interface OrderEmailItem {
   edgeColorName: string;
   edgeColorHex?: string | null;
   badgeName?: string | null;
+  /** Adds an "+ Aluminum heel pad" line under the item when true. */
+  heelPad?: boolean;
   year?: number | null;
   quantity: number;
   unitPrice: number;
@@ -28,6 +30,8 @@ export interface OrderEmailData {
   city?: string | null;
   state?: string | null;
   zip?: string | null;
+  /** Free-form note from the customer at checkout (no promo annotation). */
+  comment?: string | null;
   total: number;
   items: OrderEmailItem[];
 }
@@ -62,6 +66,9 @@ export function itemsTable(t: TFn, items: OrderEmailItem[]): string {
       const badgeRow = i.badgeName
         ? `<div style="color:#D4A54A;font-size:12px;margin-top:4px;">+ ${i.badgeName}</div>`
         : "";
+      const heelPadRow = i.heelPad
+        ? `<div style="color:#D4A54A;font-size:12px;margin-top:4px;">+ ${t("email.heelPadSuffix")}</div>`
+        : "";
       return `
         <tr>
           <td style="padding:14px 0;border-bottom:1px solid #222;">
@@ -75,6 +82,7 @@ export function itemsTable(t: TFn, items: OrderEmailItem[]): string {
               ${swatch(i.edgeColorHex, "round")}${i.edgeColorName}
             </div>
             ${badgeRow}
+            ${heelPadRow}
           </td>
           <td style="padding:14px 0;border-bottom:1px solid #222;text-align:right;color:#D4A54A;font-weight:600;white-space:nowrap;vertical-align:top;">
             ${formatPrice(i.unitPrice * i.quantity)}
@@ -82,6 +90,29 @@ export function itemsTable(t: TFn, items: OrderEmailItem[]): string {
         </tr>`;
     })
     .join("");
+}
+
+/**
+ * Renders the customer-supplied note (if any) as a labelled block.
+ * Used in both customer and owner emails — owners especially need this
+ * for delivery instructions like "leave at door" / "call on arrival".
+ */
+export function commentBlock(t: TFn, comment: string | null | undefined): string {
+  const trimmed = comment?.trim();
+  if (!trimmed) return "";
+  // HTML-escape so a malicious customer can't inject markup.
+  const safe = trimmed
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/\n/g, "<br>");
+  return `
+    <div style="margin-top:24px;padding:14px 16px;border:1px solid #222;border-radius:6px;background:#161616;">
+      <div style="color:#D4A54A;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;font-weight:600;margin-bottom:6px;">
+        ${t("email.noteLabel")}
+      </div>
+      <div style="color:#bbb;font-size:13px;line-height:1.5;">${safe}</div>
+    </div>`;
 }
 
 export function baseTemplate(t: TFn, inner: string): string {

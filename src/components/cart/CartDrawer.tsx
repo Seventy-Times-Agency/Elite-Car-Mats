@@ -11,6 +11,7 @@ import {
 } from "@/lib/pricing";
 import { useT } from "@/i18n/I18nProvider";
 import { localizeColor, localizeMatSet } from "@/i18n/labels";
+import { TrustBadges } from "@/components/common/TrustBadges";
 
 export function CartDrawer() {
   const {
@@ -210,11 +211,11 @@ export function CartDrawer() {
                           }
                           disabled={item.quantity <= 1}
                           aria-label={t("cart.drawerDecrease")}
-                          className="w-7 h-7 text-text-dim hover:bg-gold/8 hover:text-gold transition-colors text-sm disabled:opacity-30 disabled:cursor-not-allowed"
+                          className="w-9 h-9 text-text-dim hover:bg-gold/8 hover:text-gold transition-colors text-base disabled:opacity-30 disabled:cursor-not-allowed"
                         >
                           −
                         </button>
-                        <span className="w-7 text-center text-text text-xs font-medium">
+                        <span className="w-9 text-center text-text text-sm font-medium">
                           {item.quantity}
                         </span>
                         <button
@@ -222,7 +223,7 @@ export function CartDrawer() {
                             updateQuantity(item.id, item.quantity + 1)
                           }
                           aria-label={t("cart.drawerIncrease")}
-                          className="w-7 h-7 text-text-dim hover:bg-gold/8 hover:text-gold transition-colors text-sm"
+                          className="w-9 h-9 text-text-dim hover:bg-gold/8 hover:text-gold transition-colors text-base"
                         >
                           +
                         </button>
@@ -261,9 +262,9 @@ export function CartDrawer() {
             >
               {t("cart.drawerContinue")}
             </button>
-            <p className="text-[10px] text-text-faint text-center pt-1">
-              {t("cart.drawerSecure")}
-            </p>
+            <div className="pt-2">
+              <TrustBadges compact />
+            </div>
           </div>
         )}
       </aside>

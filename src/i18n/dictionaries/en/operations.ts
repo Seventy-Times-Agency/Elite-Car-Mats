@@ -237,6 +237,8 @@ export const operations: Dict = {
   "email.matSetCargo": "Cargo only",
   "email.matSetFullCargo": "Complete Set",
   "email.badgeSuffix": "{brand} badge",
+  "email.heelPadSuffix": "Aluminum heel pad",
+  "email.noteLabel": "Note",
   "email.custSubject": "Order {orderNumber} received — Elite Car Mats",
   "email.custH1": "Thanks for your order, {name}!",
   "email.custP": 

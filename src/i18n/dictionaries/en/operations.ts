@@ -85,6 +85,7 @@ export const operations: Dict = {
   "admin.pricingAddonsNote": 
     "Add-ons are still code-only. To change badge / edge surcharge price edit src/lib/pricing.ts and redeploy.",
   "admin.pricingMetallicBadge": "Metallic brand badge",
+  "admin.pricingHeelPad": "Aluminum heel pad",
   "admin.pricingEdgeRow": "Edge surcharge — {id}",
   "admin.pricingNoSurcharge": "No surcharge",
   "admin.pricingFeedH": "Google Shopping feed",

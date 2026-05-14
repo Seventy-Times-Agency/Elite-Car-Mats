@@ -8,19 +8,17 @@ import { getShipstationWebhookToken } from "../config";
  *
  * https://help.shipstation.com/hc/en-us/articles/360025856212
  *
- * We require the caller to pass `?token=<secret>` (or the matching
- * `x-shipstation-token` header for clients that strip query strings).
+ * Auth is via the `x-shipstation-token` header only — the legacy
+ * `?token=<secret>` query path was removed because URL query strings leak
+ * into CDN access logs, Referer headers and crash reports. Configure the
+ * webhook in the ShipStation Dashboard with a custom header instead.
  * Comparison is constant-time to avoid timing attacks.
  */
 export function verifyShipstationWebhookRequest(req: Request): boolean {
   const expected = getShipstationWebhookToken();
   if (!expected) return false;
 
-  const url = new URL(req.url);
-  const provided =
-    url.searchParams.get("token") ||
-    req.headers.get("x-shipstation-token") ||
-    "";
+  const provided = req.headers.get("x-shipstation-token") || "";
   if (!provided) return false;
 
   const a = Buffer.from(expected);

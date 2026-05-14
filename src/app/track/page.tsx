@@ -27,8 +27,11 @@ async function track(formData: FormData) {
     where: { OR: [{ id: orderNumber }, { orderNumber }] },
     select: { id: true, orderNumber: true, email: true },
   });
+  // Collapse "not found" and "email mismatch" into one generic error so
+  // brute-forcing order numbers without the email returns the same
+  // response as "no such number" — matches the /order/[id] behaviour.
   if (!order || order.email.toLowerCase() !== email) {
-    redirect(`/track?error=notfound&n=${encodeURIComponent(orderNumber)}`);
+    redirect(`/track?error=invalid&n=${encodeURIComponent(orderNumber)}`);
   }
   const token = signOrderToken(order.id);
   redirect(`/order/${order.orderNumber}?t=${token}`);
@@ -58,7 +61,7 @@ export default async function TrackPage({
             name="orderNumber"
             placeholder="ECM-XXXXXX-XXXX"
             defaultValue={
-              error === "notfound" || error === "auth" ? n ?? "" : ""
+              error === "invalid" || error === "notfound" ? n ?? "" : ""
             }
             autoFocus
             required
@@ -74,15 +77,12 @@ export default async function TrackPage({
           {error === "empty" && (
             <p className="text-[11px] text-error">{s("track.errEmpty")}</p>
           )}
-          {error === "notfound" && (
+          {(error === "invalid" || error === "notfound") && (
             <p className="text-[11px] text-error">
               {n
                 ? sFmt("track.errNotFound", { n })
                 : s("track.errNotFoundGeneric")}
             </p>
-          )}
-          {error === "auth" && (
-            <p className="text-[11px] text-error">{s("track.errAuth")}</p>
           )}
           {error === "throttled" && (
             <p className="text-[11px] text-error">

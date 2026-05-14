@@ -74,10 +74,28 @@ function timingSafeEqualStr(a: string, b: string): boolean {
   return timingSafeEqual(ab, bb);
 }
 
+// OWASP-aligned scrypt parameters. N=2^17 is the current "memory-hard
+// enough on commodity hardware" target — costs ~128 MB and ~150 ms per
+// hash on a 2025-vintage server, fine for an admin login that runs at
+// human speed. NOTE: tightening these invalidates any ADMIN_PASSWORD_
+// HASH generated with the previous Node defaults — regenerate the hash
+// when bumping these.
+const SCRYPT_OPTS = {
+  N: 1 << 17,
+  r: 8,
+  p: 1,
+  maxmem: 256 * 1024 * 1024,
+} as const;
+
 function verifyPassword(input: string): boolean {
   const hash = parseHash();
   if (hash) {
-    const derived = scryptSync(input, hash.salt, hash.hash.length);
+    const derived = scryptSync(
+      input,
+      hash.salt,
+      hash.hash.length,
+      SCRYPT_OPTS,
+    );
     if (derived.length !== hash.hash.length) return false;
     return timingSafeEqual(derived, hash.hash);
   }
@@ -237,8 +255,10 @@ export function checkAdminCsrf(request: Request): boolean {
 
   if (origin) return matches(origin);
   if (referer) return matches(referer);
-  // Neither header — modern browsers always send Origin on cross-site POSTs,
-  // so an absent Origin from the same browser session is unusual but allowed
-  // (server-to-server clients legitimately don't send one).
-  return true;
+  // Neither header — fail closed. Modern browsers always send Origin on
+  // cross-site POSTs, and admin endpoints have no legitimate server-to-
+  // server callers (the diagnostic endpoints use ADMIN_API_TOKEN via the
+  // x-admin-token header instead). Defence-in-depth on top of the
+  // session cookie's `sameSite: "strict"`.
+  return false;
 }

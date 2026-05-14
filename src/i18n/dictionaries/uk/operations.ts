@@ -84,6 +84,7 @@ export const operations: Dict = {
   "admin.pricingAddonsNote": 
     "Доплати поки лише в коді. Щоб змінити — правте src/lib/pricing.ts і редеплойте.",
   "admin.pricingMetallicBadge": "Металевий бейдж бренду",
+  "admin.pricingHeelPad": "Алюмінієва накладка під педаль",
   "admin.pricingEdgeRow": "Окантовка — {id}",
   "admin.pricingNoSurcharge": "Без доплати",
   "admin.pricingFeedH": "Google Shopping feed",

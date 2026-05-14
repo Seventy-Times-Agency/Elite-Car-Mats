@@ -61,22 +61,21 @@ export async function createCheckoutSession(
 
   // Translate the order-level promo discount into a one-shot Stripe coupon
   // so the displayed total on Stripe matches what we stored in the DB.
+  //
+  // If coupon creation fails we throw — the previous behaviour was to log
+  // and continue, which silently overcharged the customer the full
+  // pre-discount amount. The route's try/catch turns this into a 5xx and
+  // the customer can retry instead of being billed too much.
   let discounts: Stripe.Checkout.SessionCreateParams.Discount[] | undefined;
   if (input.discountUsd && input.discountUsd > 0) {
-    try {
-      const coupon = await stripe.coupons.create({
-        amount_off: Math.round(input.discountUsd * 100),
-        currency: "usd",
-        duration: "once",
-        name: `Promo (${input.orderNumber})`,
-        max_redemptions: 1,
-      });
-      discounts = [{ coupon: coupon.id }];
-    } catch (err) {
-      // If coupon creation fails we still want to charge the customer the
-      // pre-discount line items rather than block checkout. Log it loudly.
-      console.error("[stripe-checkout] coupon create failed:", err);
-    }
+    const coupon = await stripe.coupons.create({
+      amount_off: Math.round(input.discountUsd * 100),
+      currency: "usd",
+      duration: "once",
+      name: `Promo (${input.orderNumber})`,
+      max_redemptions: 1,
+    });
+    discounts = [{ coupon: coupon.id }];
   }
 
   const successQs = new URLSearchParams({

@@ -8,17 +8,6 @@ import {
   type VehicleConfigProfile,
 } from "./vehicle-profile";
 
-/**
- * Edge / kant colour surcharges. Currently zero across the board — kept
- * here so a future colour upcharge is a one-line change.
- */
-export const EDGE_SURCHARGE: Record<string, number> = {
-  black: 0,
-  gray: 0,
-  gold: 0,
-  red: 0,
-};
-
 /** Metallic brand badge add-on. Flat surcharge regardless of mat set. */
 export const BADGE_PRICE = 9;
 
@@ -109,10 +98,9 @@ export function calculateItemUnitPrice(
 ): number {
   const profile = findProfileByModelId(item.modelId);
   const base = getMatSetPrice(profile, item.matSet, overrides);
-  const edge = EDGE_SURCHARGE[item.edgeColor.id] ?? 0;
   const badge = item.badge ? BADGE_PRICE : 0;
   const heelPad = item.heelPad ? HEEL_PAD_PRICE : 0;
-  return base + edge + badge + heelPad;
+  return base + badge + heelPad;
 }
 
 export function calculateItemTotal(

@@ -6,7 +6,7 @@ import {
   MAT_SETS_BY_PROFILE,
   type MatSetOption,
 } from "@/data/catalog/mat-sets";
-import { BADGE_PRICE, EDGE_SURCHARGE } from "@/lib/pricing";
+import { BADGE_PRICE, HEEL_PAD_PRICE } from "@/lib/pricing";
 import type { VehicleConfigProfile } from "@/lib/vehicle-profile";
 import { getDictionary } from "@/i18n/getDictionary";
 import { makeT } from "@/i18n/dictionary";
@@ -53,7 +53,7 @@ export default async function AdminPricingPage() {
 
   const addons = {
     badge: BADGE_PRICE,
-    edges: Object.entries(EDGE_SURCHARGE).map(([id, price]) => ({ id, price })),
+    heelPad: HEEL_PAD_PRICE,
   };
 
   return (

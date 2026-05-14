@@ -1,4 +1,5 @@
 import "server-only";
+import { unstable_cache } from "next/cache";
 import { prisma } from "@/lib/db/prisma";
 import {
   brands as codeBrands,
@@ -151,3 +152,19 @@ export async function getMergedCatalog(): Promise<MergedCatalog> {
     customModelIds,
   };
 }
+
+/**
+ * Cached wrapper. Every public catalog route (catalog grid, brand page,
+ * product page, sitemap, Google feed) goes through this — without it
+ * a 50-RPS spike runs `customBrand.findMany` + `customModel.findMany`
+ * on every render. Tag is `catalog`; admin mutations call
+ * `revalidateTag("catalog")` to bust this cache on save.
+ *
+ * Revalidate ceiling is 1 hour so a missed `revalidateTag` doesn't
+ * leave the catalog stale forever.
+ */
+export const getMergedCatalogCached = unstable_cache(
+  () => getMergedCatalog(),
+  ["catalog-merged-v1"],
+  { tags: ["catalog"], revalidate: 3600 },
+);

@@ -1,5 +1,5 @@
 import BrandClient from "./BrandClient";
-import { getMergedCatalog } from "@/lib/catalog-merge";
+import { getMergedCatalogCached } from "@/lib/catalog-merge";
 
 export const dynamic = "force-dynamic";
 
@@ -9,7 +9,7 @@ interface Params {
 
 export default async function BrandPage({ params }: Params) {
   const { brand: brandSlug } = await params;
-  const { brands, models } = await getMergedCatalog();
+  const { brands, models } = await getMergedCatalogCached();
   const brand = brands.find((b) => b.slug === brandSlug) ?? null;
   const brandModels = brand
     ? models.filter((m) => m.brandId === brand.id)

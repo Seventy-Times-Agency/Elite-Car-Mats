@@ -1,5 +1,5 @@
 import ProductClient from "./ProductClient";
-import { getMergedCatalog } from "@/lib/catalog-merge";
+import { getMergedCatalogCached } from "@/lib/catalog-merge";
 
 interface Params {
   params: Promise<{ brand: string; model: string }>;
@@ -7,7 +7,7 @@ interface Params {
 
 export default async function ProductPage({ params }: Params) {
   const { brand: brandSlug, model: modelSlug } = await params;
-  const { brands, models } = await getMergedCatalog();
+  const { brands, models } = await getMergedCatalogCached();
   const brand = brands.find((b) => b.slug === brandSlug) ?? null;
   const model =
     brand &&

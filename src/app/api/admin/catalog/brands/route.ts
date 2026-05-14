@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidateTag } from "next/cache";
 import { prisma } from "@/lib/db/prisma";
 import { requireAdmin, checkAdminCsrf } from "@/lib/security/auth";
 import { brandCreateSchema } from "@/lib/validations/catalog";
@@ -69,6 +70,7 @@ export async function POST(request: Request) {
         categories: d.categories ?? [],
       },
     });
+    revalidateTag("catalog", "default");
     return NextResponse.json({ brand: row });
   } catch (err) {
     const msg = err instanceof Error ? err.message : "error";

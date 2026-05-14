@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { getMergedCatalog } from "@/lib/catalog-merge";
-import { loadPriceOverrides } from "@/lib/pricing-overrides";
+import { getMergedCatalogCached } from "@/lib/catalog-merge";
+import { loadPriceOverridesCached } from "@/lib/pricing-overrides";
 import { getMatSetPrice } from "@/lib/pricing";
 import {
   MAT_SETS_BY_PROFILE,
@@ -12,7 +12,12 @@ import {
 } from "@/lib/vehicle-profile";
 
 export const runtime = "nodejs";
-export const dynamic = "force-dynamic";
+// Regenerate hourly at most — Google Merchant Center pulls daily and
+// the feed itself is cached at the edge for an hour via Cache-Control.
+// Dropping force-dynamic lets us also serve a prerendered version on
+// the first hit after deploy instead of generating ~700×3 ≈ 2k items
+// for every bot poke.
+export const revalidate = 3600;
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://elitecarmats.us";
 
@@ -46,14 +51,18 @@ function buildItemDescription(
 
 export async function GET() {
   const [{ brands, models }, overrides] = await Promise.all([
-    getMergedCatalog(),
-    loadPriceOverrides(),
+    getMergedCatalogCached(),
+    loadPriceOverridesCached(),
   ]);
+
+  // O(1) brand lookup — was a 60-deep `find` inside a 700-item loop,
+  // so 42k comparisons per Googlebot poke.
+  const brandById = new Map(brands.map((b) => [b.id, b] as const));
 
   const items: string[] = [];
 
   for (const model of models) {
-    const brand = brands.find((b) => b.id === model.brandId);
+    const brand = brandById.get(model.brandId);
     if (!brand) continue;
 
     const profile: VehicleConfigProfile = getVehicleProfile(model);

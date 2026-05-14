@@ -1,12 +1,21 @@
 import { MetadataRoute } from "next";
 import { listAllPublishedSlugs } from "@/lib/blog";
-import { getMergedCatalog } from "@/lib/catalog-merge";
+import { getMergedCatalogCached } from "@/lib/catalog-merge";
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://elitecarmats.us";
 
+// 1h revalidate ceiling — the catalog itself almost never changes, and
+// the cached catalog merge is the same shape on every regen, so the
+// only reason to recompute is to pick up new blog posts. Googlebot
+// re-fetches anyway, but this keeps a single bot poke cheap.
+export const revalidate = 3600;
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
-  const { brands, models } = await getMergedCatalog();
+  const { brands, models } = await getMergedCatalogCached();
+  // O(1) brand-slug lookup instead of a 700-deep `find` per model
+  // (that was 60 × 700 = 42k comparisons every sitemap fetch).
+  const brandSlugById = new Map(brands.map((b) => [b.id, b.slug] as const));
 
   const staticPages: MetadataRoute.Sitemap = [
     { url: SITE, lastModified: now, changeFrequency: "weekly", priority: 1.0 },
@@ -30,9 +39,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   const modelPages: MetadataRoute.Sitemap = models.map((m) => {
-    const brand = brands.find((b) => b.id === m.brandId);
+    const brandSlug = brandSlugById.get(m.brandId) ?? m.brandId;
     return {
-      url: `${SITE}/catalog/${brand?.slug ?? m.brandId}/${m.slug}`,
+      url: `${SITE}/catalog/${brandSlug}/${m.slug}`,
       lastModified: now,
       changeFrequency: "monthly",
       priority: 0.6,

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidateTag } from "next/cache";
 import { prisma } from "@/lib/db/prisma";
 import { requireAdmin, checkAdminCsrf } from "@/lib/security/auth";
 import { brandUpdateSchema } from "@/lib/validations/catalog";
@@ -48,6 +49,7 @@ export async function PATCH(request: Request, ctx: Ctx) {
 
   try {
     const row = await prisma.customBrand.update({ where: { id }, data });
+    revalidateTag("catalog", "default");
     return NextResponse.json({ brand: row });
   } catch (err) {
     const msg = err instanceof Error ? err.message : "error";
@@ -72,6 +74,7 @@ export async function DELETE(request: Request, ctx: Ctx) {
   const { id } = await ctx.params;
   try {
     await prisma.customBrand.delete({ where: { id } });
+    revalidateTag("catalog", "default");
     return NextResponse.json({ ok: true });
   } catch (err) {
     const msg = err instanceof Error ? err.message : "error";

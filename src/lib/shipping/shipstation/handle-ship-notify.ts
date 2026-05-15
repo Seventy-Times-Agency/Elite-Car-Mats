@@ -23,10 +23,37 @@ import type { SsShipment, SsShipmentList } from "./types";
  * and don't double-send the email when the row was already in SHIPPED.
  */
 
+/**
+ * Tight allowlist for the host portion of the resource_url that
+ * ShipStation tells us to fetch. Without this an attacker who knew our
+ * webhook token could submit `resource_url: "https://attacker.example
+ * .com/leak"` and we'd happily POST our Basic-auth-bearing request to
+ * them — full credential exfiltration via SSRF.
+ */
+const SHIPSTATION_API_HOST = "ssapi.shipstation.com";
+
+function assertShipstationResourceUrl(url: string): void {
+  let parsed: URL;
+  try {
+    parsed = new URL(url);
+  } catch {
+    throw new Error("ShipStation resource_url is not a valid URL");
+  }
+  if (parsed.protocol !== "https:") {
+    throw new Error("ShipStation resource_url must use https");
+  }
+  if (parsed.host !== SHIPSTATION_API_HOST) {
+    throw new Error(
+      `ShipStation resource_url host "${parsed.host}" is not allowlisted`,
+    );
+  }
+}
+
 export async function handleShipNotifyResource(resourceUrl: string): Promise<{
   processed: number;
   skipped: number;
 }> {
+  assertShipstationResourceUrl(resourceUrl);
   const list = await shipstation.getResource<SsShipmentList>(resourceUrl);
   let processed = 0;
   let skipped = 0;

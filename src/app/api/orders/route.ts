@@ -15,6 +15,8 @@ import {
 } from "@/lib/email";
 import { signOrderToken } from "@/lib/security/order-token";
 import { evaColors, edgeColors, brands, badges, mockModels } from "@/data/catalog";
+import { MAT_SETS_BY_PROFILE } from "@/data/catalog/mat-sets";
+import { getVehicleProfile } from "@/lib/vehicle-profile";
 import { getDictionary } from "@/i18n/getDictionary";
 import { makeT } from "@/i18n/dictionary";
 import type { OrderItemInput } from "@/lib/validations/order";
@@ -157,6 +159,29 @@ export async function POST(request: Request) {
     if (!knownBrandNames.has(i.brandName.toLowerCase())) {
       return NextResponse.json(
         { error: `Unknown brand "${i.brandName}"` },
+        { status: 400 },
+      );
+    }
+  }
+
+  // Validate that each item's matSet is actually offered for that
+  // vehicle's profile (sedan / pickup / minivan / semi / twoSeater).
+  // Without this a hand-crafted POST could ship `{matSet:"cargo"}` for
+  // a semi truck and be billed at the sedan-cargo $79 — a silent
+  // pricing-bypass vector. The model has already been resolved above,
+  // so we can trust the catalog row.
+  const modelById = new Map(mockModels.map((m) => [m.id, m] as const));
+  for (const { item: i, modelId } of itemsResolved) {
+    const lookupId = modelId ?? i.modelId;
+    const m = modelById.get(lookupId);
+    if (!m) continue; // unreachable: covered by the unresolved check above
+    const profile = getVehicleProfile(m);
+    const allowed = MAT_SETS_BY_PROFILE[profile];
+    if (!allowed.some((s) => s.type === i.matSet)) {
+      return NextResponse.json(
+        {
+          error: `Mat set "${i.matSet}" is not available for ${i.brandName} ${i.modelName}.`,
+        },
         { status: 400 },
       );
     }

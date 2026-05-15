@@ -22,7 +22,7 @@ export interface ProfileBlock {
 
 interface AddonRows {
   badge: number;
-  edges: { id: string; price: number }[];
+  heelPad: number;
 }
 
 export function PricingManager({
@@ -246,18 +246,14 @@ export function PricingManager({
                   +{formatPrice(addons.badge)}
                 </td>
               </tr>
-              {addons.edges.map((e) => (
-                <tr key={e.id}>
-                  <td className="px-4 py-2.5 text-text">
-                    {t("admin.pricingEdgeRow", { id: e.id })}
-                  </td>
-                  <td className="px-4 py-2.5 text-right text-text-dim">
-                    {e.price === 0
-                      ? t("admin.pricingNoSurcharge")
-                      : `+${formatPrice(e.price)}`}
-                  </td>
-                </tr>
-              ))}
+              <tr>
+                <td className="px-4 py-2.5 text-text">
+                  {t("admin.pricingHeelPad")}
+                </td>
+                <td className="px-4 py-2.5 text-right text-gold font-semibold">
+                  +{formatPrice(addons.heelPad)}
+                </td>
+              </tr>
             </tbody>
           </table>
         </div>

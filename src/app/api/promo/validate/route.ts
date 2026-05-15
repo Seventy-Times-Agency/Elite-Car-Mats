@@ -41,6 +41,22 @@ export async function POST(request: Request) {
     );
   }
 
+  // Per-code throttle: 50 attempts per code per hour, summed across IPs.
+  // Stops a botnet from brute-forcing a specific promo code by spreading
+  // out the per-IP cap. Normalised to lowercase so casing variants don't
+  // each get their own bucket.
+  const normalisedCode = parsed.data.code.trim().toLowerCase();
+  const codeLimit = await rateLimit(`promo:code:${normalisedCode}`, {
+    windowMs: 60 * 60 * 1000,
+    max: 50,
+  });
+  if (!codeLimit.ok) {
+    return NextResponse.json(
+      { valid: false, error: "rate_limited" },
+      { status: 429, headers: { "Retry-After": String(codeLimit.retryAfter) } },
+    );
+  }
+
   const result = await validatePromoCode(parsed.data.code, parsed.data.subtotal);
   return NextResponse.json(result);
 }

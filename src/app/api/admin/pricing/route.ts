@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidateTag } from "next/cache";
 import { prisma } from "@/lib/db/prisma";
 import { requireAdmin, checkAdminCsrf } from "@/lib/security/auth";
 import { priceOverrideUpsertSchema } from "@/lib/validations/pricing";
@@ -62,6 +63,7 @@ export async function POST(request: Request) {
       await prisma.matSetPriceOverride.deleteMany({
         where: { profile, matSet },
       });
+      revalidateTag("pricing", "default");
       return NextResponse.json({ ok: true, action: "cleared" });
     }
     const row = await prisma.matSetPriceOverride.upsert({
@@ -69,6 +71,7 @@ export async function POST(request: Request) {
       create: { profile, matSet, price },
       update: { price },
     });
+    revalidateTag("pricing", "default");
     return NextResponse.json({
       ok: true,
       action: "saved",

@@ -76,17 +76,18 @@ export default async function OrderPage({
     },
   });
 
+  // Auth: token in URL OR admin cookie. Both "order doesn't exist" and
+  // "order exists but bad/missing token" collapse to the same error code
+  // so an attacker who guessed an orderNumber can't tell the difference
+  // (which would otherwise be an enumeration oracle).
   if (!order) {
-    redirect(`/track?error=notfound&n=${encodeURIComponent(id)}`);
+    redirect(`/track?error=invalid&n=${encodeURIComponent(id)}`);
   }
-
-  // Auth: token in URL OR admin cookie. Without either, treat as if the
-  // order doesn't exist (don't leak existence) — bounce to /track.
   const tokenOk = verifyOrderToken(order.id, token ?? null);
   if (!tokenOk) {
     const adminOk = await requireAdmin();
     if (!adminOk) {
-      redirect(`/track?error=auth&n=${encodeURIComponent(order.orderNumber)}`);
+      redirect(`/track?error=invalid&n=${encodeURIComponent(order.orderNumber)}`);
     }
   }
 

@@ -1,4 +1,5 @@
 import "server-only";
+import { unstable_cache } from "next/cache";
 import { prisma } from "@/lib/db/prisma";
 import type { MatSetType } from "@/types";
 import type { VehicleConfigProfile } from "@/lib/vehicle-profile";
@@ -37,3 +38,16 @@ export async function loadPriceOverrides(): Promise<PriceOverrideMap> {
     return new Map();
   }
 }
+
+/**
+ * Cached wrapper for display-only read paths (feed.xml, product page
+ * metadata). Billing paths — /api/orders, /api/checkout/stripe,
+ * /api/webhooks/stripe, shipstation/create-order — keep using the raw
+ * function so any admin override is reflected on the next charge.
+ * Tag is `pricing`; admin/pricing POST calls revalidateTag("pricing").
+ */
+export const loadPriceOverridesCached = unstable_cache(
+  () => loadPriceOverrides(),
+  ["pricing-overrides-v1"],
+  { tags: ["pricing"], revalidate: 3600 },
+);

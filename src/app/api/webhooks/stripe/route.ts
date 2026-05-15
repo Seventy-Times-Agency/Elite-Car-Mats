@@ -38,6 +38,10 @@ const matSetFromEnum: Record<string, MatSetType> = {
  * already handled. The "WebhookEvent" table is created lazily on first use
  * (the runtime DDL flow in db-setup.ts doesn't know about it yet because
  * it's a new table — we declare it via raw SQL here for safety).
+ *
+ * Throws on DB error so the caller responds 500 and Stripe retries — the
+ * old behaviour of "fail open and run side effects anyway" would otherwise
+ * race a second retry into duplicated emails and ShipStation pushes.
  */
 async function claimEvent(eventId: string): Promise<boolean> {
   // Lazy table creation — re-runs are no-ops thanks to IF NOT EXISTS.
@@ -47,19 +51,11 @@ async function claimEvent(eventId: string): Promise<boolean> {
       "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
     )
   `;
-  try {
-    const inserted = await prisma.$executeRaw`
-      INSERT INTO "WebhookEvent"("id") VALUES (${eventId})
-      ON CONFLICT ("id") DO NOTHING
-    `;
-    return inserted === 1;
-  } catch (err) {
-    console.error("[stripe-webhook] claimEvent failed:", err);
-    // Fail closed-ish: if we can't record the claim, allow processing but
-    // rely on the per-row status guard further down to keep things
-    // idempotent. Better than silently dropping a real payment.
-    return true;
-  }
+  const inserted = await prisma.$executeRaw`
+    INSERT INTO "WebhookEvent"("id") VALUES (${eventId})
+    ON CONFLICT ("id") DO NOTHING
+  `;
+  return inserted === 1;
 }
 
 /**
@@ -178,7 +174,19 @@ export async function POST(request: Request) {
   // Idempotency: claim this event id before doing any side effects. Stripe
   // re-delivers on transient failures, so a 200-OK response after a partial
   // run can otherwise double-send emails or double-decrement stock.
-  const fresh = await claimEvent(event.id);
+  let fresh: boolean;
+  try {
+    fresh = await claimEvent(event.id);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error(`[stripe-webhook] claimEvent failed for ${event.id}:`, msg);
+    // Return 500 so Stripe re-delivers — better than fail-open and a
+    // possible double-send if a transient DB blip clears.
+    return NextResponse.json(
+      { error: "Idempotency claim failed" },
+      { status: 500 },
+    );
+  }
   if (!fresh) {
     console.log(`[stripe-webhook] ${event.id} already processed`);
     return NextResponse.json({ ok: true, idempotent: true });
@@ -210,12 +218,12 @@ export async function POST(request: Request) {
             `[stripe-webhook] ${event.id} order=${orderId} paid (rows=${res.count})`,
           );
           if (res.count === 1) {
-            try {
-              await sendCustomerConfirmation(orderId);
-            } catch (err) {
+            // Fire-and-forget so a slow Resend / ShipStation call can't
+            // trip Stripe's 30s webhook timeout and force a retry.
+            void sendCustomerConfirmation(orderId).catch((err) => {
               console.error("[stripe-webhook] confirmation email failed:", err);
-            }
-            await pushToShipstationSafely(orderId);
+            });
+            void pushToShipstationSafely(orderId);
           }
         } else {
           console.log(
@@ -236,12 +244,10 @@ export async function POST(request: Request) {
             `[stripe-webhook] ${event.id} order=${orderId} async-paid (rows=${res.count})`,
           );
           if (res.count === 1) {
-            try {
-              await sendCustomerConfirmation(orderId);
-            } catch (err) {
+            void sendCustomerConfirmation(orderId).catch((err) => {
               console.error("[stripe-webhook] confirmation email failed:", err);
-            }
-            await pushToShipstationSafely(orderId);
+            });
+            void pushToShipstationSafely(orderId);
           }
         }
         break;

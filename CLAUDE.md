@@ -244,22 +244,23 @@ serverless cold starts don't race `CREATE TYPE`.
 
 ## Still TODO (in priority order)
 
-1. **Customer accounts** — registration, order history, address
-   book, garage, "reorder". No `Customer` table yet; not started.
-2. **Real product photos** — replace the SVG mat preview + Wikipedia
+Customer accounts are intentionally NOT planned — the guest checkout +
+HMAC-token `/track` flow is the supported model going forward.
+
+1. **Real product photos** — replace the SVG mat preview + Wikipedia
    car thumbnails as soon as supplier sends shots.
-3. **Texture choice** (honeycomb / rhombus) and **Heel Pad** option
-   in the configurator (matches EVAtech).
-4. **Real EVA / edge colour palette** — current list is provisional.
-5. **Two-seater pricing review** — the strict 2-seater profile
+2. **Texture choice** (honeycomb / rhombus) in the configurator
+   (matches EVAtech).
+3. **Real EVA / edge colour palette** — current list is provisional.
+4. **Two-seater pricing review** — the strict 2-seater profile
    (roadsters, supercars) currently reuses the sedan price table;
    confirm with the supplier whether a smaller cabin warrants a
    different price.
-6. **Pickup truck-bed liner** — the bed-liner option was removed
+5. **Pickup truck-bed liner** — the bed-liner option was removed
    when the supplier stopped making it; restore the `pickup`
    profile's `cargo` / `full-cargo` options if the supplier brings
    it back.
-7. **DNS verification for Google Workspace** (`info@elitecarmats.us`)
+6. **DNS verification for Google Workspace** (`info@elitecarmats.us`)
    and Resend (`elitecarmats.us`).
 
 ## Operator actions outside the codebase

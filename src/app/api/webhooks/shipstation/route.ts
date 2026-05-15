@@ -1,13 +1,18 @@
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import {
   handleShipNotifyResource,
   isShipstationConfigured,
   verifyShipstationWebhookRequest,
-  type SsWebhookEnvelope,
 } from "@/lib/shipping/shipstation";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
+
+const envelopeSchema = z.object({
+  resource_url: z.string().url(),
+  resource_type: z.string().min(1),
+});
 
 /**
  * ShipStation webhook receiver. ShipStation POSTs a tiny envelope here
@@ -30,16 +35,17 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
-  let envelope: SsWebhookEnvelope;
+  let raw: unknown;
   try {
-    envelope = (await request.json()) as SsWebhookEnvelope;
+    raw = await request.json();
   } catch {
     return NextResponse.json({ error: "invalid-json" }, { status: 400 });
   }
-
-  if (!envelope.resource_url || !envelope.resource_type) {
+  const parsed = envelopeSchema.safeParse(raw);
+  if (!parsed.success) {
     return NextResponse.json({ error: "invalid-envelope" }, { status: 400 });
   }
+  const envelope = parsed.data;
 
   console.log(
     `[shipstation-webhook] ${envelope.resource_type} ${envelope.resource_url}`,

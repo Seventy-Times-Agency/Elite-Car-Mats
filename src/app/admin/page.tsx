@@ -27,11 +27,15 @@ export default async function AdminDashboardPage() {
   const last30 = new Date(today);
   last30.setDate(last30.getDate() - 29);
 
+  // Revenue aggregations done in SQL — pulling N rows back to JS and
+  // summing in a `reduce` would otherwise stream up to 10k orders per
+  // request when revenue grows.
+  type RevenueAgg = { sum: number | null; n: bigint };
   const [
     orderCount,
-    todayOrders,
-    week,
-    month,
+    todayAgg,
+    weekAgg,
+    monthAgg,
     pendingReviews,
     newsletterCount,
     activePromos,
@@ -40,18 +44,21 @@ export default async function AdminDashboardPage() {
     topModelsRaw,
   ] = await Promise.all([
     prisma.order.count(),
-    prisma.order.findMany({
-      where: { createdAt: { gte: today } },
-      select: { total: true },
-    }),
-    prisma.order.findMany({
-      where: { createdAt: { gte: last7 } },
-      select: { total: true },
-    }),
-    prisma.order.findMany({
-      where: { createdAt: { gte: last30 } },
-      select: { total: true },
-    }),
+    prisma.$queryRaw<RevenueAgg[]>`
+      SELECT COALESCE(SUM("total"), 0)::float AS sum, COUNT(*)::bigint AS n
+      FROM "Order"
+      WHERE "createdAt" >= ${today}
+    `,
+    prisma.$queryRaw<RevenueAgg[]>`
+      SELECT COALESCE(SUM("total"), 0)::float AS sum, COUNT(*)::bigint AS n
+      FROM "Order"
+      WHERE "createdAt" >= ${last7}
+    `,
+    prisma.$queryRaw<RevenueAgg[]>`
+      SELECT COALESCE(SUM("total"), 0)::float AS sum, COUNT(*)::bigint AS n
+      FROM "Order"
+      WHERE "createdAt" >= ${last30}
+    `,
     prisma.review.count({ where: { approved: false } }),
     prisma.newsletterSubscriber.count(),
     prisma.promoCode.count({ where: { active: true } }),
@@ -107,12 +114,12 @@ export default async function AdminDashboardPage() {
     `,
   ]);
 
-  const sum = (arr: { total: unknown }[]) =>
-    arr.reduce((acc, o) => acc + Number(o.total ?? 0), 0);
-
-  const revenueToday = sum(todayOrders);
-  const revenueWeek = sum(week);
-  const revenueMonth = sum(month);
+  const revenueToday = Number(todayAgg?.[0]?.sum ?? 0);
+  const revenueWeek = Number(weekAgg?.[0]?.sum ?? 0);
+  const revenueMonth = Number(monthAgg?.[0]?.sum ?? 0);
+  const todayCount = Number(todayAgg?.[0]?.n ?? 0);
+  const weekCount = Number(weekAgg?.[0]?.n ?? 0);
+  const monthCount = Number(monthAgg?.[0]?.n ?? 0);
 
   const aov30 = Number(aovRow?.[0]?.aov ?? 0);
   const aov30N = Number(aovRow?.[0]?.n ?? 0);
@@ -129,17 +136,17 @@ export default async function AdminDashboardPage() {
     {
       label: t("admin.dashRevenueToday"),
       value: formatPrice(revenueToday),
-      sub: `${todayOrders.length} ${t("admin.dashOrdersWord")}`,
+      sub: `${todayCount} ${t("admin.dashOrdersWord")}`,
     },
     {
       label: t("admin.dashRevenueWeek"),
       value: formatPrice(revenueWeek),
-      sub: `${week.length} ${t("admin.dashOrdersWord")}`,
+      sub: `${weekCount} ${t("admin.dashOrdersWord")}`,
     },
     {
       label: t("admin.dashRevenueMonth"),
       value: formatPrice(revenueMonth),
-      sub: `${month.length} ${t("admin.dashOrdersWord")}`,
+      sub: `${monthCount} ${t("admin.dashOrdersWord")}`,
     },
     {
       label: t("admin.dashTotalOrders"),

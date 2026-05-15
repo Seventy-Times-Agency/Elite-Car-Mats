@@ -24,7 +24,9 @@ Premium EVA car-mat e-commerce site for the U.S. market.
 
 - Next.js **16** (App Router, Turbopack) + React **19** + TypeScript.
 - Tailwind v4 (`@theme inline` in `globals.css`).
-- Framer Motion — kept light (Hero entrance, mobile menu).
+- No animation library — Hero entrance and minor transitions are CSS
+  keyframes; mobile menu and reveals use the local `.fade-in` /
+  `Reveal` utilities.
 - Postgres on Neon via `@prisma/adapter-neon`.
 - Prisma 7.
 - Stripe Checkout (optional flag — falls back to manual confirm).

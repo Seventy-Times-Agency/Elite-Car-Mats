@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { motion } from "framer-motion";
 import { useT } from "@/i18n/I18nProvider";
 
 export function HeroSection() {
@@ -15,7 +14,7 @@ export function HeroSection() {
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="min-h-[70vh] py-14 grid grid-cols-1 lg:grid-cols-[1fr_1.1fr] gap-12 items-center">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }} className="max-w-2xl">
+          <div className="max-w-2xl animate-hero-in-up">
             <p className="section-label mb-5">{t("hero.label")}</p>
 
             <h1 className="text-[clamp(2.6rem,6.5vw,4.5rem)] font-bold leading-[1.05] tracking-tight">
@@ -50,17 +49,12 @@ export function HeroSection() {
                 </div>
               ))}
             </div>
-          </motion.div>
+          </div>
 
           {/* Right visual: real product shot in a gold-glow frame.
               File lives at public/hero-mat.jpg — keep the photo at
               roughly 5:4 / 4:3 landscape so the mat reads at hero size. */}
-          <motion.div
-            initial={{ opacity: 0, x: 24 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 0.15 }}
-            className="block relative"
-          >
+          <div className="block relative animate-hero-in-right">
             <div className="relative aspect-[5/4] max-w-xl mx-auto">
               {/* Gold glow behind */}
               <div className="absolute -inset-8 bg-gradient-to-br from-gold/15 via-gold/5 to-transparent rounded-[40px] blur-3xl pointer-events-none" />
@@ -99,7 +93,7 @@ export function HeroSection() {
                 </div>
               </div>
             </div>
-          </motion.div>
+          </div>
         </div>
       </div>
 

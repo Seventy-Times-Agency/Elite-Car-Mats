@@ -102,6 +102,30 @@ body {
 .prose-content a:hover { color: var(--color-gold-light); }
 .prose-content strong { color: var(--color-text); font-weight: 600; }
 
+/* Hero entrance animations — replaces framer-motion for the homepage
+   hero, which was the only consumer. CSS keyframes do the job and shave
+   ~50 KB gz off the home-page bundle. */
+@keyframes hero-in-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes hero-in-right {
+  from { opacity: 0; transform: translateX(24px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.animate-hero-in-up {
+  animation: hero-in-up 0.7s ease-out both;
+}
+.animate-hero-in-right {
+  animation: hero-in-right 0.8s ease-out 0.15s both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-hero-in-up,
+  .animate-hero-in-right {
+    animation: none;
+  }
+}
+
 /* Fade-in on scroll utility */
 .fade-in {
   opacity: 0;

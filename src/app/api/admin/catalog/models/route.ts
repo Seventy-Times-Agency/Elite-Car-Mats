@@ -3,6 +3,7 @@ import { revalidateTag } from "next/cache";
 import { prisma } from "@/lib/db/prisma";
 import { requireAdmin, checkAdminCsrf } from "@/lib/security/auth";
 import { modelCreateSchema } from "@/lib/validations/catalog";
+import { resetCatalogSeedCache } from "@/lib/db/seed";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -71,6 +72,9 @@ export async function POST(request: Request) {
       },
     });
     revalidateTag("catalog", "default");
+    // Force the next /api/orders cold-start to mirror this custom model
+    // into Brand/Model/Product so the FK on OrderItem.productId resolves.
+    resetCatalogSeedCache();
     return NextResponse.json({ model: row });
   } catch (err) {
     const msg = err instanceof Error ? err.message : "error";

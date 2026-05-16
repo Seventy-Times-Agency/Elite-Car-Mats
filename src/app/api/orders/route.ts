@@ -14,8 +14,9 @@ import {
   sendOwnerOrderEmail,
 } from "@/lib/email";
 import { signOrderToken } from "@/lib/security/order-token";
-import { evaColors, edgeColors, brands, badges, mockModels } from "@/data/catalog";
+import { evaColors, edgeColors, badges } from "@/data/catalog";
 import { MAT_SETS_BY_PROFILE } from "@/data/catalog/mat-sets";
+import { getMergedCatalog } from "@/lib/catalog-merge";
 import { getVehicleProfile } from "@/lib/vehicle-profile";
 import { getDictionary } from "@/i18n/getDictionary";
 import { makeT } from "@/i18n/dictionary";
@@ -102,20 +103,26 @@ export async function POST(request: Request) {
 
   const { customer, shipping, items, promoCode } = parsed.data;
 
-  // Resolve productId for each cart item from the canonical mockModels
-  // catalog. This is robust to historical bugs where cart entries stored
-  // just the model slug instead of `${brand}-${slug}` — we look up by
-  // brandName + modelName (which were always in the cart payload) and
-  // recompute the seeded Product id deterministically.
+  // Resolve productId for each cart item from the merged catalog (code +
+  // admin-added custom rows). The seed mirrors custom brands/models into
+  // the Brand/Model/Product tables under the same `${brandSlug}-${slug}`
+  // id convention, so the same lookup works for both.
+  //
+  // Robust to historical bugs where cart entries stored just the model
+  // slug instead of `${brand}-${slug}` — we also look up by
+  // brandName + modelName (which were always in the cart payload).
+  const merged = await getMergedCatalog();
+  const allModels = merged.models;
+  const allBrands = merged.brands;
   const itemsResolved = items.map((i) => {
-    const direct = mockModels.find(
+    const direct = allModels.find(
       (m) =>
         m.id === i.modelId ||
         `${m.brandId}-${m.slug}` === i.modelId,
     );
     const byName =
       direct ??
-      mockModels.find(
+      allModels.find(
         (m) =>
           m.brandName.toLowerCase() === i.brandName.toLowerCase() &&
           m.name.toLowerCase() === i.modelName.toLowerCase(),
@@ -166,7 +173,7 @@ export async function POST(request: Request) {
   // Defensive guard: ensure brandName matches a known brand. This is purely
   // for cleaner error reporting — the productId resolution above already
   // covered the substantive check.
-  const knownBrandNames = new Set(brands.map((b) => b.name.toLowerCase()));
+  const knownBrandNames = new Set(allBrands.map((b) => b.name.toLowerCase()));
   for (const i of items) {
     if (!knownBrandNames.has(i.brandName.toLowerCase())) {
       return NextResponse.json(
@@ -182,10 +189,13 @@ export async function POST(request: Request) {
   // a semi truck and be billed at the sedan-cargo $79 — a silent
   // pricing-bypass vector. The model has already been resolved above,
   // so we can trust the catalog row.
-  const modelById = new Map(mockModels.map((m) => [m.id, m] as const));
+  const modelByCartId = new Map<string, (typeof allModels)[number]>();
+  for (const m of allModels) {
+    modelByCartId.set(`${m.brandId}-${m.slug}`, m);
+  }
   for (const { item: i, modelId } of itemsResolved) {
     const lookupId = modelId ?? i.modelId;
-    const m = modelById.get(lookupId);
+    const m = modelByCartId.get(lookupId);
     if (!m) continue; // unreachable: covered by the unresolved check above
     const profile = getVehicleProfile(m);
     const allowed = MAT_SETS_BY_PROFILE[profile];
@@ -295,8 +305,34 @@ export async function POST(request: Request) {
   } catch (err) {
     // Never leak DB internals into the client response — log and emit a
     // generic message. The detailed cause stays in server logs.
+    //
+    // Pull out the Prisma error code (`P2003` FK violation, `P2025` missing
+    // record, …) and the failing field name so a returning operator can
+    // tell at a glance whether the DB is missing a colour / brand /
+    // model row that the code catalog expects. Common cause is a
+    // newly-added EvaColor in code that hasn't reached the DB yet —
+    // the seed now createMany-syncs every request, so this should be
+    // self-healing on the next attempt.
+    const e = err as { code?: string; meta?: Record<string, unknown>; message?: string };
     const msg = err instanceof Error ? err.message : String(err);
-    console.error("[orders] create failed:", msg);
+    console.error(
+      "[orders] create failed:",
+      JSON.stringify({
+        code: e.code ?? null,
+        meta: e.meta ?? null,
+        message: msg,
+        itemsCount: items.length,
+        firstItem: items[0]
+          ? {
+              modelId: items[0].modelId,
+              matSet: items[0].matSet,
+              colorId: items[0].colorId,
+              edgeColorId: items[0].edgeColorId,
+              badgeId: items[0].badgeId ?? null,
+            }
+          : null,
+      }),
+    );
     return NextResponse.json(
       { error: "Failed to create order. Please try again." },
       { status: 500 },

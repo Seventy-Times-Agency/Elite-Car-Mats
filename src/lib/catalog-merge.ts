@@ -162,9 +162,38 @@ export async function getMergedCatalog(): Promise<MergedCatalog> {
  *
  * Revalidate ceiling is 1 hour so a missed `revalidateTag` doesn't
  * leave the catalog stale forever.
+ *
+ * `unstable_cache` serialises return values through JSON, which breaks
+ * Set instances (they decode as `{}`). We cache an entries-array form
+ * and reconstitute the Sets inside the public wrapper.
  */
-export const getMergedCatalogCached = unstable_cache(
-  () => getMergedCatalog(),
-  ["catalog-merged-v1"],
+interface MergedCatalogCacheable {
+  brands: Brand[];
+  models: CarModel[];
+  customBrandIds: string[];
+  customModelIds: string[];
+}
+
+const getMergedCatalogCacheable = unstable_cache(
+  async (): Promise<MergedCatalogCacheable> => {
+    const m = await getMergedCatalog();
+    return {
+      brands: m.brands,
+      models: m.models,
+      customBrandIds: Array.from(m.customBrandIds),
+      customModelIds: Array.from(m.customModelIds),
+    };
+  },
+  ["catalog-merged-v2"],
   { tags: ["catalog"], revalidate: 3600 },
 );
+
+export async function getMergedCatalogCached(): Promise<MergedCatalog> {
+  const c = await getMergedCatalogCacheable();
+  return {
+    brands: c.brands,
+    models: c.models,
+    customBrandIds: new Set(c.customBrandIds),
+    customModelIds: new Set(c.customModelIds),
+  };
+}

@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db/prisma";
 import { requireAdmin, checkAdminCsrf } from "@/lib/security/auth";
 import { brandCreateSchema } from "@/lib/validations/catalog";
 import { brands as codeBrands } from "@/data/catalog";
+import { resetCatalogSeedCache } from "@/lib/db/seed";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -71,6 +72,9 @@ export async function POST(request: Request) {
       },
     });
     revalidateTag("catalog", "default");
+    // Force the next /api/orders cold-start to re-mirror this brand into
+    // the Brand table so OrderItem.productId FKs resolve for it.
+    resetCatalogSeedCache();
     return NextResponse.json({ brand: row });
   } catch (err) {
     const msg = err instanceof Error ? err.message : "error";

@@ -10,18 +10,22 @@ import {
 } from "@/data/catalog";
 import { getMatSetPrice } from "@/lib/pricing";
 import { getVehicleProfile } from "@/lib/vehicle-profile";
-import type { MatSetType } from "@/types";
+import type { CarModel, MatSetType, VehicleCategory } from "@/types";
 
 /**
- * Idempotent catalog bootstrap that populates Brand / Model / ModelYear /
- * Product / EvaColor / EdgeColor / Badge from mock.ts when (and only when)
- * any of those tables is empty.
+ * Idempotent catalog bootstrap. Populates Brand / Model / ModelYear /
+ * Product / EvaColor / EdgeColor / Badge from the code-based catalog and
+ * mirrors admin-added CustomBrand / CustomModel rows into the same tables
+ * so they can be referenced by an OrderItem.productId FK.
  *
- * Called from /api/orders, /api/admin/seed and any other path that assumes
- * the catalog is in place — so even if the operator forgot to run the seed
- * endpoint manually, the first incoming order self-heals the DB.
+ * Always runs `createMany({ skipDuplicates: true })` for every reference
+ * table — never gated behind "is the DB empty?" because that gate left
+ * stale databases unable to accept orders for any newly-added colour,
+ * model or brand after the initial deploy. Each call is a few sub-second
+ * upserts via skipDuplicates, fully idempotent.
  *
- * Cached one-shot per process, like ensureSchema.
+ * Cached one-shot per process: first request on a fresh lambda pays for
+ * the sync, everything after awaits the same Promise.
  */
 
 const matSetToEnum: Record<MatSetType, "FRONT" | "FULL" | "CARGO" | "FULL_CARGO"> = {
@@ -40,27 +44,126 @@ export interface CatalogSeedSummary {
   evaColors: number;
   edgeColors: number;
   badges: number;
+  customBrands: number;
+  customModels: number;
 }
 
-async function isCatalogEmpty(): Promise<boolean> {
-  const [brandCount, edgeCount, evaCount] = await Promise.all([
-    prisma.brand.count(),
-    prisma.edgeColor.count(),
-    prisma.evaColor.count(),
-  ]);
-  return brandCount === 0 || edgeCount === 0 || evaCount === 0;
+const VALID_CATEGORIES: ReadonlySet<VehicleCategory> = new Set([
+  "car",
+  "suv",
+  "truck",
+  "commercial",
+]);
+
+function asCategory(s: string): VehicleCategory {
+  return VALID_CATEGORIES.has(s as VehicleCategory)
+    ? (s as VehicleCategory)
+    : "car";
+}
+
+function parseYears(s: string): number[] {
+  return s
+    .split(",")
+    .map((p) => Number(p.trim()))
+    .filter((n) => Number.isFinite(n) && n >= 1900 && n <= 2100)
+    .sort((a, b) => a - b);
+}
+
+/**
+ * Pull custom brands/models from the admin DB tables and shape them as
+ * CarModel rows so the Product seed below can mirror them into the
+ * Brand / Model / Product tables. Returns empty arrays on DB error so
+ * a transient blip doesn't block the code-catalog seed.
+ */
+async function loadCustomCatalog(): Promise<{
+  customBrandRows: { id: string; name: string; slug: string; logo: string | null }[];
+  customModels: CarModel[];
+}> {
+  try {
+    const [cBrands, cModels] = await Promise.all([
+      prisma.customBrand.findMany({
+        select: { id: true, slug: true, name: true, logo: true },
+      }),
+      prisma.customModel.findMany({
+        select: {
+          id: true,
+          brandId: true,
+          slug: true,
+          name: true,
+          bodyType: true,
+          category: true,
+          years: true,
+        },
+      }),
+    ]);
+
+    // Code brand slugs win — drop custom rows that clash.
+    const codeBrandSlugs = new Set(brands.map((b) => b.slug));
+    const brandByDbId = new Map(cBrands.map((b) => [b.id, b] as const));
+
+    const customBrandRows: {
+      id: string;
+      name: string;
+      slug: string;
+      logo: string | null;
+    }[] = [];
+    for (const b of cBrands) {
+      if (codeBrandSlugs.has(b.slug)) continue;
+      customBrandRows.push({
+        id: b.slug, // mirror code-catalog convention: id = slug
+        name: b.name,
+        slug: b.slug,
+        logo: b.logo ?? null,
+      });
+    }
+    const allowedBrandSlugs = new Set(customBrandRows.map((b) => b.slug));
+
+    const customModels: CarModel[] = [];
+    for (const m of cModels) {
+      const parent = brandByDbId.get(m.brandId);
+      if (!parent) continue;
+      if (!allowedBrandSlugs.has(parent.slug)) continue;
+      const bodyType = m.bodyType;
+      const category = asCategory(m.category);
+      customModels.push({
+        id: `${parent.slug}-${m.slug}`,
+        brandId: parent.slug,
+        brandName: parent.name,
+        name: m.name,
+        slug: m.slug,
+        years: parseYears(m.years),
+        bodyType,
+        category,
+      });
+    }
+
+    return { customBrandRows, customModels };
+  } catch (err) {
+    console.warn("[catalog-seed] custom catalog load failed:", err);
+    return { customBrandRows: [], customModels: [] };
+  }
 }
 
 async function runSeed(): Promise<CatalogSeedSummary> {
-  const brandRows = brands.map((b) => ({
-    id: b.slug,
-    name: b.name,
-    slug: b.slug,
-    logo: b.logo ?? null,
-  }));
+  // Pull admin-added custom brands/models alongside the code catalog so a
+  // single seed pass mirrors both into the Brand/Model/Product tables.
+  // Without this, orders for custom models fail at the OrderItem.productId
+  // FK because no Product row exists for them.
+  const { customBrandRows, customModels } = await loadCustomCatalog();
+
+  const brandRows = [
+    ...brands.map((b) => ({
+      id: b.slug,
+      name: b.name,
+      slug: b.slug,
+      logo: b.logo ?? null,
+    })),
+    ...customBrandRows,
+  ];
   await prisma.brand.createMany({ data: brandRows, skipDuplicates: true });
 
-  const modelRows = mockModels.map((m) => ({
+  const allModels: CarModel[] = [...mockModels, ...customModels];
+  const modelRows = allModels.map((m) => ({
     id: `${m.brandId}-${m.slug}`,
     name: m.name,
     slug: m.slug,
@@ -70,7 +173,7 @@ async function runSeed(): Promise<CatalogSeedSummary> {
   await prisma.model.createMany({ data: modelRows, skipDuplicates: true });
 
   const modelYearRows: { id: string; modelId: string; year: number }[] = [];
-  for (const m of mockModels) {
+  for (const m of allModels) {
     const modelId = `${m.brandId}-${m.slug}`;
     for (const year of m.years) {
       modelYearRows.push({ id: `${modelId}-${year}`, modelId, year });
@@ -88,7 +191,7 @@ async function runSeed(): Promise<CatalogSeedSummary> {
     price: number;
     images: string[];
   }[] = [];
-  for (const m of mockModels) {
+  for (const m of allModels) {
     const modelId = `${m.brandId}-${m.slug}`;
     const profile = getVehicleProfile(m);
     for (const set of matSets) {
@@ -137,6 +240,8 @@ async function runSeed(): Promise<CatalogSeedSummary> {
     evaColors: evaRows.length,
     edgeColors: edgeRows.length,
     badges: badgeRows.length,
+    customBrands: customBrandRows.length,
+    customModels: customModels.length,
   };
 }
 
@@ -146,20 +251,17 @@ export function ensureCatalogSeed(): Promise<CatalogSeedSummary> {
   if (!cached) {
     cached = (async (): Promise<CatalogSeedSummary> => {
       try {
-        if (await isCatalogEmpty()) {
-          console.log("[catalog-seed] catalog empty, seeding...");
-          return await runSeed();
-        }
-        return {
-          ranSeed: false,
-          brands: 0,
-          models: 0,
-          modelYears: 0,
-          products: 0,
-          evaColors: 0,
-          edgeColors: 0,
-          badges: 0,
-        };
+        // Always run — createMany({skipDuplicates:true}) makes it a no-op
+        // for existing rows, and lets newly-added colours/brands/models
+        // from a redeploy reach the DB without a manual admin step.
+        const summary = await runSeed();
+        console.log(
+          `[catalog-seed] sync ok: brands=${summary.brands} models=${summary.models} ` +
+            `products=${summary.products} eva=${summary.evaColors} edge=${summary.edgeColors} ` +
+            `badges=${summary.badges} customBrands=${summary.customBrands} ` +
+            `customModels=${summary.customModels}`,
+        );
+        return summary;
       } catch (err) {
         cached = null;
         throw err;
@@ -169,3 +271,11 @@ export function ensureCatalogSeed(): Promise<CatalogSeedSummary> {
   return cached;
 }
 
+/**
+ * Reset the one-shot cache. Called after admin mutations on custom
+ * brand/model rows so the next /api/orders cold-start re-mirrors them
+ * into Brand/Model/Product. Cheap — next call is one createMany burst.
+ */
+export function resetCatalogSeedCache(): void {
+  cached = null;
+}

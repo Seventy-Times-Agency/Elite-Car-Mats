@@ -40,14 +40,34 @@ export async function loadPriceOverrides(): Promise<PriceOverrideMap> {
 }
 
 /**
+ * Internal: load overrides as a JSON-serialisable entries array so it
+ * survives `unstable_cache`'s JSON round-trip (Maps lose their methods
+ * across the cache boundary — see #checkout-failure).
+ */
+const loadPriceOverrideEntriesCached = unstable_cache(
+  async (): Promise<[string, number][]> => {
+    const map = await loadPriceOverrides();
+    return Array.from(map.entries());
+  },
+  ["pricing-overrides-v2"],
+  { tags: ["pricing"], revalidate: 3600 },
+);
+
+/**
  * Cached wrapper for display-only read paths (feed.xml, product page
  * metadata). Billing paths — /api/orders, /api/checkout/stripe,
  * /api/webhooks/stripe, shipstation/create-order — keep using the raw
  * function so any admin override is reflected on the next charge.
  * Tag is `pricing`; admin/pricing POST calls revalidateTag("pricing").
+ *
+ * `unstable_cache` serialises return values through JSON, so we cache
+ * the entries array and rebuild the Map after each cache hit. Map
+ * survival across the cache boundary is the difference between
+ * `getMatSetPrice(profile, type, overrides)` working and tripping
+ * `overrides.get is not a function` at metadata-generation time on
+ * the catalog product page.
  */
-export const loadPriceOverridesCached = unstable_cache(
-  () => loadPriceOverrides(),
-  ["pricing-overrides-v1"],
-  { tags: ["pricing"], revalidate: 3600 },
-);
+export async function loadPriceOverridesCached(): Promise<PriceOverrideMap> {
+  const entries = await loadPriceOverrideEntriesCached();
+  return new Map(entries);
+}

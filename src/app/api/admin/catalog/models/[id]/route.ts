@@ -3,6 +3,7 @@ import { revalidateTag } from "next/cache";
 import { prisma } from "@/lib/db/prisma";
 import { requireAdmin, checkAdminCsrf } from "@/lib/security/auth";
 import { modelUpdateSchema } from "@/lib/validations/catalog";
+import { resetCatalogSeedCache } from "@/lib/db/seed";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -44,6 +45,7 @@ export async function PATCH(request: Request, ctx: Ctx) {
   try {
     const row = await prisma.customModel.update({ where: { id }, data });
     revalidateTag("catalog", "default");
+    resetCatalogSeedCache();
     return NextResponse.json({ model: row });
   } catch (err) {
     const msg = err instanceof Error ? err.message : "error";
@@ -69,6 +71,7 @@ export async function DELETE(request: Request, ctx: Ctx) {
   try {
     await prisma.customModel.delete({ where: { id } });
     revalidateTag("catalog", "default");
+    resetCatalogSeedCache();
     return NextResponse.json({ ok: true });
   } catch (err) {
     const msg = err instanceof Error ? err.message : "error";

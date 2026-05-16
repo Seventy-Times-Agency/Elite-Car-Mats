@@ -273,6 +273,10 @@ async function execAll(): Promise<MigrationResult[]> {
       `ALTER TABLE "Order" ADD COLUMN IF NOT EXISTS "shipstationOrderId" TEXT`,
     );
     await run(
+      "order.promoCode",
+      `ALTER TABLE "Order" ADD COLUMN IF NOT EXISTS "promoCode" TEXT`,
+    );
+    await run(
       "Order.orderNumber unique",
       `CREATE UNIQUE INDEX IF NOT EXISTS "Order_orderNumber_key" ON "Order"("orderNumber")`,
     );

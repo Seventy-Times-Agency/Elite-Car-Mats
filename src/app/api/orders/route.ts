@@ -27,42 +27,54 @@ function generateOrderNumber(): string {
   return `ECM-${ts}-${rand}`;
 }
 
-async function resolveNames(item: OrderItemInput) {
-  const color = evaColors.find((c) => c.id === item.colorId);
-  const edge = edgeColors.find((c) => c.id === item.edgeColorId);
-  // The set is already validated against the catalog higher up in POST
-  // (`validEvaIds` / `validEdgeIds`) — if we get here without a match,
-  // the catalog code is out of sync with the request and we'd rather
-  // 500 loudly than put raw cuids into the customer's email.
-  if (!color) {
-    throw new Error(`Unknown EVA color id: ${item.colorId}`);
-  }
-  if (!edge) {
-    throw new Error(`Unknown edge color id: ${item.edgeColorId}`);
-  }
-  const badgeRow = item.badgeId
-    ? badges.find((b) => b.id === item.badgeId)
-    : null;
-  if (item.badgeId && !badgeRow) {
-    throw new Error(`Unknown badge id: ${item.badgeId}`);
-  }
+/**
+ * Build a synchronous name-resolver for an order's items. The dictionary
+ * is fetched once at the top of the request so we don't re-parse
+ * cookies / Accept-Language headers per item in the order — that was
+ * the per-item cost when this lived inline in a Promise.all map.
+ */
+async function buildResolveNames() {
   const { dict, fallback } = await getDictionary();
   const t = makeT(dict, fallback);
-  return {
-    colorName: color.name,
-    edgeColorName: edge.name,
-    badgeName: badgeRow
-      ? t("email.badgeSuffix", { brand: badgeRow.brandName })
-      : null,
+  return (item: OrderItemInput) => {
+    const color = evaColors.find((c) => c.id === item.colorId);
+    const edge = edgeColors.find((c) => c.id === item.edgeColorId);
+    // The set is already validated against the catalog higher up in POST
+    // (`validEvaIds` / `validEdgeIds`) — if we get here without a match,
+    // the catalog code is out of sync with the request and we'd rather
+    // 500 loudly than put raw cuids into the customer's email.
+    if (!color) {
+      throw new Error(`Unknown EVA color id: ${item.colorId}`);
+    }
+    if (!edge) {
+      throw new Error(`Unknown edge color id: ${item.edgeColorId}`);
+    }
+    const badgeRow = item.badgeId
+      ? badges.find((b) => b.id === item.badgeId)
+      : null;
+    if (item.badgeId && !badgeRow) {
+      throw new Error(`Unknown badge id: ${item.badgeId}`);
+    }
+    return {
+      colorName: color.name,
+      edgeColorName: edge.name,
+      badgeName: badgeRow
+        ? t("email.badgeSuffix", { brand: badgeRow.brandName })
+        : null,
+    };
   };
 }
 
 export async function POST(request: Request) {
-  // Schema is bootstrapped by the admin login flow / cron — but on a brand
-  // new deploy where the very first hit happens to be a public POST we still
-  // want it to succeed. Cached after first run.
-  await ensureSchema();
-  await ensureCatalogSeed();
+  // First-deploy safety net. After SCHEMA_BOOTSTRAPPED=1 is set in the
+  // environment we skip the per-cold-start schema/seed checks (they're
+  // already cached one-shot per process, but the very first request on
+  // a fresh lambda still pays them — env flag lets ops short-circuit
+  // entirely once the admin has run /api/admin/migrate once).
+  if (process.env.SCHEMA_BOOTSTRAPPED !== "1") {
+    await ensureSchema();
+    await ensureCatalogSeed();
+  }
 
   const ip = getClientIp(request);
   const limit = await rateLimit(`orders:${ip}`);
@@ -241,9 +253,8 @@ export async function POST(request: Request) {
           city: shipping.city || null,
           state: shipping.state || null,
           zip: shipping.zip || null,
-          comment: appliedCode
-            ? `${shipping.comment || ""}${shipping.comment ? "\n\n" : ""}[promo ${appliedCode} −$${appliedDiscount}]`.trim()
-            : shipping.comment || null,
+          comment: shipping.comment || null,
+          promoCode: appliedCode,
           total,
           items: {
             create: itemsResolved.map(({ item: i, modelId, productId }) => ({
@@ -292,13 +303,17 @@ export async function POST(request: Request) {
     );
   }
 
+  // Resolve the dictionary once per request — the name resolver below
+  // is fast/sync and gets reused for both customer + owner emails.
+  const resolveNames = await buildResolveNames();
+
   // Skip the "thanks for your order" email when payments are wired up —
   // it'll fire from the Stripe webhook on `checkout.session.completed`,
   // so customers who abandon Stripe never get falsely confirmed. We do
   // still notify the owner immediately so they see the lead.
   if (!isStripeConfigured()) {
-    const emailItems = await Promise.all(itemsResolved.map(async ({ item: i, modelId }) => {
-      const names = await resolveNames(i);
+    const emailItems = itemsResolved.map(({ item: i, modelId }) => {
+      const names = resolveNames(i);
       const colorRow = evaColors.find((c) => c.id === i.colorId);
       const edgeRow = edgeColors.find((c) => c.id === i.edgeColorId);
       return {
@@ -324,7 +339,7 @@ export async function POST(request: Request) {
           overrides,
         ),
       };
-    }));
+    });
     const emailData = {
       orderNumber: createdOrder.orderNumber,
       orderToken: signOrderToken(createdOrder.id),
@@ -350,8 +365,8 @@ export async function POST(request: Request) {
     // Stripe path: notify the owner now (so they see the lead even if the
     // customer abandons the Stripe session). The customer email moves to
     // the webhook.
-    const emailItems = await Promise.all(itemsResolved.map(async ({ item: i, modelId }) => {
-      const names = await resolveNames(i);
+    const emailItems = itemsResolved.map(({ item: i, modelId }) => {
+      const names = resolveNames(i);
       const colorRow = evaColors.find((c) => c.id === i.colorId);
       const edgeRow = edgeColors.find((c) => c.id === i.edgeColorId);
       return {
@@ -377,7 +392,7 @@ export async function POST(request: Request) {
           overrides,
         ),
       };
-    }));
+    });
     sendOwnerOrderEmail({
       orderNumber: createdOrder.orderNumber,
       orderToken: signOrderToken(createdOrder.id),

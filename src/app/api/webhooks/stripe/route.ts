@@ -100,10 +100,6 @@ async function sendCustomerConfirmation(orderId: string): Promise<void> {
   });
   if (!order) return;
   const overrides = await loadPriceOverrides();
-  // Strip the internal promo annotation we glue onto Order.comment for
-  // ShipStation — only show the customer's original note in their inbox.
-  const customerComment =
-    order.comment?.replace(/\s*\n*\s*\[promo [^\]]+\]\s*$/, "").trim() || null;
   await sendCustomerOrderEmail({
     orderNumber: order.orderNumber,
     orderToken: signOrderToken(order.id),
@@ -114,7 +110,9 @@ async function sendCustomerConfirmation(orderId: string): Promise<void> {
     city: order.city,
     state: order.state,
     zip: order.zip,
-    comment: customerComment,
+    // Order.comment is now the customer's raw note only — the applied
+    // promo code lives in Order.promoCode column.
+    comment: order.comment,
     total: Number(order.total ?? 0),
     items: order.items.map((i) => {
       const matSet = matSetFromEnum[i.product.matSet];
@@ -206,12 +204,32 @@ export async function POST(request: Request) {
               : (session.payment_intent?.id ?? null);
           // updateMany with status guard — the second concurrent webhook
           // for the same id sees rows=0 and skips the email send below.
+          // Also overlay the shipping address Stripe collected on
+          // Checkout (bill-to ≠ ship-to). Customer entered an address
+          // in our /checkout form, but Stripe's shipping form is the
+          // final source of truth — overwrite so the ShipStation push
+          // and the order detail page reflect what'll actually be
+          // shipped.
+          const sd = session.collected_information?.shipping_details;
+          const shippingOverlay =
+            sd?.address && sd?.name
+              ? {
+                  customerName: sd.name,
+                  address: [sd.address.line1, sd.address.line2]
+                    .filter(Boolean)
+                    .join(", "),
+                  city: sd.address.city ?? null,
+                  state: sd.address.state ?? null,
+                  zip: sd.address.postal_code ?? null,
+                }
+              : {};
           const res = await prisma.order.updateMany({
             where: { id: orderId, status: "PENDING" },
             data: {
               status: "CONFIRMED",
               paidAt: new Date(),
               stripePaymentIntentId: paymentIntentId,
+              ...shippingOverlay,
             },
           });
           console.log(

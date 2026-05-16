@@ -133,6 +133,9 @@ model Order {
   state                 String?
   zip                   String?
   comment               String?
+  // Applied promo code (separate column instead of glued into `comment`
+  // so admin reporting can group by code without LIKE-matching).
+  promoCode             String?
   total                 Decimal?    @db.Decimal(10, 2)
   trackingNumber        String?
   carrier               String?

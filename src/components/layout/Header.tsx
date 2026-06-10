@@ -164,6 +164,7 @@ export function Header() {
             className="md:hidden text-text-dim hover:text-gold p-1"
             aria-label={menuOpen ? t("nav.closeMenu") : t("nav.openMenu")}
             aria-expanded={menuOpen}
+            aria-controls="mobile-menu"
           >
             <svg
               className="w-6 h-6"
@@ -188,7 +189,10 @@ export function Header() {
       </div>
 
       {menuOpen && (
-        <div className="md:hidden bg-surface/95 backdrop-blur-xl border-t border-border">
+        <div
+          id="mobile-menu"
+          className="md:hidden bg-surface/95 backdrop-blur-xl border-t border-border"
+        >
           <nav
             className="px-6 py-4 space-y-1"
             aria-label={t("nav.mobileAria")}

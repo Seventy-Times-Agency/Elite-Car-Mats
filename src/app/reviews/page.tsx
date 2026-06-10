@@ -3,8 +3,9 @@ import { prisma } from "@/lib/db/prisma";
 import { getDictionary } from "@/i18n/getDictionary";
 import { makeT } from "@/i18n/dictionary";
 
+// force-dynamic and `revalidate` are mutually exclusive — the page is
+// per-request anyway (locale cookie), so the stale revalidate is dropped.
 export const dynamic = "force-dynamic";
-export const revalidate = 60;
 
 interface PublicReview {
   id: string;

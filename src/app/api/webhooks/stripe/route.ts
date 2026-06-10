@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import type Stripe from "stripe";
 import { prisma } from "@/lib/db/prisma";
 import { isStripeConfigured, getWebhookSecret } from "@/lib/payments/stripe";
@@ -56,6 +56,50 @@ async function claimEvent(eventId: string): Promise<boolean> {
     ON CONFLICT ("id") DO NOTHING
   `;
   return inserted === 1;
+}
+
+/**
+ * Release a previously claimed event id so Stripe's retry can re-process
+ * it. Called when the handler fails AFTER the claim succeeded — without
+ * this, the retry would see "already processed" and the event (e.g. a
+ * paid order's confirmation) would be lost forever.
+ */
+async function releaseEvent(eventId: string): Promise<void> {
+  try {
+    await prisma.$executeRaw`
+      DELETE FROM "WebhookEvent" WHERE "id" = ${eventId}
+    `;
+  } catch (err) {
+    // Claim stays — operator can reconcile from Stripe's event log.
+    console.error(`[stripe-webhook] failed to release claim ${eventId}:`, err);
+  }
+}
+
+/**
+ * Give back one promo use when a PENDING order is cancelled before
+ * payment (expired / failed Checkout session). The use was consumed
+ * atomically at order creation; without the refund, limited codes leak
+ * one use per abandoned checkout. GREATEST guards against going negative
+ * if the code's counter was edited by an admin in between.
+ */
+async function refundPromoUse(orderId: string): Promise<void> {
+  try {
+    const order = await prisma.order.findUnique({
+      where: { id: orderId },
+      select: { promoCode: true },
+    });
+    if (!order?.promoCode) return;
+    await prisma.$executeRaw`
+      UPDATE "PromoCode"
+         SET "usedCount" = GREATEST("usedCount" - 1, 0)
+       WHERE "code" = ${order.promoCode}
+    `;
+  } catch (err) {
+    console.error(
+      `[stripe-webhook] promo refund failed for order=${orderId}:`,
+      err,
+    );
+  }
 }
 
 /**
@@ -236,12 +280,19 @@ export async function POST(request: Request) {
             `[stripe-webhook] ${event.id} order=${orderId} paid (rows=${res.count})`,
           );
           if (res.count === 1) {
-            // Fire-and-forget so a slow Resend / ShipStation call can't
-            // trip Stripe's 30s webhook timeout and force a retry.
-            void sendCustomerConfirmation(orderId).catch((err) => {
-              console.error("[stripe-webhook] confirmation email failed:", err);
+            // Deferred via `after` so a slow Resend / ShipStation call
+            // can't trip Stripe's 30s webhook timeout — and, unlike a bare
+            // floating promise, the serverless runtime keeps the instance
+            // alive until the callback settles.
+            after(async () => {
+              await sendCustomerConfirmation(orderId).catch((err) => {
+                console.error(
+                  "[stripe-webhook] confirmation email failed:",
+                  err,
+                );
+              });
+              await pushToShipstationSafely(orderId);
             });
-            void pushToShipstationSafely(orderId);
           }
         } else {
           console.log(
@@ -262,10 +313,15 @@ export async function POST(request: Request) {
             `[stripe-webhook] ${event.id} order=${orderId} async-paid (rows=${res.count})`,
           );
           if (res.count === 1) {
-            void sendCustomerConfirmation(orderId).catch((err) => {
-              console.error("[stripe-webhook] confirmation email failed:", err);
+            after(async () => {
+              await sendCustomerConfirmation(orderId).catch((err) => {
+                console.error(
+                  "[stripe-webhook] confirmation email failed:",
+                  err,
+                );
+              });
+              await pushToShipstationSafely(orderId);
             });
-            void pushToShipstationSafely(orderId);
           }
         }
         break;
@@ -282,6 +338,11 @@ export async function POST(request: Request) {
           console.log(
             `[stripe-webhook] ${event.id} order=${orderId} cancelled (rows=${res.count})`,
           );
+          if (res.count === 1) {
+            // Guarded by the status transition above, so a webhook
+            // re-delivery can't refund the same use twice.
+            await refundPromoUse(orderId);
+          }
         }
         break;
       }
@@ -296,6 +357,10 @@ export async function POST(request: Request) {
     console.error(
       `[stripe-webhook] handler error event=${event.id} type=${event.type} :: ${msg}`,
     );
+    // Give the claim back — otherwise Stripe's retry of this 500 would hit
+    // the "already processed" fast path and the event would be dropped
+    // for good (e.g. a paid order stuck in PENDING forever).
+    await releaseEvent(event.id);
     return NextResponse.json({ error: "Handler failure" }, { status: 500 });
   }
 

@@ -5,6 +5,7 @@ import {
   baseTemplate,
   buildT,
   commentBlock,
+  escapeHtml,
   itemsTable,
   type OrderEmailData,
 } from "./base";
@@ -13,18 +14,27 @@ export async function sendOwnerOrderEmail(
   data: OrderEmailData,
 ): Promise<void> {
   const t = await buildT();
+  // Everything below comes straight from the public checkout form —
+  // escape it so a crafted name/address can't inject markup into the
+  // owner's mailbox.
+  const name = escapeHtml(data.customerName);
+  const email = escapeHtml(data.customerEmail);
+  const phone = escapeHtml(data.phone);
+  const address = escapeHtml(
+    `${data.address}${data.city ? `, ${data.city}` : ""}${data.state ? `, ${data.state}` : ""}${data.zip ? ` ${data.zip}` : ""}`,
+  );
   const html = baseTemplate(
     t,
     `
     <h1 style="font-size:20px;font-weight:700;margin:0 0 20px;">${t("email.ownerH1", { orderNumber: data.orderNumber })}</h1>
     <div style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:12px;padding:20px;margin-bottom:20px;">
-      <div style="color:#F0ECE5;font-weight:600;">${data.customerName}</div>
+      <div style="color:#F0ECE5;font-weight:600;">${name}</div>
       <div style="color:#aaa;font-size:13px;margin-top:4px;">
-        <a href="mailto:${data.customerEmail}" style="color:#D4A54A;text-decoration:none;">${data.customerEmail}</a> ·
-        <a href="tel:${data.phone}" style="color:#D4A54A;text-decoration:none;">${data.phone}</a>
+        <a href="mailto:${email}" style="color:#D4A54A;text-decoration:none;">${email}</a> ·
+        <a href="tel:${phone}" style="color:#D4A54A;text-decoration:none;">${phone}</a>
       </div>
       <div style="color:#aaa;font-size:13px;margin-top:8px;">
-        ${data.address}${data.city ? `, ${data.city}` : ""}${data.state ? `, ${data.state}` : ""}${data.zip ? ` ${data.zip}` : ""}
+        ${address}
       </div>
     </div>
     <table style="width:100%;border-collapse:collapse;">

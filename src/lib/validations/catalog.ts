@@ -1,11 +1,14 @@
 import { z } from "zod";
 
+/** Kebab-case slug shape shared by catalog and blog-post validation. */
+export const SLUG_REGEX = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+
 const slug = z
   .string()
   .trim()
   .min(2)
   .max(80)
-  .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "kebab-case lowercase only");
+  .regex(SLUG_REGEX, "kebab-case lowercase only");
 
 const categoryEnum = z.enum(["car", "suv", "truck", "commercial"]);
 

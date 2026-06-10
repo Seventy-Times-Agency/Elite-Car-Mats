@@ -5,28 +5,8 @@ import {
   brands as codeBrands,
   mockModels as codeModels,
 } from "@/data/catalog";
+import { asCategory, parseYears } from "@/lib/catalog-normalize";
 import type { Brand, CarModel, VehicleCategory } from "@/types";
-
-const VALID_CATEGORIES: ReadonlySet<VehicleCategory> = new Set([
-  "car",
-  "suv",
-  "truck",
-  "commercial",
-]);
-
-function asCategory(s: string): VehicleCategory {
-  return VALID_CATEGORIES.has(s as VehicleCategory)
-    ? (s as VehicleCategory)
-    : "car";
-}
-
-function parseYears(s: string): number[] {
-  return s
-    .split(",")
-    .map((p) => Number(p.trim()))
-    .filter((n) => Number.isFinite(n) && n >= 1900 && n <= 2100)
-    .sort((a, b) => a - b);
-}
 
 export interface MergedCatalog {
   brands: Brand[];

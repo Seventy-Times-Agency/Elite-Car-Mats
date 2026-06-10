@@ -48,12 +48,24 @@ interface Bucket {
 }
 const buckets: Map<string, Bucket> = new Map();
 
+// Sweep expired buckets occasionally so the Map doesn't grow without
+// bound on a long-lived process (dev server / self-hosted node).
+const SWEEP_THRESHOLD = 1000;
+
+function sweepExpired(now: number): void {
+  if (buckets.size < SWEEP_THRESHOLD) return;
+  for (const [k, b] of buckets) {
+    if (b.resetAt < now) buckets.delete(k);
+  }
+}
+
 async function inMemoryHit(
   key: string,
   windowMs: number,
   max: number,
 ): Promise<{ ok: boolean; retryAfter: number }> {
   const now = Date.now();
+  sweepExpired(now);
   const bucket = buckets.get(key);
   if (!bucket || bucket.resetAt < now) {
     buckets.set(key, { count: 1, resetAt: now + windowMs });

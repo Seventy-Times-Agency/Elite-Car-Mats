@@ -36,6 +36,20 @@ export interface OrderEmailData {
   items: OrderEmailItem[];
 }
 
+/**
+ * HTML-escape a customer-supplied string before interpolating it into an
+ * email template. Covers both text nodes and quoted attribute values
+ * (escapes `&`, `<`, `>`, `"`, `'`).
+ */
+export function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 export function matSetLabel(t: TFn, code: string): string {
   const key =
     code === "front" || code === "FRONT"
@@ -101,11 +115,7 @@ export function commentBlock(t: TFn, comment: string | null | undefined): string
   const trimmed = comment?.trim();
   if (!trimmed) return "";
   // HTML-escape so a malicious customer can't inject markup.
-  const safe = trimmed
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/\n/g, "<br>");
+  const safe = escapeHtml(trimmed).replace(/\n/g, "<br>");
   return `
     <div style="margin-top:24px;padding:14px 16px;border:1px solid #222;border-radius:6px;background:#161616;">
       <div style="color:#D4A54A;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;font-weight:600;margin-bottom:6px;">

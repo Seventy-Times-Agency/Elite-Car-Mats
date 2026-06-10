@@ -5,6 +5,7 @@ import {
   baseTemplate,
   buildT,
   commentBlock,
+  escapeHtml,
   itemsTable,
   type OrderEmailData,
 } from "./base";
@@ -16,7 +17,7 @@ export async function sendCustomerOrderEmail(
   const html = baseTemplate(
     t,
     `
-    <h1 style="font-size:22px;font-weight:700;margin:0 0 8px;">${t("email.custH1", { name: data.customerName })}</h1>
+    <h1 style="font-size:22px;font-weight:700;margin:0 0 8px;">${t("email.custH1", { name: escapeHtml(data.customerName) })}</h1>
     <p style="color:#aaa;font-size:14px;margin:0 0 24px;">${t("email.custP")}</p>
     <div style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:12px;padding:20px;margin-bottom:20px;">
       <div style="color:#8a8a8a;font-size:11px;letter-spacing:0.2em;text-transform:uppercase;">${t("email.orderNumberLabel")}</div>

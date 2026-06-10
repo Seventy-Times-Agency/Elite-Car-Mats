@@ -6,6 +6,12 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 function csvEscape(v: string): string {
+  // Neutralise spreadsheet formula injection: a subscriber email like
+  // `=HYPERLINK(...)` would execute when the export is opened in Excel /
+  // Sheets. Prefixing with `'` makes the cell render as plain text.
+  if (/^[=+\-@\t\r]/.test(v)) {
+    v = `'${v}`;
+  }
   if (v.includes(",") || v.includes('"') || v.includes("\n")) {
     return `"${v.replace(/"/g, '""')}"`;
   }

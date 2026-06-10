@@ -10,7 +10,8 @@ import {
 } from "@/data/catalog";
 import { getMatSetPrice } from "@/lib/pricing";
 import { getVehicleProfile } from "@/lib/vehicle-profile";
-import type { CarModel, MatSetType, VehicleCategory } from "@/types";
+import { asCategory, parseYears } from "@/lib/catalog-normalize";
+import type { CarModel, MatSetType } from "@/types";
 
 /**
  * Idempotent catalog bootstrap. Populates Brand / Model / ModelYear /
@@ -46,27 +47,6 @@ export interface CatalogSeedSummary {
   badges: number;
   customBrands: number;
   customModels: number;
-}
-
-const VALID_CATEGORIES: ReadonlySet<VehicleCategory> = new Set([
-  "car",
-  "suv",
-  "truck",
-  "commercial",
-]);
-
-function asCategory(s: string): VehicleCategory {
-  return VALID_CATEGORIES.has(s as VehicleCategory)
-    ? (s as VehicleCategory)
-    : "car";
-}
-
-function parseYears(s: string): number[] {
-  return s
-    .split(",")
-    .map((p) => Number(p.trim()))
-    .filter((n) => Number.isFinite(n) && n >= 1900 && n <= 2100)
-    .sort((a, b) => a - b);
 }
 
 /**

@@ -6,7 +6,9 @@ export const orderItemSchema = z.object({
   modelId: z.string().min(1),
   brandName: z.string().min(1),
   modelName: z.string().min(1),
-  year: z.number().int().min(1990).max(2030),
+  // Upper bound tracks the calendar so next-model-year vehicles (dealers
+  // sell them up to a year ahead) don't start failing validation in 2031.
+  year: z.number().int().min(1990).max(new Date().getFullYear() + 2),
   matSet: matSetEnum,
   colorId: z.string().min(1),
   edgeColorId: z.string().min(1),

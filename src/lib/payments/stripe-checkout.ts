@@ -74,6 +74,10 @@ export async function createCheckoutSession(
       duration: "once",
       name: `Promo (${input.orderNumber})`,
       max_redemptions: 1,
+      // Checkout sessions live at most 24h — let the coupon self-expire
+      // shortly after so abandoned/retried checkouts don't pile up
+      // immortal one-shot coupons in the Stripe dashboard.
+      redeem_by: Math.floor(Date.now() / 1000) + 25 * 60 * 60,
     });
     discounts = [{ coupon: coupon.id }];
   }

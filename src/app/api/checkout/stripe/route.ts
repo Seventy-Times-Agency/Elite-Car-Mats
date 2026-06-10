@@ -103,6 +103,18 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Order not found" }, { status: 404 });
   }
 
+  // Only PENDING orders may start a Checkout session. Without this guard a
+  // CONFIRMED order could be paid a second time (the webhook's
+  // status-guarded updateMany would ignore the duplicate payment but the
+  // charge itself would still land), and a CANCELLED order could be paid
+  // into the void.
+  if (order.status !== "PENDING") {
+    return NextResponse.json(
+      { error: "Order is no longer payable" },
+      { status: 409 },
+    );
+  }
+
   // Recompute unit prices from authoritative sources (matSet enum + edge
   // color id + badge presence). Never trust the DB-stored price column —
   // if it ever drifts, we want Stripe to charge the correct number.

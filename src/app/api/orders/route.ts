@@ -1,5 +1,5 @@
 import { randomBytes } from "node:crypto";
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import { prisma } from "@/lib/db/prisma";
 import { ensureSchema } from "@/lib/db/setup";
 import { ensureCatalogSeed } from "@/lib/db/seed";
@@ -392,11 +392,16 @@ export async function POST(request: Request) {
       total: Number(createdOrder.total ?? 0),
       items: emailItems,
     };
-    // Fire-and-forget: emails never fail the order.
-    Promise.all([
-      sendCustomerOrderEmail(emailData),
-      sendOwnerOrderEmail(emailData),
-    ]).catch((err) => console.error("[orders] email send failed:", err));
+    // Deferred via `after`: emails never fail (or delay) the order
+    // response, and the serverless runtime keeps the instance alive until
+    // the sends settle — a bare floating promise can be frozen mid-flight
+    // once the response is returned.
+    after(() =>
+      Promise.all([
+        sendCustomerOrderEmail(emailData),
+        sendOwnerOrderEmail(emailData),
+      ]).catch((err) => console.error("[orders] email send failed:", err)),
+    );
   } else {
     // Stripe path: notify the owner now (so they see the lead even if the
     // customer abandons the Stripe session). The customer email moves to
@@ -429,20 +434,22 @@ export async function POST(request: Request) {
         ),
       };
     });
-    sendOwnerOrderEmail({
-      orderNumber: createdOrder.orderNumber,
-      orderToken: signOrderToken(createdOrder.id),
-      customerName: customer.name,
-      customerEmail: customer.email,
-      phone: customer.phone,
-      address: shipping.address,
-      city: shipping.city || null,
-      state: shipping.state || null,
-      zip: shipping.zip || null,
-      comment: shipping.comment || null,
-      total: Number(createdOrder.total ?? 0),
-      items: emailItems,
-    }).catch((err) => console.error("[orders] owner email failed:", err));
+    after(() =>
+      sendOwnerOrderEmail({
+        orderNumber: createdOrder.orderNumber,
+        orderToken: signOrderToken(createdOrder.id),
+        customerName: customer.name,
+        customerEmail: customer.email,
+        phone: customer.phone,
+        address: shipping.address,
+        city: shipping.city || null,
+        state: shipping.state || null,
+        zip: shipping.zip || null,
+        comment: shipping.comment || null,
+        total: Number(createdOrder.total ?? 0),
+        items: emailItems,
+      }).catch((err) => console.error("[orders] owner email failed:", err)),
+    );
   }
 
   return NextResponse.json(

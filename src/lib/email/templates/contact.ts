@@ -1,6 +1,6 @@
 import "server-only";
 import { send, ownerEmail } from "../transport";
-import { baseTemplate, buildT } from "./base";
+import { baseTemplate, buildT, escapeHtml } from "./base";
 
 export async function sendContactEmail(params: {
   name: string;
@@ -8,8 +8,7 @@ export async function sendContactEmail(params: {
   message: string;
 }): Promise<void> {
   const t = await buildT();
-  const safe = (s: string) =>
-    s.replace(/[<>]/g, (c) => (c === "<" ? "&lt;" : "&gt;")).replace(/\n/g, "<br/>");
+  const safe = (s: string) => escapeHtml(s).replace(/\n/g, "<br/>");
   const html = baseTemplate(
     t,
     `
@@ -17,7 +16,7 @@ export async function sendContactEmail(params: {
     <div style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:12px;padding:20px;margin-bottom:20px;">
       <div style="color:#F0ECE5;font-weight:600;">${safe(params.name)}</div>
       <div style="color:#aaa;font-size:13px;margin-top:4px;">
-        <a href="mailto:${params.email}" style="color:#D4A54A;text-decoration:none;">${safe(params.email)}</a>
+        <a href="mailto:${escapeHtml(params.email)}" style="color:#D4A54A;text-decoration:none;">${safe(params.email)}</a>
       </div>
     </div>
     <div style="background:#0F0F0F;border:1px solid #2a2a2a;border-radius:12px;padding:20px;color:#F0ECE5;font-size:14px;line-height:1.6;">

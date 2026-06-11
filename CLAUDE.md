@@ -243,6 +243,11 @@ serverless cold starts don't race `CREATE TYPE`.
   Article (blog).
 - i18n: `en` / `ru` / `uk`, dictionaries split per locale into
   `storefront.ts` (public) + `operations.ts` (admin + email).
+- Locale URL prefixes for SEO: `/` = EN, `/ru/*` and `/uk/*` are
+  rewritten by `src/proxy.ts` onto the same routes with an `x-locale`
+  request header (URL prefix > cookie > Accept-Language). hreflang
+  alternates come from `lib/seo/alternates.ts` (root layout + catalog +
+  blog); the sitemap lists all three language versions of each page.
 - EN copy was given a US-market marketing pass (Stage 7).
 
 ## Still TODO (in priority order)

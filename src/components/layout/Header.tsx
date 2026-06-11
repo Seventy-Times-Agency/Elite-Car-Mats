@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
 import { useT } from "@/i18n/I18nProvider";
+import { splitLocaleFromPath } from "@/i18n/locale-path";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { HeaderSearch } from "./HeaderSearch";
 
@@ -13,7 +14,9 @@ export function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [pastHero, setPastHero] = useState(false);
-  const pathname = usePathname();
+  // Strip the /ru//uk URL prefix so active-link checks keep matching
+  // the unprefixed hrefs used throughout the nav.
+  const pathname = splitLocaleFromPath(usePathname() ?? "/").path;
   const { itemsCount, openCart } = useCart();
   const { count: wishCount } = useWishlist();
   const t = useT();

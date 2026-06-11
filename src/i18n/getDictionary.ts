@@ -17,15 +17,24 @@ const DICTS: Record<Locale, Dict> = { ru, en, uk };
 /**
  * Resolve the active locale for the current request:
  *
- *   1. If the visitor has a valid `LOCALE_COOKIE` set (they picked a
- *      language manually via the header switcher) — use that.
- *   2. Otherwise look at the browser's `Accept-Language` header. A
- *      Russian-speaking diaspora visitor still lands on RU; everyone
- *      else lands on EN.
- *   3. If neither yields a supported locale, fall back to
- *      `DEFAULT_LOCALE` (English).
+ *   1. `x-locale` header injected by src/proxy.ts when the visitor is on
+ *      a /ru/* or /uk/* URL — the URL prefix always wins so a crawler
+ *      (or a shared link) renders the language the address promises.
+ *   2. A valid `LOCALE_COOKIE` (the visitor picked a language manually
+ *      via the header switcher).
+ *   3. The browser's `Accept-Language` header. A Russian-speaking
+ *      diaspora visitor still lands on RU; everyone else lands on EN.
+ *   4. `DEFAULT_LOCALE` (English).
  */
 export async function getLocaleFromCookie(): Promise<Locale> {
+  try {
+    const h = await headers();
+    const forced = h.get("x-locale");
+    if (isLocale(forced)) return forced;
+  } catch {
+    // headers() can throw outside a request scope (e.g. during OG image
+    // generation at build) — fall through to the cookie/default below.
+  }
   const store = await cookies();
   const v = store.get(LOCALE_COOKIE)?.value;
   if (isLocale(v)) return v;
@@ -34,9 +43,6 @@ export async function getLocaleFromCookie(): Promise<Locale> {
     const h = await headers();
     return pickLocaleFromAcceptLanguage(h.get("accept-language"));
   } catch {
-    // headers() can throw outside a request scope (e.g. during OG image
-    // generation at build). Falling through to the default keeps those
-    // paths working.
     return DEFAULT_LOCALE;
   }
 }

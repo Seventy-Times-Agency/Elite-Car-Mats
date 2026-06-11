@@ -1,8 +1,9 @@
 "use client";
 
 import { createContext, useCallback, useContext, useMemo } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { DEFAULT_LOCALE, LOCALE_COOKIE, type Locale } from "./config";
+import { splitLocaleFromPath, localizePath } from "./locale-path";
 import { makeT, type TFn, type Dict } from "./dictionary";
 
 interface I18nCtx {
@@ -25,15 +26,25 @@ export function I18nProvider({
   children: React.ReactNode;
 }) {
   const router = useRouter();
+  const pathname = usePathname();
   const t = useMemo(() => makeT(dict, fallback), [dict, fallback]);
 
   const setLocale = useCallback(
     (l: Locale) => {
       // 1 year cookie
       document.cookie = `${LOCALE_COOKIE}=${l}; path=/; max-age=${60 * 60 * 24 * 365}; samesite=lax`;
-      router.refresh();
+      // Locale also lives on the URL prefix (/ru, /uk — see src/proxy.ts),
+      // and the prefix outranks the cookie, so switching must move to the
+      // right URL: /ru/catalog → /catalog (EN) or /uk/catalog.
+      const { path } = splitLocaleFromPath(pathname ?? "/");
+      const target = localizePath(path, l);
+      if (target !== pathname) {
+        router.push(target);
+      } else {
+        router.refresh();
+      }
     },
-    [router],
+    [router, pathname],
   );
 
   const value = useMemo<I18nCtx>(

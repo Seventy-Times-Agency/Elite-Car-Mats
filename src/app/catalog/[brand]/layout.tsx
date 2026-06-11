@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getMergedCatalogCached } from "@/lib/catalog-merge";
 import { getDictionary } from "@/i18n/getDictionary";
 import { makeT } from "@/i18n/dictionary";
+import { localeAlternates } from "@/lib/seo/alternates";
 
 interface Params {
   params: Promise<{ brand: string }>;
@@ -25,9 +26,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
         count: brand.modelsCount,
       }),
     },
-    alternates: {
-      canonical: `/catalog/${brand.slug}`,
-    },
+    alternates: await localeAlternates(`/catalog/${brand.slug}`),
   };
 }
 

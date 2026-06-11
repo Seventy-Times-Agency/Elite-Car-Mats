@@ -255,10 +255,17 @@ export function CheckoutClient({ paymentEnabled }: { paymentEnabled: boolean }) 
               return;
             }
           }
-          // Any non-ok response falls through to the manual-confirm flow.
         } catch (payErr) {
-          console.warn("[checkout:stripe-fallback]", payErr);
+          console.warn("[checkout:stripe-error]", payErr);
         }
+        // Payment session didn't start. Tell the customer honestly and
+        // let them retry — the order is kept in createdOrderRef so the
+        // next attempt reuses it instead of duplicating. The old
+        // behaviour fell through to the manual-confirm flow, which made
+        // the checkout look successful without any payment.
+        setFormError(t("co.payErrRetry"));
+        setSubmitting(false);
+        return;
       }
 
       clearCart();

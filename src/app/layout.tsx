@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import { Header } from "@/components/layout/Header";
 import { AnnouncementBar } from "@/components/layout/AnnouncementBar";
@@ -139,6 +140,11 @@ export default async function RootLayout({
             </WishlistProvider>
           </CartProvider>
         </I18nProvider>
+        {/* Vercel Web Analytics — cookieless, same-origin script, so it
+            needs no CSP allowance and no cookie-banner consent gate.
+            Enable the Analytics tab for the project in the Vercel
+            dashboard to start collecting. */}
+        <Analytics />
       </body>
     </html>
   );

@@ -9,7 +9,9 @@ import type { NextConfig } from "next";
 // embed, so js.stripe.com is not needed.
 const CSP = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' https://vercel.live",
+  // va.vercel-scripts.com serves the @vercel/analytics debug build in
+  // dev/preview; production loads the same-origin /_vercel/insights copy.
+  "script-src 'self' 'unsafe-inline' https://vercel.live https://va.vercel-scripts.com",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https:",
   "font-src 'self' data:",

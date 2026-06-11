@@ -102,19 +102,25 @@ async function upstashHit(
       cache: "no-store",
     });
   } catch (err) {
-    // Network blip — fail open to keep the site available rather than DoS
-    // legitimate users. Any sustained outage shows up in logs.
-    console.warn("[rate-limit:upstash] fetch failed, allowing", err);
-    return { ok: true, retryAfter: 0 };
+    // Network blip — degrade to the per-instance in-memory limiter
+    // instead of allowing unlimited traffic. Weaker than Redis (each
+    // lambda counts separately) but it still blunts brute force during
+    // an Upstash outage, and legitimate users stay under the limit
+    // anyway. Sustained outages show up in logs.
+    console.warn("[rate-limit:upstash] fetch failed, in-memory fallback", err);
+    return inMemoryHit(key, windowMs, max);
   }
   if (!res.ok) {
-    console.warn("[rate-limit:upstash] non-OK response", res.status);
-    return { ok: true, retryAfter: 0 };
+    console.warn(
+      "[rate-limit:upstash] non-OK response, in-memory fallback",
+      res.status,
+    );
+    return inMemoryHit(key, windowMs, max);
   }
   type PipelineResult = Array<{ result?: number; error?: string }>;
   const data = (await res.json().catch(() => null)) as PipelineResult | null;
   if (!Array.isArray(data) || !data[0] || typeof data[0].result !== "number") {
-    return { ok: true, retryAfter: 0 };
+    return inMemoryHit(key, windowMs, max);
   }
   const count = data[0].result;
   const ttlMs = typeof data[2]?.result === "number" ? data[2].result : windowMs;

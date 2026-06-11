@@ -103,6 +103,16 @@ export async function POST(request: Request) {
 
   const { customer, shipping, items, promoCode } = parsed.data;
 
+  // Manual-confirm flow ships to the address from this form, so it must
+  // be present. With Stripe enabled the address is collected on the
+  // Checkout page instead (webhook overlays it onto the order).
+  if (!isStripeConfigured() && shipping.address.trim().length < 5) {
+    return NextResponse.json(
+      { error: "Shipping address is required" },
+      { status: 400 },
+    );
+  }
+
   // Resolve productId for each cart item from the merged catalog (code +
   // admin-added custom rows). The seed mirrors custom brands/models into
   // the Brand/Model/Product tables under the same `${brandSlug}-${slug}`

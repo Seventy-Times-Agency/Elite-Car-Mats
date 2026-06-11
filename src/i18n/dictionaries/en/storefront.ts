@@ -189,6 +189,8 @@ export const storefront: Dict = {
   "co.state": "State",
   "co.zip": "ZIP",
   "co.comments": "Comments",
+  "co.shipAddressNote":
+    "You'll enter your shipping address on the secure payment page.",
   "co.yourOrder": "Your order",
   "co.total": "Total",
   "co.confirmNote": "You'll get an order confirmation by email within minutes.",
@@ -204,6 +206,8 @@ export const storefront: Dict = {
   "co.payStripe": "Pay with card",
   "co.payRedirecting": "Sending you to checkout…",
   "co.payErr": "Couldn't start payment",
+  "co.payErrRetry":
+    "We couldn't open the payment page. Your order is saved — press the button to try again. You won't be charged twice.",
   "co.subtotal": "Subtotal",
   "co.discount": "Discount",
   "co.promoPh": "Promo code",

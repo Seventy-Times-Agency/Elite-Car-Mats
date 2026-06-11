@@ -20,9 +20,15 @@ export async function sendOwnerOrderEmail(
   const name = escapeHtml(data.customerName);
   const email = escapeHtml(data.customerEmail);
   const phone = escapeHtml(data.phone);
-  const address = escapeHtml(
-    `${data.address}${data.city ? `, ${data.city}` : ""}${data.state ? `, ${data.state}` : ""}${data.zip ? ` ${data.zip}` : ""}`,
-  );
+  // Stripe-flow orders have no address yet (collected on the Checkout
+  // page, overlaid by the webhook) — skip the empty block in that case.
+  const addressRaw =
+    `${data.address}${data.city ? `, ${data.city}` : ""}${data.state ? `, ${data.state}` : ""}${data.zip ? ` ${data.zip}` : ""}`.trim();
+  const addressBlock = addressRaw
+    ? `<div style="color:#aaa;font-size:13px;margin-top:8px;">
+        ${escapeHtml(addressRaw)}
+      </div>`
+    : "";
   const html = baseTemplate(
     t,
     `
@@ -33,9 +39,7 @@ export async function sendOwnerOrderEmail(
         <a href="mailto:${email}" style="color:#D4A54A;text-decoration:none;">${email}</a> ·
         <a href="tel:${phone}" style="color:#D4A54A;text-decoration:none;">${phone}</a>
       </div>
-      <div style="color:#aaa;font-size:13px;margin-top:8px;">
-        ${address}
-      </div>
+      ${addressBlock}
     </div>
     <table style="width:100%;border-collapse:collapse;">
       ${itemsTable(t, data.items)}

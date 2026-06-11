@@ -187,6 +187,8 @@ export const storefront: Dict = {
   "co.state": "Штат",
   "co.zip": "ZIP",
   "co.comments": "Комментарий",
+  "co.shipAddressNote":
+    "Адрес доставки вы укажете на защищённой странице оплаты.",
   "co.yourOrder": "Ваш заказ",
   "co.total": "Итого",
   "co.confirmNote": "Мы свяжемся для подтверждения",
@@ -202,6 +204,8 @@ export const storefront: Dict = {
   "co.payStripe": "Оплатить картой",
   "co.payRedirecting": "Перенаправляем на оплату...",
   "co.payErr": "Не удалось начать оплату",
+  "co.payErrRetry":
+    "Не удалось открыть страницу оплаты. Заказ сохранён — нажмите кнопку ещё раз. Двойного списания не будет.",
   "co.subtotal": "Сумма",
   "co.discount": "Скидка",
   "co.promoPh": "Промокод",

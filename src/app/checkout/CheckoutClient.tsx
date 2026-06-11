@@ -171,7 +171,11 @@ export function CheckoutClient({ paymentEnabled }: { paymentEnabled: boolean }) 
     if (!/^[+()\-\s\d]{7,}$/.test(form.phone.trim())) e.phone = t("co.errPhone");
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim()))
       e.email = t("co.errEmail");
-    if (form.address.trim().length < 5) e.address = t("co.errAddress");
+    // With Stripe enabled the shipping address is collected on the
+    // Checkout page (and overlaid onto the order by the webhook), so the
+    // local address fields are hidden and not validated.
+    if (!paymentEnabled && form.address.trim().length < 5)
+      e.address = t("co.errAddress");
     if (form.zip && !/^[\d\s\-]*$/.test(form.zip)) e.zip = t("co.errZip");
     setErrors(e);
     return Object.keys(e).length === 0;
@@ -351,6 +355,13 @@ export function CheckoutClient({ paymentEnabled }: { paymentEnabled: boolean }) 
             <div>
               <span className="section-label text-[10px]">{t("co.shipping")}</span>
               <div className="mt-3 space-y-4">
+                {paymentEnabled && (
+                  <p className="text-xs text-text-dim glass-card rounded-xl px-4 py-3">
+                    {t("co.shipAddressNote")}
+                  </p>
+                )}
+                {!paymentEnabled && (
+                <>
                 <div>
                   <input
                     name="address"
@@ -442,6 +453,8 @@ export function CheckoutClient({ paymentEnabled }: { paymentEnabled: boolean }) 
                     )}
                   </div>
                 </div>
+                </>
+                )}
                 <textarea
                   name="comment"
                   value={form.comment}

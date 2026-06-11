@@ -29,7 +29,11 @@ export const createOrderSchema = z.object({
     email: z.string().trim().email("Неверный email"),
   }),
   shipping: z.object({
-    address: z.string().trim().min(5, "Укажите адрес").max(200),
+    // Optional at the schema level: with Stripe enabled the address is
+    // collected on the Checkout page and overlaid onto the order by the
+    // webhook. /api/orders enforces a non-empty address when payments
+    // are NOT configured (manual-confirm flow ships to this address).
+    address: z.string().trim().max(200).optional().default(""),
     city: z.string().trim().max(80).optional().default(""),
     state: z.string().trim().max(40).optional().default(""),
     zip: z

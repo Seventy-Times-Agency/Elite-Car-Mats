@@ -189,6 +189,8 @@ export const storefront: Dict = {
   "co.state": "State",
   "co.zip": "ZIP",
   "co.comments": "Comments",
+  "co.shipAddressNote":
+    "You'll enter your shipping address on the secure payment page.",
   "co.yourOrder": "Your order",
   "co.total": "Total",
   "co.confirmNote": "You'll get an order confirmation by email within minutes.",

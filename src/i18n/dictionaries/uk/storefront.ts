@@ -187,6 +187,8 @@ export const storefront: Dict = {
   "co.state": "Штат",
   "co.zip": "ZIP",
   "co.comments": "Коментар",
+  "co.shipAddressNote":
+    "Адресу доставки ви вкажете на захищеній сторінці оплати.",
   "co.yourOrder": "Ваше замовлення",
   "co.total": "Разом",
   "co.confirmNote": "Ми зв'яжемось для підтвердження",

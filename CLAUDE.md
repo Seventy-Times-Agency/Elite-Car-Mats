@@ -10,7 +10,8 @@ Premium EVA car-mat e-commerce site for the U.S. market.
 - **Repo**: github.com/seventy-times-agency/elite-car-mats.
 - **Production branch**: `main`. Vercel auto-deploys on push.
 - **Audience**: U.S. customers (English) plus the Russian/Ukrainian
-  diaspora — i18n is wired up but defaults to RU until further notice.
+  diaspora — default locale is EN; ru/uk are auto-detected from
+  Accept-Language and switchable in the header.
 
 ## Brand
 

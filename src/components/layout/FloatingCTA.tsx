@@ -3,9 +3,11 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useT } from "@/i18n/I18nProvider";
+import { splitLocaleFromPath } from "@/i18n/locale-path";
 
 export function FloatingCTA() {
-  const pathname = usePathname();
+  // Strip the /ru//uk URL prefix so the route checks below keep working.
+  const pathname = splitLocaleFromPath(usePathname() ?? "/").path;
   const t = useT();
   // Hide on flows where it adds clutter: cart, checkout, admin, order detail,
   // and the product detail page (it already has its own sticky add-to-cart

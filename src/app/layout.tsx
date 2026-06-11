@@ -15,6 +15,8 @@ import { I18nProvider } from "@/i18n/I18nProvider";
 import { getDictionary } from "@/i18n/getDictionary";
 import { LOCALE_HTML_LANG, LOCALE_OG } from "@/i18n/config";
 import { makeT } from "@/i18n/dictionary";
+import { localeAlternates } from "@/lib/seo/alternates";
+import { headers } from "next/headers";
 
 const inter = localFont({
   src: "./fonts/inter-var.woff2",
@@ -37,6 +39,13 @@ export const viewport: Viewport = {
 export async function generateMetadata(): Promise<Metadata> {
   const { locale, dict, fallback } = await getDictionary();
   const t = makeT(dict, fallback);
+  // Unprefixed route path injected by src/proxy.ts — used for the
+  // per-page canonical + hreflang set below. Defaults to "/" outside a
+  // request scope (build-time metadata for static shells).
+  let path = "/";
+  try {
+    path = (await headers()).get("x-pathname") ?? "/";
+  } catch {}
   return {
     metadataBase: new URL(SITE),
     title: {
@@ -83,14 +92,12 @@ export async function generateMetadata(): Promise<Metadata> {
         "max-snippet": -1,
       },
     },
-    alternates: {
-      // Same canonical URL serves all three locales — locale is a cookie,
-      // not a path prefix — so per-locale hreflang would all point at the
-      // same URL and Google would ignore (or worse, flag) it. We keep
-      // canonical only; if/when we move locales onto path prefixes
-      // (/en, /ru, /uk) the alternates map gets restored.
-      canonical: SITE,
-    },
+    // Locale lives on a path prefix now (src/proxy.ts): / = EN,
+    // /ru/* and /uk/* serve the translations at their own URLs, so each
+    // page gets a locale-aware canonical plus the full hreflang set.
+    // This also fixes the old bug where every page inherited
+    // `canonical: SITE` and told Google the real page was the homepage.
+    alternates: await localeAlternates(path),
     formatDetection: {
       telephone: true,
       email: true,

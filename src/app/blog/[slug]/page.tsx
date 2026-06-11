@@ -7,6 +7,7 @@ import { getDictionary } from "@/i18n/getDictionary";
 import { makeT } from "@/i18n/dictionary";
 import { renderMarkdown } from "@/lib/markdown";
 import { BreadcrumbJsonLd } from "@/components/seo/ProductJsonLd";
+import { localeAlternates } from "@/lib/seo/alternates";
 
 export const dynamic = "force-dynamic";
 
@@ -26,7 +27,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   return {
     title: post.title,
     description: post.excerpt,
-    alternates: { canonical: `/blog/${post.slug}` },
+    alternates: await localeAlternates(`/blog/${post.slug}`),
     openGraph: {
       type: "article",
       title: post.title,

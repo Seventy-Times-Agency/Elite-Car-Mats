@@ -5,6 +5,7 @@ import { loadPriceOverridesCached } from "@/lib/pricing-overrides";
 import { getVehicleProfile, getDefaultMatSet } from "@/lib/vehicle-profile";
 import { getDictionary } from "@/i18n/getDictionary";
 import { makeT } from "@/i18n/dictionary";
+import { localeAlternates } from "@/lib/seo/alternates";
 
 interface Params {
   params: Promise<{ brand: string; model: string }>;
@@ -41,9 +42,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
       title: t("prod.ogTitle", vars),
       description: t("prod.ogDesc", vars),
     },
-    alternates: {
-      canonical: `/catalog/${brand.slug}/${model.slug}`,
-    },
+    alternates: await localeAlternates(`/catalog/${brand.slug}/${model.slug}`),
   };
 }
 

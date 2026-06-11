@@ -4,6 +4,7 @@ import Image from "next/image";
 import { listPublishedPosts } from "@/lib/blog";
 import { getDictionary } from "@/i18n/getDictionary";
 import { makeT } from "@/i18n/dictionary";
+import { localeAlternates } from "@/lib/seo/alternates";
 
 export const dynamic = "force-dynamic";
 
@@ -13,7 +14,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: t("blog.metaTitle"),
     description: t("blog.metaDesc"),
-    alternates: { canonical: "/blog" },
+    alternates: await localeAlternates("/blog"),
   };
 }
 

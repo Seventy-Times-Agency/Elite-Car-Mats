@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useT, useLocale } from "@/i18n/I18nProvider";
+import { localizeColor, localizeMatSet } from "@/i18n/labels";
+import { formatPrice } from "@/lib/pricing";
 
 type Status =
   | "PENDING"
@@ -22,6 +24,25 @@ const STATUS_COLOR: Record<Status, string> = {
   CANCELLED: "text-red-400 border-red-400/30",
 };
 
+export interface OrderItemView {
+  id: string;
+  brandName: string;
+  modelName: string;
+  year: number | null;
+  /** Canonical Russian mat-set label — localized via localizeMatSet. */
+  matSetLabel: string;
+  colorName: string;
+  colorHex: string;
+  edgeColorName: string;
+  edgeColorHex: string;
+  badgeBrand: string | null;
+  /** 0 = no badge; otherwise plates count. */
+  badgeCount: number;
+  heelPad: boolean;
+  quantity: number;
+  unitPrice: number;
+}
+
 interface Order {
   id: string;
   orderNumber: string;
@@ -29,6 +50,14 @@ interface Order {
   customerName: string;
   email: string;
   phone: string;
+  address: string;
+  city: string | null;
+  state: string | null;
+  zip: string | null;
+  comment: string | null;
+  promoCode: string | null;
+  subtotal: number;
+  discount: number;
   total: number;
   trackingNumber: string | null;
   itemsCount: number;
@@ -37,9 +66,11 @@ interface Order {
 
 export function OrderRow({
   order,
+  items,
   formattedTotal,
 }: {
   order: Order;
+  items: OrderItemView[];
   formattedTotal: string;
 }) {
   const router = useRouter();
@@ -123,7 +154,8 @@ export function OrderRow({
       </button>
       {expanded && (
         <div className="px-4 pb-4 pt-2 border-t border-border/30 space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+          {/* Customer + shipping */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
             <div>
               <div className="text-text-faint uppercase tracking-wider mb-1">
                 {t("admin.phoneLabel")}
@@ -139,6 +171,135 @@ export function OrderRow({
               <a href={`mailto:${order.email}`} className="text-text">
                 {order.email}
               </a>
+            </div>
+            <div>
+              <div className="text-text-faint uppercase tracking-wider mb-1">
+                {t("admin.shipAddressLabel")}
+              </div>
+              <div className="text-text leading-snug">
+                {[order.address, order.city, order.state, order.zip]
+                  .filter(Boolean)
+                  .join(", ") || (
+                  <span className="text-text-faint">
+                    {t("admin.shipAddressPendingStripe")}
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {order.comment && (
+            <div className="text-xs">
+              <div className="text-text-faint uppercase tracking-wider mb-1">
+                {t("admin.commentLabel")}
+              </div>
+              <div className="text-text whitespace-pre-wrap leading-snug">
+                {order.comment}
+              </div>
+            </div>
+          )}
+
+          {/* Items */}
+          <div>
+            <div className="text-[10px] uppercase tracking-wider text-text-faint mb-2">
+              {t("admin.orderItemsLabel")}
+            </div>
+            <div className="space-y-2">
+              {items.map((i) => (
+                <div
+                  key={i.id}
+                  className="rounded-lg border border-border/40 bg-bg/30 px-3 py-2.5 text-xs"
+                >
+                  <div className="flex items-baseline justify-between gap-3 flex-wrap">
+                    <div className="font-semibold text-text">
+                      {i.brandName} {i.modelName}
+                      {i.year ? (
+                        <span className="text-text-faint font-normal">
+                          {" "}
+                          · {i.year}
+                        </span>
+                      ) : null}
+                      <span className="text-gold font-normal">
+                        {" "}
+                        · {localizeMatSet(t, i.matSetLabel)}
+                      </span>
+                    </div>
+                    <div className="text-gold font-semibold shrink-0 tabular-nums">
+                      {i.quantity > 1
+                        ? `${formatPrice(i.unitPrice)} × ${i.quantity} = ${formatPrice(i.unitPrice * i.quantity)}`
+                        : formatPrice(i.unitPrice)}
+                    </div>
+                  </div>
+                  <div className="mt-1.5 flex items-center gap-x-3 gap-y-1 flex-wrap text-text-dim">
+                    <span className="inline-flex items-center gap-1.5">
+                      <span
+                        className="w-2.5 h-2.5 rounded-sm border border-border/50"
+                        style={{ backgroundColor: i.colorHex }}
+                        aria-hidden
+                      />
+                      {localizeColor(t, i.colorName)}
+                    </span>
+                    <span className="inline-flex items-center gap-1.5">
+                      <span
+                        className="w-2.5 h-2.5 rounded-full border border-border/50"
+                        style={{ backgroundColor: i.edgeColorHex }}
+                        aria-hidden
+                      />
+                      {localizeColor(t, i.edgeColorName)}
+                    </span>
+                    {i.badgeBrand && (
+                      <span className="text-gold/90">
+                        {t("admin.badgeChip", {
+                          brand: i.badgeBrand,
+                          n: i.badgeCount,
+                        })}
+                      </span>
+                    )}
+                    {i.heelPad && (
+                      <span className="text-gold/90">
+                        {t("admin.heelPadChip")}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Price breakdown */}
+          <div className="rounded-lg border border-border/40 bg-bg/30 px-3 py-2.5 text-xs space-y-1.5 max-w-xs ml-auto">
+            <div className="flex justify-between gap-4">
+              <span className="text-text-dim">{t("admin.subtotalLabel")}</span>
+              <span className="text-text tabular-nums">
+                {formatPrice(order.subtotal)}
+              </span>
+            </div>
+            {order.promoCode && (
+              <div className="flex justify-between gap-4">
+                <span className="text-text-dim">
+                  {t("admin.promoLabel")}{" "}
+                  <span className="text-gold font-mono">{order.promoCode}</span>
+                </span>
+                <span className="text-gold tabular-nums">
+                  −{formatPrice(order.discount)}
+                </span>
+              </div>
+            )}
+            {!order.promoCode && order.discount > 0 && (
+              <div className="flex justify-between gap-4">
+                <span className="text-text-dim">{t("admin.discountLabel")}</span>
+                <span className="text-gold tabular-nums">
+                  −{formatPrice(order.discount)}
+                </span>
+              </div>
+            )}
+            <div className="flex justify-between gap-4 pt-1.5 border-t border-border/30">
+              <span className="text-text font-semibold">
+                {t("admin.totalLabel")}
+              </span>
+              <span className="text-gold font-bold tabular-nums">
+                {formatPrice(order.total)}
+              </span>
             </div>
           </div>
 

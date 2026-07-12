@@ -101,7 +101,7 @@ export const storefront: Dict = {
   "hero.statModelsValue": "800+",
   "hero.statLifespanValue": "5 years",
   "hero.statWarrantyValue": "2 years",
-  "hero.imageAlt": "Premium black EVA car mat with honeycomb texture and gold edging, ELITECARMATS.US brand tag stitched on the side",
+  "hero.imageAlt": "Showroom scene: EVA car mat sets laid out on a concrete floor, a display stand with a black mat with red edging, a car in the background",
   "hero.cardEdge": "Edge",
   "hero.cardEdgeValue": "Gold Premium",
   "hero.cardFit": "Fit",

@@ -174,69 +174,61 @@ export function MatPreview({
           <circle cx="480" cy="340" r="8" fill="rgba(0,0,0,0.35)" />
           <circle cx="480" cy="340" r="4" fill={color.hex} opacity="0.4" />
 
-          {/* Aluminum heel pad — top-left driver area, only when the
-              customer added the pad in step 4. Position roughly under
-              the gas pedal for left-hand-drive US market. */}
+          {/* Aluminum heel pad — brushed plate with rows of black
+              rubber pill slots, matching the real part (see the add-ons
+              photo). Sits under the pedals on the driver's side. */}
           {showHeelPad && (
-            <g transform="translate(120, 130)">
+            <g transform="translate(150, 160)">
               <defs>
-                <linearGradient id="heelpad-grad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0" stopColor="#D8D8D8" />
-                  <stop offset="0.45" stopColor="#7A7A7A" />
-                  <stop offset="1" stopColor="#A8A8A8" />
+                <linearGradient id="heelpad-grad" x1="0" y1="0" x2="0.2" y2="1">
+                  <stop offset="0" stopColor="#E3E4E6" />
+                  <stop offset="0.35" stopColor="#B9BBBE" />
+                  <stop offset="0.65" stopColor="#CFD1D4" />
+                  <stop offset="1" stopColor="#9EA0A4" />
                 </linearGradient>
                 <linearGradient id="heelpad-shine" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0" stopColor="rgba(255,255,255,0.55)" />
+                  <stop offset="0" stopColor="rgba(255,255,255,0.65)" />
                   <stop offset="1" stopColor="rgba(255,255,255,0)" />
                 </linearGradient>
+                {/* offset rows of rubber pills, like the real plate */}
                 <pattern
-                  id="heelpad-ribs"
-                  width="6"
-                  height="6"
+                  id="heelpad-pills"
+                  width="22"
+                  height="16"
                   patternUnits="userSpaceOnUse"
                 >
-                  <rect width="3" height="6" fill="rgba(0,0,0,0.4)" />
+                  <rect x="1" y="2" width="9" height="4.5" rx="2.25" fill="#1C1D1F" />
+                  <rect x="13" y="2" width="6" height="4.5" rx="2.25" fill="#1C1D1F" />
+                  <rect x="7" y="10" width="8" height="4.5" rx="2.25" fill="#1C1D1F" />
+                  <rect x="18" y="10" width="4" height="4.5" rx="2.25" fill="#1C1D1F" />
                 </pattern>
               </defs>
               {/* drop shadow */}
-              <rect
-                x="-42"
-                y="-30"
-                width="84"
-                height="60"
-                rx="6"
-                fill="rgba(0,0,0,0.5)"
-                transform="translate(2, 3)"
+              <path
+                d="M -52 -34 H 20 Q 26 -34 26 -28 L 26 -8 Q 26 -2 32 -2 H 46
+                   Q 52 -2 52 4 L 52 28 Q 52 34 46 34 H -46 Q -52 34 -52 28 Z"
+                fill="rgba(0,0,0,0.45)"
+                transform="translate(2.5, 3.5)"
               />
-              {/* base plate */}
-              <rect
-                x="-42"
-                y="-30"
-                width="84"
-                height="60"
-                rx="6"
+              {/* base plate — notched dog-bone outline like the real part */}
+              <path
+                d="M -52 -34 H 20 Q 26 -34 26 -28 L 26 -8 Q 26 -2 32 -2 H 46
+                   Q 52 -2 52 4 L 52 28 Q 52 34 46 34 H -46 Q -52 34 -52 28 Z"
                 fill="url(#heelpad-grad)"
-                stroke="rgba(0,0,0,0.4)"
-                strokeWidth="0.6"
+                stroke="rgba(0,0,0,0.45)"
+                strokeWidth="0.8"
               />
-              {/* vertical ribs */}
-              <rect
-                x="-38"
-                y="-26"
-                width="76"
-                height="52"
-                rx="3"
-                fill="url(#heelpad-ribs)"
-                opacity="0.55"
+              {/* pill slots, clipped a bit inside the plate */}
+              <path
+                d="M -47 -29 H 16 Q 21 -29 21 -24 L 21 -6 Q 21 2 29 2 H 42
+                   Q 47 2 47 7 L 47 24 Q 47 29 42 29 H -42 Q -47 29 -47 24 Z"
+                fill="url(#heelpad-pills)"
               />
-              {/* top bevel highlight */}
-              <rect
-                x="-41"
-                y="-29"
-                width="82"
-                height="14"
-                rx="4"
+              {/* brushed highlight */}
+              <path
+                d="M -52 -34 H 20 Q 26 -34 26 -28 L 26 -22 H -52 Z"
                 fill="url(#heelpad-shine)"
+                opacity="0.7"
               />
             </g>
           )}
@@ -287,81 +279,71 @@ export function MatPreview({
             </text>
           </g>
 
-          {/* Metal brand-logo plate — rectangular chrome strip (supplier type
-              DY). Rendered on the driver-side top only when showBadge and the
-              supplier has one in stock. */}
+          {/* Metal brand-logo plate — small enamel plate sewn next to the
+              edge binding at the bottom of the mat, matching where the
+              real plate sits on the product photos. */}
           {showBadge && brandLogoUrl && (
-            <g transform="translate(150, 120)">
+            <g transform="translate(160, 372)">
               <defs>
-                <linearGradient id="plate-chrome" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0" stopColor="#F0F0F0" />
-                  <stop offset="0.28" stopColor="#C8C8C8" />
-                  <stop offset="0.52" stopColor="#8E8E8E" />
-                  <stop offset="0.72" stopColor="#B4B4B4" />
-                  <stop offset="1" stopColor="#6C6C6C" />
+                <linearGradient id="plate-enamel" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0" stopColor="#FFFFFF" />
+                  <stop offset="0.6" stopColor="#F2F3F4" />
+                  <stop offset="1" stopColor="#DDDFE2" />
                 </linearGradient>
-                <linearGradient id="plate-bevel-top" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0" stopColor="rgba(255,255,255,0.75)" />
-                  <stop offset="1" stopColor="rgba(255,255,255,0)" />
+                <linearGradient id="plate-rim" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0" stopColor="#E8E9EB" />
+                  <stop offset="0.5" stopColor="#9A9CA0" />
+                  <stop offset="1" stopColor="#C7C9CC" />
                 </linearGradient>
               </defs>
               {/* drop shadow */}
               <rect
-                x="-34"
+                x="-31"
                 y="-8"
-                width="68"
+                width="62"
                 height="16"
-                rx="2"
-                fill="rgba(0,0,0,0.45)"
+                rx="7"
+                fill="rgba(0,0,0,0.5)"
                 transform="translate(1.2, 1.8)"
               />
-              {/* chrome plate */}
+              {/* metal rim */}
               <rect
-                x="-34"
+                x="-31"
                 y="-8"
-                width="68"
+                width="62"
                 height="16"
-                rx="2"
-                fill="url(#plate-chrome)"
+                rx="7"
+                fill="url(#plate-rim)"
+                stroke="rgba(0,0,0,0.4)"
+                strokeWidth="0.4"
               />
-              {/* dark edge */}
+              {/* white enamel face */}
               <rect
-                x="-34"
-                y="-8"
-                width="68"
-                height="16"
-                rx="2"
-                fill="none"
-                stroke="rgba(0,0,0,0.45)"
-                strokeWidth="0.35"
-              />
-              {/* top bevel highlight */}
-              <rect
-                x="-33"
-                y="-7.4"
-                width="66"
-                height="6"
-                rx="1.5"
-                fill="url(#plate-bevel-top)"
+                x="-29.4"
+                y="-6.4"
+                width="58.8"
+                height="12.8"
+                rx="5.8"
+                fill="url(#plate-enamel)"
               />
               {/* logo, centered, constrained */}
               <image
                 href={brandLogoUrl}
-                x="-26"
-                y="-5"
-                width="52"
-                height="10"
+                x="-24"
+                y="-4.6"
+                width="48"
+                height="9.2"
                 preserveAspectRatio="xMidYMid meet"
                 aria-label={brandName}
               />
-              {/* glossy streak across middle */}
+              {/* glossy streak across the top */}
               <rect
-                x="-33"
-                y="-1"
-                width="66"
-                height="1.4"
-                rx="0.5"
-                fill="rgba(255,255,255,0.18)"
+                x="-28"
+                y="-6"
+                width="56"
+                height="4.5"
+                rx="2.2"
+                fill="rgba(255,255,255,0.5)"
               />
             </g>
           )}

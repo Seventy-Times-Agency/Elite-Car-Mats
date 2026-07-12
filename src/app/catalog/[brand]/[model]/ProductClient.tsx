@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { evaColors, edgeColors, badges } from "@/data/catalog";
 import { MAT_SETS_BY_PROFILE } from "@/data/catalog/mat-sets";
@@ -109,6 +110,15 @@ export default function ProductClient({
   const [badge, setBadge] = useState(false);
   const [badgeCount, setBadgeCount] = useState(1);
   const [heelPad, setHeelPad] = useState(false);
+  // Preview mode. Real photos exist for the black mat (one per edge
+  // color); other mat colors fall back to the schematic preview until
+  // the supplier shoots them.
+  const [previewMode, setPreviewMode] = useState<"photo" | "scheme">("photo");
+  // Gallery: slide 0 is the live configurator view (color-variant photo
+  // or the schematic), the rest are static product shots. Color-swatch
+  // clicks jump back to slide 0 so the "what am I buying" feedback loop
+  // stays tight.
+  const [slide, setSlide] = useState(0);
   const [added, setAdded] = useState(false);
   const addedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -214,19 +224,147 @@ export default function ProductClient({
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-10 pb-28 lg:pb-10">
         <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] gap-6 lg:gap-10">
           <div className="lg:sticky lg:top-24 lg:self-start">
-            <div className="aspect-[5/4] glass-card rounded-xl relative overflow-hidden p-4 lg:p-5">
-              <MatPreview
-                color={color}
-                edgeColor={edge}
-                showBadge={badge && !!bdg}
-                showHeelPad={effHeelPad}
-                brandLogoUrl={brand.logo}
-                brandName={brand.name}
-              />
-              <div className="absolute top-3 left-3 text-[9px] uppercase tracking-[0.2em] text-gold/60 font-semibold">
-                {t("prod.previewLabel")}
-              </div>
-            </div>
+            {(() => {
+              const photoSrc =
+                color.id === "black" ? `/mats/black-${edge.id}.jpg` : null;
+              const showVariantPhoto =
+                photoSrc !== null && previewMode === "photo";
+              const gallery = [
+                { src: "/mats/gallery/in-car.jpg", alt: t("prod.galleryAltInCar") },
+                { src: "/mats/gallery/set-flat.jpg", alt: t("prod.galleryAltSet") },
+                { src: "/mats/gallery/addons.jpg", alt: t("prod.galleryAltAddons") },
+                { src: "/mats/gallery/poster-brand.jpg", alt: t("prod.galleryAltBrand") },
+                { src: "/mats/gallery/poster-colors.jpg", alt: t("prod.galleryAltColors") },
+              ];
+              const slidesCount = 1 + gallery.length;
+              const go = (d: number) =>
+                setSlide((p) => (p + d + slidesCount) % slidesCount);
+              const isLive = slide === 0;
+              return (
+                <div>
+                  <div className="aspect-[5/4] glass-card rounded-xl relative overflow-hidden p-4 lg:p-5">
+                    {isLive ? (
+                      showVariantPhoto ? (
+                        <Image
+                          src={photoSrc}
+                          alt={t("prod.photoAlt", {
+                            color: localizedColor,
+                            edge: localizedEdge,
+                          })}
+                          fill
+                          sizes="(max-width: 1024px) 100vw, 50vw"
+                          className="object-contain"
+                        />
+                      ) : (
+                        <MatPreview
+                          color={color}
+                          edgeColor={edge}
+                          showBadge={badge && !!bdg}
+                          showHeelPad={effHeelPad}
+                          brandLogoUrl={brand.logo}
+                          brandName={brand.name}
+                        />
+                      )
+                    ) : (
+                      <Image
+                        src={gallery[slide - 1].src}
+                        alt={gallery[slide - 1].alt}
+                        fill
+                        sizes="(max-width: 1024px) 100vw, 50vw"
+                        className="object-contain"
+                      />
+                    )}
+                    <div className="absolute top-3 left-3 text-[9px] uppercase tracking-[0.2em] text-gold/60 font-semibold drop-shadow-[0_1px_4px_rgba(0,0,0,0.6)]">
+                      {t("prod.previewLabel")}
+                    </div>
+                    {isLive && photoSrc && (
+                      <div className="absolute top-2.5 right-2.5 flex rounded-lg overflow-hidden border border-border/60 bg-bg/70 backdrop-blur-sm">
+                        {(["photo", "scheme"] as const).map((m) => (
+                          <button
+                            key={m}
+                            type="button"
+                            onClick={() => setPreviewMode(m)}
+                            className={`px-2.5 py-1 text-[10px] uppercase tracking-wider font-semibold transition-colors ${
+                              previewMode === m
+                                ? "bg-gold text-bg"
+                                : "text-text-dim hover:text-gold"
+                            }`}
+                          >
+                            {m === "photo"
+                              ? t("prod.viewPhoto")
+                              : t("prod.viewScheme")}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                    {/* Prev / next arrows */}
+                    <button
+                      type="button"
+                      onClick={() => go(-1)}
+                      aria-label={t("prod.galleryPrev")}
+                      className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-bg/70 backdrop-blur-sm border border-border/60 text-text-dim hover:text-gold hover:border-gold/50 transition-colors flex items-center justify-center"
+                    >
+                      ‹
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => go(1)}
+                      aria-label={t("prod.galleryNext")}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-bg/70 backdrop-blur-sm border border-border/60 text-text-dim hover:text-gold hover:border-gold/50 transition-colors flex items-center justify-center"
+                    >
+                      ›
+                    </button>
+                  </div>
+                  {/* Thumbnails */}
+                  <div className="mt-2.5 grid grid-cols-6 gap-1.5">
+                    <button
+                      type="button"
+                      onClick={() => setSlide(0)}
+                      aria-label={t("prod.galleryYourColors")}
+                      title={t("prod.galleryYourColors")}
+                      className={`aspect-square rounded-lg overflow-hidden relative border transition-colors ${
+                        slide === 0
+                          ? "border-gold"
+                          : "border-border/50 hover:border-gold/40"
+                      }`}
+                      style={{ backgroundColor: color.hex }}
+                    >
+                      <span
+                        className="absolute inset-1 rounded-md border-[3px]"
+                        style={{ borderColor: edge.hex }}
+                        aria-hidden
+                      />
+                    </button>
+                    {gallery.map((g, i) => (
+                      <button
+                        key={g.src}
+                        type="button"
+                        onClick={() => setSlide(i + 1)}
+                        aria-label={g.alt}
+                        className={`aspect-square rounded-lg overflow-hidden relative border transition-colors ${
+                          slide === i + 1
+                            ? "border-gold"
+                            : "border-border/50 hover:border-gold/40"
+                        }`}
+                      >
+                        <Image
+                          src={g.src}
+                          alt=""
+                          fill
+                          sizes="80px"
+                          className="object-cover"
+                        />
+                      </button>
+                    ))}
+                  </div>
+                  {isLive && showVariantPhoto && (
+                    <p className="mt-2 text-[10.5px] text-text-faint leading-snug px-1">
+                      {t("prod.photoNote")}
+                    </p>
+                  )}
+                </div>
+              );
+            })()}
           </div>
 
           <div>
@@ -435,7 +573,10 @@ export default function ProductClient({
                           color={c}
                           selected={color.id === c.id}
                           localizedName={localizeColor(t, c.name)}
-                          onClick={() => setColor(c)}
+                          onClick={() => {
+                            setColor(c);
+                            setSlide(0);
+                          }}
                           showLabel={false}
                         />
                       ))}
@@ -452,7 +593,10 @@ export default function ProductClient({
                           color={c}
                           selected={edge.id === c.id}
                           localizedName={localizeColor(t, c.name)}
-                          onClick={() => setEdge(c)}
+                          onClick={() => {
+                            setEdge(c);
+                            setSlide(0);
+                          }}
                           size="sm"
                           variant="solid"
                           showLabel={false}

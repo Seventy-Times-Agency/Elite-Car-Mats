@@ -236,6 +236,17 @@ export function CheckoutClient({ paymentEnabled }: { paymentEnabled: boolean }) 
         createdOrderRef.current = { fingerprint, ...data };
       }
 
+      // With payments on, a missing orderToken is a server misconfig
+      // (ORDER_TOKEN_SECRET/SESSION_SECRET unset) — the Stripe endpoint
+      // would reject the request anyway. Fail loudly instead of silently
+      // sliding into the no-payment flow and confusing everyone.
+      if (paymentEnabled && data.id && !data.orderToken) {
+        console.error("[checkout] payment enabled but order token is empty");
+        setFormError(t("co.payErrRetry"));
+        setSubmitting(false);
+        return;
+      }
+
       if (paymentEnabled && data.id && data.orderToken) {
         try {
           const payRes = await fetch("/api/checkout/stripe", {

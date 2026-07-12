@@ -61,6 +61,7 @@ export const operations: Dict = {
   "admin.intgResendApi": "Resend API",
   "admin.intgResendNoDomains": "в Resend не добавлен ни один домен",
   "admin.intgResendDomain": "Домен почты",
+  "admin.intgOrderToken": "Секрет ссылок заказа (ORDER_TOKEN_SECRET)",
   "admin.intgTitle": "Интеграции",
   "admin.intgStripeSecret": "Stripe секретный ключ",
   "admin.intgStripePub": "Stripe публичный ключ",

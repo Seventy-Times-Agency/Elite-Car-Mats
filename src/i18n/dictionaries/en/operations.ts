@@ -61,6 +61,7 @@ export const operations: Dict = {
   "admin.intgResendApi": "Resend API",
   "admin.intgResendNoDomains": "no domains added in Resend",
   "admin.intgResendDomain": "Email domain",
+  "admin.intgOrderToken": "Order-link secret (ORDER_TOKEN_SECRET)",
   "admin.intgTitle": "Integrations",
   "admin.intgStripeSecret": "Stripe secret key",
   "admin.intgStripePub": "Stripe publishable key",

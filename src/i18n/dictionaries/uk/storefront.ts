@@ -100,7 +100,7 @@ export const storefront: Dict = {
   "hero.statModelsValue": "800+",
   "hero.statLifespanValue": "5 років",
   "hero.statWarrantyValue": "2 роки",
-  "hero.imageAlt": "Преміальний чорний EVA-килимок з сотовою текстурою та золотою окантовкою, фірмова нашивка ELITECARMATS.COM збоку",
+  "hero.imageAlt": "Преміальний чорний EVA-килимок з сотовою текстурою та золотою окантовкою, фірмова нашивка ELITECARMATS.US збоку",
   "hero.cardEdge": "Окантовка",
   "hero.cardEdgeValue": "Золота Premium",
   "hero.cardFit": "Посадка",

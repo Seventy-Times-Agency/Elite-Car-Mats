@@ -169,8 +169,9 @@ async function sendCustomerConfirmation(orderId: string): Promise<void> {
         colorHex: i.color.hex,
         edgeColorName: i.edgeColor.name,
         edgeColorHex: i.edgeColor.hex,
+        // No "+" prefix — the email template prepends one itself.
         badgeName: i.badge
-          ? `+ ${i.badge.brandName} badge${(i.badgeCount ?? 1) > 1 ? ` ×${i.badgeCount}` : ""}`
+          ? `${i.badge.brandName} badge${(i.badgeCount ?? 1) > 1 ? ` ×${i.badgeCount}` : ""}`
           : null,
         heelPad: i.heelPad ?? false,
         year: i.year ?? null,

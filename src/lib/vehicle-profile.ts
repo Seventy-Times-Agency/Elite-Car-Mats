@@ -183,3 +183,16 @@ export function findProfileByModelId(
   const m = getModelIndex().get(modelId);
   return m ? getVehicleProfile(m) : "standard";
 }
+
+/**
+ * Code-catalog model for a cart/order modelId, or null when unknown
+ * (admin custom-catalog models live only in the DB). Callers that need
+ * "is this REALLY a sedan or just the standard fallback" use this
+ * instead of findProfileByModelId.
+ */
+export function findModelById(
+  modelId: string | undefined | null,
+): CarModel | null {
+  if (!modelId) return null;
+  return getModelIndex().get(modelId) ?? null;
+}

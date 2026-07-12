@@ -9,6 +9,8 @@ import {
   ReactNode,
 } from "react";
 import { CartItem } from "@/types";
+import { findModelById, getVehicleProfile } from "@/lib/vehicle-profile";
+import { MAT_SETS_BY_PROFILE } from "@/data/catalog/mat-sets";
 
 interface CartContextType {
   items: CartItem[];
@@ -79,6 +81,18 @@ function loadCart(): CartItem[] {
       !isObject(it.edgeColor)
     ) {
       continue;
+    }
+    // Drop items whose mat set is no longer sold for that vehicle —
+    // stale carts from before profile-aware sets would otherwise 400
+    // the whole checkout ("Mat set front is not available for …").
+    // Unknown modelIds (admin custom catalog) are kept as-is; the
+    // server validates those against the merged catalog.
+    const model = findModelById(it.modelId as string);
+    if (model) {
+      const profile = getVehicleProfile(model);
+      if (!MAT_SETS_BY_PROFILE[profile].some((s) => s.type === it.matSet)) {
+        continue;
+      }
     }
     out.push(it as unknown as CartItem);
     if (out.length >= MAX_CART_ITEMS) break;

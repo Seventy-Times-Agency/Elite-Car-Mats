@@ -189,13 +189,25 @@ async function runSeed(): Promise<CatalogSeedSummary> {
     skipDuplicates: true,
   });
 
+  // Colors are upserted (not createMany/skipDuplicates) so a palette
+  // change in code — renamed swatch, corrected hex — propagates to the
+  // existing DB rows that emails and the admin panel read from. Rows for
+  // colors removed from code stay behind as FK targets for old orders.
   const evaRows = evaColors.map((c, i) => ({
     id: c.id,
     name: c.name,
     hex: c.hex,
     sortOrder: i,
   }));
-  await prisma.evaColor.createMany({ data: evaRows, skipDuplicates: true });
+  await Promise.all(
+    evaRows.map((c) =>
+      prisma.evaColor.upsert({
+        where: { id: c.id },
+        create: c,
+        update: { name: c.name, hex: c.hex, sortOrder: c.sortOrder },
+      }),
+    ),
+  );
 
   const edgeRows = edgeColors.map((c, i) => ({
     id: c.id,
@@ -203,7 +215,15 @@ async function runSeed(): Promise<CatalogSeedSummary> {
     hex: c.hex,
     sortOrder: i,
   }));
-  await prisma.edgeColor.createMany({ data: edgeRows, skipDuplicates: true });
+  await Promise.all(
+    edgeRows.map((c) =>
+      prisma.edgeColor.upsert({
+        where: { id: c.id },
+        create: c,
+        update: { name: c.name, hex: c.hex, sortOrder: c.sortOrder },
+      }),
+    ),
+  );
 
   const badgeRows = badges.map((b) => ({
     id: b.id,

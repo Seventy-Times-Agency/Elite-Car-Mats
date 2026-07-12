@@ -547,7 +547,12 @@ export function CheckoutClient({ paymentEnabled }: { paymentEnabled: boolean }) 
                           {i.badge && (
                             <>
                               <span>·</span>
-                              <span className="text-gold/90">{i.badge.brandName}</span>
+                              <span className="text-gold/90">
+                                {i.badge.brandName}
+                                {(i.badgeCount ?? 1) > 1
+                                  ? ` ×${i.badgeCount}`
+                                  : ""}
+                              </span>
                             </>
                           )}
                           {i.heelPad && (

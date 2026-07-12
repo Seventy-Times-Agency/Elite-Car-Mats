@@ -107,6 +107,7 @@ export default function ProductClient({
     return model.years[model.years.length - 1];
   });
   const [badge, setBadge] = useState(false);
+  const [badgeCount, setBadgeCount] = useState(1);
   const [heelPad, setHeelPad] = useState(false);
   const [added, setAdded] = useState(false);
   const addedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -133,12 +134,21 @@ export default function ProductClient({
   const ms =
     profileMatSets.find((s) => s.type === set) ?? profileMatSets[0];
   const cartModelId = `${brand.slug}-${model.slug}`;
+  // One plate per mat, cargo included — cap follows the chosen set. The
+  // raw count survives set switches; it's re-clamped for render/price so
+  // going full-cargo (5) → cargo (1) → back keeps the user's pick.
+  const badgeMax = ms.mats;
+  const effBadgeCount = Math.min(badgeCount, badgeMax);
+  // Heel pad lives on the driver's mat — a cargo-only set has none.
+  const heelPadAvailable = ms.type !== "cargo";
+  const effHeelPad = heelPad && heelPadAvailable;
   const unitPrice = calculateItemUnitPrice({
     matSet: ms.type,
     modelId: cartModelId,
     edgeColor: { id: edge.id },
     badge: badge && bdg ? { id: bdg.id } : null,
-    heelPad,
+    badgeCount: effBadgeCount,
+    heelPad: effHeelPad,
   });
 
   const localizedColor = localizeColor(t, color.name);
@@ -156,7 +166,8 @@ export default function ProductClient({
       color,
       edgeColor: edge,
       badge: badge && bdg ? bdg : undefined,
-      heelPad,
+      badgeCount: badge && bdg ? effBadgeCount : undefined,
+      heelPad: effHeelPad,
       quantity: 1,
     });
     openCart();
@@ -208,7 +219,7 @@ export default function ProductClient({
                 color={color}
                 edgeColor={edge}
                 showBadge={badge && !!bdg}
-                showHeelPad={heelPad}
+                showHeelPad={effHeelPad}
                 brandLogoUrl={brand.logo}
                 brandName={brand.name}
               />
@@ -434,7 +445,7 @@ export default function ProductClient({
                     <div className="text-[10px] uppercase tracking-[0.15em] text-text-dim font-semibold mb-2">
                       {t("prod.stepEdge")}
                     </div>
-                    <div className="grid grid-cols-7 gap-1.5">
+                    <div className="grid grid-cols-6 gap-1.5">
                       {edgeColors.map((c) => (
                         <MatColorSwatch
                           key={c.id}
@@ -457,38 +468,74 @@ export default function ProductClient({
                 <StepHeader n={3} label={t("prod.stepAddons")} />
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {bdg ? (
-                    <label
-                      className={`flex items-center gap-3 cursor-pointer rounded-lg p-3 transition-all duration-200 border ${badge ? "border-gold/60 bg-gold-glow shadow-[0_0_14px_rgba(212,165,74,0.12)]" : "border-border/50 bg-bg/30 hover:border-gold/30 hover:bg-bg/50"}`}
+                    <div
+                      className={`rounded-lg p-3 transition-all duration-200 border ${badge ? "border-gold/60 bg-gold-glow shadow-[0_0_14px_rgba(212,165,74,0.12)]" : "border-border/50 bg-bg/30 hover:border-gold/30 hover:bg-bg/50"}`}
                     >
-                      <input
-                        type="checkbox"
-                        checked={badge}
-                        onChange={(e) => setBadge(e.target.checked)}
-                        className="w-4 h-4 text-gold focus:ring-gold accent-[#D4A54A] rounded shrink-0"
-                      />
-                      <div className="relative w-14 h-5 rounded-[3px] overflow-hidden shrink-0 ring-1 ring-black/40 bg-[linear-gradient(180deg,#F0F0F0_0%,#C8C8C8_28%,#8E8E8E_52%,#B4B4B4_72%,#6C6C6C_100%)] flex items-center justify-center shadow-[inset_0_1px_0_rgba(255,255,255,0.7),inset_0_-1px_2px_rgba(0,0,0,0.35)]">
-                        {brand.logo && (
-                          /* eslint-disable-next-line @next/next/no-img-element */
-                          <img
-                            src={brand.logo}
-                            alt={brand.name}
-                            className="max-w-[80%] max-h-[75%] object-contain"
-                          />
-                        )}
-                        <div className="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-b from-white/55 to-transparent pointer-events-none" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="text-text text-[11px] font-semibold truncate">
-                          {t("prod.stepBadge")}
+                      <label className="flex items-center gap-3 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={badge}
+                          onChange={(e) => setBadge(e.target.checked)}
+                          className="w-4 h-4 text-gold focus:ring-gold accent-[#D4A54A] rounded shrink-0"
+                        />
+                        <div className="relative w-14 h-5 rounded-[3px] overflow-hidden shrink-0 ring-1 ring-black/40 bg-[linear-gradient(180deg,#F0F0F0_0%,#C8C8C8_28%,#8E8E8E_52%,#B4B4B4_72%,#6C6C6C_100%)] flex items-center justify-center shadow-[inset_0_1px_0_rgba(255,255,255,0.7),inset_0_-1px_2px_rgba(0,0,0,0.35)]">
+                          {brand.logo && (
+                            /* eslint-disable-next-line @next/next/no-img-element */
+                            <img
+                              src={brand.logo}
+                              alt={brand.name}
+                              className="max-w-[80%] max-h-[75%] object-contain"
+                            />
+                          )}
+                          <div className="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-b from-white/55 to-transparent pointer-events-none" />
                         </div>
-                        <div className="text-text-dim text-[10px] mt-0.5 truncate">
-                          {t("prod.badgeSubtext")}
+                        <div className="flex-1 min-w-0">
+                          <div className="text-text text-[11px] font-semibold truncate">
+                            {t("prod.stepBadge")}
+                          </div>
+                          <div className="text-text-dim text-[10px] mt-0.5 truncate">
+                            {t("prod.badgeSubtext")}
+                          </div>
                         </div>
-                      </div>
-                      <span className="shrink-0 inline-flex items-center rounded-md bg-gold/10 px-2 py-1 text-[11px] font-bold text-gold ring-1 ring-gold/30">
-                        +{formatPrice(BADGE_PRICE)}
-                      </span>
-                    </label>
+                        <span className="shrink-0 inline-flex items-center rounded-md bg-gold/10 px-2 py-1 text-[11px] font-bold text-gold ring-1 ring-gold/30">
+                          +{formatPrice(BADGE_PRICE * (badge ? effBadgeCount : 1))}
+                        </span>
+                      </label>
+                      {badge && badgeMax > 1 && (
+                        <div className="mt-2.5 pt-2.5 border-t border-gold/15 flex items-center justify-between gap-2">
+                          <span className="text-[10px] text-text-dim leading-snug">
+                            {t("prod.badgeQtyLabel", { max: badgeMax })}
+                          </span>
+                          <div className="flex items-center gap-1 shrink-0">
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setBadgeCount(Math.max(1, effBadgeCount - 1))
+                              }
+                              disabled={effBadgeCount <= 1}
+                              aria-label={t("prod.badgeQtyDec")}
+                              className="w-6 h-6 rounded-md border border-border/60 text-text text-sm leading-none hover:border-gold/50 hover:text-gold disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                            >
+                              −
+                            </button>
+                            <span className="w-6 text-center text-xs font-bold text-gold tabular-nums">
+                              {effBadgeCount}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setBadgeCount(Math.min(badgeMax, effBadgeCount + 1))
+                              }
+                              disabled={effBadgeCount >= badgeMax}
+                              aria-label={t("prod.badgeQtyInc")}
+                              className="w-6 h-6 rounded-md border border-border/60 text-text text-sm leading-none hover:border-gold/50 hover:text-gold disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                            >
+                              +
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   ) : (
                     <div className="flex items-center gap-3 rounded-lg border border-border/40 bg-surface/30 p-3">
                       <div className="w-14 h-5 rounded-[3px] border border-dashed border-border/70 flex items-center justify-center shrink-0 text-text-faint">
@@ -518,12 +565,13 @@ export default function ProductClient({
                     </div>
                   )}
 
+                  {heelPadAvailable && (
                   <label
-                    className={`flex items-center gap-3 cursor-pointer rounded-lg p-3 transition-all duration-200 border ${heelPad ? "border-gold/60 bg-gold-glow shadow-[0_0_14px_rgba(212,165,74,0.12)]" : "border-border/50 bg-bg/30 hover:border-gold/30 hover:bg-bg/50"}`}
+                    className={`flex items-center gap-3 cursor-pointer rounded-lg p-3 transition-all duration-200 border ${effHeelPad ? "border-gold/60 bg-gold-glow shadow-[0_0_14px_rgba(212,165,74,0.12)]" : "border-border/50 bg-bg/30 hover:border-gold/30 hover:bg-bg/50"}`}
                   >
                     <input
                       type="checkbox"
-                      checked={heelPad}
+                      checked={effHeelPad}
                       onChange={(e) => setHeelPad(e.target.checked)}
                       className="w-4 h-4 text-gold focus:ring-gold accent-[#D4A54A] rounded shrink-0"
                     />
@@ -550,6 +598,7 @@ export default function ProductClient({
                       +{formatPrice(HEEL_PAD_PRICE)}
                     </span>
                   </label>
+                  )}
                 </div>
               </section>
 

@@ -76,7 +76,9 @@ export default function CartPage() {
                     {item.year} · {localizeMatSet(t, item.matSetLabel)} ·{" "}
                     {localizeColor(t, item.color.name)} ·{" "}
                     {localizeColor(t, item.edgeColor.name)}
-                    {item.badge ? ` · ${item.badge.brandName}` : ""}
+                    {item.badge
+                      ? ` · ${item.badge.brandName}${(item.badgeCount ?? 1) > 1 ? ` ×${item.badgeCount}` : ""}`
+                      : ""}
                     {item.heelPad ? ` · ${t("cart.drawerHeelPadChip")}` : ""}
                   </p>
                   <div className="flex items-center gap-3 mt-3">

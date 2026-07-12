@@ -13,6 +13,9 @@ export const orderItemSchema = z.object({
   colorId: z.string().min(1),
   edgeColorId: z.string().min(1),
   badgeId: z.string().optional().nullable(),
+  // Brand-logo plates count. Loose upper bound here — the billing path
+  // clamps to the actual mat count of the chosen set via clampBadgeCount.
+  badgeCount: z.number().int().min(1).max(20).optional().nullable(),
   heelPad: z.boolean().optional().default(false),
   quantity: z.number().int().min(1).max(99),
 });

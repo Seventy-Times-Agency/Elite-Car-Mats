@@ -131,6 +131,7 @@ export async function POST(request: Request) {
         modelId: i.product.modelId,
         edgeColor: { id: i.edgeColor.id },
         badge: i.badge ? { id: i.badge.id } : null,
+        badgeCount: i.badgeCount ?? 1,
         heelPad: i.heelPad ?? false,
       },
       overrides,
@@ -138,7 +139,10 @@ export async function POST(request: Request) {
     const brandName = i.product.model.brand.name;
     const modelName = i.product.model.name;
     const descBits = [i.color.name, i.edgeColor.name];
-    if (i.badge) descBits.push(`+ ${i.badge.brandName} badge`);
+    if (i.badge) {
+      const n = i.badgeCount ?? 1;
+      descBits.push(`+ ${i.badge.brandName} badge${n > 1 ? ` ×${n}` : ""}`);
+    }
     if (i.heelPad) descBits.push(`+ aluminum heel pad`);
     const yearSuffix = i.year ? ` · ${i.year}` : "";
     return {

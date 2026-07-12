@@ -463,7 +463,7 @@ export const storefront: Dict = {
   "materials.edgeFact1": "Высота бортика 30 мм",
   "materials.edgeFact2": "4 цвета на выбор",
   "materials.edgeFact3": "Не ломается на морозе",
-  "materials.edgeImageAlt": "Крупный план окантовки EVA-коврика: жёлтая нашивка ELITECARMATS.US пришита к тканевой кромке на фоне чёрной сотовой текстуры",
+  "materials.edgeImageAlt": "Крупный план окантовки EVA-коврика: красная тканевая кромка со строчкой и чёрная бирка с золотой надписью ELITECARMATS.US на фоне сотовой текстуры",
   "materials.baseImageAlt": "Макро поверхности премиальной чёрной EVA-пены — чёткие шестиугольные соты с тёплой золотой подсветкой сбоку",
   "materials.addonsLabel": "Опции",
   "materials.addonsTitle": "Шильдик и подпятник",

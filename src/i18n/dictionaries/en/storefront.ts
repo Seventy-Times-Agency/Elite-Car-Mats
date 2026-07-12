@@ -466,7 +466,7 @@ export const storefront: Dict = {
   "materials.edgeFact1": "30 mm edge height",
   "materials.edgeFact2": "4 color options",
   "materials.edgeFact3": "Cold-resistant, no cracking",
-  "materials.edgeImageAlt": "Close-up of the EVA mat edge: yellow ELITECARMATS.US brand tag stitched into the fabric trim against the black honeycomb texture",
+  "materials.edgeImageAlt": "Close-up of the EVA mat edge: red woven binding with stitching and a black tag with gold ELITECARMATS.US lettering against the black honeycomb texture",
   "materials.baseImageAlt": "Extreme macro of the premium black EVA foam surface — crisp hexagonal honeycomb cells catching warm gold rim-light from the side",
   "materials.addonsLabel": "Add-ons",
   "materials.addonsTitle": "Logo Plate & Heel Pad",

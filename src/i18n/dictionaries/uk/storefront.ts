@@ -465,7 +465,7 @@ export const storefront: Dict = {
   "materials.edgeFact1": "Висота бортика 30 мм",
   "materials.edgeFact2": "4 кольори на вибір",
   "materials.edgeFact3": "Не ламається на морозі",
-  "materials.edgeImageAlt": "Крупний план окантовки EVA-килимка: жовта нашивка ELITECARMATS.US пришита до тканинної крайки на тлі чорної сотової текстури",
+  "materials.edgeImageAlt": "Крупний план окантовки EVA-килимка: червона тканинна крайка зі строчкою та чорна бирка із золотим написом ELITECARMATS.US на тлі сотової текстури",
   "materials.baseImageAlt": "Макро поверхні преміальної чорної EVA-піни — чіткі шестикутні стільники з теплою золотою підсвіткою збоку",
   "materials.addonsLabel": "Опції",
   "materials.addonsTitle": "Шильдик і п'яткова накладка",

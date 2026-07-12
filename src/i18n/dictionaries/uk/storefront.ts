@@ -467,14 +467,15 @@ export const storefront: Dict = {
   "materials.edgeFact3": "Не ламається на морозі",
   "materials.edgeImageAlt": "Крупний план окантовки EVA-килимка: жовта нашивка ELITECARMATS.US пришита до тканинної крайки на тлі чорної сотової текстури",
   "materials.baseImageAlt": "Макро поверхні преміальної чорної EVA-піни — чіткі шестикутні стільники з теплою золотою підсвіткою збоку",
-  "materials.threadLabel": "Thread & tag",
-  "materials.threadTitle": "Нитка і шильдик",
-  "materials.threadSpec": "Поліестер 40S/2, металевий логотип",
-  "materials.threadDesc": 
-    "Високоміцна автомобільна нитка не вигорає і не гниє. Металевий шильдик марки авто на передньому килимку водія — тонка деталь, що відрізняє преміум від масового продукту.",
-  "materials.threadFact1": "UV-стійка нитка",
-  "materials.threadFact2": "Шильдики 30+ марок",
-  "materials.threadFact3": "Нашивка ELITECARMATS.US",
+  "materials.addonsLabel": "Опції",
+  "materials.addonsTitle": "Шильдик і п'яткова накладка",
+  "materials.addonsSpec": "Сталева плашка · алюмінієва накладка",
+  "materials.addonsDesc":
+    "Металева плашка з логотипом марки — на будь-який килимок комплекту. І алюмінієва накладка на килимок водія: стирається накладка, а не сам килимок.",
+  "materials.addonsFact1": "Плашка — хоч на кожен килимок",
+  "materials.addonsFact2": "Накладка береже килимок водія",
+  "materials.addonsFact3": "На заклепках, не на клею — не відпаде",
+  "materials.addonsImageAlt": "Алюмінієва п'яткова накладка та металева плашка з логотипом на чорному EVA-килимку",
   "features.label": "Переваги",
   "features.title": "Чому Elite Car Mats",
   "features.subtitle": 

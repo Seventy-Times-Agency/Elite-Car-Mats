@@ -468,14 +468,15 @@ export const storefront: Dict = {
   "materials.edgeFact3": "Cold-resistant, no cracking",
   "materials.edgeImageAlt": "Close-up of the EVA mat edge: yellow ELITECARMATS.US brand tag stitched into the fabric trim against the black honeycomb texture",
   "materials.baseImageAlt": "Extreme macro of the premium black EVA foam surface — crisp hexagonal honeycomb cells catching warm gold rim-light from the side",
-  "materials.threadLabel": "Thread & tag",
-  "materials.threadTitle": "Thread & Badge",
-  "materials.threadSpec": "Polyester 40S/2, metal logo",
-  "materials.threadDesc":
-    "Heavy-duty automotive thread won't fade or rot. A metal badge with your car's marque sits on the driver's front mat — the quiet detail that separates premium from mass-market.",
-  "materials.threadFact1": "UV-resistant thread",
-  "materials.threadFact2": "30+ brand badges",
-  "materials.threadFact3": "ELITECARMATS.US side tag",
+  "materials.addonsLabel": "Add-ons",
+  "materials.addonsTitle": "Logo Plate & Heel Pad",
+  "materials.addonsSpec": "Stainless plate · aluminum pad",
+  "materials.addonsDesc":
+    "A metal brand plate for any mat in the set — and an aluminum heel pad on the driver's mat that takes the heel wear so the mat itself never scuffs through.",
+  "materials.addonsFact1": "Brand plate on every mat if you like",
+  "materials.addonsFact2": "Heel pad protects the driver's mat",
+  "materials.addonsFact3": "Riveted, not glued — won't peel off",
+  "materials.addonsImageAlt": "Aluminum heel pad and a metal brand logo plate on a black EVA mat",
   "features.label": "Why Us",
   "features.title": "Why Elite Car Mats",
   "features.subtitle":

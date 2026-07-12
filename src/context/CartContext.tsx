@@ -135,6 +135,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
           i.color.id === item.color.id &&
           i.edgeColor.id === item.edgeColor.id &&
           i.badge?.id === item.badge?.id &&
+          (i.badge ? (i.badgeCount ?? 1) : 0) ===
+            (item.badge ? (item.badgeCount ?? 1) : 0) &&
           (i.heelPad ?? false) === (item.heelPad ?? false),
       );
       if (existing) {

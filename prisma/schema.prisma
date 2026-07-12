@@ -168,6 +168,9 @@ model OrderItem {
   edgeColor   EdgeColor  @relation(fields: [edgeColorId], references: [id])
   badgeId     String?
   badge       Badge?     @relation(fields: [badgeId], references: [id])
+  // How many brand-logo plates (one per mat, cargo included). Only
+  // meaningful when badgeId is set; legacy rows default to 1.
+  badgeCount  Int        @default(1)
   // Aluminum heel pad — driver-side reinforced metal plate add-on.
   // Flat $17 upcharge regardless of mat set; persisted per-item so
   // we can re-render the original configuration on the order page

@@ -4,7 +4,11 @@ import { prisma } from "@/lib/db/prisma";
 import { ensureSchema } from "@/lib/db/setup";
 import { ensureCatalogSeed } from "@/lib/db/seed";
 import { createOrderSchema } from "@/lib/validations/order";
-import { calculateItemUnitPrice, calculateOrderTotal } from "@/lib/pricing";
+import {
+  calculateItemUnitPrice,
+  calculateOrderTotal,
+  clampBadgeCount,
+} from "@/lib/pricing";
 import { loadPriceOverrides } from "@/lib/pricing-overrides";
 import { rateLimit, getClientIp } from "@/lib/security/rate-limit";
 import { validatePromoCode, tryConsumePromoUse } from "@/lib/promo";
@@ -56,11 +60,20 @@ async function buildResolveNames() {
     if (item.badgeId && !badgeRow) {
       throw new Error(`Unknown badge id: ${item.badgeId}`);
     }
+    const badgeQty = badgeRow
+      ? clampBadgeCount({
+          matSet: item.matSet,
+          modelId: item.modelId,
+          badge: { id: badgeRow.id },
+          badgeCount: item.badgeCount,
+        })
+      : 0;
     return {
       colorName: color.name,
       edgeColorName: edge.name,
       badgeName: badgeRow
-        ? t("email.badgeSuffix", { brand: badgeRow.brandName })
+        ? t("email.badgeSuffix", { brand: badgeRow.brandName }) +
+          (badgeQty > 1 ? ` ×${badgeQty}` : "")
         : null,
     };
   };
@@ -230,6 +243,7 @@ export async function POST(request: Request) {
       modelId: modelId ?? i.modelId,
       edgeColor: { id: i.edgeColorId },
       badge: i.badgeId ? { id: i.badgeId } : null,
+      badgeCount: i.badgeCount ?? 1,
       heelPad: i.heelPad ?? false,
       quantity: i.quantity,
     })),
@@ -282,6 +296,14 @@ export async function POST(request: Request) {
               colorId: i.colorId,
               edgeColorId: i.edgeColorId,
               badgeId: i.badgeId || null,
+              badgeCount: i.badgeId
+                ? clampBadgeCount({
+                    matSet: i.matSet,
+                    modelId: modelId ?? i.modelId,
+                    badge: { id: i.badgeId },
+                    badgeCount: i.badgeCount,
+                  })
+                : 1,
               heelPad: i.heelPad ?? false,
               year: i.year ?? null,
               quantity: i.quantity,
@@ -291,6 +313,7 @@ export async function POST(request: Request) {
                   modelId: modelId ?? i.modelId,
                   edgeColor: { id: i.edgeColorId },
                   badge: i.badgeId ? { id: i.badgeId } : null,
+                  badgeCount: i.badgeCount ?? 1,
                   heelPad: i.heelPad ?? false,
                 },
                 overrides,
@@ -380,6 +403,7 @@ export async function POST(request: Request) {
             modelId: modelId ?? i.modelId,
             edgeColor: { id: i.edgeColorId },
             badge: i.badgeId ? { id: i.badgeId } : null,
+            badgeCount: i.badgeCount ?? 1,
             heelPad: i.heelPad ?? false,
           },
           overrides,
@@ -438,6 +462,7 @@ export async function POST(request: Request) {
             modelId: modelId ?? i.modelId,
             edgeColor: { id: i.edgeColorId },
             badge: i.badgeId ? { id: i.badgeId } : null,
+            badgeCount: i.badgeCount ?? 1,
             heelPad: i.heelPad ?? false,
           },
           overrides,

@@ -2,6 +2,7 @@ import { MatSetType } from "@/types";
 import {
   MAT_SETS_BY_PROFILE,
   getMatSetOption,
+  getMatCount,
 } from "@/data/catalog/mat-sets";
 import {
   findProfileByModelId,
@@ -81,9 +82,33 @@ export interface PriceableItem {
   modelId?: string;
   edgeColor: { id: string };
   badge?: { id: string } | null;
+  /** Brand-logo plates count (1..mats in set). Absent = 1 when badge set. */
+  badgeCount?: number;
   /** Driver-side aluminum heel pad add-on. Adds HEEL_PAD_PRICE. */
   heelPad?: boolean;
   quantity: number;
+}
+
+/**
+ * Effective number of brand-logo plates billed for an item: 0 without a
+ * badge, otherwise the requested count clamped to [1 .. mats in the set]
+ * (one plate per mat, cargo mat included). The single place this rule
+ * lives — UI, order creation and Stripe billing all call it.
+ */
+export function clampBadgeCount(
+  item: {
+    matSet: MatSetType;
+    modelId?: string;
+    badge?: { id: string } | null | undefined;
+    badgeCount?: number | null;
+  },
+): number {
+  if (!item.badge) return 0;
+  const profile = findProfileByModelId(item.modelId);
+  const max = getMatCount(profile, item.matSet);
+  const requested = Math.floor(item.badgeCount ?? 1);
+  if (!Number.isFinite(requested)) return 1;
+  return Math.min(Math.max(requested, 1), max);
 }
 
 export function calculateItemUnitPrice(
@@ -92,13 +117,14 @@ export function calculateItemUnitPrice(
     modelId?: string;
     edgeColor: { id: string };
     badge?: { id: string } | null | undefined;
+    badgeCount?: number | null;
     heelPad?: boolean;
   },
   overrides?: PriceOverrideMap,
 ): number {
   const profile = findProfileByModelId(item.modelId);
   const base = getMatSetPrice(profile, item.matSet, overrides);
-  const badge = item.badge ? BADGE_PRICE : 0;
+  const badge = BADGE_PRICE * clampBadgeCount(item);
   const heelPad = item.heelPad ? HEEL_PAD_PRICE : 0;
   return base + badge + heelPad;
 }

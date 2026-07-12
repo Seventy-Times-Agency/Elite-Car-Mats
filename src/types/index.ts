@@ -82,6 +82,12 @@ export interface CartItem {
   color: EvaColor;
   edgeColor: EdgeColor;
   badge?: Badge;
+  /**
+   * How many brand-logo plates (one per mat, cargo included). Only
+   * meaningful when `badge` is set; legacy carts without the field
+   * mean 1.
+   */
+  badgeCount?: number;
   /** Aluminum heel pad add-on (+$17). */
   heelPad?: boolean;
   quantity: number;

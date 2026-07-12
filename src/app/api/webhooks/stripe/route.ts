@@ -169,7 +169,9 @@ async function sendCustomerConfirmation(orderId: string): Promise<void> {
         colorHex: i.color.hex,
         edgeColorName: i.edgeColor.name,
         edgeColorHex: i.edgeColor.hex,
-        badgeName: i.badge ? `+ ${i.badge.brandName} badge` : null,
+        badgeName: i.badge
+          ? `+ ${i.badge.brandName} badge${(i.badgeCount ?? 1) > 1 ? ` ×${i.badgeCount}` : ""}`
+          : null,
         heelPad: i.heelPad ?? false,
         year: i.year ?? null,
         quantity: i.quantity,
@@ -179,6 +181,7 @@ async function sendCustomerConfirmation(orderId: string): Promise<void> {
             modelId: i.product.modelId,
             edgeColor: { id: i.edgeColor.id },
             badge: i.badge ? { id: i.badge.id } : null,
+            badgeCount: i.badgeCount ?? 1,
             heelPad: i.heelPad ?? false,
           },
           overrides,

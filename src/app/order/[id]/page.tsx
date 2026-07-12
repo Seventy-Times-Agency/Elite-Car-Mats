@@ -197,6 +197,7 @@ export default async function OrderPage({
                             <path d="M12 2l2.39 4.84 5.34.78-3.86 3.76.91 5.31L12 14.17l-4.78 2.52.91-5.31L4.27 7.62l5.34-.78L12 2z" />
                           </svg>
                           {i.badge.brandName}
+                          {(i.badgeCount ?? 1) > 1 ? ` ×${i.badgeCount}` : ""}
                         </span>
                       </>
                     )}

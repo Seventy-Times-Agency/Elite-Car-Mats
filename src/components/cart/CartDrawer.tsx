@@ -189,6 +189,9 @@ export function CartDrawer() {
                             <span className="text-text-faint">·</span>
                             <span className="text-gold/90">
                               {item.badge.brandName}
+                              {(item.badgeCount ?? 1) > 1
+                                ? ` ×${item.badgeCount}`
+                                : ""}
                             </span>
                           </>
                         )}

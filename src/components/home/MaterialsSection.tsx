@@ -81,16 +81,18 @@ export function MaterialsSection() {
       imageAlt: t("materials.edgeImageAlt"),
     },
     {
-      label: t("materials.threadLabel"),
-      title: t("materials.threadTitle"),
-      spec: t("materials.threadSpec"),
-      desc: t("materials.threadDesc"),
+      label: t("materials.addonsLabel"),
+      title: t("materials.addonsTitle"),
+      spec: t("materials.addonsSpec"),
+      desc: t("materials.addonsDesc"),
       facts: [
-        t("materials.threadFact1"),
-        t("materials.threadFact2"),
-        t("materials.threadFact3"),
+        t("materials.addonsFact1"),
+        t("materials.addonsFact2"),
+        t("materials.addonsFact3"),
       ],
       pattern: "diagonal",
+      image: "/material-addons.jpg",
+      imageAlt: t("materials.addonsImageAlt"),
     },
   ];
   return (

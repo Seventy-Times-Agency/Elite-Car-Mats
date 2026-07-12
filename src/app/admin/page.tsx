@@ -15,6 +15,59 @@ function startOfDay(d: Date): Date {
   return copy;
 }
 
+type IntgState = "ok" | "warn" | "off";
+
+/**
+ * Which integrations the server actually sees, without exposing any
+ * secret material — presence + key mode only. Exists so "the payment
+ * page didn't open" is diagnosable from the dashboard instead of
+ * screenshotting Vercel env settings.
+ */
+function integrationStatuses(t: (k: string, p?: Record<string, string | number>) => string) {
+  const sk = process.env.STRIPE_SECRET_KEY ?? "";
+  const pk = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ?? "";
+  const whsec = Boolean(process.env.STRIPE_WEBHOOK_SECRET);
+  const resend = Boolean(process.env.RESEND_API_KEY);
+  const upstash = Boolean(
+    process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN,
+  );
+
+  const keyMode = (key: string): { state: IntgState; text: string } => {
+    if (!key) return { state: "off", text: t("admin.intgMissing") };
+    if (key.startsWith("sk_live") || key.startsWith("pk_live"))
+      return { state: "ok", text: t("admin.intgLive") };
+    if (key.startsWith("sk_test") || key.startsWith("pk_test"))
+      return { state: "warn", text: t("admin.intgTest") };
+    return { state: "warn", text: t("admin.intgUnknownKey") };
+  };
+
+  return [
+    { label: t("admin.intgStripeSecret"), ...keyMode(sk) },
+    { label: t("admin.intgStripePub"), ...keyMode(pk) },
+    {
+      label: t("admin.intgStripeWebhook"),
+      state: (whsec ? "ok" : "off") as IntgState,
+      text: whsec ? t("admin.intgSet") : t("admin.intgMissing"),
+    },
+    {
+      label: t("admin.intgResend"),
+      state: (resend ? "ok" : "off") as IntgState,
+      text: resend ? t("admin.intgSet") : t("admin.intgMissing"),
+    },
+    {
+      label: t("admin.intgUpstash"),
+      state: (upstash ? "ok" : "warn") as IntgState,
+      text: upstash ? t("admin.intgSet") : t("admin.intgMissing"),
+    },
+  ];
+}
+
+const INTG_DOT: Record<IntgState, string> = {
+  ok: "bg-green-400",
+  warn: "bg-yellow-400",
+  off: "bg-red-400",
+};
+
 export default async function AdminDashboardPage() {
   if (!(await requireAdmin())) redirect("/admin/login");
   const { dict, fallback } = await getDictionary();
@@ -181,11 +234,49 @@ export default async function AdminDashboardPage() {
     },
   ];
 
+  const integrations = integrationStatuses(t);
+  const stripeOff = !process.env.STRIPE_SECRET_KEY;
+
   return (
     <AdminShell
       title={t("admin.dashTitle")}
       subtitle={t("admin.dashSubtitle")}
     >
+      {/* Integration health — answers "does the server see my keys" at
+          a glance, since env typos in Vercel are otherwise invisible. */}
+      <div className="glass-card rounded-xl p-4 mb-6">
+        <div className="text-[10px] uppercase tracking-[0.2em] text-text-faint mb-3">
+          {t("admin.intgTitle")}
+        </div>
+        <div className="flex flex-wrap gap-x-6 gap-y-2">
+          {integrations.map((i) => (
+            <div key={i.label} className="flex items-center gap-2 text-xs">
+              <span
+                className={`w-2 h-2 rounded-full shrink-0 ${INTG_DOT[i.state]}`}
+                aria-hidden
+              />
+              <span className="text-text-dim">{i.label}:</span>
+              <span
+                className={
+                  i.state === "ok"
+                    ? "text-green-400"
+                    : i.state === "warn"
+                      ? "text-yellow-400"
+                      : "text-red-400"
+                }
+              >
+                {i.text}
+              </span>
+            </div>
+          ))}
+        </div>
+        {stripeOff && (
+          <p className="mt-3 text-[11px] text-red-400/90 leading-snug">
+            {t("admin.intgStripeOffNote")}
+          </p>
+        )}
+      </div>
+
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {tiles.map((tile) => {
           const inner = (

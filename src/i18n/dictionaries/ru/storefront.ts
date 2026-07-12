@@ -100,7 +100,7 @@ export const storefront: Dict = {
   "hero.statModelsValue": "800+",
   "hero.statLifespanValue": "5 лет",
   "hero.statWarrantyValue": "2 года",
-  "hero.imageAlt": "Премиальный чёрный EVA-коврик с сотовой текстурой и золотой окантовкой, фирменная нашивка ELITECARMATS.COM сбоку",
+  "hero.imageAlt": "Премиальный чёрный EVA-коврик с сотовой текстурой и золотой окантовкой, фирменная нашивка ELITECARMATS.US сбоку",
   "hero.cardEdge": "Окантовка",
   "hero.cardEdgeValue": "Золотая Premium",
   "hero.cardFit": "Посадка",

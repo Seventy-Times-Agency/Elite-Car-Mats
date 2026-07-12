@@ -16,16 +16,19 @@ const edgeColors: Record<string, string> = {
 };
 
 function MatSilhouette({ edge }: { edge: string }) {
+  // Id must not contain the hex's "#" — url(#…#…) breaks the fragment
+  // reference and the honeycomb fill silently disappears.
+  const patternId = `mat-hex-${edge.replace("#", "")}`;
   return (
     <svg viewBox="0 0 200 140" className="absolute inset-0 m-auto w-3/4 h-3/4" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <pattern id={`mat-hex-${edge}`} x="0" y="0" width="12" height="21" patternUnits="userSpaceOnUse">
+        <pattern id={patternId} x="0" y="0" width="12" height="21" patternUnits="userSpaceOnUse">
           <path d="M6 0 L12 3.5 L12 10.5 L6 14 L0 10.5 L0 3.5 Z" stroke="#2a2a2a" strokeWidth="0.5" fill="#0A0A0A" />
         </pattern>
       </defs>
       <path
         d="M20 15 Q25 8 40 8 L160 8 Q175 8 180 15 L190 125 Q190 132 182 132 L18 132 Q10 132 10 125 Z"
-        fill={`url(#mat-hex-${edge})`}
+        fill={`url(#${patternId})`}
         stroke={edge}
         strokeWidth="3"
       />

@@ -60,6 +60,18 @@ function integrationStatuses(t: (k: string, p?: Record<string, string | number>)
       state: (upstash ? "ok" : "warn") as IntgState,
       text: upstash ? t("admin.intgSet") : t("admin.intgMissing"),
     },
+    {
+      // Without it order links and — critically — the Stripe checkout
+      // handshake can't be signed, so payments silently degrade.
+      label: t("admin.intgOrderToken"),
+      state: (process.env.ORDER_TOKEN_SECRET || process.env.SESSION_SECRET
+        ? "ok"
+        : "off") as IntgState,
+      text:
+        process.env.ORDER_TOKEN_SECRET || process.env.SESSION_SECRET
+          ? t("admin.intgSet")
+          : t("admin.intgMissing"),
+    },
   ];
 }
 

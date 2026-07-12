@@ -5,7 +5,7 @@ export const operations: Dict = {
   "admin.loginTitle": "Адмінка",
   "admin.loginSubtitle": "EliteCarMats Control Panel",
   "admin.passwordMissingEnv": 
-    "ADMIN_PASSWORD не задано в змінних оточення. Додайте його в Vercel Settings → Environment Variables.",
+    "ADMIN_PASSWORD не задано або не підходить: задайте його в Vercel Settings → Environment Variables, довжина — щонайменше 12 символів, не зі списку простих паролів (admin, qwerty, …). Після зміни потрібен Redeploy.",
   "admin.passwordPh": "Пароль",
   "admin.wrongPassword": "Невірний пароль",
   "admin.throttled": "Забагато спроб. Спробуйте через {retry} с.",

@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { requireAdmin } from "@/lib/security/auth";
+import { getStripe } from "@/lib/payments/stripe";
 import { prisma } from "@/lib/db/prisma";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { formatPrice } from "@/lib/pricing";
@@ -67,6 +68,112 @@ const INTG_DOT: Record<IntgState, string> = {
   warn: "bg-yellow-400",
   off: "bg-red-400",
 };
+
+/**
+ * Live round-trip to the Stripe API: is this account actually allowed to
+ * take payments right now? A key can be present and syntactically live
+ * while the account still can't charge (activation incomplete, business
+ * profile missing) — Checkout session creation then fails with an error
+ * only visible in server logs. This surfaces it on the dashboard.
+ */
+async function stripeLiveCheck(
+  t: (k: string, p?: Record<string, string | number>) => string,
+): Promise<{ label: string; state: IntgState; text: string }[]> {
+  if (!process.env.STRIPE_SECRET_KEY) return [];
+  try {
+    const stripe = await getStripe();
+    if (!stripe) return [];
+    const acct = await stripe.accounts.retrieve();
+    return [
+      {
+        label: t("admin.intgCharges"),
+        state: acct.charges_enabled ? "ok" : "off",
+        text: acct.charges_enabled
+          ? t("admin.intgEnabled")
+          : t("admin.intgChargesOff"),
+      },
+      {
+        label: t("admin.intgPayouts"),
+        state: acct.payouts_enabled ? "ok" : "warn",
+        text: acct.payouts_enabled
+          ? t("admin.intgEnabled")
+          : t("admin.intgPayoutsOff"),
+      },
+    ];
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    return [
+      {
+        label: t("admin.intgStripeApi"),
+        state: "off",
+        text: msg.slice(0, 200),
+      },
+    ];
+  }
+}
+
+/**
+ * Live round-trip to the Resend API: is the sending domain actually
+ * verified, and which From address are we using? A present API key with
+ * an unverified domain 403s every send — visible only in Resend's logs
+ * otherwise.
+ */
+async function resendLiveCheck(
+  t: (k: string, p?: Record<string, string | number>) => string,
+): Promise<{ label: string; state: IntgState; text: string }[]> {
+  const key = process.env.RESEND_API_KEY;
+  if (!key) return [];
+  const rows: { label: string; state: IntgState; text: string }[] = [];
+  const from = process.env.EMAIL_FROM ?? "";
+  rows.push({
+    label: t("admin.intgEmailFrom"),
+    state: from.includes("resend.dev") || !from ? "warn" : "ok",
+    text: from || t("admin.intgMissing"),
+  });
+  try {
+    const res = await fetch("https://api.resend.com/domains", {
+      headers: { Authorization: `Bearer ${key}` },
+      cache: "no-store",
+    });
+    if (!res.ok) {
+      rows.push({
+        label: t("admin.intgResendApi"),
+        state: "off",
+        text: `HTTP ${res.status}`,
+      });
+      return rows;
+    }
+    const data: unknown = await res.json();
+    const domains =
+      typeof data === "object" && data !== null && Array.isArray((data as { data?: unknown }).data)
+        ? ((data as { data: { name?: string; status?: string }[] }).data)
+        : [];
+    if (domains.length === 0) {
+      rows.push({
+        label: t("admin.intgResendApi"),
+        state: "off",
+        text: t("admin.intgResendNoDomains"),
+      });
+      return rows;
+    }
+    for (const d of domains) {
+      rows.push({
+        label: `${t("admin.intgResendDomain")} ${d.name ?? "?"}`,
+        state: d.status === "verified" ? "ok" : "off",
+        text: d.status ?? "?",
+      });
+    }
+    return rows;
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    rows.push({
+      label: t("admin.intgResendApi"),
+      state: "off",
+      text: msg.slice(0, 200),
+    });
+    return rows;
+  }
+}
 
 export default async function AdminDashboardPage() {
   if (!(await requireAdmin())) redirect("/admin/login");
@@ -234,7 +341,15 @@ export default async function AdminDashboardPage() {
     },
   ];
 
-  const integrations = integrationStatuses(t);
+  const [stripeChecks, resendChecks] = await Promise.all([
+    stripeLiveCheck(t),
+    resendLiveCheck(t),
+  ]);
+  const integrations = [
+    ...integrationStatuses(t),
+    ...stripeChecks,
+    ...resendChecks,
+  ];
   const stripeOff = !process.env.STRIPE_SECRET_KEY;
 
   return (

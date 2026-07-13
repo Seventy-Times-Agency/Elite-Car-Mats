@@ -1,15 +1,44 @@
 "use client";
 
-import { Suspense } from "react";
+import { Suspense, useEffect } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useT } from "@/i18n/I18nProvider";
+import { trackEvent } from "@/lib/analytics";
 
 function SuccessBody() {
   const t = useT();
   const sp = useSearchParams();
   const orderNumber = sp?.get("order") ?? "";
   const token = sp?.get("t") ?? "";
+
+  // Meta Pixel: Purchase, with the order total fetched via the tokened
+  // order API. eventID = order number so a reloaded success page doesn't
+  // double-count on Meta's side. Inert until the pixel is configured.
+  useEffect(() => {
+    if (!orderNumber || !token) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch(
+          `/api/orders/${encodeURIComponent(orderNumber)}?t=${encodeURIComponent(token)}`,
+        );
+        if (!res.ok || cancelled) return;
+        const data = await res.json();
+        trackEvent(
+          "Purchase",
+          { value: Number(data.total ?? 0), currency: "USD" },
+          `purchase-${orderNumber}`,
+        );
+      } catch {
+        // analytics only — never surface errors on the thank-you page
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [orderNumber, token]);
+
   const orderHref = orderNumber
     ? `/order/${encodeURIComponent(orderNumber)}${token ? `?t=${encodeURIComponent(token)}` : ""}`
     : "";

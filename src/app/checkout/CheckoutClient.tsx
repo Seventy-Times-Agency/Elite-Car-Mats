@@ -11,6 +11,7 @@ import {
 import { useT, useLocale } from "@/i18n/I18nProvider";
 import { localizeMatSet, localizeColor } from "@/i18n/labels";
 import { TrustBadges } from "@/components/common/TrustBadges";
+import { trackEvent } from "@/lib/analytics";
 
 // USPS-compatible postal abbreviations for the 50 states + DC. Used to
 // constrain the shipping form to a real value (and let the browser
@@ -185,6 +186,11 @@ export function CheckoutClient({ paymentEnabled }: { paymentEnabled: boolean }) 
     ev.preventDefault();
     setFormError(null);
     if (!validate()) return;
+    trackEvent("InitiateCheckout", {
+      value: total,
+      currency: "USD",
+      num_items: items.length,
+    });
     setSubmitting(true);
     try {
       const payload = {

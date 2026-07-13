@@ -25,16 +25,34 @@ interface AddonRows {
   heelPad: number;
 }
 
+export interface AddonAvailabilityProps {
+  badges: boolean;
+  heelPad: boolean;
+}
+
 export function PricingManager({
   profiles,
   addons,
+  availability,
 }: {
   profiles: ProfileBlock[];
   addons: AddonRows;
+  availability: AddonAvailabilityProps;
 }) {
   const t = useT();
   const router = useRouter();
   const [busy, startBusy] = useTransition();
+
+  const toggleAvailability = (key: "badges" | "heelPad", value: boolean) => {
+    startBusy(async () => {
+      await fetch("/api/admin/availability", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ [key]: value }),
+      });
+      router.refresh();
+    });
+  };
   const [editingKey, setEditingKey] = useState<string | null>(null);
   const [draft, setDraft] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
@@ -245,6 +263,21 @@ export function PricingManager({
                 <td className="px-4 py-2.5 text-right text-gold font-semibold">
                   +{formatPrice(addons.badge)}
                 </td>
+                <td className="px-4 py-2.5 text-right">
+                  <button
+                    onClick={() => toggleAvailability("badges", !availability.badges)}
+                    disabled={busy}
+                    className={`text-[11px] uppercase tracking-wider px-2.5 py-1 rounded-full border transition-colors ${
+                      availability.badges
+                        ? "border-green-400/40 text-green-400 hover:border-green-400"
+                        : "border-error/40 text-error hover:border-error"
+                    }`}
+                  >
+                    {availability.badges
+                      ? t("admin.availInStock")
+                      : t("admin.availOut")}
+                  </button>
+                </td>
               </tr>
               <tr>
                 <td className="px-4 py-2.5 text-text">
@@ -252,6 +285,21 @@ export function PricingManager({
                 </td>
                 <td className="px-4 py-2.5 text-right text-gold font-semibold">
                   +{formatPrice(addons.heelPad)}
+                </td>
+                <td className="px-4 py-2.5 text-right">
+                  <button
+                    onClick={() => toggleAvailability("heelPad", !availability.heelPad)}
+                    disabled={busy}
+                    className={`text-[11px] uppercase tracking-wider px-2.5 py-1 rounded-full border transition-colors ${
+                      availability.heelPad
+                        ? "border-green-400/40 text-green-400 hover:border-green-400"
+                        : "border-error/40 text-error hover:border-error"
+                    }`}
+                  >
+                    {availability.heelPad
+                      ? t("admin.availInStock")
+                      : t("admin.availOut")}
+                  </button>
                 </td>
               </tr>
             </tbody>

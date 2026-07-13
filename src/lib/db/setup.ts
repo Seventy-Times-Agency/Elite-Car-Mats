@@ -484,6 +484,18 @@ async function execAll(): Promise<MigrationResult[]> {
     );
 
     // ------------------------------------------------------------------
+    // StoreSetting — small key/value store for operator switches that
+    // must apply without a redeploy (add-on stock availability etc.).
+    // ------------------------------------------------------------------
+    await run(
+      "table StoreSetting",
+      `CREATE TABLE IF NOT EXISTS "StoreSetting" (
+         "key" TEXT PRIMARY KEY,
+         "value" TEXT NOT NULL
+       )`,
+    );
+
+    // ------------------------------------------------------------------
     // Custom catalog — admin-added brands and models that aren't in
     // src/data/catalog/. Public catalog read paths merge these on top
     // of the code lists. Slug clashes with code-based rows are filtered

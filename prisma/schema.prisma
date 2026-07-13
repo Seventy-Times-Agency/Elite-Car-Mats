@@ -311,6 +311,13 @@ model Post {
 // price. After admin saves a change, the public storefront catches
 // up at the next Vercel redeploy.
 
+// Key/value store for operator switches that must apply without a
+// redeploy — e.g. add-on stock availability toggles.
+model StoreSetting {
+  key   String @id
+  value String
+}
+
 model MatSetPriceOverride {
   id        String   @id @default(cuid())
   profile   String   // VehicleConfigProfile: standard | pickup | twoSeater | semi | minivan

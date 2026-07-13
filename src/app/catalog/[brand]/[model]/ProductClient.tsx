@@ -21,6 +21,7 @@ import {
   type VehicleConfigProfile,
 } from "@/lib/vehicle-profile";
 import { ProductJsonLd, BreadcrumbJsonLd } from "@/components/seo/ProductJsonLd";
+import { trackEvent } from "@/lib/analytics";
 import { ProductFaq } from "@/components/product/ProductFaq";
 import { WishlistButton } from "@/components/product/WishlistButton";
 import { useT } from "@/i18n/I18nProvider";
@@ -133,6 +134,16 @@ export default function ProductClient({
     };
   }, []);
 
+  // Meta Pixel: product view. Inert until the pixel id is configured.
+  useEffect(() => {
+    if (!brand || !model) return;
+    trackEvent("ViewContent", {
+      content_type: "product",
+      content_ids: [`${brand.slug}-${model.slug}`],
+      content_name: `${brand.name} ${model.name}`,
+    });
+  }, [brand, model]);
+
   if (!brand || !model)
     return (
       <div className="py-20 text-center">
@@ -187,6 +198,12 @@ export default function ProductClient({
       badgeCount: badge && bdg ? effBadgeCount : undefined,
       heelPad: effHeelPad,
       quantity: 1,
+    });
+    trackEvent("AddToCart", {
+      content_type: "product",
+      content_ids: [cartModelId],
+      value: unitPrice,
+      currency: "USD",
     });
     openCart();
     setAdded(true);

@@ -44,6 +44,56 @@ export function PromosManager({ initial }: { initial: Promo[] }) {
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [error, setError] = useState<string | null>(null);
   const [busy, startBusy] = useTransition();
+  // Inline edit of an existing promo. The code itself stays immutable —
+  // order history references promos by code string.
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState<FormState>(EMPTY_FORM);
+  const [editError, setEditError] = useState<string | null>(null);
+
+  const startEdit = (p: Promo) => {
+    setEditingId(p.id);
+    setEditError(null);
+    setEditForm({
+      code: p.code,
+      discount: String(p.discount),
+      description: p.description ?? "",
+      maxUses: p.maxUses !== null ? String(p.maxUses) : "",
+      minOrder: p.minOrder !== null ? String(p.minOrder) : "",
+      expiresAt: p.expiresAt ? p.expiresAt.slice(0, 10) : "",
+      active: p.active,
+    });
+  };
+
+  const saveEdit = (id: string) => {
+    setEditError(null);
+    const discount = parseInt(editForm.discount, 10);
+    if (!Number.isFinite(discount) || discount < 1 || discount > 100) {
+      setEditError(t("admin.promosErrInvalid"));
+      return;
+    }
+    startBusy(async () => {
+      const res = await fetch(`/api/admin/promos/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          discount,
+          description: editForm.description.trim() || null,
+          maxUses: editForm.maxUses ? parseInt(editForm.maxUses, 10) : null,
+          minOrder: editForm.minOrder ? parseFloat(editForm.minOrder) : null,
+          active: editForm.active,
+          expiresAt: editForm.expiresAt
+            ? new Date(editForm.expiresAt).toISOString()
+            : null,
+        }),
+      });
+      if (!res.ok) {
+        setEditError(t("admin.promosErrSave"));
+        return;
+      }
+      setEditingId(null);
+      router.refresh();
+    });
+  };
 
   const input =
     "w-full glass-card rounded-lg px-3 py-2 text-sm focus:border-gold/40 focus:outline-none";
@@ -281,6 +331,17 @@ export function PromosManager({ initial }: { initial: Promo[] }) {
                 </div>
                 <div className="flex items-center gap-2">
                   <button
+                    onClick={() =>
+                      editingId === p.id ? setEditingId(null) : startEdit(p)
+                    }
+                    disabled={busy}
+                    className="text-xs text-text-dim hover:text-gold uppercase tracking-wider"
+                  >
+                    {editingId === p.id
+                      ? t("admin.promosCancel")
+                      : t("admin.promosEdit")}
+                  </button>
+                  <button
                     onClick={() => toggle(p.id, !p.active)}
                     disabled={busy}
                     className="text-xs text-text-dim hover:text-gold uppercase tracking-wider"
@@ -297,6 +358,111 @@ export function PromosManager({ initial }: { initial: Promo[] }) {
                     {t("admin.promosDelete")}
                   </button>
                 </div>
+                {editingId === p.id && (
+                  <div className="w-full pt-3 mt-1 border-t border-border/30 space-y-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div>
+                        <label className={label}>
+                          {t("admin.promosFieldDiscount")}
+                        </label>
+                        <input
+                          type="number"
+                          min={1}
+                          max={100}
+                          value={editForm.discount}
+                          onChange={(e) =>
+                            setEditForm((f) => ({ ...f, discount: e.target.value }))
+                          }
+                          className={input}
+                        />
+                      </div>
+                      <div>
+                        <label className={label}>
+                          {t("admin.promosFieldMaxUses")}
+                        </label>
+                        <input
+                          type="number"
+                          min={1}
+                          value={editForm.maxUses}
+                          onChange={(e) =>
+                            setEditForm((f) => ({ ...f, maxUses: e.target.value }))
+                          }
+                          placeholder={t("admin.promosUnlimited")}
+                          className={input}
+                        />
+                      </div>
+                      <div>
+                        <label className={label}>
+                          {t("admin.promosFieldExpires")}
+                        </label>
+                        <input
+                          type="date"
+                          value={editForm.expiresAt}
+                          onChange={(e) =>
+                            setEditForm((f) => ({ ...f, expiresAt: e.target.value }))
+                          }
+                          className={input}
+                        />
+                      </div>
+                      <div>
+                        <label className={label}>
+                          {t("admin.promosFieldMinOrder")}
+                        </label>
+                        <input
+                          type="number"
+                          min={0}
+                          step="0.01"
+                          value={editForm.minOrder}
+                          onChange={(e) =>
+                            setEditForm((f) => ({ ...f, minOrder: e.target.value }))
+                          }
+                          placeholder="0"
+                          className={input}
+                        />
+                      </div>
+                      <div className="sm:col-span-2">
+                        <label className={label}>
+                          {t("admin.promosFieldDescription")}
+                        </label>
+                        <input
+                          value={editForm.description}
+                          onChange={(e) =>
+                            setEditForm((f) => ({
+                              ...f,
+                              description: e.target.value,
+                            }))
+                          }
+                          className={input}
+                        />
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between gap-3">
+                      <label className="flex items-center gap-2 text-sm text-text-dim">
+                        <input
+                          type="checkbox"
+                          checked={editForm.active}
+                          onChange={(e) =>
+                            setEditForm((f) => ({ ...f, active: e.target.checked }))
+                          }
+                          className="accent-gold"
+                        />
+                        {t("admin.promosFieldActive")}
+                      </label>
+                      <div className="flex items-center gap-3">
+                        {editError && (
+                          <span className="text-xs text-error">{editError}</span>
+                        )}
+                        <button
+                          onClick={() => saveEdit(p.id)}
+                          disabled={busy}
+                          className="bg-gradient-to-r from-gold to-gold-light text-bg text-xs font-semibold tracking-wider uppercase px-4 py-2 rounded-lg disabled:opacity-40"
+                        >
+                          {busy ? t("admin.saving") : t("admin.save")}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             );
           })}

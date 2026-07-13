@@ -63,9 +63,12 @@ function StepHeader({
 export default function ProductClient({
   brand,
   model,
+  addonAvailability = { badges: true, heelPad: true },
 }: {
   brand: Brand | null;
   model: CarModel | null;
+  /** Operator stock switches — out-of-stock add-ons are not offered. */
+  addonAvailability?: { badges: boolean; heelPad: boolean };
 }) {
   const searchParams = useSearchParams();
   const t = useT();
@@ -140,7 +143,11 @@ export default function ProductClient({
       </div>
     );
 
-  const bdg = badges.find((b) => b.brandName === brand.name);
+  // Out-of-stock plates behave like "no plate for this brand" — the
+  // option renders in its unavailable state and can't be added.
+  const bdg = addonAvailability.badges
+    ? badges.find((b) => b.brandName === brand.name)
+    : undefined;
   const ms =
     profileMatSets.find((s) => s.type === set) ?? profileMatSets[0];
   const cartModelId = `${brand.slug}-${model.slug}`;
@@ -150,7 +157,8 @@ export default function ProductClient({
   const badgeMax = ms.mats;
   const effBadgeCount = Math.min(badgeCount, badgeMax);
   // Heel pad lives on the driver's mat — a cargo-only set has none.
-  const heelPadAvailable = ms.type !== "cargo";
+  // Also hidden entirely while the operator marks it out of stock.
+  const heelPadAvailable = ms.type !== "cargo" && addonAvailability.heelPad;
   const effHeelPad = heelPad && heelPadAvailable;
   const unitPrice = calculateItemUnitPrice({
     matSet: ms.type,

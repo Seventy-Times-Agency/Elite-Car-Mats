@@ -11,6 +11,7 @@ import type { VehicleConfigProfile } from "@/lib/vehicle-profile";
 import { getDictionary } from "@/i18n/getDictionary";
 import { makeT } from "@/i18n/dictionary";
 import { PricingManager, type ProfileBlock } from "./PricingManager";
+import { getAddonAvailability } from "@/lib/availability";
 
 export const dynamic = "force-dynamic";
 
@@ -56,12 +57,14 @@ export default async function AdminPricingPage() {
     heelPad: HEEL_PAD_PRICE,
   };
 
+  const availability = await getAddonAvailability();
+
   return (
     <AdminShell
       title={t("admin.pricingTitle")}
       subtitle={t("admin.pricingSubtitle")}
     >
-      <PricingManager profiles={profiles} addons={addons} />
+      <PricingManager profiles={profiles} addons={addons} availability={availability} />
     </AdminShell>
   );
 }

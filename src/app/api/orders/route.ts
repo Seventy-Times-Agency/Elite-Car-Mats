@@ -10,6 +10,7 @@ import {
   clampBadgeCount,
 } from "@/lib/pricing";
 import { loadPriceOverrides } from "@/lib/pricing-overrides";
+import { getAddonAvailability } from "@/lib/availability";
 import { rateLimit, getClientIp } from "@/lib/security/rate-limit";
 import { validatePromoCode, tryConsumePromoUse } from "@/lib/promo";
 import { isStripeConfigured } from "@/lib/payments/stripe";
@@ -230,6 +231,23 @@ export async function POST(request: Request) {
         { status: 400 },
       );
     }
+  }
+
+  // Operator stock switches: an out-of-stock add-on must not slip into
+  // an order via a stale cart or a hand-crafted POST — the UI hiding
+  // the option is not enough.
+  const availability = await getAddonAvailability();
+  if (!availability.badges && items.some((i) => i.badgeId)) {
+    return NextResponse.json(
+      { error: "Brand plates are temporarily out of stock." },
+      { status: 400 },
+    );
+  }
+  if (!availability.heelPad && items.some((i) => i.heelPad)) {
+    return NextResponse.json(
+      { error: "The aluminum heel pad is temporarily out of stock." },
+      { status: 400 },
+    );
   }
 
   // Single DB read for admin-set price overrides — used to bill the

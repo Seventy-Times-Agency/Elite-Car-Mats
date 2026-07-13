@@ -8,10 +8,12 @@ import {
 } from "@/lib/pricing";
 import { useT } from "@/i18n/I18nProvider";
 import { localizeColor, localizeMatSet } from "@/i18n/labels";
+import { usePriceOverrides } from "@/context/PriceOverridesContext";
 
 export default function CartPage() {
   const { items, removeItem, updateQuantity, clearCart } = useCart();
-  const total = calculateOrderTotal(items);
+  const priceOverrides = usePriceOverrides();
+  const total = calculateOrderTotal(items, priceOverrides);
   const t = useT();
 
   if (items.length === 0)
@@ -56,7 +58,7 @@ export default function CartPage() {
         </div>
         <div className="space-y-3">
           {items.map((item) => {
-            const unit = calculateItemUnitPrice(item);
+            const unit = calculateItemUnitPrice(item, priceOverrides);
             return (
               <div key={item.id} className="glass-card rounded-xl p-5 flex gap-4">
                 <div

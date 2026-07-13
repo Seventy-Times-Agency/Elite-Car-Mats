@@ -9,6 +9,8 @@ import { FloatingCTA } from "@/components/layout/FloatingCTA";
 import { CookieBanner } from "@/components/layout/CookieBanner";
 import { CartProvider } from "@/context/CartContext";
 import { WishlistProvider } from "@/context/WishlistContext";
+import { PriceOverridesProvider } from "@/context/PriceOverridesContext";
+import { loadPriceOverridesCached } from "@/lib/pricing-overrides";
 import { CartDrawer } from "@/components/cart/CartDrawer";
 import { OrganizationJsonLd } from "@/components/seo/ProductJsonLd";
 import { I18nProvider } from "@/i18n/I18nProvider";
@@ -116,6 +118,13 @@ export default async function RootLayout({
   const skipLabel =
     (dict["nav.skipToContent"] as string | undefined) ??
     (fallback["nav.skipToContent"] as string);
+  // Admin price overrides for client-side price display — keeps every
+  // price the customer sees in sync with what the server bills. Cached
+  // (tag `pricing`, busted by the /admin/pricing POST) and fails to an
+  // empty map on DB errors, so it never blocks rendering.
+  const priceOverrideEntries = Array.from(
+    (await loadPriceOverridesCached()).entries(),
+  );
 
   return (
     <html
@@ -134,6 +143,7 @@ export default async function RootLayout({
           {skipLabel}
         </a>
         <I18nProvider locale={locale} dict={dict} fallback={fallback}>
+          <PriceOverridesProvider entries={priceOverrideEntries}>
           <CartProvider>
             <WishlistProvider>
               <AnnouncementBar />
@@ -147,6 +157,7 @@ export default async function RootLayout({
               <CartDrawer />
             </WishlistProvider>
           </CartProvider>
+          </PriceOverridesProvider>
         </I18nProvider>
         {/* Vercel Web Analytics — cookieless, same-origin script, so it
             needs no CSP allowance and no cookie-banner consent gate.

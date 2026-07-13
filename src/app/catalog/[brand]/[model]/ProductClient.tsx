@@ -31,6 +31,7 @@ import {
   localizeMatSet,
   localizeMatSetDesc,
 } from "@/i18n/labels";
+import { usePriceOverrides } from "@/context/PriceOverridesContext";
 
 function StepHeader({
   n,
@@ -74,6 +75,7 @@ export default function ProductClient({
   const searchParams = useSearchParams();
   const t = useT();
   const { addItem, openCart } = useCart();
+  const priceOverrides = usePriceOverrides();
 
   const profile: VehicleConfigProfile = model
     ? getVehicleProfile(model)
@@ -171,14 +173,17 @@ export default function ProductClient({
   // Also hidden entirely while the operator marks it out of stock.
   const heelPadAvailable = ms.type !== "cargo" && addonAvailability.heelPad;
   const effHeelPad = heelPad && heelPadAvailable;
-  const unitPrice = calculateItemUnitPrice({
-    matSet: ms.type,
-    modelId: cartModelId,
-    edgeColor: { id: edge.id },
-    badge: badge && bdg ? { id: bdg.id } : null,
-    badgeCount: effBadgeCount,
-    heelPad: effHeelPad,
-  });
+  const unitPrice = calculateItemUnitPrice(
+    {
+      matSet: ms.type,
+      modelId: cartModelId,
+      edgeColor: { id: edge.id },
+      badge: badge && bdg ? { id: bdg.id } : null,
+      badgeCount: effBadgeCount,
+      heelPad: effHeelPad,
+    },
+    priceOverrides,
+  );
 
   const localizedColor = localizeColor(t, color.name);
   const localizedEdge = localizeColor(t, edge.name);

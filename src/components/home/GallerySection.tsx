@@ -5,6 +5,7 @@ import { Reveal } from "@/components/common/Reveal";
 import { useT } from "@/i18n/I18nProvider";
 import { calculateItemUnitPrice, formatPrice } from "@/lib/pricing";
 import type { MatSetType } from "@/types";
+import { usePriceOverrides } from "@/context/PriceOverridesContext";
 
 // Real approved edge-binding colors (see src/data/catalog/colors.ts) —
 // the gallery must only show combinations a customer can actually order.
@@ -39,6 +40,7 @@ function MatSilhouette({ edge }: { edge: string }) {
 
 export function GallerySection() {
   const t = useT();
+  const priceOverrides = usePriceOverrides();
   const items: {
     brand: string;
     model: string;
@@ -120,11 +122,14 @@ export function GallerySection() {
                 </div>
                 <span className="text-gold text-sm font-semibold shrink-0 mt-0.5">
                   {formatPrice(
-                    calculateItemUnitPrice({
-                      matSet: it.matSet,
-                      modelId: `${it.brandSlug}-${it.modelSlug}`,
-                      edgeColor: { id: it.color },
-                    }),
+                    calculateItemUnitPrice(
+                      {
+                        matSet: it.matSet,
+                        modelId: `${it.brandSlug}-${it.modelSlug}`,
+                        edgeColor: { id: it.color },
+                      },
+                      priceOverrides,
+                    ),
                   )}
                 </span>
               </div>

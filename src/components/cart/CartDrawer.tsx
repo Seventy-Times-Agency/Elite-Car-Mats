@@ -12,6 +12,7 @@ import {
 import { useT } from "@/i18n/I18nProvider";
 import { localizeColor, localizeMatSet } from "@/i18n/labels";
 import { TrustBadges } from "@/components/common/TrustBadges";
+import { usePriceOverrides } from "@/context/PriceOverridesContext";
 
 export function CartDrawer() {
   const {
@@ -24,6 +25,7 @@ export function CartDrawer() {
   } = useCart();
   const t = useT();
   const router = useRouter();
+  const priceOverrides = usePriceOverrides();
   const closeBtnRef = useRef<HTMLButtonElement>(null);
 
   // Close on Escape.
@@ -42,7 +44,7 @@ export function CartDrawer() {
     if (isOpen) closeBtnRef.current?.focus();
   }, [isOpen]);
 
-  const subtotal = calculateOrderTotal(items);
+  const subtotal = calculateOrderTotal(items, priceOverrides);
 
   const goCheckout = () => {
     closeCart();
@@ -113,7 +115,7 @@ export function CartDrawer() {
         ) : (
           <div className="flex-1 overflow-y-auto px-5 py-4 space-y-3">
             {items.map((item) => {
-              const unit = calculateItemUnitPrice(item);
+              const unit = calculateItemUnitPrice(item, priceOverrides);
               return (
                 <div
                   key={item.id}

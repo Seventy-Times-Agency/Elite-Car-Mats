@@ -12,6 +12,7 @@ import { useT, useLocale } from "@/i18n/I18nProvider";
 import { localizeMatSet, localizeColor } from "@/i18n/labels";
 import { TrustBadges } from "@/components/common/TrustBadges";
 import { trackEvent } from "@/lib/analytics";
+import { usePriceOverrides } from "@/context/PriceOverridesContext";
 
 // USPS-compatible postal abbreviations for the 50 states + DC. Used to
 // constrain the shipping form to a real value (and let the browser
@@ -85,6 +86,7 @@ export function CheckoutClient({ paymentEnabled }: { paymentEnabled: boolean }) 
   const { items, clearCart } = useCart();
   const t = useT();
   const locale = useLocale();
+  const priceOverrides = usePriceOverrides();
   const [form, setForm] = useState({
     name: "",
     phone: "",
@@ -128,7 +130,7 @@ export function CheckoutClient({ paymentEnabled }: { paymentEnabled: boolean }) 
   const inputError =
     "border-error/60 focus:border-error/80 focus:shadow-[0_0_0_1px_rgba(239,68,68,0.4)]";
 
-  const subtotal = calculateOrderTotal(items);
+  const subtotal = calculateOrderTotal(items, priceOverrides);
   const discount = promoApplied?.amount ?? 0;
   const total = Math.max(0, subtotal - discount);
 
@@ -514,7 +516,7 @@ export function CheckoutClient({ paymentEnabled }: { paymentEnabled: boolean }) 
               <span className="section-label text-[10px]">{t("co.yourOrder")}</span>
               <div className="mt-4 space-y-3">
                 {items.map((i) => {
-                  const unit = calculateItemUnitPrice(i);
+                  const unit = calculateItemUnitPrice(i, priceOverrides);
                   return (
                     <div
                       key={i.id}

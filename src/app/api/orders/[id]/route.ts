@@ -153,3 +153,34 @@ export async function PATCH(
 
   return NextResponse.json(updated);
 }
+
+/**
+ * Permanently delete an order and its items (OrderItem cascades on the
+ * FK). Used by the operator to purge test orders before launch and to
+ * honor customer data-deletion requests — unlike CANCELLED, the order
+ * disappears from history and revenue stats entirely.
+ */
+export async function DELETE(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  if (!checkAdminCsrf(request)) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+  if (!(await requireAdmin())) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const { id } = await params;
+  const existing = await prisma.order.findFirst({
+    where: { OR: [{ id }, { orderNumber: id }] },
+    select: { id: true, orderNumber: true },
+  });
+  if (!existing) {
+    return NextResponse.json({ error: "Order not found" }, { status: 404 });
+  }
+
+  await prisma.order.delete({ where: { id: existing.id } });
+  console.log(`[admin] order ${existing.orderNumber} deleted permanently`);
+  return NextResponse.json({ ok: true, orderNumber: existing.orderNumber });
+}

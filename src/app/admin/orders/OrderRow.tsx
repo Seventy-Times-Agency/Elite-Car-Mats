@@ -80,6 +80,7 @@ export function OrderRow({
   const [status, setStatus] = useState<Status>(order.status as Status);
   const [tracking, setTracking] = useState(order.trackingNumber ?? "");
   const [saving, startSaving] = useTransition();
+  const [deleting, startDeleting] = useTransition();
   const [message, setMessage] = useState<string | null>(null);
 
   const STATUS_LABEL: Record<Status, string> = {
@@ -112,6 +113,23 @@ export function OrderRow({
       setMessage(t("admin.saved"));
       router.refresh();
       setTimeout(() => setMessage(null), 2000);
+    });
+  };
+
+  const remove = () => {
+    if (!window.confirm(t("admin.deleteConfirm", { n: order.orderNumber }))) {
+      return;
+    }
+    setMessage(null);
+    startDeleting(async () => {
+      const res = await fetch(`/api/orders/${order.id}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) {
+        setMessage(t("admin.deleteFailed"));
+        return;
+      }
+      router.refresh();
     });
   };
 
@@ -333,14 +351,23 @@ export function OrderRow({
             </div>
           </div>
 
-          <div className="flex items-center justify-between gap-3">
-            <Link
-              href={`/order/${order.orderNumber}`}
-              target="_blank"
-              className="text-xs text-text-dim hover:text-gold"
-            >
-              {t("admin.openOrderPage")}
-            </Link>
+          <div className="flex items-center justify-between gap-3 flex-wrap">
+            <div className="flex items-center gap-4">
+              <Link
+                href={`/order/${order.orderNumber}`}
+                target="_blank"
+                className="text-xs text-text-dim hover:text-gold"
+              >
+                {t("admin.openOrderPage")}
+              </Link>
+              <button
+                onClick={remove}
+                disabled={deleting}
+                className="text-xs text-text-faint hover:text-error transition-colors disabled:opacity-40"
+              >
+                {deleting ? t("admin.deleting") : t("admin.deleteOrder")}
+              </button>
+            </div>
             <div className="flex items-center gap-3">
               {message && (
                 <span className="text-[11px] text-text-dim">{message}</span>

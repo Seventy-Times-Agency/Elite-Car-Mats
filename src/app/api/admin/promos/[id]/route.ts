@@ -6,8 +6,10 @@ import { requireAdmin, checkAdminCsrf } from "@/lib/security/auth";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+// The code itself is intentionally NOT editable — orders reference the
+// promo by its code string, and a rename would orphan that history.
+// Recreate under a new name instead.
 const patchSchema = z.object({
-  code: z.string().min(2).max(64).optional(),
   discount: z.number().int().min(1).max(100).optional(),
   description: z.string().max(200).optional().nullable(),
   maxUses: z.number().int().positive().optional().nullable(),
@@ -45,7 +47,6 @@ export async function PATCH(
 
   const d = parsed.data;
   const data: Record<string, unknown> = {};
-  if (d.code !== undefined) data.code = d.code.trim().toUpperCase();
   if (d.discount !== undefined) data.discount = d.discount;
   if (d.description !== undefined) data.description = d.description;
   if (d.maxUses !== undefined) data.maxUses = d.maxUses;

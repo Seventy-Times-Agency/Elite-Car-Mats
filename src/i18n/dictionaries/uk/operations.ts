@@ -225,6 +225,7 @@ export const operations: Dict = {
   "admin.promosUsedUp": "Вичерпано",
   "admin.promosEnable": "Увімкнути",
   "admin.promosDisable": "Вимкнути",
+  "admin.promosEdit": "Змінити",
   "admin.promosDelete": "Видалити",
   "admin.promosConfirmDelete": "Видалити промокод? Це незворотно.",
   "admin.promosUsedCount": "Використано {n}/{max}",

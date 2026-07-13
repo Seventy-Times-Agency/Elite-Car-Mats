@@ -61,12 +61,12 @@ export const storefront: Dict = {
   "blog.ctaTagline": "Ready for premium EVA mats cut for your exact car?",
   "blog.ctaButton": "Build my mats →",
   "brand.intro":
-    "Custom-cut EVA floor mats for your {brand} — {count} models supported. Every set is CNC-cut from a 3D template specific to your year and trim, then sewn with the colored edge of your choice. Made and shipped from Rochester, NY in 2–3 business days.",
+    "Custom-cut EVA floor mats for your {brand} — {count} models supported. Every set is hand-cut to a dedicated pattern for your year and trim, then hand-sewn with the colored edge of your choice. Made and shipped from Rochester, NY in 2–3 business days.",
   "prod.faq.label": "FAQ",
   "prod.faq.heading": "Frequently asked",
   "prod.faq.fit.q": "Will these mats actually fit my {brand} {model}?",
   "prod.faq.fit.a":
-    "Yes — every set is CNC-cut from a 3D template specific to your model and year. Pick the year on this page, place the order, and the pattern is matched to your exact trim. If something doesn't sit right when you receive it, we'll re-cut it free.",
+    "Yes — every set is hand-cut to a dedicated pattern for your model and year. Pick the year on this page, place the order, and the pattern is matched to your exact trim. If something doesn't sit right when you receive it, we'll re-cut it free.",
   "prod.faq.material.q": "What is the material?",
   "prod.faq.material.a":
     "Premium closed-cell EVA foam, ~10 mm thick. Doesn't absorb water, doesn't crack in cold, doesn't fade in sun, doesn't off-gas a chemical smell. The honeycomb pattern traps water, snow, salt and dirt instead of pushing it back onto the carpet underneath.",
@@ -75,7 +75,7 @@ export const storefront: Dict = {
     "Production takes 2–3 business days. Once cut, the set ships the same or next day from our Rochester, NY workshop.",
   "prod.faq.shipping.q": "How fast will I get my order?",
   "prod.faq.shipping.a":
-    "Free USPS Priority shipping to all 50 states — typically 2–4 business days after dispatch. You'll get a tracking number by email the moment the package leaves us.",
+    "Free USPS / UPS shipping to all 50 states — typically 3–7 business days after dispatch. You'll get a tracking number by email the moment the package leaves us.",
   "prod.faq.wash.q": "How do I clean them?",
   "prod.faq.wash.a":
     "Pull them out, hose them down, and let them dry. EVA doesn't soak up water, so there's no waiting for fabric to dry. Mild soap is fine for stubborn dirt — no harsh solvents, no power-washer at point-blank range.",
@@ -93,19 +93,19 @@ export const storefront: Dict = {
   "hero.titleLine2": "cut for",
   "hero.titleLine3": "your exact car.",
   "hero.subtitle":
-    "Premium EVA, CNC-cut from a 3D template for your model and year. Ships in 48 hours from Rochester, NY. Free US shipping.",
+    "Premium EVA, hand-cut to your model's dedicated pattern and hand-sewn in Rochester, NY. Made to order. Free US shipping.",
   "hero.learnMore": "How it's made",
   "hero.statModels": "Patterns",
   "hero.statLifespan": "Lifespan",
   "hero.statWarranty": "Warranty",
-  "hero.statModelsValue": "800+",
+  "hero.statModelsValue": "1,000+",
   "hero.statLifespanValue": "5 years",
   "hero.statWarrantyValue": "2 years",
   "hero.imageAlt": "Showroom scene: EVA car mat sets laid out on a concrete floor, a display stand with a black mat with red edging, a car in the background",
   "hero.cardEdge": "Edge",
-  "hero.cardEdgeValue": "Gold Premium",
+  "hero.cardEdgeValue": "11 colors",
   "hero.cardFit": "Fit",
-  "hero.cardFitValue": "±1 mm CNC",
+  "hero.cardFitValue": "Dedicated pattern",
   "cfg.label": "Configurator",
   "cfg.titleA": "Find your",
   "cfg.titleB": "perfect fit",
@@ -446,16 +446,16 @@ export const storefront: Dict = {
     "From order to packed shipment — 4 stages, each with a QC checkpoint. Every set is made to order.",
   "process.s1Title": "Choose your model",
   "process.s1Desc":
-    "Tell us your make, model, and year — our configurator instantly pulls the matching pattern from our library of 800+ vehicles.",
-  "process.s2Title": "Precision CNC cut",
+    "Tell us your make, model, and year — our configurator instantly pulls the matching pattern from our library of 1,000+ vehicles.",
+  "process.s2Title": "Precision hand cut",
   "process.s2Desc":
-    "Our CNC plotter cuts the EVA sheet along the 3D template with ±1 mm accuracy. Every mat mirrors the exact floor contour of your car.",
+    "A craftsman cuts the EVA sheet by hand along your model's dedicated pattern. Every mat follows the exact floor contour of your car.",
   "process.s3Title": "Stitching & finishing",
   "process.s3Desc":
     "The edging is double-stitched with high-tensile thread, a badge with your car's logo is set, and an ELITECARMATS.US tag is sewn on the side.",
   "process.s4Title": "Shipped across the USA",
   "process.s4Desc":
-    "Packed in a heavy kraft mailer and shipped via USPS or UPS Ground within 48 hours. Free shipping on orders over $99.",
+    "Packed in a heavy kraft mailer and shipped via USPS or UPS Ground within 2–3 business days. Free US shipping on every order.",
   "process.cta": "Build my set",
   "materials.label": "Materials",
   "materials.title": "What your set is made of",
@@ -466,17 +466,17 @@ export const storefront: Dict = {
   "materials.baseTitle": "Premium EVA",
   "materials.baseSpec": "10 mm, closed-cell structure",
   "materials.baseDesc":
-    "Medical-grade ethylene-vinyl acetate foam — the same material used in athletic footwear and orthopedic insoles. Zero water absorption, odorless, VOC-free. Stable from −40°F to 160°F.",
-  "materials.baseFact1": "Density 100 kg/m³",
+    "Premium closed-cell ethylene-vinyl acetate foam — the same family of material used in athletic footwear and orthopedic insoles. Zero water absorption, odorless, VOC-free. Stable from −40°F to 160°F.",
+  "materials.baseFact1": "Density 75–80 kg/m³",
   "materials.baseFact2": "5–7 year service life",
   "materials.baseFact3": "REACH compliant",
   "materials.edgeLabel": "Edge",
   "materials.edgeTitle": "Trim",
   "materials.edgeSpec": "Soft PVC, 8 mm profile",
   "materials.edgeDesc":
-    "The raised perimeter edge contains up to 1.5 liters of water, dirt, and snow. Available in 4 colors: black, gray, gold, and red. Double-stitched onto the top of the mat.",
+    "The raised perimeter edge contains up to 1.5 liters of water, dirt, and snow. Available in 11 colors — from classic black to yellow, red, or navy accents. Double-stitched onto the top of the mat.",
   "materials.edgeFact1": "30 mm edge height",
-  "materials.edgeFact2": "4 color options",
+  "materials.edgeFact2": "11 color options",
   "materials.edgeFact3": "Cold-resistant, no cracking",
   "materials.edgeImageAlt": "Close-up of the EVA mat edge: red woven binding with stitching and a black tag with gold ELITECARMATS.US lettering against the black honeycomb texture",
   "materials.baseImageAlt": "Extreme macro of the premium black EVA foam surface — crisp hexagonal honeycomb cells catching warm gold rim-light from the side",
@@ -495,13 +495,13 @@ export const storefront: Dict = {
     "What every customer gets — regardless of vehicle, trim, or shipping address.",
   "features.f1Title": "Fit for your VIN range",
   "features.f1Desc":
-    "800+ models with precision patterns by year. No gaps, no pedal interference — guaranteed fit.",
-  "features.f2Title": "CNC-cut ±1 mm",
+    "1,000+ models with precision patterns by year. No gaps, no pedal interference — guaranteed fit.",
+  "features.f2Title": "Cut to a dedicated pattern",
   "features.f2Desc":
-    "Plotter-cut from a digital pattern — not eyeballed with cardboard templates. Identical fit in every pair.",
+    "Every set is hand-cut to your model's own pattern from our 1,000+ library — the same precise fit in every pair.",
   "features.f3Title": "Made to order",
   "features.f3Desc":
-    "Your set doesn't sit on a shelf — we start cutting after payment. 48 hours from order to shipment.",
+    "Your set doesn't sit on a shelf — we start cutting after payment. 2–3 business days from order to shipment.",
   "features.f4Title": "2-year warranty",
   "features.f4Desc":
     "Covers material and stitching. Cracked or warped? We replace it free — no paperwork, no inspections.",
@@ -510,7 +510,7 @@ export const storefront: Dict = {
     "EVA doesn't smell like rubber and emits no VOCs. REACH-compliant — safe for cars with kids.",
   "features.f6Title": "Free shipping",
   "features.f6Desc":
-    "USPS / UPS Ground anywhere in the USA on orders over $99. 2–3 day express shipping for $19.",
+    "USPS / UPS Ground anywhere in the USA — free on every order.",
   "gallery.label": "Our Work",
   "gallery.title": "Sets built for different rides",
   "gallery.subtitle":
@@ -529,7 +529,7 @@ export const storefront: Dict = {
   "comparison.featureCol": "Feature",
   "comparison.othersCol": "Ordinary",
   "comparison.row1Feat": "Fit accuracy",
-  "comparison.row1Ours": "1 mm (CNC-cut from 3D pattern)",
+  "comparison.row1Ours": "Dedicated pattern for your exact model & year",
   "comparison.row1Others": "Universal sizing, gaps along edges",
   "comparison.row2Feat": "Material",
   "comparison.row2Ours": "Premium 10 mm closed-cell EVA",
@@ -550,7 +550,7 @@ export const storefront: Dict = {
   "comparison.row7Ours": "5–7 years",
   "comparison.row7Others": "1–2 years before failure",
   "comparison.row8Feat": "Personalization",
-  "comparison.row8Ours": "4 edge colors, brand badge",
+  "comparison.row8Ours": "11 edge colors, 5 mat colors, brand badge",
   "comparison.row8Others": "Black one-size-fits-all only",
   "comparison.row9Feat": "Warranty",
   "comparison.row9Ours": "2 years",
@@ -567,10 +567,10 @@ export const storefront: Dict = {
     "Use the configurator at the top of the home page: pick your make, model, and year. Every mat is cut from an individual pattern for your VIN range — the fit is precise, with no gaps or pedal interference. If your model isn't listed, email info@elitecarmats.us and we'll cut a pattern within 3 business days.",
   "faq.q3": "What sets do you offer and which should I choose?",
   "faq.a3":
-    "We make 4 options. \"Fronts\" — two mats for driver and passenger (basic protection, $59–79). \"Full Set\" — the full cabin: front + rear row (for sedans and hatchbacks, $119–149). \"Cargo\" — a separate mat for the cargo area ($49–69). \"Full Set + Cargo\" — maximum protection for the whole cabin and trunk ($149–189). For most customers, \"Full Set + Cargo\" is the sweet spot — especially if you have kids, a dog, or you take frequent road trips.",
+    "Most vehicles get 3 options. \"Full Set\" — the full cabin, front + rear rows ($119). \"Cargo\" — a separate trunk mat ($79). \"Full Set + Cargo\" — the whole cabin plus the trunk ($198). Three-row minivans and commercial trucks have their own sets — the configurator shows exactly what's available for your model. For most customers, \"Full Set + Cargo\" is the sweet spot — especially if you have kids, a dog, or frequent road trips.",
   "faq.q4": "What colors and edge options are available?",
   "faq.a4":
-    "Mat base: black or gray EVA (black is universal; gray looks great in light-colored interiors). Edge trim (raised perimeter): black, gray, gold, or red. Red and gold add an accent; black is classic. On request, we can add a metal brand badge with your car's logo on the driver's front mat.",
+    "Mat base: 5 colors — black, gray, brown, beige, and red. Edge trim: 11 colors, from classic black to yellow, red, or navy accents. You can also add a metal brand plate to any mat in the set and an aluminum heel pad to the driver's mat.",
   "faq.q5": "How do I care for the mats?",
   "faq.a5":
     "Once every 1–2 weeks, shake them out and rinse with a hose or in the shower. For deeper cleaning, use warm water with mild soap and a soft brush. EVA handles water, auto chemistry, road salt, and de-icers. Dry away from direct heat (radiator, hair dryer, direct sun). Don't use abrasive cleaners — they damage the honeycomb structure.",
@@ -579,7 +579,7 @@ export const storefront: Dict = {
     "2-year manufacturer warranty on all materials and stitching. If you find a manufacturing defect during the warranty period — a crack, stitch separation, edge deformation — we'll replace the mat or set free of charge. Normal wear (worn heel areas, heel scuffs) is not covered, but this is a natural process and takes 4–5 years of active use with EVA.",
   "faq.q7": "How fast is shipping and how much does it cost?",
   "faq.a7":
-    "We ship within 48 hours of payment. Within the USA, USPS / UPS Ground — 3–7 business days, free on orders over $99. Express (2–3 days) — $19. Tracking link is emailed the moment the package leaves. We also ship to Canada and Mexico; the cost is calculated at checkout.",
+    "We ship within 2–3 business days of payment. Within the USA, USPS / UPS Ground — 3–7 business days, free on every order. A tracking link is emailed the moment the package leaves. Shipping to Canada or Mexico is available on request — email us before ordering.",
   "faq.q8": "Can I return or exchange my mats?",
   "faq.a8":
     "Yes, within 30 days of delivery. Mats must be in original packaging, with no signs of use or odors. Refunds are processed within 5 business days of us receiving the return. If you picked the wrong set or color, we do a free exchange — you only cover the return shipping.",
@@ -593,27 +593,27 @@ export const storefront: Dict = {
   "faq.notFoundP": "Email us — we reply within an hour during business hours.",
   "about.metaTitle": "About Us",
   "about.metaDesc":
-    "Elite Car Mats is a premium American brand of custom-cut EVA floor mats. CNC precision, hand-stitched trim, made in Rochester, NY.",
+    "Elite Car Mats is a premium American brand of custom-cut EVA floor mats. Hand-cut patterns, hand-stitched trim, made in Rochester, NY.",
   "about.ogTitle": "About Elite Car Mats",
   "about.ogDesc": "Premium custom-cut EVA floor mats. Made in Rochester, New York.",
   "about.label": "About",
   "about.h1Line1": "Floor mats engineered",
   "about.h1Line2": "for your car alone",
   "about.subtitle":
-    "Elite Car Mats is a premium American brand of custom-cut EVA floor mats. CNC-pattern precision, hand-stitched trim, made to order for your exact make and model.",
+    "Elite Car Mats is a premium American brand of custom-cut EVA floor mats. A library of 1,000+ dedicated patterns, hand-cut and hand-stitched to order for your exact make and model.",
   "about.storyLabel": "Our Story",
   "about.storyTitle": "Craftsmanship by design",
   "about.storyP1":
     "Elite Car Mats was founded in 2026 in Rochester, New York by a Ukrainian-American craftsman who wanted mats worthy of the cars they protect — not the hollow rubber at big-box stores, not overpriced OEM carpet that wears through in a season.",
   "about.storyP2":
-    "The brief was simple: build what we'd put in our own cars. Medical-grade closed-cell EVA. Patterns cut on a CNC plotter to the millimeter. Perimeter trim double-stitched by hand on industrial machines. A metal brand badge on the driver's mat if you want one. No cut corners, no gimmicks.",
+    "The brief was simple: build what we'd put in our own cars. Premium closed-cell EVA. Every set cut by hand to the vehicle's dedicated pattern. Perimeter trim double-stitched on an industrial sewing machine. A metal brand badge on the driver's mat if you want one. No cut corners, no gimmicks.",
   "about.storyP3":
-    "We're a new house with an old-world approach to the work. We launched with 800+ vehicle patterns already digitized so most American drivers can order their exact set on day one. If yours isn't in our catalog, we'll pattern it for you — that's what custom actually means.",
+    "We're a new house with an old-world approach to the work. We launched with a library of 1,000+ vehicle patterns, so most American drivers can order their exact set on day one. If yours isn't in our catalog, we'll pattern it for you — that's what custom actually means.",
   "about.principlesLabel": "Principles",
   "about.principlesTitle": "What defines the brand",
   "about.v1Title": "Precision fit",
   "about.v1Desc":
-    "Patterns cut to within ±2 mm of the exact floor geometry of your model. Your mats sit like OEM — no gaps, no pedal interference.",
+    "Every set is cut to your model's dedicated pattern. Your mats sit like OEM — no gaps, no pedal interference.",
   "about.v2Title": "Premium EVA",
   "about.v2Desc":
     "Density of 75–80 kg/m³ — 1.5× more than budget rubber. Closed-cell honeycomb structure contains up to 1.5 liters of moisture and dirt.",
@@ -622,7 +622,7 @@ export const storefront: Dict = {
     "Perimeter trim is sewn by hand on industrial machines with heavy-tensile polyester thread. No heat-welds — only a proper thread seam that holds up for years.",
   "about.v4Title": "Factory-direct",
   "about.v4Desc":
-    "We pattern it, cut it, stitch it, ship it. Between our Rochester workshop and your car there's nothing but a kraft mailer and FedEx — no middlemen, no markups.",
+    "We pattern it, cut it, stitch it, ship it. Between our Rochester workshop and your car there's nothing but a kraft mailer and USPS — no middlemen, no markups.",
   "about.materialLabel": "Material",
   "about.materialTitle": "Why EVA",
   "about.materialP1":
@@ -642,7 +642,7 @@ export const storefront: Dict = {
   "about.spec5V": "5–7 years of active use",
   "about.spec6K": "Certifications",
   "about.spec6V": "RoHS, REACH (non-toxic)",
-  "about.stat1N": "800+",
+  "about.stat1N": "1,000+",
   "about.stat1L": "vehicle patterns",
   "about.stat2N": "59",
   "about.stat2L": "supported makes",
@@ -678,23 +678,23 @@ export const storefront: Dict = {
   "legal.updatedLabel": "Last updated",
   "delivery.metaTitle": "Shipping",
   "delivery.metaDesc":
-    "Elite Car Mats shipping terms for the U.S.: free on orders over $99, express 2–3 days.",
+    "Elite Car Mats shipping terms for the U.S.: free USPS / UPS shipping on every order.",
   "delivery.title": "Shipping",
   "delivery.intro":
-    "We ship orders from Rochester, NY within 48 hours of production. Shipping nationwide across the United States.",
+    "We ship orders from Rochester, NY within 2–3 business days of payment. Shipping nationwide across the United States.",
   "delivery.updatedAt": "April 20, 2026",
   "delivery.timelinesH": "Timelines",
   "delivery.t1Pre": "Production:",
-  "delivery.t1": "up to 48 hours after payment",
+  "delivery.t1": "2–3 business days after payment",
   "delivery.t2Pre": "USPS / UPS Ground:",
   "delivery.t2": "3–7 business days within the U.S.",
-  "delivery.t3Pre": "Express (UPS 2nd Day):",
-  "delivery.t3": "2–3 business days — $19",
+  "delivery.t3Pre": "Expedited shipping:",
+  "delivery.t3": "available on request — email us",
   "delivery.costH": "Cost",
   "delivery.c1Pre": "Free",
-  "delivery.c1": "on orders over $99 (standard shipping)",
-  "delivery.c2": "$9 USPS / UPS Ground on orders under $99",
-  "delivery.c3": "$19 express shipping 2–3 days to any destination",
+  "delivery.c1": "standard U.S. shipping on every order",
+  "delivery.c2": "No hidden fees — the total you see at checkout is final",
+  "delivery.c3": "Expedited shipping available on request",
   "delivery.whereH": "Where we ship",
   "delivery.whereP1": "All 50 U.S. states + District of Columbia.",
   "delivery.whereP2Pre":
@@ -859,10 +859,10 @@ export const storefront: Dict = {
   "terms.s2l2": "Prices are in U.S. dollars (USD) and include production",
   "terms.s2l3": "Sales tax is added at checkout where applicable",
   "terms.s2l4":
-    "Shipping within the U.S. is free on orders over $99, otherwise $9 USPS Ground",
+    "Shipping within the U.S. is free on every order",
   "terms.s3H": "3. Production & timelines",
   "terms.s3P":
-    "Every set is made to order — typically within 48 hours of payment. Standard USPS / UPS Ground shipping within the U.S. takes 3–7 business days.",
+    "Every set is made to order — typically cut, sewn and shipped within 2–3 business days of payment. Standard USPS / UPS Ground shipping within the U.S. takes 3–7 business days.",
   "terms.s4H": "4. Returns & exchanges",
   "terms.s4PPre": "Full details are in our ",
   "terms.s4PLink": "return policy",
@@ -892,32 +892,32 @@ export const storefront: Dict = {
   "terms.s10PPre": "For any questions: ",
   "root.title": "Elite Car Mats — Premium EVA Floor Mats for Your Car",
   "root.description":
-    "Custom-fit premium EVA car floor mats. Precision-cut for your exact make and model. Free shipping across the USA on orders over $99. 2-year warranty.",
+    "Custom-fit premium EVA car floor mats, hand-cut to your exact make and model. Free shipping across the USA. 2-year warranty.",
   "root.ogTitle": "Elite Car Mats — Premium EVA Floor Mats for Your Car",
   "root.ogDesc":
-    "Custom-fit premium EVA floor mats. CNC-cut for your exact model. Free U.S. shipping on orders over $99.",
+    "Custom-fit premium EVA floor mats, hand-cut for your exact model. Free U.S. shipping on every order.",
   "root.twitterTitle": "Elite Car Mats — Premium EVA Floor Mats",
   "root.twitterDesc": "Custom-fit EVA floor mats for your vehicle. Shipped across the USA.",
   "cat.metaTitle": "Car Mats Catalog",
   "cat.metaDesc":
     "EVA car mats catalog for every popular make: Toyota, BMW, Audi, Tesla, Ford, and 40+ more. Custom-cut for your exact model and year.",
   "cat.ogTitle": "EVA Car Mats Catalog",
-  "cat.ogDesc": "EVA mats for 800+ vehicle models. Precision fit by year.",
+  "cat.ogDesc": "EVA mats for 1,000+ vehicle models. Precision fit by year.",
   "brand.metaNotFound": "Brand not found",
   "brand.metaTitle": "{brand} Floor Mats",
   "brand.metaDesc":
-    "Premium EVA floor mats for {brand}: custom-cut for every model and year. Free U.S. shipping on orders over $99.",
+    "Premium EVA floor mats for {brand}: custom-cut for every model and year. Free U.S. shipping on every order.",
   "brand.ogTitle": "{brand} floor mats · Elite Car Mats",
   "brand.ogDesc":
     "Premium EVA floor mats for {brand} — {count} models, cut to your exact year. Made in Rochester, NY.",
   "prod.metaNotFound": "Model not found",
   "prod.metaTitle": "{brand} {model} EVA floor mats",
   "prod.metaDesc":
-    "Custom-cut EVA floor mats for the {brand} {model} ({yMin}–{yMax}). From ${price}. CNC-cut from a 3D template, free US shipping, 30-day returns.",
+    "Custom-cut EVA floor mats for the {brand} {model} ({yMin}–{yMax}). From ${price}. Hand-cut to a dedicated pattern, free US shipping, 30-day returns.",
   "prod.ogTitle": "{brand} {model} — premium EVA floor mats",
   "prod.ogDesc":
     "Cut for your exact {brand} {model}. From ${price}. Made in Rochester, NY.",
   "prod.jsonLdName": "EVA floor mats for {brand} {model}",
   "prod.jsonLdDesc":
-    "Premium closed-cell EVA floor mats custom-cut for the {brand} {model}. CNC-cut to a 3D template, choice of edge color, made in Rochester, NY.",
+    "Premium closed-cell EVA floor mats custom-cut for the {brand} {model}. Hand-cut to a dedicated pattern, 11 edge colors, made in Rochester, NY.",
 };

@@ -41,6 +41,7 @@ export function Header() {
 
   const links = [
     { href: "/catalog", label: t("nav.catalog") },
+    { href: "/reviews", label: t("nav.reviews") },
     { href: "/about", label: t("nav.about") },
     { href: "/contacts", label: t("nav.contact") },
   ];

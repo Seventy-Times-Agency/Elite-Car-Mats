@@ -12,6 +12,9 @@ export interface Review {
   rating: number;
   photos: string[];
   approved: boolean;
+  verified: boolean;
+  email: string | null;
+  promoCode: string | null;
   createdAt: string;
 }
 
@@ -31,16 +34,18 @@ export function ReviewsManager({ initial }: { initial: Review[] }) {
         : r.approved,
   );
 
-  const toggle = (id: string, approved: boolean) => {
+  const patch = (id: string, body: Record<string, boolean>) => {
     startBusy(async () => {
       await fetch(`/api/admin/reviews/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ approved }),
+        body: JSON.stringify(body),
       });
       router.refresh();
     });
   };
+
+  const toggle = (id: string, approved: boolean) => patch(id, { approved });
 
   const remove = (id: string) => {
     if (!confirm(t("admin.reviewsConfirmDelete"))) return;
@@ -99,7 +104,22 @@ export function ReviewsManager({ initial }: { initial: Review[] }) {
                         {t("admin.reviewsStatusApproved")}
                       </span>
                     )}
+                    {r.verified && (
+                      <span className="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full border border-gold/30 text-gold">
+                        ✓ {t("admin.reviewsVerified")}
+                      </span>
+                    )}
                   </div>
+                  {(r.email || r.promoCode) && (
+                    <div className="text-text-faint text-xs mt-1.5 flex items-center gap-3 flex-wrap">
+                      {r.email && <span>{r.email}</span>}
+                      {r.promoCode && (
+                        <span className="text-gold/80 font-mono">
+                          {t("admin.reviewsPromoIssued")}: {r.promoCode}
+                        </span>
+                      )}
+                    </div>
+                  )}
                   <p className="text-sm text-text mt-2 whitespace-pre-line">
                     {r.text}
                   </p>
@@ -118,6 +138,18 @@ export function ReviewsManager({ initial }: { initial: Review[] }) {
                   )}
                 </div>
                 <div className="flex flex-col gap-1 text-xs shrink-0">
+                  <label className="flex items-center gap-2 px-3 py-1.5 text-text-dim cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={r.verified}
+                      disabled={busy}
+                      onChange={(e) => patch(r.id, { verified: e.target.checked })}
+                      className="accent-[#D4A54A]"
+                    />
+                    <span className="uppercase tracking-wider font-semibold">
+                      {t("admin.reviewsVerified")}
+                    </span>
+                  </label>
                   {!r.approved ? (
                     <button
                       onClick={() => toggle(r.id, true)}

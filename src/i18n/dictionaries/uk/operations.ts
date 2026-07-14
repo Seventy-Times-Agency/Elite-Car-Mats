@@ -247,6 +247,8 @@ export const operations: Dict = {
   "admin.reviewsFilter.pending": "На модерації",
   "admin.reviewsFilter.approved": "Схвалені",
   "admin.reviewsFilter.all": "Всі",
+  "admin.reviewsVerified": "Реальний покупець",
+  "admin.reviewsPromoIssued": "Видано промокод",
   "admin.customOrdersTitle": "Індивідуальні замовлення",
   "admin.customOrdersOpen": "В роботі",
   "admin.customOrdersTotal": "Всього",
@@ -297,4 +299,18 @@ export const operations: Dict = {
   "email.shipOrderLink": "Деталі замовлення {orderNumber} →",
   "email.contactSubject": "Повідомлення з сайту від {name}",
   "email.contactH1": "Нове повідомлення з форми контактів",
+  "email.revInviteSubject": "Як вам нові килимки? — Elite Car Mats",
+  "email.revInviteH1": "Як вам килимки?",
+  "email.revInviteP":
+    "Вітаємо, {name}! Ваше замовлення Elite Car Mats доставлено — сподіваємось, килимки сіли ідеально. Знайдеться хвилинка поділитися враженням? Це дуже допомагає іншим водіям, а на подяку ми надішлемо вам знижку на наступне замовлення.",
+  "email.revInviteCta": "Залишити відгук",
+  "email.revInviteFoot": "Замовлення {orderNumber} · займе близько хвилини",
+  "email.revThanksSubject": "Дякуємо за відгук — ваша знижка {percent}%",
+  "email.revThanksH1": "Дякуємо за відгук!",
+  "email.revThanksP":
+    "Вітаємо, {name}! Ваш відгук опубліковано. Як і обіцяли — персональна знижка {percent}% на наступне замовлення:",
+  "email.revThanksCodeLabel": "Ваш промокод",
+  "email.revThanksTerms":
+    "Одне використання · діє {days} днів · вводиться під час оформлення замовлення",
+  "email.revThanksCta": "Перейти до каталогу →",
 };

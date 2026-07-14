@@ -9,4 +9,6 @@ export { sendCustomerOrderEmail } from "./templates/order-customer";
 export { sendOwnerOrderEmail } from "./templates/order-owner";
 export { sendContactEmail } from "./templates/contact";
 export { sendShippedEmail } from "./templates/shipped";
+export { sendReviewInviteEmail } from "./templates/review-invite";
+export { sendReviewThanksEmail } from "./templates/review-thanks";
 export type { OrderEmailItem, OrderEmailData } from "./templates/base";

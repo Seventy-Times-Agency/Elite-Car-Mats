@@ -17,9 +17,11 @@ function lightness(hex: string): number {
 }
 
 /**
- * Compact swatch for EVA base (diamond-grid variant) and PVC edge (solid
- * variant). Keeps the visual identity of the mat surface without eating
- * the whole step.
+ * Compact swatch for EVA base (diamond variant) and woven edge binding
+ * (solid variant). Backed by photo textures generated from real product
+ * shots (public/swatches/) — the honeycomb surface and the weave are the
+ * actual materials, tinted per color. The hex stays underneath as a
+ * fallback for any color id without a texture file.
  */
 export function MatColorSwatch({
   color,
@@ -39,17 +41,16 @@ export function MatColorSwatch({
   showLabel?: boolean;
 }) {
   const isLight = lightness(color.hex) > 55;
-  const dim = size === "sm" ? "w-8 h-8 rounded-lg" : "w-10 h-10 rounded-[10px]";
+  const dim = size === "sm" ? "w-9 h-9 rounded-lg" : "w-10 h-10 rounded-[10px]";
   const labelSize =
     size === "sm"
       ? "text-[9px] tracking-[0.08em]"
       : "text-[10px] tracking-[0.08em]";
 
-  // Perfect diamond/rhombus tile — every swatch reads as a proper rhombus grid.
-  const darkHex = encodeURIComponent("rgba(0,0,0,0.3)");
-  const lightHex = encodeURIComponent("rgba(255,255,255,0.28)");
-  const rhombSvg = (strokeUri: string) =>
-    `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'%3E%3Cpath d='M7 0 L14 7 L7 14 L0 7 Z' fill='none' stroke='${strokeUri}' stroke-width='0.9'/%3E%3C/svg%3E")`;
+  const textureUrl =
+    variant === "diamond"
+      ? `/swatches/eva-${color.id}.jpg`
+      : `/swatches/edge-${color.id}.jpg`;
 
   return (
     <button
@@ -65,29 +66,14 @@ export function MatColorSwatch({
             ? "ring-2 ring-gold ring-offset-2 ring-offset-bg scale-[1.08] shadow-[0_4px_14px_rgba(212,165,74,0.35)]"
             : "ring-1 ring-border/60 group-hover:ring-gold/45 group-hover:scale-[1.04]"
         }`}
-        style={{ backgroundColor: color.hex }}
+        style={{
+          backgroundColor: color.hex,
+          backgroundImage: `url(${textureUrl})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
       >
-        {variant === "diamond" && (
-          <>
-            <div
-              className="absolute inset-0"
-              style={{
-                backgroundImage: rhombSvg(darkHex),
-                backgroundSize: "14px 14px",
-                opacity: isLight ? 0.85 : 0.4,
-              }}
-            />
-            <div
-              className="absolute inset-0"
-              style={{
-                backgroundImage: rhombSvg(lightHex),
-                backgroundSize: "14px 14px",
-                opacity: isLight ? 0.25 : 0.75,
-              }}
-            />
-          </>
-        )}
-        <div className="absolute inset-0 bg-gradient-to-br from-white/18 via-transparent to-black/22 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-br from-white/8 via-transparent to-black/18 pointer-events-none" />
         {variant === "solid" && isLight && (
           <div className="absolute inset-0 ring-1 ring-inset ring-black/10 pointer-events-none rounded-[inherit]" />
         )}

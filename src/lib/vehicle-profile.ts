@@ -102,6 +102,19 @@ const STRICT_TWO_SEATER_IDS = new Set<string>([
   "dbs",
   "dbs-superleggera",
   "valkyrie",
+
+  // Catalog expansion (Jul 2026)
+  "cr-z",
+  "r8-spyder",
+  "tt-roadster",
+  "z8",
+  "slr-mclaren",
+  "carrera-gt",
+  "918-spyder",
+  "prowler",
+  "xlr",
+  "4c",
+  "spider",
 ]);
 
 export function getVehicleProfile(model: CarModel): VehicleConfigProfile {

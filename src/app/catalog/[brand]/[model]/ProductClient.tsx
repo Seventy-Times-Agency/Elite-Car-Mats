@@ -283,7 +283,7 @@ export default function ProductClient({
                           })}
                           fill
                           sizes="(max-width: 1024px) 100vw, 50vw"
-                          className="object-contain"
+                          className="object-cover"
                         />
                       ) : (
                         <MatPreview
@@ -301,7 +301,7 @@ export default function ProductClient({
                         alt={gallery[slide - 1].alt}
                         fill
                         sizes="(max-width: 1024px) 100vw, 50vw"
-                        className="object-contain"
+                        className="object-cover"
                       />
                     )}
                     <div className="absolute top-3 left-3 text-[9px] uppercase tracking-[0.2em] text-gold/60 font-semibold drop-shadow-[0_1px_4px_rgba(0,0,0,0.6)]">
@@ -596,7 +596,7 @@ export default function ProductClient({
                     <div className="text-[10px] uppercase tracking-[0.15em] text-text-dim font-semibold mb-2">
                       {t("prod.stepColor")}
                     </div>
-                    <div className="flex flex-wrap gap-1.5">
+                    <div className="flex flex-wrap gap-2">
                       {evaColors.map((c) => (
                         <MatColorSwatch
                           key={c.id}
@@ -616,7 +616,7 @@ export default function ProductClient({
                     <div className="text-[10px] uppercase tracking-[0.15em] text-text-dim font-semibold mb-2">
                       {t("prod.stepEdge")}
                     </div>
-                    <div className="grid grid-cols-6 gap-1.5">
+                    <div className="flex flex-wrap gap-2">
                       {edgeColors.map((c) => (
                         <MatColorSwatch
                           key={c.id}
@@ -652,16 +652,31 @@ export default function ProductClient({
                           onChange={(e) => setBadge(e.target.checked)}
                           className="w-4 h-4 text-gold focus:ring-gold accent-[#D4A54A] rounded shrink-0"
                         />
-                        <div className="relative w-14 h-5 rounded-[3px] overflow-hidden shrink-0 ring-1 ring-black/40 bg-[linear-gradient(180deg,#F0F0F0_0%,#C8C8C8_28%,#8E8E8E_52%,#B4B4B4_72%,#6C6C6C_100%)] flex items-center justify-center shadow-[inset_0_1px_0_rgba(255,255,255,0.7),inset_0_-1px_2px_rgba(0,0,0,0.35)]">
-                          {brand.logo && (
-                            /* eslint-disable-next-line @next/next/no-img-element */
-                            <img
-                              src={brand.logo}
-                              alt={brand.name}
-                              className="max-w-[80%] max-h-[75%] object-contain"
-                            />
-                          )}
-                          <div className="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-b from-white/55 to-transparent pointer-events-none" />
+                        {/* Photo-real thumb: honeycomb EVA + the actual
+                            brushed plate (logo overlaid per brand). */}
+                        <div
+                          className="relative w-14 h-14 rounded-lg overflow-hidden shrink-0 ring-1 ring-border/50 flex items-center justify-center"
+                          style={{
+                            backgroundImage: "url(/swatches/eva-black.jpg)",
+                            backgroundSize: "cover",
+                          }}
+                        >
+                          <div
+                            className="relative w-12 h-[13px] rounded-[2px] overflow-hidden ring-1 ring-black/50 -rotate-6 flex items-center justify-center shadow-[0_2px_5px_rgba(0,0,0,0.55)]"
+                            style={{
+                              backgroundImage: "url(/addons/badge-plate.jpg)",
+                              backgroundSize: "cover",
+                            }}
+                          >
+                            {brand.logo && (
+                              /* eslint-disable-next-line @next/next/no-img-element */
+                              <img
+                                src={brand.logo}
+                                alt={brand.name}
+                                className="max-w-[78%] max-h-[80%] object-contain drop-shadow-[0_0.5px_0.5px_rgba(255,255,255,0.4)]"
+                              />
+                            )}
+                          </div>
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="text-text text-[11px] font-semibold truncate">
@@ -712,7 +727,7 @@ export default function ProductClient({
                     </div>
                   ) : (
                     <div className="flex items-center gap-3 rounded-lg border border-border/40 bg-surface/30 p-3">
-                      <div className="w-14 h-5 rounded-[3px] border border-dashed border-border/70 flex items-center justify-center shrink-0 text-text-faint">
+                      <div className="w-14 h-14 rounded-lg border border-dashed border-border/70 flex items-center justify-center shrink-0 text-text-faint">
                         <svg
                           className="w-3 h-3"
                           fill="none"
@@ -749,17 +764,15 @@ export default function ProductClient({
                       onChange={(e) => setHeelPad(e.target.checked)}
                       className="w-4 h-4 text-gold focus:ring-gold accent-[#D4A54A] rounded shrink-0"
                     />
-                    <div className="relative w-14 h-8 rounded-md overflow-hidden shrink-0 ring-1 ring-black/40 bg-[linear-gradient(135deg,#C8C8C8_0%,#7A7A7A_50%,#A8A8A8_100%)] flex items-center justify-center shadow-[inset_0_1px_0_rgba(255,255,255,0.6),inset_0_-1px_2px_rgba(0,0,0,0.4)]">
-                      <div
-                        className="absolute inset-1.5 rounded-sm opacity-60"
-                        style={{
-                          backgroundImage:
-                            "repeating-linear-gradient(90deg, rgba(0,0,0,0.55) 0 2px, transparent 2px 4px)",
-                        }}
-                        aria-hidden
-                      />
-                      <div className="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-b from-white/45 to-transparent pointer-events-none" />
-                    </div>
+                    {/* Photo of the real aluminum heel pad. */}
+                    <div
+                      className="relative w-14 h-14 rounded-lg overflow-hidden shrink-0 ring-1 ring-border/50"
+                      style={{
+                        backgroundImage: "url(/addons/heelpad-thumb.jpg)",
+                        backgroundSize: "cover",
+                        backgroundPosition: "center",
+                      }}
+                    />
                     <div className="flex-1 min-w-0">
                       <div className="text-text text-[11px] font-semibold truncate">
                         {t("prod.heelPadName")}

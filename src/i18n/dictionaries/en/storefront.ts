@@ -243,6 +243,8 @@ export const storefront: Dict = {
   "co.payErr": "Couldn't start payment",
   "co.payErrRetry":
     "We couldn't open the payment page. Your order is saved — press the button to try again. You won't be charged twice.",
+  "co.errTotalMismatch":
+    "The order total didn't verify correctly, so we stopped before payment — you have NOT been charged. Please refresh the page and try again, or contact us.",
   "co.subtotal": "Subtotal",
   "co.discount": "Discount",
   "co.promoPh": "Promo code",

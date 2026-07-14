@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db/prisma";
 import { requireAdmin, checkAdminCsrf } from "@/lib/security/auth";
 import { modelCreateSchema } from "@/lib/validations/catalog";
 import { resetCatalogSeedCache } from "@/lib/db/seed";
+import { resolveBrandRef, codeBrandName } from "@/lib/catalog-brand-ref";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -19,9 +20,9 @@ export async function GET() {
   return NextResponse.json({
     models: rows.map((r) => ({
       id: r.id,
-      brandId: r.brandId,
-      brandName: r.brand.name,
-      brandSlug: r.brand.slug,
+      brandId: r.brandId ?? `code:${r.codeBrandSlug}`,
+      brandName: r.brand?.name ?? codeBrandName(r.codeBrandSlug) ?? "?",
+      brandSlug: r.brand?.slug ?? r.codeBrandSlug ?? "?",
       slug: r.slug,
       name: r.name,
       bodyType: r.bodyType,
@@ -54,16 +55,23 @@ export async function POST(request: Request) {
     );
   }
   const d = parsed.data;
-  const parent = await prisma.customBrand.findUnique({
-    where: { id: d.brandId },
-  });
-  if (!parent) {
-    return NextResponse.json({ error: "brand_not_found" }, { status: 404 });
+  const ref = resolveBrandRef(d.brandId, d.slug);
+  if ("error" in ref) {
+    return NextResponse.json({ error: ref.error }, { status: ref.status });
+  }
+  if (ref.brandId) {
+    const parent = await prisma.customBrand.findUnique({
+      where: { id: ref.brandId },
+    });
+    if (!parent) {
+      return NextResponse.json({ error: "brand_not_found" }, { status: 404 });
+    }
   }
   try {
     const row = await prisma.customModel.create({
       data: {
-        brandId: d.brandId,
+        brandId: ref.brandId,
+        codeBrandSlug: ref.codeBrandSlug,
         slug: d.slug,
         name: d.name,
         bodyType: d.bodyType,

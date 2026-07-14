@@ -68,6 +68,7 @@ async function loadCustomCatalog(): Promise<{
         select: {
           id: true,
           brandId: true,
+          codeBrandSlug: true,
           slug: true,
           name: true,
           bodyType: true,
@@ -79,6 +80,7 @@ async function loadCustomCatalog(): Promise<{
 
     // Code brand slugs win — drop custom rows that clash.
     const codeBrandSlugs = new Set(brands.map((b) => b.slug));
+    const codeBrandBySlug = new Map(brands.map((b) => [b.slug, b] as const));
     const brandByDbId = new Map(cBrands.map((b) => [b.id, b] as const));
 
     const customBrandRows: {
@@ -100,6 +102,24 @@ async function loadCustomCatalog(): Promise<{
 
     const customModels: CarModel[] = [];
     for (const m of cModels) {
+      // Custom model attached to a CODE brand — its Brand row is already
+      // seeded from the code catalog, only Model/Product rows are needed.
+      if (m.codeBrandSlug) {
+        const codeBrand = codeBrandBySlug.get(m.codeBrandSlug);
+        if (!codeBrand) continue;
+        customModels.push({
+          id: `${codeBrand.slug}-${m.slug}`,
+          brandId: codeBrand.slug,
+          brandName: codeBrand.name,
+          name: m.name,
+          slug: m.slug,
+          years: parseYears(m.years),
+          bodyType: m.bodyType,
+          category: asCategory(m.category),
+        });
+        continue;
+      }
+      if (!m.brandId) continue;
       const parent = brandByDbId.get(m.brandId);
       if (!parent) continue;
       if (!allowedBrandSlugs.has(parent.slug)) continue;

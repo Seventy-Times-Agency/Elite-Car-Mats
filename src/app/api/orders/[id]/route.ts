@@ -2,8 +2,11 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db/prisma";
 import { requireAdmin, checkAdminCsrf } from "@/lib/security/auth";
-import { sendShippedEmail } from "@/lib/email";
+import { sendShippedEmail, sendReviewInviteEmail } from "@/lib/email";
 import { verifyOrderToken, signOrderToken } from "@/lib/security/order-token";
+
+/** Delay before the post-delivery review invite lands (Resend holds it). */
+const REVIEW_INVITE_DELAY_MS = 24 * 60 * 60 * 1000; // 1 day
 
 const updateSchema = z.object({
   status: z
@@ -114,6 +117,7 @@ export async function PATCH(
       trackingNumber: true,
       customerName: true,
       email: true,
+      reviewInviteSentAt: true,
     },
   });
   if (!existing) {
@@ -124,6 +128,9 @@ export async function PATCH(
   const data: Record<string, unknown> = {};
   if (status !== undefined) data.status = status;
   if (trackingNumber !== undefined) data.trackingNumber = trackingNumber || null;
+  if (status === "DELIVERED" && existing.status !== "DELIVERED") {
+    data.deliveredAt = new Date();
+  }
 
   const updated = await prisma.order.update({
     where: { id: existing.id },
@@ -148,6 +155,28 @@ export async function PATCH(
       customerEmail: existing.email,
       trackingNumber: updated.trackingNumber!,
       orderToken: signOrderToken(updated.id),
+    });
+  }
+
+  // First transition into DELIVERED schedules the review invite for
+  // ~1 day out (Resend `scheduledAt` — no cron). reviewInviteSentAt
+  // guards re-sends when the status is toggled back and forth.
+  const justDelivered =
+    status === "DELIVERED" &&
+    existing.status !== "DELIVERED" &&
+    !existing.reviewInviteSentAt;
+
+  if (justDelivered) {
+    await sendReviewInviteEmail({
+      orderId: updated.id,
+      orderNumber: updated.orderNumber,
+      customerName: existing.customerName,
+      customerEmail: existing.email,
+      scheduledAt: new Date(Date.now() + REVIEW_INVITE_DELAY_MS).toISOString(),
+    });
+    await prisma.order.update({
+      where: { id: updated.id },
+      data: { reviewInviteSentAt: new Date() },
     });
   }
 

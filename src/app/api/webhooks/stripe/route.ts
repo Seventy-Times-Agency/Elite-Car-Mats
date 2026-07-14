@@ -1,7 +1,11 @@
 import { NextResponse, after } from "next/server";
 import type Stripe from "stripe";
 import { prisma } from "@/lib/db/prisma";
-import { isStripeConfigured, getWebhookSecret } from "@/lib/payments/stripe";
+import {
+  isStripeConfigured,
+  getWebhookSecret,
+  getStripe,
+} from "@/lib/payments/stripe";
 import { constructWebhookEvent } from "@/lib/payments/stripe-checkout";
 import { sendCustomerOrderEmail } from "@/lib/email";
 import { signOrderToken } from "@/lib/security/order-token";
@@ -123,6 +127,39 @@ async function pushToShipstationSafely(orderId: string): Promise<void> {
   } catch (err) {
     console.error(
       `[stripe-webhook] shipstation push failed for order=${orderId}:`,
+      err,
+    );
+  }
+}
+
+/**
+ * Fetch the Stripe-hosted receipt URL for a paid order and store it on
+ * the Order row — the customer's order page shows a "Payment receipt"
+ * link. Best-effort: failures are logged, the payment flow never blocks.
+ */
+async function saveReceiptUrl(
+  orderId: string,
+  paymentIntentId: string | null,
+): Promise<void> {
+  if (!paymentIntentId) return;
+  try {
+    const stripe = await getStripe();
+    if (!stripe) return;
+    const pi = await stripe.paymentIntents.retrieve(paymentIntentId, {
+      expand: ["latest_charge"],
+    });
+    const charge =
+      typeof pi.latest_charge === "string" ? null : pi.latest_charge;
+    const receiptUrl = charge?.receipt_url ?? null;
+    if (receiptUrl) {
+      await prisma.order.update({
+        where: { id: orderId },
+        data: { receiptUrl },
+      });
+    }
+  } catch (err) {
+    console.error(
+      `[stripe-webhook] receipt url fetch failed for order=${orderId}:`,
       err,
     );
   }
@@ -289,6 +326,7 @@ export async function POST(request: Request) {
             // floating promise, the serverless runtime keeps the instance
             // alive until the callback settles.
             after(async () => {
+              await saveReceiptUrl(orderId, paymentIntentId);
               await sendCustomerConfirmation(orderId).catch((err) => {
                 console.error(
                   "[stripe-webhook] confirmation email failed:",

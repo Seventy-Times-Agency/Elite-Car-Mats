@@ -248,6 +248,8 @@ export const operations: Dict = {
   "admin.reviewsFilter.pending": "На модерации",
   "admin.reviewsFilter.approved": "Одобренные",
   "admin.reviewsFilter.all": "Все",
+  "admin.reviewsVerified": "Реальный покупатель",
+  "admin.reviewsPromoIssued": "Выдан промокод",
   "admin.customOrdersTitle": "Индивидуальные заказы",
   "admin.customOrdersOpen": "В работе",
   "admin.customOrdersTotal": "Всего",
@@ -297,4 +299,18 @@ export const operations: Dict = {
   "email.shipOrderLink": "Детали заказа {orderNumber} →",
   "email.contactSubject": "Сообщение с сайта от {name}",
   "email.contactH1": "Новое сообщение через форму контактов",
+  "email.revInviteSubject": "Как вам новые коврики? — Elite Car Mats",
+  "email.revInviteH1": "Как вам коврики?",
+  "email.revInviteP":
+    "Здравствуйте, {name}! Ваш заказ Elite Car Mats доставлен — надеемся, коврики сели идеально. Найдётся минутка поделиться впечатлением? Это очень помогает другим водителям, а в благодарность мы пришлём вам скидку на следующий заказ.",
+  "email.revInviteCta": "Оставить отзыв",
+  "email.revInviteFoot": "Заказ {orderNumber} · займёт около минуты",
+  "email.revThanksSubject": "Спасибо за отзыв — ваша скидка {percent}%",
+  "email.revThanksH1": "Спасибо за отзыв!",
+  "email.revThanksP":
+    "Здравствуйте, {name}! Ваш отзыв опубликован. Как и обещали — персональная скидка {percent}% на следующий заказ:",
+  "email.revThanksCodeLabel": "Ваш промокод",
+  "email.revThanksTerms":
+    "Одно использование · действует {days} дней · вводится при оформлении заказа",
+  "email.revThanksCta": "Перейти в каталог →",
 };

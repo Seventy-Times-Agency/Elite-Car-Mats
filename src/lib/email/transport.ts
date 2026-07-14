@@ -21,11 +21,15 @@ export async function send({
   subject,
   html,
   replyTo,
+  scheduledAt,
 }: {
   to: string;
   subject: string;
   html: string;
   replyTo?: string;
+  /** ISO 8601 timestamp — Resend holds the email and delivers it then
+   *  (max 30 days out). Used for the post-delivery review invite. */
+  scheduledAt?: string;
 }): Promise<void> {
   if (!resend) {
     console.log(
@@ -40,6 +44,7 @@ export async function send({
       subject,
       html,
       ...(replyTo ? { replyTo } : {}),
+      ...(scheduledAt ? { scheduledAt } : {}),
     });
     if (error) {
       console.error("[email:error]", subject, error);

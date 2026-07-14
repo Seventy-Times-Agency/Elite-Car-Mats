@@ -25,6 +25,9 @@ export default async function AdminReviewsPage() {
     rating: r.rating,
     photos: r.photos,
     approved: r.approved,
+    verified: r.verified,
+    email: r.email,
+    promoCode: r.promoCode,
     createdAt: r.createdAt.toISOString(),
   }));
 

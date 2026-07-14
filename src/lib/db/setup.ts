@@ -273,6 +273,14 @@ async function execAll(): Promise<MigrationResult[]> {
       `ALTER TABLE "Order" ADD COLUMN IF NOT EXISTS "shipstationOrderId" TEXT`,
     );
     await run(
+      "order.receiptUrl",
+      `ALTER TABLE "Order" ADD COLUMN IF NOT EXISTS "receiptUrl" TEXT`,
+    );
+    await run(
+      "order.reviewInviteSentAt",
+      `ALTER TABLE "Order" ADD COLUMN IF NOT EXISTS "reviewInviteSentAt" TIMESTAMP(3)`,
+    );
+    await run(
       "order.promoCode",
       `ALTER TABLE "Order" ADD COLUMN IF NOT EXISTS "promoCode" TEXT`,
     );
@@ -340,6 +348,28 @@ async function execAll(): Promise<MigrationResult[]> {
          "approved" BOOLEAN NOT NULL DEFAULT false,
          "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
        )`,
+    );
+
+    // Back-compat for databases that predate the review-system columns.
+    await run(
+      "review.verified",
+      `ALTER TABLE "Review" ADD COLUMN IF NOT EXISTS "verified" BOOLEAN NOT NULL DEFAULT FALSE`,
+    );
+    await run(
+      "review.email",
+      `ALTER TABLE "Review" ADD COLUMN IF NOT EXISTS "email" TEXT`,
+    );
+    await run(
+      "review.orderId",
+      `ALTER TABLE "Review" ADD COLUMN IF NOT EXISTS "orderId" TEXT`,
+    );
+    await run(
+      "review.promoCode",
+      `ALTER TABLE "Review" ADD COLUMN IF NOT EXISTS "promoCode" TEXT`,
+    );
+    await run(
+      "Review.orderId index",
+      `CREATE INDEX IF NOT EXISTS "Review_orderId_idx" ON "Review"("orderId")`,
     );
 
     await run(

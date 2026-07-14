@@ -248,6 +248,8 @@ export const operations: Dict = {
   "admin.reviewsFilter.pending": "Pending",
   "admin.reviewsFilter.approved": "Approved",
   "admin.reviewsFilter.all": "All",
+  "admin.reviewsVerified": "Verified buyer",
+  "admin.reviewsPromoIssued": "Promo issued",
   "admin.customOrdersTitle": "Custom orders",
   "admin.customOrdersOpen": "In progress",
   "admin.customOrdersTotal": "Total",
@@ -298,4 +300,17 @@ export const operations: Dict = {
   "email.shipOrderLink": "Order {orderNumber} details →",
   "email.contactSubject": "Site message from {name}",
   "email.contactH1": "New contact-form message",
+  "email.revInviteSubject": "How are your new mats? — Elite Car Mats",
+  "email.revInviteH1": "How are the mats?",
+  "email.revInviteP":
+    "Hi {name}, your Elite Car Mats order has arrived — we hope the fit is perfect. Would you take a minute to share your impressions? It helps other drivers a lot, and as a thank-you we'll send you a discount for your next order.",
+  "email.revInviteCta": "Leave a review",
+  "email.revInviteFoot": "Order {orderNumber} · takes about a minute",
+  "email.revThanksSubject": "Thank you for your review — here's {percent}% off",
+  "email.revThanksH1": "Thank you for your review!",
+  "email.revThanksP":
+    "Hi {name}, your review is now published. As promised — a personal {percent}% discount for your next order:",
+  "email.revThanksCodeLabel": "Your promo code",
+  "email.revThanksTerms": "One-time use · valid for {days} days · apply at checkout",
+  "email.revThanksCta": "Browse the catalog →",
 };

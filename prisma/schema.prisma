@@ -147,6 +147,11 @@ model Order {
   paidAt                DateTime?
   // ShipStation integration (optional — populated when SS env vars are set)
   shipstationOrderId    String?
+  // Stripe-hosted receipt page for the customer ("Чек об оплате").
+  receiptUrl            String?
+  // Review-invite email scheduled (fires ~1 day after DELIVERED). Guard
+  // against re-sending when the status is toggled back and forth.
+  reviewInviteSentAt    DateTime?
   items                 OrderItem[]
   createdAt             DateTime    @default(now())
   updatedAt             DateTime    @updatedAt
@@ -199,9 +204,21 @@ model Review {
   rating       Int      @default(5)
   photos       String[]
   approved     Boolean  @default(false)
+  // "Real customer" badge. Set automatically when the review arrives via
+  // the tokened post-delivery email link, or manually by the moderator.
+  verified     Boolean  @default(false)
+  // Optional contact email — used for the thank-you promo code. Never
+  // rendered publicly.
+  email        String?
+  // Set when the review came from a delivery-email link (one per order).
+  orderId      String?
+  // One-shot thank-you promo code issued on approval (audit trail +
+  // idempotency guard so re-approving can't mint a second code).
+  promoCode    String?
   createdAt    DateTime @default(now())
 
   @@index([approved, createdAt])
+  @@index([orderId])
 }
 
 // ============================================

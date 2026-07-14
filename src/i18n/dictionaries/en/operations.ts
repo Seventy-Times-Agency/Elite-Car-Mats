@@ -104,10 +104,10 @@ export const operations: Dict = {
   "admin.dashRecentOrders": "Recent orders",
   "admin.pricingTitle": "Pricing",
   "admin.pricingSubtitle": 
-    "Edit live mat-set prices. Server-side billing (orders, Stripe) uses these immediately. Public storefront display catches up at the next deploy.",
+    "Edit live prices for mat sets and add-ons. Billing (orders, Stripe) and the public storefront pick up changes immediately — no redeploy.",
   "admin.pricingNoticeH": "How this works",
   "admin.pricingNoticeP": 
-    "Setting an override changes what customers are billed at — orders and Stripe checkout both reload prices on every request. Cart drawer and product page run client-side and keep showing the code default until the next Vercel deploy.",
+    "Setting an override changes both what customers are billed and every price shown on the site — orders, Stripe checkout, the product page and the cart all read the same override table. Reset returns a row to the code default.",
   "admin.pricingColType": "Type",
   "admin.pricingColLabel": "Label",
   "admin.pricingColDefault": "Default",
@@ -122,7 +122,7 @@ export const operations: Dict = {
   "admin.pricingConfirmClear": "Reset to code default?",
   "admin.pricingAddonsH": "Add-ons",
   "admin.pricingAddonsNote": 
-    "Add-ons are still code-only. To change badge / edge surcharge price edit src/lib/pricing.ts and redeploy.",
+    "Add-on prices are live: billing (orders, Stripe) and the storefront pick up an override immediately, no redeploy. The switch on the right marks the add-on in / out of stock.",
   "admin.availInStock": "in stock",
   "admin.availOut": "out of stock",
   "admin.pricingMetallicBadge": "Metallic brand badge",

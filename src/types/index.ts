@@ -1,4 +1,4 @@
-export type VehicleCategory = "car" | "suv" | "truck" | "commercial";
+export type VehicleCategory = "car" | "suv" | "minivan" | "truck" | "commercial";
 
 export interface Brand {
   id: string;

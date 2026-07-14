@@ -10,7 +10,7 @@ const slug = z
   .max(80)
   .regex(SLUG_REGEX, "kebab-case lowercase only");
 
-const categoryEnum = z.enum(["car", "suv", "truck", "commercial"]);
+const categoryEnum = z.enum(["car", "suv", "minivan", "truck", "commercial"]);
 
 export const brandCreateSchema = z.object({
   slug,

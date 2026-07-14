@@ -103,10 +103,10 @@ export const operations: Dict = {
   "admin.dashViewPricing": "Ціни",
   "admin.pricingTitle": "Ціни",
   "admin.pricingSubtitle": 
-    "Редактор цін на комплекти. Серверний білінг (замовлення, Stripe) використовує їх одразу. Публічний сайт підтягне на наступному деплої.",
+    "Редактор живих цін на комплекти та доплати. Білінг (замовлення, Stripe) і вітрина підхоплюють зміни одразу — без редеплою.",
   "admin.pricingNoticeH": "Як це працює",
   "admin.pricingNoticeP": 
-    "Override змінює суму, на яку виставляється рахунок клієнту — `/api/orders` і Stripe Checkout перечитують ціни з БД на кожен запит. Кошик і сторінка товару виконуються на клієнті та продовжать показувати code-default до наступного деплою Vercel.",
+    "Override змінює і суму рахунку клієнту, і всі ціни на сайті — замовлення, Stripe Checkout, сторінка товару і кошик читають одну й ту саму таблицю перевизначень. «Скинути» повертає рядок до ціни з коду.",
   "admin.pricingColType": "Тип",
   "admin.pricingColLabel": "Назва",
   "admin.pricingColDefault": "За замовчуванням",
@@ -121,7 +121,7 @@ export const operations: Dict = {
   "admin.pricingConfirmClear": "Скинути override і повернути code-default?",
   "admin.pricingAddonsH": "Доплати",
   "admin.pricingAddonsNote": 
-    "Доплати поки лише в коді. Щоб змінити — правте src/lib/pricing.ts і редеплойте.",
+    "Ціни доплат живі: білінг (замовлення, Stripe) і вітрина підхоплюють зміну одразу, без редеплою. Перемикач праворуч — наявність доплати на складі.",
   "admin.availInStock": "в наявності",
   "admin.availOut": "немає в наявності",
   "admin.pricingMetallicBadge": "Металевий бейдж бренду",

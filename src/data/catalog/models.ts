@@ -3,6 +3,7 @@ import { CarModel, VehicleCategory } from "@/types";
 function categoryFromBody(bodyType: string): VehicleCategory {
   if (bodyType === "Седельный тягач" || bodyType === "Грузовик") return "commercial";
   if (bodyType === "Пикап" || bodyType === "Фургон") return "truck";
+  if (bodyType === "Минивэн") return "minivan";
   if (bodyType === "Кроссовер" || bodyType === "Внедорожник") return "suv";
   return "car";
 }

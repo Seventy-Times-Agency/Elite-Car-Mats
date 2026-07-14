@@ -53,8 +53,14 @@ export default async function AdminPricingPage() {
   }));
 
   const addons = {
-    badge: BADGE_PRICE,
-    heelPad: HEEL_PAD_PRICE,
+    badge: {
+      defaultPrice: BADGE_PRICE,
+      override: overrideMap.get("addon:badge") ?? null,
+    },
+    heelPad: {
+      defaultPrice: HEEL_PAD_PRICE,
+      override: overrideMap.get("addon:heelPad") ?? null,
+    },
   };
 
   const availability = await getAddonAvailability();

@@ -20,9 +20,14 @@ export interface ProfileBlock {
   rows: PriceRow[];
 }
 
+interface AddonPrice {
+  defaultPrice: number;
+  override: number | null;
+}
+
 interface AddonRows {
-  badge: number;
-  heelPad: number;
+  badge: AddonPrice;
+  heelPad: AddonPrice;
 }
 
 export interface AddonAvailabilityProps {
@@ -256,52 +261,119 @@ export function PricingManager({
         <div className="glass-card rounded-xl overflow-hidden">
           <table className="w-full text-sm">
             <tbody className="divide-y divide-border/30">
-              <tr>
-                <td className="px-4 py-2.5 text-text">
-                  {t("admin.pricingMetallicBadge")}
-                </td>
-                <td className="px-4 py-2.5 text-right text-gold font-semibold">
-                  +{formatPrice(addons.badge)}
-                </td>
-                <td className="px-4 py-2.5 text-right">
-                  <button
-                    onClick={() => toggleAvailability("badges", !availability.badges)}
-                    disabled={busy}
-                    className={`text-[11px] uppercase tracking-wider px-2.5 py-1 rounded-full border transition-colors ${
-                      availability.badges
-                        ? "border-green-400/40 text-green-400 hover:border-green-400"
-                        : "border-error/40 text-error hover:border-error"
-                    }`}
-                  >
-                    {availability.badges
-                      ? t("admin.availInStock")
-                      : t("admin.availOut")}
-                  </button>
-                </td>
-              </tr>
-              <tr>
-                <td className="px-4 py-2.5 text-text">
-                  {t("admin.pricingHeelPad")}
-                </td>
-                <td className="px-4 py-2.5 text-right text-gold font-semibold">
-                  +{formatPrice(addons.heelPad)}
-                </td>
-                <td className="px-4 py-2.5 text-right">
-                  <button
-                    onClick={() => toggleAvailability("heelPad", !availability.heelPad)}
-                    disabled={busy}
-                    className={`text-[11px] uppercase tracking-wider px-2.5 py-1 rounded-full border transition-colors ${
-                      availability.heelPad
-                        ? "border-green-400/40 text-green-400 hover:border-green-400"
-                        : "border-error/40 text-error hover:border-error"
-                    }`}
-                  >
-                    {availability.heelPad
-                      ? t("admin.availInStock")
-                      : t("admin.availOut")}
-                  </button>
-                </td>
-              </tr>
+              {(
+                [
+                  {
+                    matSet: "badge",
+                    label: t("admin.pricingMetallicBadge"),
+                    price: addons.badge,
+                    availKey: "badges" as const,
+                    available: availability.badges,
+                  },
+                  {
+                    matSet: "heelPad",
+                    label: t("admin.pricingHeelPad"),
+                    price: addons.heelPad,
+                    availKey: "heelPad" as const,
+                    available: availability.heelPad,
+                  },
+                ]
+              ).map((row) => {
+                const key = `addon:${row.matSet}`;
+                const live = row.price.override ?? row.price.defaultPrice;
+                const isEditing = editingKey === key;
+                return (
+                  <tr key={key}>
+                    <td className="px-4 py-2.5 text-text">{row.label}</td>
+                    <td className="px-4 py-2.5 text-right text-text-faint hidden sm:table-cell">
+                      +{formatPrice(row.price.defaultPrice)}
+                    </td>
+                    <td className="px-4 py-2.5 text-right">
+                      {isEditing ? (
+                        <input
+                          type="number"
+                          min={0}
+                          step="0.01"
+                          value={draft}
+                          onChange={(e) => setDraft(e.target.value)}
+                          autoFocus
+                          className="w-24 glass-card rounded-md px-2 py-1 text-sm text-right focus:border-gold/40 focus:outline-none"
+                          aria-label={t("admin.pricingColLive")}
+                        />
+                      ) : (
+                        <span className="inline-flex items-center gap-2">
+                          {row.price.override !== null && (
+                            <span className="text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-gold/15 text-gold">
+                              {t("admin.pricingOverride")}
+                            </span>
+                          )}
+                          <span
+                            className={`font-semibold ${row.price.override !== null ? "text-gold" : "text-gold/80"}`}
+                          >
+                            +{formatPrice(live)}
+                          </span>
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-4 py-2.5 text-right whitespace-nowrap">
+                      {isEditing ? (
+                        <span className="inline-flex gap-1">
+                          <button
+                            type="button"
+                            onClick={() => save("addon", row.matSet)}
+                            disabled={busy}
+                            className="text-gold text-[11px] font-semibold uppercase tracking-wider px-2 py-1 hover:text-gold-light disabled:opacity-50"
+                          >
+                            {t("admin.pricingBtnSave")}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={cancel}
+                            disabled={busy}
+                            className="text-text-faint text-[11px] uppercase tracking-wider px-2 py-1 hover:text-error"
+                          >
+                            {t("admin.pricingBtnCancel")}
+                          </button>
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1">
+                          <button
+                            type="button"
+                            onClick={() => startEdit("addon", row.matSet, live)}
+                            disabled={busy}
+                            className="text-text-dim text-[11px] uppercase tracking-wider px-2 py-1 hover:text-gold"
+                          >
+                            {t("admin.pricingBtnEdit")}
+                          </button>
+                          {row.price.override !== null && (
+                            <button
+                              type="button"
+                              onClick={() => clearOverride("addon", row.matSet)}
+                              disabled={busy}
+                              className="text-text-faint text-[11px] uppercase tracking-wider px-2 py-1 hover:text-error"
+                            >
+                              {t("admin.pricingBtnReset")}
+                            </button>
+                          )}
+                          <button
+                            onClick={() => toggleAvailability(row.availKey, !row.available)}
+                            disabled={busy}
+                            className={`text-[11px] uppercase tracking-wider px-2.5 py-1 rounded-full border transition-colors ${
+                              row.available
+                                ? "border-green-400/40 text-green-400 hover:border-green-400"
+                                : "border-error/40 text-error hover:border-error"
+                            }`}
+                          >
+                            {row.available
+                              ? t("admin.availInStock")
+                              : t("admin.availOut")}
+                          </button>
+                        </span>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

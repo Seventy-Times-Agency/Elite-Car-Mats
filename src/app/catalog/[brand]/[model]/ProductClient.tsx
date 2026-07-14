@@ -10,8 +10,8 @@ import { MatPreview } from "@/components/product/MatPreview";
 import { MatColorSwatch } from "@/components/product/MatColorSwatch";
 import type { Brand, CarModel, MatSetType } from "@/types";
 import {
-  BADGE_PRICE,
-  HEEL_PAD_PRICE,
+  getBadgePrice,
+  getHeelPadPrice,
   calculateItemUnitPrice,
   formatPrice,
 } from "@/lib/pricing";
@@ -672,7 +672,7 @@ export default function ProductClient({
                           </div>
                         </div>
                         <span className="shrink-0 inline-flex items-center rounded-md bg-gold/10 px-2 py-1 text-[11px] font-bold text-gold ring-1 ring-gold/30">
-                          +{formatPrice(BADGE_PRICE * (badge ? effBadgeCount : 1))}
+                          +{formatPrice(getBadgePrice(priceOverrides) * (badge ? effBadgeCount : 1))}
                         </span>
                       </label>
                       {badge && badgeMax > 1 && (
@@ -769,7 +769,7 @@ export default function ProductClient({
                       </div>
                     </div>
                     <span className="shrink-0 inline-flex items-center rounded-md bg-gold/10 px-2 py-1 text-[11px] font-bold text-gold ring-1 ring-gold/30">
-                      +{formatPrice(HEEL_PAD_PRICE)}
+                      +{formatPrice(getHeelPadPrice(priceOverrides))}
                     </span>
                   </label>
                   )}

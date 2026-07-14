@@ -61,6 +61,15 @@ function integrationStatuses(t: (k: string, p?: Record<string, string | number>)
       text: upstash ? t("admin.intgSet") : t("admin.intgMissing"),
     },
     {
+      // Review-photo storage. Without it the review form hides the
+      // photo field (everything else keeps working).
+      label: t("admin.intgBlob"),
+      state: (process.env.BLOB_READ_WRITE_TOKEN ? "ok" : "warn") as IntgState,
+      text: process.env.BLOB_READ_WRITE_TOKEN
+        ? t("admin.intgSet")
+        : t("admin.intgMissing"),
+    },
+    {
       // Without it order links and — critically — the Stripe checkout
       // handshake can't be signed, so payments silently degrade.
       label: t("admin.intgOrderToken"),

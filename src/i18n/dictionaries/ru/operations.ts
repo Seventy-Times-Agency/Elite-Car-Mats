@@ -72,6 +72,7 @@ export const operations: Dict = {
   "admin.intgStripeWebhook": "Stripe вебхук",
   "admin.intgResend": "Почта (Resend)",
   "admin.intgUpstash": "Защита от перебора (Upstash)",
+  "admin.intgBlob": "Фото отзывов (Vercel Blob)",
   "admin.intgMissing": "не задан",
   "admin.intgSet": "настроен",
   "admin.intgLive": "боевой (live)",

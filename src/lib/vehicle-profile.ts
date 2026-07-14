@@ -103,6 +103,12 @@ const STRICT_TWO_SEATER_IDS = new Set<string>([
   "dbs-superleggera",
   "valkyrie",
 
+  // Pre-existing 2-seaters that were missing the flag
+  "crossfire",
+  "gt",
+  "smart-fortwo",
+  "smart-fortwo-ed",
+
   // Catalog expansion (Jul 2026)
   "cr-z",
   "r8-spyder",

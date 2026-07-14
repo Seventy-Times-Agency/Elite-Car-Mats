@@ -79,6 +79,9 @@ interface CreatedOrder {
   id: string;
   orderNumber: string;
   orderToken: string;
+  /** Server-computed billed total — cross-checked against the displayed
+   *  total before handing off to Stripe. */
+  total?: number;
 }
 
 export function CheckoutClient({ paymentEnabled }: { paymentEnabled: boolean }) {
@@ -217,6 +220,9 @@ export function CheckoutClient({ paymentEnabled }: { paymentEnabled: boolean }) 
           colorId: i.color.id,
           edgeColorId: i.edgeColor.id,
           badgeId: i.badge?.id ?? null,
+          // Without this the server defaults to 1 plate and Stripe bills
+          // less than the checkout displayed (Sienna ×7 badges bug).
+          badgeCount: i.badge ? (i.badgeCount ?? 1) : null,
           heelPad: i.heelPad ?? false,
           quantity: i.quantity,
         })),
@@ -227,7 +233,12 @@ export function CheckoutClient({ paymentEnabled }: { paymentEnabled: boolean }) 
       // If a previous attempt already created this exact order (e.g. the
       // Stripe redirect failed and the customer pressed the button again),
       // reuse it instead of creating a duplicate.
-      let data: { id: string; orderNumber: string; orderToken: string };
+      let data: {
+        id: string;
+        orderNumber: string;
+        orderToken: string;
+        total?: number;
+      };
       if (createdOrderRef.current?.fingerprint === fingerprint) {
         data = createdOrderRef.current;
       } else {
@@ -241,6 +252,27 @@ export function CheckoutClient({ paymentEnabled }: { paymentEnabled: boolean }) 
           throw new Error(errData.error || t("co.errOrderFail"));
         }
         data = await res.json();
+
+        // Cross-check: the server's billed total must match what we
+        // displayed (allowing for the promo racing to expiry). If it
+        // doesn't, something is out of sync (missing payload field,
+        // price drift) — stop before Stripe charges a surprise amount.
+        // This exact drift already happened once: badgeCount wasn't sent,
+        // the page said $354 and Stripe charged $303.
+        const serverTotal = Number(data.total ?? NaN);
+        if (
+          Number.isFinite(serverTotal) &&
+          serverTotal !== total &&
+          serverTotal !== subtotal // promo consumed/expired server-side
+        ) {
+          console.error(
+            `[checkout] total mismatch: displayed=${total} server=${serverTotal}`,
+          );
+          setFormError(t("co.errTotalMismatch"));
+          setSubmitting(false);
+          return;
+        }
+
         createdOrderRef.current = { fingerprint, ...data };
       }
 

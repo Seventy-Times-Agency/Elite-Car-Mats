@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db/prisma";
 import { requireAdmin, checkAdminCsrf } from "@/lib/security/auth";
 import { modelUpdateSchema } from "@/lib/validations/catalog";
 import { resetCatalogSeedCache } from "@/lib/db/seed";
+import { resolveBrandRef } from "@/lib/catalog-brand-ref";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -35,7 +36,23 @@ export async function PATCH(request: Request, ctx: Ctx) {
   }
   const d = parsed.data;
   const data: Record<string, unknown> = {};
-  if (d.brandId !== undefined) data.brandId = d.brandId;
+  if (d.brandId !== undefined) {
+    // Brand ref needs the effective slug for the code-model clash check.
+    let slugForCheck = d.slug;
+    if (!slugForCheck) {
+      const existing = await prisma.customModel.findUnique({
+        where: { id },
+        select: { slug: true },
+      });
+      slugForCheck = existing?.slug ?? "";
+    }
+    const ref = resolveBrandRef(d.brandId, slugForCheck);
+    if ("error" in ref) {
+      return NextResponse.json({ error: ref.error }, { status: ref.status });
+    }
+    data.brandId = ref.brandId;
+    data.codeBrandSlug = ref.codeBrandSlug;
+  }
   if (d.slug !== undefined) data.slug = d.slug;
   if (d.name !== undefined) data.name = d.name;
   if (d.bodyType !== undefined) data.bodyType = d.bodyType;

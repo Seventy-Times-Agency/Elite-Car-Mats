@@ -6,7 +6,6 @@ import { useT } from "@/i18n/I18nProvider";
 import {
   CATEGORIES,
   slugify,
-  type BrandRow,
   type Category,
   type ModelRow,
 } from "./types";
@@ -20,6 +19,17 @@ interface ModelForm {
   years: string;
 }
 
+/**
+ * A brand the model form can attach to. `id` is either a CustomBrand
+ * cuid or `code:<slug>` for one of the ~60 code-catalog brands — the
+ * API resolves the prefix.
+ */
+export interface BrandOption {
+  id: string;
+  name: string;
+  group: "code" | "custom";
+}
+
 const empty = (firstBrandId: string): ModelForm => ({
   brandId: firstBrandId,
   slug: "",
@@ -31,11 +41,12 @@ const empty = (firstBrandId: string): ModelForm => ({
 
 export function ModelManager({
   initial,
-  brands,
+  brandOptions,
 }: {
   initial: ModelRow[];
-  brands: BrandRow[];
+  brandOptions: BrandOption[];
 }) {
+  const brands = brandOptions;
   const router = useRouter();
   const t = useT();
   const [busy, startBusy] = useTransition();
@@ -169,11 +180,26 @@ export function ModelManager({
                 className={input}
                 aria-label={t("admin.catalogFBrand")}
               >
-                {brands.map((b) => (
-                  <option key={b.id} value={b.id}>
-                    {b.name}
-                  </option>
-                ))}
+                <optgroup label={t("admin.catalogBrandGroupCode")}>
+                  {brands
+                    .filter((b) => b.group === "code")
+                    .map((b) => (
+                      <option key={b.id} value={b.id}>
+                        {b.name}
+                      </option>
+                    ))}
+                </optgroup>
+                {brands.some((b) => b.group === "custom") && (
+                  <optgroup label={t("admin.catalogBrandGroupCustom")}>
+                    {brands
+                      .filter((b) => b.group === "custom")
+                      .map((b) => (
+                        <option key={b.id} value={b.id}>
+                          {b.name}
+                        </option>
+                      ))}
+                  </optgroup>
+                )}
               </select>
             </div>
             <div>

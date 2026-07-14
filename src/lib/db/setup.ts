@@ -553,7 +553,8 @@ async function execAll(): Promise<MigrationResult[]> {
       "table CustomModel",
       `CREATE TABLE IF NOT EXISTS "CustomModel" (
          "id" TEXT PRIMARY KEY,
-         "brandId" TEXT NOT NULL,
+         "brandId" TEXT,
+         "codeBrandSlug" TEXT,
          "slug" TEXT NOT NULL,
          "name" TEXT NOT NULL,
          "bodyType" TEXT NOT NULL,
@@ -564,9 +565,23 @@ async function execAll(): Promise<MigrationResult[]> {
          CONSTRAINT "CustomModel_brandId_fkey" FOREIGN KEY ("brandId") REFERENCES "CustomBrand"("id") ON DELETE CASCADE
        )`,
     );
+    // Back-compat: models can now attach to a code-catalog brand via
+    // codeBrandSlug — the CustomBrand FK becomes optional.
+    await run(
+      "customModel.codeBrandSlug",
+      `ALTER TABLE "CustomModel" ADD COLUMN IF NOT EXISTS "codeBrandSlug" TEXT`,
+    );
+    await run(
+      "customModel.brandId nullable",
+      `ALTER TABLE "CustomModel" ALTER COLUMN "brandId" DROP NOT NULL`,
+    );
     await run(
       "CustomModel.brandId_slug unique",
       `CREATE UNIQUE INDEX IF NOT EXISTS "CustomModel_brandId_slug_key" ON "CustomModel"("brandId","slug")`,
+    );
+    await run(
+      "CustomModel.codeBrandSlug_slug unique",
+      `CREATE UNIQUE INDEX IF NOT EXISTS "CustomModel_codeBrandSlug_slug_key" ON "CustomModel"("codeBrandSlug","slug")`,
     );
     await run(
       "CustomModel.brandId index",

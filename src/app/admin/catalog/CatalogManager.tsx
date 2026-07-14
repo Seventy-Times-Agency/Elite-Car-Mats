@@ -3,28 +3,35 @@
 import { useState } from "react";
 import { useT } from "@/i18n/I18nProvider";
 import { BrandManager } from "./BrandManager";
-import { ModelManager } from "./ModelManager";
+import { ModelManager, type BrandOption } from "./ModelManager";
+import { CodeCatalogManager, type CodeModelRow } from "./CodeCatalogManager";
 import type { BrandRow, ModelRow } from "./types";
 
 export type { BrandRow, ModelRow } from "./types";
 
 /**
- * Tab switcher for the admin catalog page. The two tabs are
- * intentionally independent components — they don't share state,
- * each manages its own form + edit-id, the only thing they share
- * is the row shapes from `./types`.
+ * Tab switcher for the admin catalog page. The tabs are intentionally
+ * independent components — they don't share state, each manages its own
+ * form + edit-id, the only thing they share is the row shapes.
  */
 export function CatalogManager({
   initialBrands,
   initialModels,
   reservedBrandSlugs,
+  brandOptions,
+  codeModels,
+  hiddenModelIds,
 }: {
   initialBrands: BrandRow[];
   initialModels: ModelRow[];
   reservedBrandSlugs: string[];
+  /** All brands the model form can attach to: code + custom. */
+  brandOptions: BrandOption[];
+  codeModels: CodeModelRow[];
+  hiddenModelIds: string[];
 }) {
   const t = useT();
-  const [tab, setTab] = useState<"brands" | "models">("brands");
+  const [tab, setTab] = useState<"brands" | "models" | "code">("models");
 
   return (
     <div className="space-y-6">
@@ -35,14 +42,19 @@ export function CatalogManager({
 
       <div className="inline-flex rounded-lg border border-border/60 p-0.5 text-[11px] font-semibold uppercase tracking-wider">
         <TabBtn
+          active={tab === "models"}
+          onClick={() => setTab("models")}
+          label={`${t("admin.catalogTabModels")} · ${initialModels.length}`}
+        />
+        <TabBtn
           active={tab === "brands"}
           onClick={() => setTab("brands")}
           label={`${t("admin.catalogTabBrands")} · ${initialBrands.length}`}
         />
         <TabBtn
-          active={tab === "models"}
-          onClick={() => setTab("models")}
-          label={`${t("admin.catalogTabModels")} · ${initialModels.length}`}
+          active={tab === "code"}
+          onClick={() => setTab("code")}
+          label={`${t("admin.catalogTabCode")} · ${codeModels.length}`}
         />
       </div>
 
@@ -51,8 +63,10 @@ export function CatalogManager({
           initial={initialBrands}
           reservedSlugs={reservedBrandSlugs}
         />
+      ) : tab === "models" ? (
+        <ModelManager initial={initialModels} brandOptions={brandOptions} />
       ) : (
-        <ModelManager initial={initialModels} brands={initialBrands} />
+        <CodeCatalogManager models={codeModels} hiddenIds={hiddenModelIds} />
       )}
     </div>
   );

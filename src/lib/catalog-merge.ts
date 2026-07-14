@@ -6,6 +6,7 @@ import {
   mockModels as codeModels,
 } from "@/data/catalog";
 import { asCategory, parseYears } from "@/lib/catalog-normalize";
+import { getHiddenModelIds } from "@/lib/catalog-visibility";
 import type { Brand, CarModel, VehicleCategory } from "@/types";
 
 export interface MergedCatalog {
@@ -33,9 +34,13 @@ export async function getMergedCatalog(): Promise<MergedCatalog> {
 
   let dbBrands: Brand[] = [];
   let dbModels: CarModel[] = [];
+  // Custom models attached to a CODE brand (codeBrandSlug set) — merged
+  // into the code brand's model list, bumping its modelsCount below.
+  let codeAttachedModels: CarModel[] = [];
+  let hiddenIds = new Set<string>();
 
   try {
-    const [cBrands, cModels] = await Promise.all([
+    const [cBrands, cModels, hidden] = await Promise.all([
       prisma.customBrand.findMany({
         select: {
           id: true,
@@ -50,6 +55,7 @@ export async function getMergedCatalog(): Promise<MergedCatalog> {
         select: {
           id: true,
           brandId: true,
+          codeBrandSlug: true,
           slug: true,
           name: true,
           bodyType: true,
@@ -57,9 +63,17 @@ export async function getMergedCatalog(): Promise<MergedCatalog> {
           years: true,
         },
       }),
+      getHiddenModelIds(),
     ]);
+    hiddenIds = hidden;
 
     const codeBrandSlugs = new Set(codeBrands.map((b) => b.slug));
+    const codeBrandBySlug = new Map(codeBrands.map((b) => [b.slug, b] as const));
+    // (brandId, modelSlug) pairs of the code catalog — a custom model on
+    // a code brand must not shadow an existing code model URL.
+    const codeModelKeys = new Set(
+      codeModels.map((m) => `${m.brandId}:${m.slug}`),
+    );
 
     for (const b of cBrands) {
       // Skip slug clashes with code — code wins.
@@ -84,6 +98,30 @@ export async function getMergedCatalog(): Promise<MergedCatalog> {
     const customBrandByDbId = new Map(cBrands.map((b) => [b.id, b] as const));
 
     for (const m of cModels) {
+      const cat = asCategory(m.category);
+
+      // Attached to a code-catalog brand (e.g. a Toyota model the code
+      // list is missing).
+      if (m.codeBrandSlug) {
+        const codeBrand = codeBrandBySlug.get(m.codeBrandSlug);
+        if (!codeBrand) continue;
+        if (codeModelKeys.has(`${codeBrand.id}:${m.slug}`)) continue;
+        const id = `custom:${codeBrand.slug}-${m.slug}`;
+        customModelIds.add(id);
+        codeAttachedModels.push({
+          id,
+          brandId: codeBrand.id,
+          brandName: codeBrand.name,
+          name: m.name,
+          slug: m.slug,
+          years: parseYears(m.years),
+          bodyType: m.bodyType,
+          category: cat,
+        });
+        continue;
+      }
+
+      if (!m.brandId) continue;
       const parent = customBrandByDbId.get(m.brandId);
       if (!parent) continue;
       // If the parent was filtered out for slug clash, drop the model too.
@@ -92,7 +130,6 @@ export async function getMergedCatalog(): Promise<MergedCatalog> {
 
       const id = `custom:${parent.slug}-${m.slug}`;
       customModelIds.add(id);
-      const cat = asCategory(m.category);
       dbModels.push({
         id,
         brandId: stillIncluded.id,
@@ -111,6 +148,8 @@ export async function getMergedCatalog(): Promise<MergedCatalog> {
     );
     dbBrands = [];
     dbModels = [];
+    codeAttachedModels = [];
+    hiddenIds = new Set();
   }
 
   // Hydrate modelsCount + (re)compute categories for custom brands so
@@ -125,9 +164,40 @@ export async function getMergedCatalog(): Promise<MergedCatalog> {
     }
   }
 
+  // Operator-hidden code models drop out of the public merge entirely
+  // (catalog pages, search, sitemap, feed). Keys are `${brandId}-${slug}`.
+  const visibleCodeModels =
+    hiddenIds.size === 0
+      ? codeModels
+      : codeModels.filter((m) => !hiddenIds.has(`${m.brandId}-${m.slug}`));
+
+  // Per-brand model-count delta: custom models on code brands add,
+  // hidden code models subtract. Code brand objects are module-level
+  // singletons — copy-on-write so repeated merges don't accumulate.
+  const countDelta = new Map<string, number>();
+  for (const m of codeAttachedModels) {
+    countDelta.set(m.brandId, (countDelta.get(m.brandId) ?? 0) + 1);
+  }
+  if (hiddenIds.size > 0) {
+    for (const m of codeModels) {
+      if (hiddenIds.has(`${m.brandId}-${m.slug}`)) {
+        countDelta.set(m.brandId, (countDelta.get(m.brandId) ?? 0) - 1);
+      }
+    }
+  }
+  const mergedCodeBrands =
+    countDelta.size === 0
+      ? codeBrands
+      : codeBrands.map((b) => {
+          const d = countDelta.get(b.id);
+          return d
+            ? { ...b, modelsCount: Math.max(0, (b.modelsCount ?? 0) + d) }
+            : b;
+        });
+
   return {
-    brands: [...codeBrands, ...dbBrands],
-    models: [...codeModels, ...dbModels],
+    brands: [...mergedCodeBrands, ...dbBrands],
+    models: [...visibleCodeModels, ...codeAttachedModels, ...dbModels],
     customBrandIds,
     customModelIds,
   };

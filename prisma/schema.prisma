@@ -377,12 +377,15 @@ model CustomBrand {
 
 model CustomModel {
   id        String       @id @default(cuid())
-  brandId   String
-  brand     CustomBrand  @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  // Parent is EITHER an admin-created CustomBrand (brandId) OR one of
+  // the ~60 code-catalog brands (codeBrandSlug) — exactly one is set.
+  brandId   String?
+  brand     CustomBrand? @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  codeBrandSlug String?
   slug      String
   name      String
   bodyType  String
-  // VehicleCategory: car | suv | truck | commercial
+  // VehicleCategory: car | suv | minivan | truck | commercial
   category  String
   // Comma-separated year list, e.g. "2020,2021,2022,2023". Kept as
   // a single string (rather than int[]) to match the pattern used by
@@ -392,5 +395,6 @@ model CustomModel {
   updatedAt DateTime     @updatedAt
 
   @@unique([brandId, slug])
+  @@unique([codeBrandSlug, slug])
   @@index([brandId])
 }

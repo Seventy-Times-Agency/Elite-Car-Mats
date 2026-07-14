@@ -8,11 +8,18 @@ import { localizeBody } from "@/i18n/labels";
 import { BreadcrumbJsonLd } from "@/components/seo/ProductJsonLd";
 import { TrustBadges } from "@/components/common/TrustBadges";
 
-const CATEGORY_ORDER: VehicleCategory[] = ["car", "suv", "truck", "commercial"];
+const CATEGORY_ORDER: VehicleCategory[] = [
+  "car",
+  "suv",
+  "minivan",
+  "truck",
+  "commercial",
+];
 
 const CATEGORY_LABEL_KEY: Record<VehicleCategory, string> = {
   car: "cat.cars",
   suv: "cat.suvs",
+  minivan: "cat.minivans",
   truck: "cat.trucks",
   commercial: "cat.commercial",
 };
@@ -22,6 +29,7 @@ const CATEGORY_LABEL_KEY: Record<VehicleCategory, string> = {
 const CATEGORY_CHIP: Record<VehicleCategory, string> = {
   car: "bg-gold/10 text-gold/90 ring-1 ring-inset ring-gold/25",
   suv: "bg-[#E8B974]/10 text-[#E8B974] ring-1 ring-inset ring-[#E8B974]/25",
+  minivan: "bg-[#D9C08A]/10 text-[#E5D2A4] ring-1 ring-inset ring-[#D9C08A]/25",
   truck: "bg-[#C88A3E]/12 text-[#E2A25A] ring-1 ring-inset ring-[#C88A3E]/30",
   commercial:
     "bg-[#B4B4B8]/10 text-[#CFCFD4] ring-1 ring-inset ring-[#B4B4B8]/25",
@@ -30,6 +38,7 @@ const CATEGORY_CHIP: Record<VehicleCategory, string> = {
 const CATEGORY_RAIL: Record<VehicleCategory, string> = {
   car: "from-gold/0 via-gold/70 to-gold/0",
   suv: "from-[#E8B974]/0 via-[#E8B974] to-[#E8B974]/0",
+  minivan: "from-[#D9C08A]/0 via-[#E5D2A4] to-[#D9C08A]/0",
   truck: "from-[#C88A3E]/0 via-[#E2A25A] to-[#C88A3E]/0",
   commercial: "from-[#B4B4B8]/0 via-[#CFCFD4] to-[#B4B4B8]/0",
 };

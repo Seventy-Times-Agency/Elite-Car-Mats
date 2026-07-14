@@ -72,6 +72,23 @@ export function getMatSetPrice(
   return std?.price ?? 0;
 }
 
+/**
+ * Add-on prices with admin overrides. Stored in the same
+ * MatSetPriceOverride table under the pseudo-profile `addon`
+ * (rows `addon:badge` / `addon:heelPad`), so the existing override
+ * loaders and the client-side PriceOverridesProvider pick them up with
+ * zero extra plumbing.
+ */
+export function getBadgePrice(overrides?: PriceOverrideMap): number {
+  const ov = overrides?.get("addon:badge");
+  return typeof ov === "number" && Number.isFinite(ov) ? ov : BADGE_PRICE;
+}
+
+export function getHeelPadPrice(overrides?: PriceOverrideMap): number {
+  const ov = overrides?.get("addon:heelPad");
+  return typeof ov === "number" && Number.isFinite(ov) ? ov : HEEL_PAD_PRICE;
+}
+
 export interface PriceableItem {
   matSet: MatSetType;
   /**
@@ -124,8 +141,8 @@ export function calculateItemUnitPrice(
 ): number {
   const profile = findProfileByModelId(item.modelId);
   const base = getMatSetPrice(profile, item.matSet, overrides);
-  const badge = BADGE_PRICE * clampBadgeCount(item);
-  const heelPad = item.heelPad ? HEEL_PAD_PRICE : 0;
+  const badge = getBadgePrice(overrides) * clampBadgeCount(item);
+  const heelPad = item.heelPad ? getHeelPadPrice(overrides) : 0;
   return base + badge + heelPad;
 }
 

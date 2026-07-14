@@ -103,10 +103,10 @@ export const operations: Dict = {
   "admin.dashViewPricing": "Цены",
   "admin.pricingTitle": "Цены",
   "admin.pricingSubtitle": 
-    "Редактор цен на комплекты. Серверный биллинг (заказы, Stripe) использует их сразу. Публичный сайт подтянет на следующем деплое.",
+    "Редактор живых цен на комплекты и доплаты. Биллинг (заказы, Stripe) и витрина подхватывают изменения сразу — без редеплоя.",
   "admin.pricingNoticeH": "Как это работает",
   "admin.pricingNoticeP": 
-    "Override меняет сумму, на которую выставляется счёт клиенту — `/api/orders` и Stripe Checkout перечитывают цены из БД на каждый запрос. Корзина и страница товара выполняются на клиенте и продолжат показывать code-default до следующего деплоя Vercel.",
+    "Override меняет и сумму счёта клиенту, и все цены на сайте — заказы, Stripe Checkout, страница товара и корзина читают одну и ту же таблицу переопределений. «Сбросить» возвращает строку к цене из кода.",
   "admin.pricingColType": "Тип",
   "admin.pricingColLabel": "Название",
   "admin.pricingColDefault": "По умолчанию",
@@ -121,7 +121,7 @@ export const operations: Dict = {
   "admin.pricingConfirmClear": "Сбросить override и вернуть code-default?",
   "admin.pricingAddonsH": "Доплаты",
   "admin.pricingAddonsNote": 
-    "Доплаты пока только в коде. Чтобы изменить — правьте src/lib/pricing.ts и редеплойте.",
+    "Цены доплат живые: биллинг (заказы, Stripe) и витрина подхватывают изменение сразу, без редеплоя. Переключатель справа — наличие доплаты на складе.",
   "admin.availInStock": "в наличии",
   "admin.availOut": "нет в наличии",
   "admin.pricingMetallicBadge": "Металлический бейдж бренда",

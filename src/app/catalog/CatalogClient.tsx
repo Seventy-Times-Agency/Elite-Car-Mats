@@ -9,7 +9,13 @@ import { useT } from "@/i18n/I18nProvider";
 type SortMode = "popular" | "alpha";
 type CategoryFilter = "all" | VehicleCategory;
 
-const CATEGORY_ORDER: VehicleCategory[] = ["car", "suv", "truck", "commercial"];
+const CATEGORY_ORDER: VehicleCategory[] = [
+  "car",
+  "suv",
+  "minivan",
+  "truck",
+  "commercial",
+];
 
 export function CatalogClient({ brands }: { brands: Brand[] }) {
   const [query, setQuery] = useState("");

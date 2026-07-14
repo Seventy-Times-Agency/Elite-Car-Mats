@@ -12,9 +12,10 @@ import { mockModels } from "@/data/catalog/models";
  *  - `twoSeater` — strict 2-seat cabin (roadsters, supercars, 2-seat coupes
  *                  with no usable rear row). No 3-row cabin set —
  *                  only "front row only" / cargo / both.
- *  - `pickup`    — truck with open bed, two-row cabin. We don't sell a
- *                  truck-bed liner anymore, so this profile only offers
- *                  the front-and-rear cabin set.
+ *  - `pickup`    — truck with an open bed. Offers the crew-cab set (two
+ *                  rows, 4 mats) and the regular-cab set (one row,
+ *                  2 mats) — the customer picks their cab. No truck-bed
+ *                  liner while the supplier doesn't make one.
  *  - `semi`      — Class 6-8 semi / box truck. Only one big front-cabin
  *                  set (cargo area is a trailer / separate bed, not a
  *                  car floor).
@@ -128,7 +129,8 @@ export function getAvailableMatSets(
     case "semi":
       return ["front"];
     case "pickup":
-      return ["full"];
+      // full = crew/double cab (2 rows), front = regular cab (1 row).
+      return ["full", "front"];
     case "twoSeater":
       return ["front", "cargo", "full-cargo"];
     case "minivan":

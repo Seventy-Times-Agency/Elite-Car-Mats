@@ -52,12 +52,23 @@ const SEDAN_SETS: MatSetOption[] = [
 ];
 
 const PICKUP_SETS: MatSetOption[] = [
+  // Crew / double cab — two rows of seats. The default: nearly every
+  // modern pickup on US roads is sold as a crew cab.
   {
     type: "full",
     label: "Перед + зад",
     description: "Весь салон (4 коврика)",
     price: 119,
     mats: 4,
+  },
+  // Regular (single) cab — one row, two mats. The customer knows their
+  // cab; we can't tell a regular-cab F-150 from a crew cab by model id.
+  {
+    type: "front",
+    label: "Только первый ряд",
+    description: "Водитель + пассажир",
+    price: 119,
+    mats: 2,
   },
 ];
 

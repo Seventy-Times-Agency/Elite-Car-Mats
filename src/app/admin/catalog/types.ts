@@ -23,7 +23,7 @@ export interface ModelRow {
   years: string;
 }
 
-export const CATEGORIES = ["car", "suv", "truck", "commercial"] as const;
+export const CATEGORIES = ["car", "suv", "minivan", "truck", "commercial"] as const;
 export type Category = (typeof CATEGORIES)[number];
 
 export function slugify(input: string): string {

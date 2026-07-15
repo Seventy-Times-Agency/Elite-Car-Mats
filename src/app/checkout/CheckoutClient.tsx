@@ -209,7 +209,21 @@ export function CheckoutClient({ paymentEnabled }: { paymentEnabled: boolean }) 
           city: form.city.trim(),
           state: form.state.trim(),
           zip: form.zip.trim(),
-          comment: form.comment.trim(),
+          // Per-item trim/floor notes (hybrid, AWD, captain chairs...)
+          // ride along in the order comment so the workshop always sees
+          // them — no schema change needed.
+          comment: [
+            form.comment.trim(),
+            ...items
+              .filter((i) => i.configNote?.trim())
+              .map(
+                (i) =>
+                  `${i.brandName} ${i.modelName} ${i.year}: ${i.configNote!.trim()}`,
+              ),
+          ]
+            .filter(Boolean)
+            .join("\n")
+            .slice(0, 1000),
         },
         items: items.map((i) => ({
           modelId: i.modelId,

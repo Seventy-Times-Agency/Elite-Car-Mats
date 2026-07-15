@@ -90,6 +90,14 @@ export interface CartItem {
   badgeCount?: number;
   /** Aluminum heel pad add-on (+$17). */
   heelPad?: boolean;
+  /**
+   * Optional trim/floor-configuration note from the customer (hybrid,
+   * AWD, 2nd-row captain chairs vs bench...) — one model can have
+   * different floor pans per configuration, and the workshop needs
+   * this to pick the right cut pattern. Free text, joined into the
+   * order comment at checkout.
+   */
+  configNote?: string;
   quantity: number;
   price?: number;
 }

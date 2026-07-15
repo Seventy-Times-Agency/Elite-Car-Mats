@@ -476,6 +476,8 @@ export const storefront: Dict = {
   "prod.stepHeelPad": "Накладка под педаль",
   "prod.heelPadName": "Алюминиевая накладка",
   "prod.heelPadSubtext": "Ставится на коврик водителя — защищает от истирания пяткой",
+  "prod.configNoteLabel": "Комплектация / особенности салона (по желанию)",
+  "prod.configNotePh": "например: гибрид, AWD, капитанские кресла 2-го ряда…",
   "prod.addToCartFull": "Собрать комплект — {price}",
   "prod.addedFull": "В очереди ✓",
   "prod.addedShort": "В очереди",

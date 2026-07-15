@@ -480,6 +480,8 @@ export const storefront: Dict = {
   "prod.stepHeelPad": "Heel pad",
   "prod.heelPadName": "Aluminum heel pad",
   "prod.heelPadSubtext": "Mounted on the driver's mat — protects it from heel wear",
+  "prod.configNoteLabel": "Trim / cabin configuration (optional)",
+  "prod.configNotePh": "e.g. Hybrid, AWD, 2nd-row captain chairs…",
   "prod.addToCartFull": "Build my set — {price}",
   "prod.addedFull": "Set queued ✓",
   "prod.addedShort": "Queued ✓",

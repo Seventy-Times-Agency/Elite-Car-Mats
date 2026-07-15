@@ -177,6 +177,11 @@ const STRICT_TWO_SEATER_IDS = new Set<string>([
   "v8-vantage",
   "valhalla",
 
+  // Top-brand completeness audit (Jul 2026)
+  "z3-coupe",
+  "sls-amg-roadster",
+  "amg-gt-roadster",
+
   // Catalog expansion (Jul 2026)
   "cr-z",
   "r8-spyder",

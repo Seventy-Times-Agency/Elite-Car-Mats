@@ -123,7 +123,7 @@ export const mockModels: CarModel[] = [
   m("x7","bmw","BMW","X7","x7",Y(2019,2025),"Кроссовер"),
   m("xm","bmw","BMW","XM","xm",Y(2023,2025),"Кроссовер"),
   m("ix","bmw","BMW","iX","ix",Y(2022,2025),"Кроссовер"),
-  m("ix3","bmw","BMW","iX3","ix3",Y(2025,2025),"Кроссовер"),
+  m("ix3","bmw","BMW","iX3","ix3",Y(2026,2026),"Кроссовер"),
   // Cadillac
   m("deville","cadillac","Cadillac","DeVille","deville",Y(1990,2005),"Седан"),
   m("seville","cadillac","Cadillac","Seville","seville",Y(1990,2004),"Седан"),
@@ -463,7 +463,6 @@ export const mockModels: CarModel[] = [
   m("maybach-gls","mercedes","Mercedes-Benz","Maybach GLS","maybach-gls",Y(2021,2025),"Внедорожник"),
   m("g-class","mercedes","Mercedes-Benz","G-Class","g-class",Y(1990,2025),"Внедорожник"),
   m("amg-g63","mercedes","Mercedes-Benz","AMG G 63","amg-g63",Y(2013,2025),"Внедорожник"),
-  m("eqa","mercedes","Mercedes-Benz","EQA","eqa",Y(2023,2025),"Кроссовер"),
   m("eqb","mercedes","Mercedes-Benz","EQB","eqb",Y(2023,2025),"Кроссовер"),
   m("eqe","mercedes","Mercedes-Benz","EQE","eqe",Y(2023,2025),"Седан"),
   m("eqe-suv","mercedes","Mercedes-Benz","EQE SUV","eqe-suv",Y(2023,2025),"Кроссовер"),
@@ -742,7 +741,6 @@ export const mockModels: CarModel[] = [
   // Maserati
   m("granturismo","maserati","Maserati","GranTurismo","granturismo",YY([2008,2019],[2023,2025]),"Купе"),
   m("grancabrio","maserati","Maserati","GranCabrio","grancabrio",YY([2010,2019],[2024,2025]),"Родстер"),
-  m("3200-gt","maserati","Maserati","3200 GT","3200-gt",Y(1998,2002),"Купе"),
   m("coupe","maserati","Maserati","Coupé","coupe",Y(2002,2007),"Купе"),
   m("spyder","maserati","Maserati","Spyder","spyder",Y(2002,2007),"Родстер"),
   m("ghibli","maserati","Maserati","Ghibli","ghibli",Y(2014,2024),"Седан"),
@@ -770,7 +768,6 @@ export const mockModels: CarModel[] = [
   m("paceman","mini","MINI","Paceman","paceman",Y(2013,2016),"Купе"),
   m("coupe-mini","mini","MINI","Coupé","coupe-mini",Y(2012,2015),"Купе"),
   m("roadster-mini","mini","MINI","Roadster","roadster-mini",Y(2012,2015),"Родстер"),
-  m("aceman","mini","MINI","Aceman","aceman",Y(2025,2025),"Кроссовер"),
   m("cooper","mini","MINI","Cooper","cooper",Y(2002,2025),"Хэтчбек"),
   m("countryman","mini","MINI","Countryman","countryman",Y(2011,2025),"Кроссовер"),
   m("clubman","mini","MINI","Clubman","clubman",Y(2008,2024),"Универсал"),
@@ -790,8 +787,6 @@ export const mockModels: CarModel[] = [
   m("promaster-city","ram","Ram","ProMaster City","promaster-city",Y(2015,2022),"Фургон"),
   // Rivian
   m("r2","rivian","Rivian","R2","r2",Y(2026,2026),"Кроссовер"),
-  m("r3","rivian","Rivian","R3","r3",Y(2027,2027),"Кроссовер"),
-  m("r3x","rivian","Rivian","R3X","r3x",Y(2027,2027),"Кроссовер"),
   m("r1t","rivian","Rivian","R1T","r1t",Y(2022,2025),"Пикап"),
   m("r1s","rivian","Rivian","R1S","r1s",Y(2023,2025),"Кроссовер"),
   // Rolls-Royce
@@ -1050,7 +1045,6 @@ export const mockModels: CarModel[] = [
   m("940","volvo","Volvo","940","940",Y(1991,1995),"Седан"),
   m("960","volvo","Volvo","960","960",Y(1992,1997),"Седан"),
   m("ex40","volvo","Volvo","EX40","ex40",Y(2025,2026),"Кроссовер"),
-  m("es90","volvo","Volvo","ES90","es90",Y(2026,2026),"Седан"),
   m("cooper-4-door","mini","MINI","Cooper 4-Door","cooper-4-door",Y(2015,2026),"Хэтчбек"),
   m("pickup","toyota","Toyota","Pickup","pickup",Y(1990,1995),"Пикап"),
   m("86","toyota","Toyota","86","86",Y(2017,2020),"Купе"),
@@ -1471,4 +1465,16 @@ export const mockModels: CarModel[] = [
   m("960-wagon","volvo","Volvo","960 Wagon","960-wagon",Y(1992,1997),"Универсал"),
   m("911-cabriolet","porsche","Porsche","911 Cabriolet","911-cabriolet",Y(1990,2025),"Родстер"),
   m("cayenne-electric","porsche","Porsche","Cayenne Electric","cayenne-electric",Y(2026,2026),"Кроссовер"),
+
+  // Top-brand completeness audit (Jul 2026)
+  m("a3-cabriolet","audi","Audi","A3 Cabriolet","a3-cabriolet",Y(2015,2019),"Родстер"),
+  m("318ti","bmw","BMW","318ti","318ti",Y(1995,1999),"Хэтчбек"),
+  m("z3-coupe","bmw","BMW","Z3 Coupe","z3-coupe",Y(1999,2002),"Купе"),
+  m("alpina-b7","bmw","BMW","ALPINA B7","alpina-b7",YY([2007,2008],[2011,2015],[2017,2022]),"Седан"),
+  m("alpina-b8","bmw","BMW","ALPINA B8 Gran Coupe","alpina-b8",Y(2022,2024),"Седан"),
+  m("camry-coupe","toyota","Toyota","Camry Coupe","camry-coupe",Y(1994,1996),"Купе"),
+  m("sls-amg-roadster","mercedes","Mercedes-Benz","SLS AMG Roadster","sls-amg-roadster",Y(2012,2014),"Родстер"),
+  m("amg-gt-roadster","mercedes","Mercedes-Benz","AMG GT Roadster","amg-gt-roadster",Y(2018,2021),"Родстер"),
+  m("ls-hybrid","lexus","Lexus","LS Hybrid","ls-hybrid",YY([2008,2016],[2018,2024]),"Седан"),
+  m("ux-hybrid","lexus","Lexus","UX Hybrid","ux-hybrid",Y(2019,2025),"Кроссовер"),
 ];

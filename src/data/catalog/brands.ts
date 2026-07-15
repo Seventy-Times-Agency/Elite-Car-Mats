@@ -70,6 +70,11 @@ export const brands: Brand[] = [
   { id: "western-star", name: "Western Star", slug: "western-star", logo: brandLogo("western-star"), modelsCount: 0 },
   { id: "hino", name: "Hino", slug: "hino", logo: brandLogo("hino"), modelsCount: 0 },
   { id: "isuzu", name: "Isuzu Commercial", slug: "isuzu", logo: brandLogo("isuzu"), modelsCount: 0 },
+  { id: "plymouth", name: "Plymouth", slug: "plymouth", logo: brandLogo("plymouth"), modelsCount: 0 },
+  { id: "geo", name: "Geo", slug: "geo", logo: brandLogo("geo"), modelsCount: 0 },
+  { id: "eagle", name: "Eagle", slug: "eagle", logo: brandLogo("eagle"), modelsCount: 0 },
+  { id: "ferrari", name: "Ferrari", slug: "ferrari", logo: brandLogo("ferrari"), modelsCount: 0 },
+  { id: "lotus", name: "Lotus", slug: "lotus", logo: brandLogo("lotus"), modelsCount: 0 },
 ];
 
 /**

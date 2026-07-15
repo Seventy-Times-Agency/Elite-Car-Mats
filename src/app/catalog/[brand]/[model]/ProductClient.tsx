@@ -116,6 +116,9 @@ export default function ProductClient({
   const [badge, setBadge] = useState(false);
   const [badgeCount, setBadgeCount] = useState(1);
   const [heelPad, setHeelPad] = useState(false);
+  // Trim/floor configuration note (hybrid, AWD, captain chairs...) — one
+  // model can have different floor pans; the workshop cuts by this.
+  const [configNote, setConfigNote] = useState("");
   // Preview mode. Real photos exist for the black mat (one per edge
   // color); other mat colors fall back to the schematic preview until
   // the supplier shoots them.
@@ -202,6 +205,7 @@ export default function ProductClient({
       badge: badge && bdg ? bdg : undefined,
       badgeCount: badge && bdg ? effBadgeCount : undefined,
       heelPad: effHeelPad,
+      configNote: configNote.trim() || undefined,
       quantity: 1,
     });
     trackEvent("AddToCart", {
@@ -786,6 +790,24 @@ export default function ProductClient({
                     </span>
                   </label>
                   )}
+                </div>
+                {/* Trim / floor-pan note: hybrids, AWD, captain chairs —
+                    the workshop picks the cut pattern by this. */}
+                <div className="mt-3">
+                  <label
+                    htmlFor="cfg-note"
+                    className="block text-[10px] uppercase tracking-[0.15em] text-text-dim font-semibold mb-1.5"
+                  >
+                    {t("prod.configNoteLabel")}
+                  </label>
+                  <input
+                    id="cfg-note"
+                    value={configNote}
+                    onChange={(e) => setConfigNote(e.target.value)}
+                    maxLength={120}
+                    placeholder={t("prod.configNotePh")}
+                    className="w-full bg-bg/40 border border-border/60 rounded-lg px-3 py-2.5 text-sm text-text placeholder:text-text-faint focus:border-gold/50 focus:outline-none transition-colors"
+                  />
                 </div>
               </section>
 

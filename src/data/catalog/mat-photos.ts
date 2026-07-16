@@ -20,10 +20,18 @@ export const MAT_PHOTOS: ReadonlySet<string> = new Set<string>([
   "black-light-gray",
   "black-white",
 
-  // Gray mat — arriving edge by edge
+  // Gray mat — full set of 11 edge colors
   "gray-red",
   "gray-black",
   "gray-yellow",
+  "gray-light-gray",
+  "gray-purple",
+  "gray-dark-green",
+  "gray-white",
+  "gray-dark-brown",
+  "gray-beige",
+  "gray-navy",
+  "gray-ivory",
 
   // Brown mat — arriving edge by edge
   "brown-red",

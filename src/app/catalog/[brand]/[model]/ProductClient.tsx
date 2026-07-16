@@ -258,6 +258,34 @@ export default function ProductClient({
       </div>
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-10 pb-28 lg:pb-10">
         <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] gap-6 lg:gap-10">
+          {/* Mobile-only header — name + price sit above the photo so the
+              configurator (year → set → colors) starts right under it. On
+              desktop this is hidden and the header shows in the right column. */}
+          <div className="lg:hidden -mb-1">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0 flex-1">
+                <p className="text-xl font-bold leading-tight">
+                  {brand.name} {model.name}
+                </p>
+                <p className="text-text-dim text-xs mt-1">
+                  {localizeBody(t, model.bodyType)} · {t("prod.subtitleSuffix")}
+                </p>
+              </div>
+              <WishlistButton
+                modelId={cartModelId}
+                brandSlug={brand.slug}
+                modelSlug={model.slug}
+                brandName={brand.name}
+                modelName={model.name}
+                bodyType={model.bodyType}
+              />
+            </div>
+            <div className="mt-2 flex items-baseline gap-2">
+              <span className="text-gold text-2xl font-bold">
+                {formatPrice(unitPrice)}
+              </span>
+            </div>
+          </div>
           <div className="lg:sticky lg:top-24 lg:self-start">
             {(() => {
               const photoSrc = matPhotoSrc(color.id, edge.id);
@@ -403,6 +431,10 @@ export default function ProductClient({
           </div>
 
           <div>
+            {/* Header repeats on desktop; on mobile it moves above the
+                photo (see the lg:hidden block at the top of the grid) so
+                the configurator sits right under the photo. */}
+            <div className="hidden lg:block">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0 flex-1">
                 <h1 className="text-xl lg:text-2xl font-bold leading-tight">
@@ -484,6 +516,7 @@ export default function ProductClient({
                 </svg>
                 {t("ann.returns")}
               </span>
+            </div>
             </div>
 
             {/* Year picker — promoted out of the step list because it's a

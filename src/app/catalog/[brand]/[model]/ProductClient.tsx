@@ -595,12 +595,20 @@ export default function ProductClient({
                   label={t("prod.stepStyle")}
                   value={`${localizedColor} · ${localizedEdge}`}
                 />
-                <div className="space-y-4">
-                  <div>
-                    <div className="text-[10px] uppercase tracking-[0.15em] text-text-dim font-semibold mb-2">
-                      {t("prod.stepColor")}
+                {/* Two symmetric columns: mat color (left) and edge
+                    binding (right), with a divider between. Reads as one
+                    balanced "style" decision instead of two stacked rows. */}
+                <div className="grid grid-cols-2 gap-0">
+                  <div className="pr-4">
+                    <div className="flex items-baseline justify-between gap-2 mb-3">
+                      <span className="text-[10px] uppercase tracking-[0.15em] text-gold/75 font-semibold">
+                        {t("prod.stepColor")}
+                      </span>
+                      <span className="text-[10px] text-text-dim truncate">
+                        {localizedColor}
+                      </span>
                     </div>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="grid grid-cols-3 gap-2.5 justify-items-center">
                       {evaColors.map((c) => (
                         <MatColorSwatch
                           key={c.id}
@@ -616,11 +624,16 @@ export default function ProductClient({
                       ))}
                     </div>
                   </div>
-                  <div>
-                    <div className="text-[10px] uppercase tracking-[0.15em] text-text-dim font-semibold mb-2">
-                      {t("prod.stepEdge")}
+                  <div className="pl-4 border-l border-border/40">
+                    <div className="flex items-baseline justify-between gap-2 mb-3">
+                      <span className="text-[10px] uppercase tracking-[0.15em] text-gold/75 font-semibold">
+                        {t("prod.stepEdge")}
+                      </span>
+                      <span className="text-[10px] text-text-dim truncate">
+                        {localizedEdge}
+                      </span>
                     </div>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="grid grid-cols-4 gap-2 justify-items-center">
                       {edgeColors.map((c) => (
                         <MatColorSwatch
                           key={c.id}

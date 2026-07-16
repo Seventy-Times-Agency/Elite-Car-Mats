@@ -384,14 +384,14 @@ export default function ProductClient({
                       ›
                     </button>
                   </div>
-                  {/* Thumbnails */}
-                  <div className="mt-2.5 grid grid-cols-6 gap-1.5">
+                  {/* Thumbnails — single scrollable row on desktop, hidden on mobile */}
+                  <div className="hidden lg:flex mt-2.5 gap-1.5 overflow-x-auto pb-1">
                     <button
                       type="button"
                       onClick={() => setSlide(0)}
                       aria-label={t("prod.galleryYourColors")}
                       title={t("prod.galleryYourColors")}
-                      className={`aspect-square rounded-lg overflow-hidden relative border transition-colors ${
+                      className={`w-12 h-12 shrink-0 rounded-lg overflow-hidden relative border transition-colors ${
                         slide === 0
                           ? "border-gold"
                           : "border-border/50 hover:border-gold/40"
@@ -410,7 +410,7 @@ export default function ProductClient({
                         type="button"
                         onClick={() => setSlide(i + 1)}
                         aria-label={g.alt}
-                        className={`aspect-square rounded-lg overflow-hidden relative border transition-colors ${
+                        className={`w-12 h-12 shrink-0 rounded-lg overflow-hidden relative border transition-colors ${
                           slide === i + 1
                             ? "border-gold"
                             : "border-border/50 hover:border-gold/40"

@@ -653,23 +653,29 @@ export function CheckoutClient({ paymentEnabled }: { paymentEnabled: boolean }) 
                       </button>
                     </div>
                   ) : (
-                    <div className="flex gap-2">
+                    <div className="flex items-stretch rounded-lg overflow-hidden border border-border/60 focus-within:border-gold/45 transition-colors">
                       <input
                         type="text"
                         value={promoInput}
                         onChange={(e) =>
                           setPromoInput(e.target.value.toUpperCase())
                         }
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            applyPromo();
+                          }
+                        }}
                         placeholder={t("co.promoPh")}
-                        className="flex-1 glass-card rounded-lg px-3 py-2 text-xs font-mono focus:border-gold/40 focus:outline-none"
+                        className="min-w-0 flex-1 bg-bg/30 px-3 py-2.5 text-xs font-mono tracking-wider placeholder:text-text-faint focus:outline-none"
                       />
                       <button
                         type="button"
                         onClick={applyPromo}
                         disabled={promoChecking || !promoInput.trim()}
-                        className="text-xs font-semibold uppercase tracking-wider text-gold hover:text-gold-light px-3 disabled:opacity-40"
+                        className="shrink-0 px-4 text-[11px] font-semibold uppercase tracking-wider bg-gold/15 text-gold hover:bg-gold/25 disabled:opacity-40 disabled:hover:bg-gold/15 transition-colors"
                       >
-                        {promoChecking ? "..." : t("co.promoApply")}
+                        {promoChecking ? "…" : t("co.promoApply")}
                       </button>
                     </div>
                   )}

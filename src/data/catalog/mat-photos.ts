@@ -59,13 +59,18 @@ export const MAT_PHOTOS: ReadonlySet<string> = new Set<string>([
   "beige-navy",
   "beige-ivory",
 
-  // Red mat — arriving edge by edge
+  // Red mat — full set of 11 edge colors
   "red-red",
   "red-black",
   "red-yellow",
   "red-light-gray",
   "red-purple",
   "red-dark-green",
+  "red-white",
+  "red-dark-brown",
+  "red-beige",
+  "red-navy",
+  "red-ivory",
 ]);
 
 /**

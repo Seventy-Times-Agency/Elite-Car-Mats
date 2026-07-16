@@ -292,12 +292,18 @@ export default function ProductClient({
               const showVariantPhoto =
                 photoSrc !== null && previewMode === "photo";
               const gallery = [
-                { src: "/mats/gallery/in-car.jpg", alt: t("prod.galleryAltInCar") },
-                { src: "/mats/gallery/set-flat.jpg", alt: t("prod.galleryAltSet") },
-                { src: "/mats/gallery/addons.jpg", alt: t("prod.galleryAltAddons") },
-                { src: "/mats/gallery/poster-brand.jpg", alt: t("prod.galleryAltBrand") },
-                { src: "/mats/gallery/poster-colors.jpg", alt: t("prod.galleryAltColors") },
-                { src: "/mats/gallery/collection.jpg", alt: t("prod.galleryAltCollection") },
+                { src: "/mats/gallery/g01-hero-colors.jpg", alt: t("prod.galleryAltHeroColors") },
+                { src: "/mats/gallery/g02-install-front.jpg", alt: t("prod.galleryAltInstallFront") },
+                { src: "/mats/gallery/g03-install-heelpad.jpg", alt: t("prod.galleryAltInstallHeel") },
+                { src: "/mats/gallery/g04-rear-red.jpg", alt: t("prod.galleryAltRearRed") },
+                { src: "/mats/gallery/g05-rear-black.jpg", alt: t("prod.galleryAltRearBlack") },
+                { src: "/mats/gallery/g06-trunk-sedan.jpg", alt: t("prod.galleryAltTrunkSedan") },
+                { src: "/mats/gallery/g07-trunk-suv.jpg", alt: t("prod.galleryAltTrunkSuv") },
+                { src: "/mats/gallery/g08-edge-swatches.jpg", alt: t("prod.galleryAltEdgeSwatches") },
+                { src: "/mats/gallery/g09-addons.jpg", alt: t("prod.galleryAltAddons") },
+                { src: "/mats/gallery/g10-texture.jpg", alt: t("prod.galleryAltTexture") },
+                { src: "/mats/gallery/g11-poster.jpg", alt: t("prod.galleryAltPoster") },
+                { src: "/mats/gallery/g12-before-after.jpg", alt: t("prod.galleryAltBeforeAfter") },
               ];
               const slidesCount = 1 + gallery.length;
               const go = (d: number) =>
@@ -305,7 +311,7 @@ export default function ProductClient({
               const isLive = slide === 0;
               return (
                 <div>
-                  <div className="aspect-[5/4] glass-card rounded-xl relative overflow-hidden p-4 lg:p-5">
+                  <div className="aspect-[2/3] glass-card rounded-xl relative overflow-hidden p-4 lg:p-5">
                     {isLive ? (
                       showVariantPhoto ? (
                         <Image

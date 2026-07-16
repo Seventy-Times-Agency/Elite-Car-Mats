@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { evaColors, edgeColors, badges } from "@/data/catalog";
+import { matPhotoSrc } from "@/data/catalog/mat-photos";
 import { MAT_SETS_BY_PROFILE } from "@/data/catalog/mat-sets";
 import { useCart } from "@/context/CartContext";
 import { MatPreview } from "@/components/product/MatPreview";
@@ -259,8 +260,7 @@ export default function ProductClient({
         <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] gap-6 lg:gap-10">
           <div className="lg:sticky lg:top-24 lg:self-start">
             {(() => {
-              const photoSrc =
-                color.id === "black" ? `/mats/black-${edge.id}.jpg` : null;
+              const photoSrc = matPhotoSrc(color.id, edge.id);
               const showVariantPhoto =
                 photoSrc !== null && previewMode === "photo";
               const gallery = [

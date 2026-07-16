@@ -73,7 +73,9 @@ export function MatColorSwatch({
           backgroundPosition: "center",
         }}
       >
-        <div className="absolute inset-0 bg-gradient-to-br from-white/8 via-transparent to-black/18 pointer-events-none" />
+        {/* Very light sheen only — the swatch is a real material photo,
+            so keep it vibrant rather than tinting it darker. */}
+        <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-black/8 pointer-events-none" />
         {variant === "solid" && isLight && (
           <div className="absolute inset-0 ring-1 ring-inset ring-black/10 pointer-events-none rounded-[inherit]" />
         )}

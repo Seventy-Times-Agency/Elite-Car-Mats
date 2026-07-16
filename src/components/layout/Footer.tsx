@@ -111,6 +111,19 @@ export function Footer() {
             {t("footer.madeIn")}
           </div>
         </div>
+
+        {/* Agency credit */}
+        <div className="mt-4 text-center text-[10px] text-text-faint/70 tracking-[0.1em]">
+          {t("footer.builtBy")}{" "}
+          <a
+            href="https://seventytimes.agency"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-text-faint hover:text-gold transition-colors font-medium"
+          >
+            Seventy Times Agency
+          </a>
+        </div>
       </div>
     </footer>
   );

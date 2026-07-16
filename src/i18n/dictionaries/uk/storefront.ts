@@ -193,6 +193,7 @@ export const storefront: Dict = {
   "footer.allContacts": "Всі контакти →",
   "footer.rights": "All rights reserved.",
   "footer.madeIn": "Premium EVA · Made in USA",
+  "footer.builtBy": "Сайт розроблено в",
   "footer.ccpa": "Do Not Sell or Share My Personal Information",
   "cart.meta": "Кошик",
   "cart.emptyTitle": "Кошик порожній",

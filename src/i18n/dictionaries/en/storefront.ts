@@ -195,6 +195,7 @@ export const storefront: Dict = {
   "footer.allContacts": "All contacts →",
   "footer.rights": "All rights reserved.",
   "footer.madeIn": "Premium EVA · Made in Rochester, NY",
+  "footer.builtBy": "Site by",
   "footer.ccpa": "Do Not Sell or Share My Personal Information",
   "cart.meta": "Cart",
   "cart.emptyTitle": "Your cart is empty",

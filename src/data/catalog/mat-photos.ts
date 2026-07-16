@@ -25,6 +25,9 @@ export const MAT_PHOTOS: ReadonlySet<string> = new Set<string>([
 
   // Brown mat — arriving edge by edge
   "brown-red",
+
+  // Beige mat — arriving edge by edge
+  "beige-red",
 ]);
 
 /**

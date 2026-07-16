@@ -466,6 +466,7 @@ export const storefront: Dict = {
   "prod.galleryAltAddons": "Алюмінієва п'яткова накладка та металевий шильдик на верстаку",
   "prod.galleryAltBrand": "Elite Car Mats — постер преміальних EVA-килимків",
   "prod.galleryAltColors": "Оберіть колір — постер зі зразками текстур EVA",
+  "prod.galleryAltCollection": "Колекція преміум EVA-килимків — усі кольори на вітрині",
   "prod.viewPhoto": "Фото",
   "prod.viewScheme": "Схема",
   "prod.photoNote": "Приклад комплекту в обраних кольорах — розкрій буде точно під вашу модель і рік.",

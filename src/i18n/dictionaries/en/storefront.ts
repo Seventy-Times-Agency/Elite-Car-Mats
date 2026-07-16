@@ -468,6 +468,7 @@ export const storefront: Dict = {
   "prod.galleryAltAddons": "Aluminum heel pad and metal brand plate on a workbench",
   "prod.galleryAltBrand": "Elite Car Mats — premium EVA floor mats poster",
   "prod.galleryAltColors": "Choose your color — EVA texture swatches poster",
+  "prod.galleryAltCollection": "Premium EVA car mat collection — all colors on display",
   "prod.viewPhoto": "Photo",
   "prod.viewScheme": "Diagram",
   "prod.photoNote": "Sample set shown in your chosen colors — the actual cut pattern is made for your exact model and year.",

@@ -464,6 +464,7 @@ export const storefront: Dict = {
   "prod.galleryAltAddons": "Алюминиевый подпятник и металлический шильдик на верстаке",
   "prod.galleryAltBrand": "Elite Car Mats — постер премиальных EVA-ковриков",
   "prod.galleryAltColors": "Выберите цвет — постер с образцами текстур EVA",
+  "prod.galleryAltCollection": "Коллекция премиум EVA-ковриков — все цвета на витрине",
   "prod.viewPhoto": "Фото",
   "prod.viewScheme": "Схема",
   "prod.photoNote": "Пример комплекта в выбранных цветах — раскрой будет точно под вашу модель и год.",

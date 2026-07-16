@@ -269,6 +269,7 @@ export default function ProductClient({
                 { src: "/mats/gallery/addons.jpg", alt: t("prod.galleryAltAddons") },
                 { src: "/mats/gallery/poster-brand.jpg", alt: t("prod.galleryAltBrand") },
                 { src: "/mats/gallery/poster-colors.jpg", alt: t("prod.galleryAltColors") },
+                { src: "/mats/gallery/collection.jpg", alt: t("prod.galleryAltCollection") },
               ];
               const slidesCount = 1 + gallery.length;
               const go = (d: number) =>

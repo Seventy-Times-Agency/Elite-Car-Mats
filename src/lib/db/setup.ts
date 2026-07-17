@@ -437,6 +437,32 @@ async function execAll(): Promise<MigrationResult[]> {
        )`,
     );
 
+    // Stripe invoice flow for custom orders (phone agreement → invoice).
+    await run(
+      "customOrder.invoiceAmount",
+      `ALTER TABLE "CustomOrderRequest" ADD COLUMN IF NOT EXISTS "invoiceAmount" DECIMAL(10,2)`,
+    );
+    await run(
+      "customOrder.stripeInvoiceId",
+      `ALTER TABLE "CustomOrderRequest" ADD COLUMN IF NOT EXISTS "stripeInvoiceId" TEXT`,
+    );
+    await run(
+      "customOrder.invoiceUrl",
+      `ALTER TABLE "CustomOrderRequest" ADD COLUMN IF NOT EXISTS "invoiceUrl" TEXT`,
+    );
+    await run(
+      "customOrder.invoiceSentAt",
+      `ALTER TABLE "CustomOrderRequest" ADD COLUMN IF NOT EXISTS "invoiceSentAt" TIMESTAMP(3)`,
+    );
+    await run(
+      "customOrder.invoicePaidAt",
+      `ALTER TABLE "CustomOrderRequest" ADD COLUMN IF NOT EXISTS "invoicePaidAt" TIMESTAMP(3)`,
+    );
+    await run(
+      "CustomOrderRequest.stripeInvoiceId unique",
+      `CREATE UNIQUE INDEX IF NOT EXISTS "CustomOrderRequest_stripeInvoiceId_key" ON "CustomOrderRequest"("stripeInvoiceId")`,
+    );
+
     await run(
       "table NewsletterSubscriber",
       `CREATE TABLE IF NOT EXISTS "NewsletterSubscriber" (

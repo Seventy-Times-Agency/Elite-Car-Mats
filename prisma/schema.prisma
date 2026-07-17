@@ -270,6 +270,14 @@ model CustomOrderRequest {
   locale     String?
   status     CustomOrderStatus @default(NEW)
   adminNotes String?
+  // Stripe hosted invoice issued by the admin after the master agrees a
+  // price with the customer on the phone. QUOTED = invoice sent,
+  // CONVERTED = invoice paid (flipped by the invoice.paid webhook).
+  invoiceAmount   Decimal?  @db.Decimal(10, 2)
+  stripeInvoiceId String?   @unique
+  invoiceUrl      String?
+  invoiceSentAt   DateTime?
+  invoicePaidAt   DateTime?
   createdAt  DateTime          @default(now())
   updatedAt  DateTime          @updatedAt
 

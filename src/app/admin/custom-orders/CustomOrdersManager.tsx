@@ -20,6 +20,10 @@ export interface CustomRequest {
   locale: string | null;
   status: Status;
   adminNotes: string | null;
+  invoiceAmount: number | null;
+  invoiceUrl: string | null;
+  invoiceSentAt: string | null;
+  invoicePaidAt: string | null;
   createdAt: string;
 }
 
@@ -191,6 +195,13 @@ export function CustomOrdersManager({
 
                 <div>
                   <div className="text-text-faint uppercase tracking-wider text-xs mb-1.5">
+                    {t("admin.invSection")}
+                  </div>
+                  <InvoiceSection request={r} />
+                </div>
+
+                <div>
+                  <div className="text-text-faint uppercase tracking-wider text-xs mb-1.5">
                     {t("admin.customAdminNotes")}
                   </div>
                   <AdminNotesField
@@ -214,6 +225,107 @@ export function CustomOrdersManager({
           </div>
         );
       })}
+    </div>
+  );
+}
+
+/**
+ * Invoice controls for one request: enter the phone-agreed amount, send
+ * the Stripe hosted invoice (branded email goes to the customer), see
+ * sent/paid state, re-issue if the price changed. The `invoice.paid`
+ * webhook flips the request to CONVERTED automatically.
+ */
+function InvoiceSection({ request: r }: { request: CustomRequest }) {
+  const router = useRouter();
+  const t = useT();
+  const [amount, setAmount] = useState(
+    r.invoiceAmount != null ? String(r.invoiceAmount) : "",
+  );
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const paid = Boolean(r.invoicePaidAt);
+  const sent = Boolean(r.invoiceSentAt);
+  const parsedAmount = Number(amount);
+  const amountOk = Number.isFinite(parsedAmount) && parsedAmount >= 1;
+
+  const sendInvoice = async () => {
+    if (!amountOk || sending) return;
+    if (sent && !paid && !confirm(t("admin.invConfirmResend"))) return;
+    setSending(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/admin/custom-orders/${r.id}/invoice`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount: parsedAmount }),
+      });
+      if (!res.ok) throw new Error(String(res.status));
+      router.refresh();
+    } catch {
+      setError(t("admin.invError"));
+    } finally {
+      setSending(false);
+    }
+  };
+
+  return (
+    <div className="space-y-2">
+      {sent && (
+        <div className="flex items-center gap-3 flex-wrap text-xs">
+          <span className="text-text">
+            ${(r.invoiceAmount ?? 0).toFixed(2)}
+          </span>
+          <span className="text-text-faint">
+            {t("admin.invSentAt")}:{" "}
+            {new Date(r.invoiceSentAt!).toLocaleDateString()}
+          </span>
+          {paid ? (
+            <span className="text-green-400 border border-green-400/30 rounded-full px-2 py-0.5 text-[10px] uppercase tracking-wider">
+              {t("admin.invPaidAt")}:{" "}
+              {new Date(r.invoicePaidAt!).toLocaleDateString()}
+            </span>
+          ) : (
+            r.invoiceUrl && (
+              <a
+                href={r.invoiceUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="text-gold hover:text-gold-light"
+              >
+                {t("admin.invOpen")}
+              </a>
+            )
+          )}
+        </div>
+      )}
+      {!paid && (
+        <div className="flex items-stretch gap-2">
+          <input
+            type="number"
+            min={1}
+            step="0.01"
+            inputMode="decimal"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            placeholder={t("admin.invAmountPh")}
+            aria-label={t("admin.invAmountPh")}
+            className="w-44 glass-card rounded-lg px-3 py-2 text-sm focus:border-gold/40 focus:outline-none"
+          />
+          <button
+            onClick={sendInvoice}
+            disabled={sending || !amountOk}
+            className="text-xs font-semibold uppercase tracking-wider px-4 rounded-lg bg-gold/15 text-gold hover:bg-gold/25 disabled:opacity-40 transition-colors"
+          >
+            {sending
+              ? t("admin.invSending")
+              : sent
+                ? t("admin.invResend")
+                : t("admin.invSend")}
+          </button>
+        </div>
+      )}
+      {error && <p className="text-[11px] text-error">{error}</p>}
     </div>
   );
 }

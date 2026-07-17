@@ -431,6 +431,56 @@ export async function POST(request: Request) {
         }
         break;
       }
+      case "invoice.paid": {
+        // Custom-order invoices (admin-issued after the master agrees a
+        // price by phone). metadata.customOrderId ties the Stripe invoice
+        // back to the CustomOrderRequest row.
+        const invoice = event.data.object as Stripe.Invoice;
+        const customOrderId = invoice.metadata?.customOrderId;
+        if (customOrderId) {
+          const res = await prisma.customOrderRequest.updateMany({
+            where: { id: customOrderId, invoicePaidAt: null },
+            data: { invoicePaidAt: new Date(), status: "CONVERTED" },
+          });
+          console.log(
+            `[stripe-webhook] ${event.id} custom-order=${customOrderId} invoice paid (rows=${res.count})`,
+          );
+          if (res.count === 1) {
+            // Let the owner know production can start — best-effort.
+            after(async () => {
+              try {
+                const req = await prisma.customOrderRequest.findUnique({
+                  where: { id: customOrderId },
+                });
+                if (!req) return;
+                const { send, ownerEmail } = await import(
+                  "@/lib/email/transport"
+                );
+                const amount = Number(req.invoiceAmount ?? 0).toFixed(2);
+                await send({
+                  to: ownerEmail,
+                  subject: `Custom order paid — ${req.make} ${req.model} ${req.year} ($${amount})`,
+                  html: `<p>Invoice for the custom order was paid.</p>
+<p><b>${req.name}</b> · ${req.email} · ${req.phone}</p>
+<p>${req.make} ${req.model} ${req.year}${req.matSet ? ` · ${req.matSet}` : ""}</p>
+<p>Amount: <b>$${amount}</b></p>
+<p>Production can start — the request is marked CONVERTED in the admin panel.</p>`,
+                });
+              } catch (err) {
+                console.error(
+                  "[stripe-webhook] custom-invoice owner email failed:",
+                  err,
+                );
+              }
+            });
+          }
+        } else {
+          console.log(
+            `[stripe-webhook] ${event.id} invoice.paid without customOrderId — ignored`,
+          );
+        }
+        break;
+      }
       // Useful for refund flows later on:
       // case "charge.refunded": ...
       default:

@@ -580,6 +580,12 @@ export const storefront: Dict = {
   "gallery.tagFullCargo": "Повний + Багажник",
   "gallery.tagFull": "Повний комплект",
   "gallery.tagFrontsCargo": "Передні + Багажник",
+  "beforeAfter.label": "До / Після",
+  "beforeAfter.title": "Відчуйте різницю",
+  "beforeAfter.subtitle": "Той самий салон — зношений штатний килимок проти набору EliteCarMats EVA. Потягніть повзунок, щоб порівняти.",
+  "beforeAfter.before": "До",
+  "beforeAfter.after": "Після",
+  "beforeAfter.hint": "Потягніть, щоб порівняти",
   "comparison.label": "Порівняння",
   "comparison.title": "Elite vs звичайні килимки",
   "comparison.subtitle": 

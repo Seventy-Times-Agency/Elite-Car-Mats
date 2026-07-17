@@ -139,6 +139,7 @@ async function applyShipmentToOrder(shipment: SsShipment): Promise<boolean> {
         orderNumber: true,
         customerName: true,
         email: true,
+        locale: true,
       },
     });
     if (order) {
@@ -148,6 +149,7 @@ async function applyShipmentToOrder(shipment: SsShipment): Promise<boolean> {
         customerEmail: order.email,
         trackingNumber: shipment.trackingNumber,
         orderToken: signOrderToken(orderId),
+        locale: order.locale,
       });
       // Anchor the review invite to the automatic SHIPPED transition —
       // the manual DELIVERED flip this used to depend on rarely happens,
@@ -158,6 +160,7 @@ async function applyShipmentToOrder(shipment: SsShipment): Promise<boolean> {
         customerName: order.customerName,
         customerEmail: order.email,
         delayMs: REVIEW_INVITE_AFTER_SHIP_MS,
+        locale: order.locale,
       });
     }
   } catch (err) {

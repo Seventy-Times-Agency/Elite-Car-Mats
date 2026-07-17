@@ -152,6 +152,10 @@ model Order {
   // Review-invite email scheduled (fires ~1 day after DELIVERED). Guard
   // against re-sending when the status is toggled back and forth.
   reviewInviteSentAt    DateTime?
+  // Storefront locale (en/ru/uk) the customer ordered in. Transactional
+  // emails render in THIS language — not in the locale of whichever
+  // request (admin panel, Stripe webhook) happens to trigger the send.
+  locale                String?
   items                 OrderItem[]
   createdAt             DateTime    @default(now())
   updatedAt             DateTime    @updatedAt

@@ -26,7 +26,7 @@ import {
   getVehicleProfile,
   type VehicleConfigProfile,
 } from "@/lib/vehicle-profile";
-import { getDictionary } from "@/i18n/getDictionary";
+import { getDictionary, getLocaleFromCookie } from "@/i18n/getDictionary";
 import { makeT } from "@/i18n/dictionary";
 import type { OrderItemInput } from "@/lib/validations/order";
 
@@ -260,6 +260,12 @@ export async function POST(request: Request) {
   // Empty Map on DB error so checkout never blocks on a Neon hiccup.
   const overrides = await loadPriceOverrides();
 
+  // Storefront locale of THIS request = the customer's language. Stored
+  // on the order so every later transactional email (Stripe webhook,
+  // admin ship/review flows — requests with someone else's or no locale)
+  // renders in the language the customer actually shopped in.
+  const customerLocale = await getLocaleFromCookie();
+
   const subtotal = calculateOrderTotal(
     itemsResolved.map(({ item: i, modelId, profile }) => ({
       matSet: i.matSet,
@@ -312,6 +318,7 @@ export async function POST(request: Request) {
           zip: shipping.zip || null,
           comment: shipping.comment || null,
           promoCode: appliedCode,
+          locale: customerLocale,
           total,
           items: {
             create: itemsResolved.map(({ item: i, modelId, productId, profile }) => ({
@@ -434,6 +441,7 @@ export async function POST(request: Request) {
         brandName: i.brandName,
         modelName: i.modelName,
         matSet: i.matSet,
+        profile: profile ?? undefined,
         colorName: names.colorName,
         colorHex: colorRow?.hex ?? null,
         edgeColorName: names.edgeColorName,
@@ -471,6 +479,7 @@ export async function POST(request: Request) {
       comment: shipping.comment || null,
       total: Number(createdOrder.total ?? 0),
       items: emailItems,
+      locale: customerLocale,
     };
     // Deferred via `after`: emails never fail (or delay) the order
     // response, and the serverless runtime keeps the instance alive until

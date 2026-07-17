@@ -6,7 +6,8 @@ import { verifyOrderToken } from "@/lib/security/order-token";
 import { formatPrice } from "@/lib/pricing";
 import { CopyNumber } from "./CopyNumber";
 import { getDictionary } from "@/i18n/getDictionary";
-import type { Dict } from "@/i18n/dictionary";
+import { makeT, type Dict } from "@/i18n/dictionary";
+import { localizeColor } from "@/i18n/labels";
 
 export const dynamic = "force-dynamic";
 
@@ -93,6 +94,8 @@ export default async function OrderPage({
 
   const { dict, fallback } = await getDictionary();
   const s = (k: string) => (dict[k] ?? fallback[k]) as string;
+  // Color rows store canonical Russian names — localize for display.
+  const tLabels = makeT(dict, fallback);
 
   const currentStep =
     order.status === "CANCELLED"
@@ -202,7 +205,7 @@ export default async function OrderPage({
                         style={{ backgroundColor: i.color.hex }}
                         aria-hidden
                       />
-                      {i.color.name}
+                      {localizeColor(tLabels, i.color.name)}
                     </span>
                     <span className="text-text-faint">·</span>
                     <span className="inline-flex items-center gap-1.5">
@@ -211,7 +214,7 @@ export default async function OrderPage({
                         style={{ backgroundColor: i.edgeColor.hex }}
                         aria-hidden
                       />
-                      {i.edgeColor.name}
+                      {localizeColor(tLabels, i.edgeColor.name)}
                     </span>
                     {i.badge && (
                       <>

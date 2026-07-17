@@ -16,8 +16,10 @@ export async function sendReviewInviteEmail(params: {
   customerEmail: string;
   /** ISO 8601 delivery time for the scheduled send. */
   scheduledAt?: string;
+  /** Order's stored storefront locale — the customer's language. */
+  locale?: string | null;
 }): Promise<void> {
-  const t = await buildT();
+  const t = await buildT(params.locale);
   const qs = new URLSearchParams({
     order: params.orderNumber,
     t: signOrderToken(params.orderId),

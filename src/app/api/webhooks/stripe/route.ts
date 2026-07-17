@@ -199,6 +199,7 @@ async function sendOrderConfirmations(orderId: string): Promise<void> {
     // promo code lives in Order.promoCode column.
     comment: order.comment,
     total: Number(order.total ?? 0),
+    locale: order.locale,
     items: order.items.map((i) => {
       const matSet = matSetFromEnum[i.product.matSet];
       if (!matSet) throw new Error(`Unknown matSet enum: ${i.product.matSet}`);
@@ -206,6 +207,7 @@ async function sendOrderConfirmations(orderId: string): Promise<void> {
         brandName: i.product.model.brand.name,
         modelName: i.product.model.name,
         matSet,
+        profile: profileOf(i.product.modelId),
         colorName: i.color.name,
         colorHex: i.color.hex,
         edgeColorName: i.edgeColor.name,

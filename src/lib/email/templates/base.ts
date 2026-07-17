@@ -1,12 +1,24 @@
 import "server-only";
 import { formatPrice } from "@/lib/pricing";
-import { getDictionary } from "@/i18n/getDictionary";
+import { getDictionary, getDictionaryFor } from "@/i18n/getDictionary";
+import { DEFAULT_LOCALE, isLocale } from "@/i18n/config";
 import { makeT, type TFn } from "@/i18n/dictionary";
+import { localizeColor, localizeMatSet } from "@/i18n/labels";
+import { MAT_SETS_BY_PROFILE } from "@/data/catalog/mat-sets";
+import type { VehicleConfigProfile } from "@/lib/vehicle-profile";
+import type { MatSetType } from "@/types";
 
 export interface OrderEmailItem {
   brandName: string;
   modelName: string;
   matSet: string;
+  /**
+   * Vehicle profile of the item's model. Makes the mat-set line
+   * profile-aware: a minivan's `front` is "Front + middle" (4 mats) and
+   * a semi's is "Cab set" — the generic per-code labels below misname
+   * both and provoke support tickets.
+   */
+  profile?: VehicleConfigProfile;
   colorName: string;
   colorHex?: string | null;
   edgeColorName: string;
@@ -34,6 +46,8 @@ export interface OrderEmailData {
   comment?: string | null;
   total: number;
   items: OrderEmailItem[];
+  /** Order's stored storefront locale — the customer's language. */
+  locale?: string | null;
 }
 
 /**
@@ -50,15 +64,37 @@ export function escapeHtml(s: string): string {
     .replace(/'/g, "&#39;");
 }
 
-export function matSetLabel(t: TFn, code: string): string {
+const MAT_SET_CODE: Record<string, MatSetType> = {
+  front: "front",
+  FRONT: "front",
+  full: "full",
+  FULL: "full",
+  cargo: "cargo",
+  CARGO: "cargo",
+  "full-cargo": "full-cargo",
+  FULL_CARGO: "full-cargo",
+};
+
+export function matSetLabel(
+  t: TFn,
+  code: string,
+  profile?: VehicleConfigProfile,
+): string {
+  const type = MAT_SET_CODE[code];
+  // Profile-aware label first: reuses the storefront's canonical set
+  // names (same ones the configurator shows), localized via labels.ts.
+  if (type && profile) {
+    const opt = MAT_SETS_BY_PROFILE[profile]?.find((s) => s.type === type);
+    if (opt) return localizeMatSet(t, opt.label);
+  }
   const key =
-    code === "front" || code === "FRONT"
+    type === "front"
       ? "email.matSetFront"
-      : code === "full" || code === "FULL"
+      : type === "full"
         ? "email.matSetFull"
-        : code === "cargo" || code === "CARGO"
+        : type === "cargo"
           ? "email.matSetCargo"
-          : code === "full-cargo" || code === "FULL_CARGO"
+          : type === "full-cargo"
             ? "email.matSetFullCargo"
             : null;
   return key ? t(key) : code;
@@ -88,12 +124,12 @@ export function itemsTable(t: TFn, items: OrderEmailItem[]): string {
           <td style="padding:14px 0;border-bottom:1px solid #222;">
             <div style="color:#F0ECE5;font-weight:500;">${i.brandName} ${i.modelName}${titleSuffix}</div>
             <div style="color:#8a8a8a;font-size:12px;margin-top:6px;">
-              ${matSetLabel(t, i.matSet)} · ×${i.quantity}
+              ${matSetLabel(t, i.matSet, i.profile)} · ×${i.quantity}
             </div>
             <div style="color:#bbb;font-size:12px;margin-top:6px;line-height:18px;">
-              ${swatch(i.colorHex, "square")}${i.colorName}
+              ${swatch(i.colorHex, "square")}${localizeColor(t, i.colorName)}
               <span style="color:#555;margin:0 6px;">·</span>
-              ${swatch(i.edgeColorHex, "round")}${i.edgeColorName}
+              ${swatch(i.edgeColorHex, "round")}${localizeColor(t, i.edgeColorName)}
             </div>
             ${badgeRow}
             ${heelPadRow}
@@ -145,7 +181,18 @@ export function baseTemplate(t: TFn, inner: string): string {
 </html>`;
 }
 
-export async function buildT(): Promise<TFn> {
+/**
+ * Translator for an email. Pass the ORDER's stored locale for anything
+ * customer-facing — the ambient request locale belongs to whoever
+ * triggered the send (an admin in a RU panel, a Stripe webhook with no
+ * cookies at all), not to the customer. Falls back to the request locale
+ * for legacy orders created before Order.locale existed, and for flows
+ * where the request really is the customer's (contact form).
+ */
+export async function buildT(locale?: string | null): Promise<TFn> {
+  if (isLocale(locale)) {
+    return makeT(getDictionaryFor(locale), getDictionaryFor(DEFAULT_LOCALE));
+  }
   const { dict, fallback } = await getDictionary();
   return makeT(dict, fallback);
 }

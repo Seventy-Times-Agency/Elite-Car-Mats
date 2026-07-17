@@ -299,7 +299,7 @@ export const operations: Dict = {
   "email.noteLabel": "Комментарий",
   "email.custSubject": "Заказ {orderNumber} принят — EliteCarMats",
   "email.custH1": "Спасибо за заказ, {name}!",
-  "email.custP": "Ваш заказ принят. Мы свяжемся для подтверждения в ближайшее время.",
+  "email.custP": "Ваш заказ принят — уже запускаем раскрой. Трек-номер придёт на почту в момент отправки из нашей мастерской в Рочестере.",
   "email.orderNumberLabel": "Номер заказа",
   "email.totalLabel": "Итого",
   "email.custTrackBtn": "Отследить заказ",

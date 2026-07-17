@@ -13,7 +13,7 @@ import {
 export async function sendCustomerOrderEmail(
   data: OrderEmailData,
 ): Promise<void> {
-  const t = await buildT();
+  const t = await buildT(data.locale);
   const html = baseTemplate(
     t,
     `

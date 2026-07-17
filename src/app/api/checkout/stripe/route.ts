@@ -9,6 +9,10 @@ import { signOrderToken, verifyOrderToken } from "@/lib/security/order-token";
 import { calculateItemUnitPrice } from "@/lib/pricing";
 import { loadPriceOverrides } from "@/lib/pricing-overrides";
 import { buildDbProfileResolver } from "@/lib/catalog-merge";
+import { getDictionaryFor } from "@/i18n/getDictionary";
+import { DEFAULT_LOCALE } from "@/i18n/config";
+import { makeT } from "@/i18n/dictionary";
+import { localizeColor } from "@/i18n/labels";
 import type { MatSetType } from "@/types";
 
 const schema = z.object({
@@ -126,6 +130,10 @@ export async function POST(request: Request) {
   // Profile via the merged catalog — findProfileByModelId alone can't see
   // admin custom models and would bill them at `standard` rates.
   const profileOf = await buildDbProfileResolver();
+  // Color names are stored in their canonical Russian form — localize the
+  // Stripe line-item descriptions so a US customer doesn't see "Чёрный /
+  // Тёмно-синий" on the payment page.
+  const tDesc = makeT(getDictionaryFor(locale), getDictionaryFor(DEFAULT_LOCALE));
   const items = order.items.map((i) => {
     const matSet = matSetFromEnum[i.product.matSet];
     if (!matSet) throw new Error(`Unknown matSet enum: ${i.product.matSet}`);
@@ -143,7 +151,10 @@ export async function POST(request: Request) {
     );
     const brandName = i.product.model.brand.name;
     const modelName = i.product.model.name;
-    const descBits = [i.color.name, i.edgeColor.name];
+    const descBits = [
+      localizeColor(tDesc, i.color.name),
+      localizeColor(tDesc, i.edgeColor.name),
+    ];
     if (i.badge) {
       const n = i.badgeCount ?? 1;
       descBits.push(`+ ${i.badge.brandName} badge${n > 1 ? ` ×${n}` : ""}`);

@@ -22,6 +22,8 @@ export async function scheduleReviewInvite(params: {
   customerName: string;
   customerEmail: string;
   delayMs: number;
+  /** Order's stored storefront locale — the customer's language. */
+  locale?: string | null;
 }): Promise<boolean> {
   const claimed = await prisma.order.updateMany({
     where: { id: params.orderId, reviewInviteSentAt: null },
@@ -36,6 +38,7 @@ export async function scheduleReviewInvite(params: {
       customerName: params.customerName,
       customerEmail: params.customerEmail,
       scheduledAt: new Date(Date.now() + params.delayMs).toISOString(),
+      locale: params.locale,
     });
     return true;
   } catch (err) {

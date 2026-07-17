@@ -8,8 +8,10 @@ export async function sendShippedEmail(params: {
   customerEmail: string;
   trackingNumber: string;
   orderToken?: string;
+  /** Order's stored storefront locale — the customer's language. */
+  locale?: string | null;
 }): Promise<void> {
-  const t = await buildT();
+  const t = await buildT(params.locale);
   const html = baseTemplate(
     t,
     `

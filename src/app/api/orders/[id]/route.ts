@@ -120,6 +120,7 @@ export async function PATCH(
       customerName: true,
       email: true,
       reviewInviteSentAt: true,
+      locale: true,
     },
   });
   if (!existing) {
@@ -158,6 +159,7 @@ export async function PATCH(
         customerEmail: existing.email,
         trackingNumber: updated.trackingNumber!,
         orderToken: signOrderToken(updated.id),
+        locale: existing.locale,
       });
     } catch (err) {
       // Status is already flipped — a Resend hiccup shouldn't bubble up
@@ -180,6 +182,7 @@ export async function PATCH(
       customerName: existing.customerName,
       customerEmail: existing.email,
       delayMs: REVIEW_INVITE_AFTER_SHIP_MS,
+      locale: existing.locale,
     });
   } else if (status === "DELIVERED" && existing.status !== "DELIVERED") {
     await scheduleReviewInvite({
@@ -188,6 +191,7 @@ export async function PATCH(
       customerName: existing.customerName,
       customerEmail: existing.email,
       delayMs: REVIEW_INVITE_AFTER_DELIVERY_MS,
+      locale: existing.locale,
     });
   }
 

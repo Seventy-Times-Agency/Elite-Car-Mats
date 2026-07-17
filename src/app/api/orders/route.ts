@@ -454,56 +454,13 @@ export async function POST(request: Request) {
         sendOwnerOrderEmail(emailData),
       ]).catch((err) => console.error("[orders] email send failed:", err)),
     );
-  } else {
-    // Stripe path: notify the owner now (so they see the lead even if the
-    // customer abandons the Stripe session). The customer email moves to
-    // the webhook.
-    const emailItems = itemsResolved.map(({ item: i, modelId }) => {
-      const names = resolveNames(i);
-      const colorRow = evaColors.find((c) => c.id === i.colorId);
-      const edgeRow = edgeColors.find((c) => c.id === i.edgeColorId);
-      return {
-        brandName: i.brandName,
-        modelName: i.modelName,
-        matSet: i.matSet,
-        colorName: names.colorName,
-        colorHex: colorRow?.hex ?? null,
-        edgeColorName: names.edgeColorName,
-        edgeColorHex: edgeRow?.hex ?? null,
-        badgeName: names.badgeName,
-        heelPad: i.heelPad ?? false,
-        year: i.year ?? null,
-        quantity: i.quantity,
-        unitPrice: calculateItemUnitPrice(
-          {
-            matSet: i.matSet,
-            modelId: modelId ?? i.modelId,
-            edgeColor: { id: i.edgeColorId },
-            badge: i.badgeId ? { id: i.badgeId } : null,
-            badgeCount: i.badgeCount ?? 1,
-            heelPad: i.heelPad ?? false,
-          },
-          overrides,
-        ),
-      };
-    });
-    after(() =>
-      sendOwnerOrderEmail({
-        orderNumber: createdOrder.orderNumber,
-        orderToken: signOrderToken(createdOrder.id),
-        customerName: customer.name,
-        customerEmail: customer.email,
-        phone: customer.phone,
-        address: shipping.address,
-        city: shipping.city || null,
-        state: shipping.state || null,
-        zip: shipping.zip || null,
-        comment: shipping.comment || null,
-        total: Number(createdOrder.total ?? 0),
-        items: emailItems,
-      }).catch((err) => console.error("[orders] owner email failed:", err)),
-    );
   }
+  // Stripe enabled: nothing is emailed here. BOTH the customer
+  // confirmation AND the owner notification fire from the Stripe webhook
+  // after `checkout.session.completed` (payment succeeded) — so an
+  // abandoned/unpaid checkout never sends a confirmation email nor
+  // creates an owner "lead" for a sale that never happened. The order
+  // stays PENDING and is excluded from admin revenue until it's paid.
 
   return NextResponse.json(
     {

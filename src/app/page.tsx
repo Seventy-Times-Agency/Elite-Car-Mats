@@ -3,7 +3,7 @@ import { CarSelectorSection } from "@/components/home/CarSelectorSection";
 import { ProcessSection } from "@/components/home/ProcessSection";
 import { MaterialsSection } from "@/components/home/MaterialsSection";
 import { FeaturesSection } from "@/components/home/FeaturesSection";
-import { GallerySection } from "@/components/home/GallerySection";
+// import { GallerySection } from "@/components/home/GallerySection"; // "Наши работы" — temporarily hidden
 import { ReviewsSection } from "@/components/home/ReviewsSection";
 import { ComparisonSection } from "@/components/home/ComparisonSection";
 import { FAQSection } from "@/components/home/FAQSection";
@@ -16,7 +16,7 @@ export default function HomePage() {
       <ProcessSection />
       <MaterialsSection />
       <FeaturesSection />
-      <GallerySection />
+      {/* <GallerySection /> — "Наши работы" temporarily hidden per request */}
       <ReviewsSection />
       <ComparisonSection />
       <FAQSection />

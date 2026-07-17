@@ -1,7 +1,12 @@
 "use client";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/context/CartContext";
+import {
+  loadPendingOrder,
+  savePendingOrder,
+  clearPendingOrder,
+} from "@/lib/checkout-session";
 import Link from "next/link";
 import {
   calculateItemUnitPrice,
@@ -112,6 +117,15 @@ export function CheckoutClient({ paymentEnabled }: { paymentEnabled: boolean }) 
   const [promoError, setPromoError] = useState<string | null>(null);
   const [promoChecking, setPromoChecking] = useState(false);
   const createdOrderRef = useRef<CreatedOrder | null>(null);
+
+  // Rehydrate an order created before a Stripe redirect — a customer who
+  // cancelled on the Stripe page and clicked "Try again" reuses their
+  // PENDING order instead of creating a duplicate (double promo use).
+  useEffect(() => {
+    if (!createdOrderRef.current) {
+      createdOrderRef.current = loadPendingOrder();
+    }
+  }, []);
 
   const onChange = (
     e: React.ChangeEvent<
@@ -288,6 +302,7 @@ export function CheckoutClient({ paymentEnabled }: { paymentEnabled: boolean }) 
         }
 
         createdOrderRef.current = { fingerprint, ...data };
+        savePendingOrder(createdOrderRef.current);
       }
 
       // With payments on, a missing orderToken is a server misconfig
@@ -315,7 +330,10 @@ export function CheckoutClient({ paymentEnabled }: { paymentEnabled: boolean }) 
           if (payRes.ok) {
             const payData = await payRes.json();
             if (payData?.url) {
-              clearCart();
+              // Deliberately NOT clearing the cart here — payment hasn't
+              // happened yet. A customer who cancels on the Stripe page
+              // comes back to an intact cart and can retry in one click;
+              // the success page clears the cart after actual payment.
               window.location.assign(payData.url);
               return;
             }
@@ -334,6 +352,7 @@ export function CheckoutClient({ paymentEnabled }: { paymentEnabled: boolean }) 
       }
 
       clearCart();
+      clearPendingOrder();
       const tokenQs = data.orderToken
         ? `?t=${encodeURIComponent(data.orderToken)}`
         : "";
@@ -538,24 +557,6 @@ export function CheckoutClient({ paymentEnabled }: { paymentEnabled: boolean }) 
                 />
               </div>
             </div>
-            {formError && (
-              <div className="text-sm text-error glass-card rounded-xl px-4 py-3 border-error/30">
-                {formError}
-              </div>
-            )}
-            <button
-              type="submit"
-              disabled={submitting}
-              className="w-full bg-gradient-to-r from-gold to-gold-light text-bg text-sm font-semibold tracking-wider uppercase py-4 rounded-xl shadow-[0_4px_24px_rgba(212,165,74,0.25)] hover:shadow-[0_6px_32px_rgba(212,165,74,0.35)] transition-all disabled:opacity-60 disabled:cursor-not-allowed"
-            >
-              {submitting
-                ? paymentEnabled
-                  ? t("co.payRedirecting")
-                  : t("co.submitting")
-                : paymentEnabled
-                  ? t("co.payStripe")
-                  : t("co.submit")}
-            </button>
           </div>
           <div>
             <div className="glass-card rounded-xl p-6 sticky top-24">
@@ -706,6 +707,27 @@ export function CheckoutClient({ paymentEnabled }: { paymentEnabled: boolean }) 
                   </span>
                 </div>
               </div>
+              {formError && (
+                <div className="mt-4 text-sm text-error glass-card rounded-xl px-4 py-3 border-error/30">
+                  {formError}
+                </div>
+              )}
+              {/* The pay button lives in the summary card so on mobile the
+                  customer sees the itemised total and the promo field
+                  BEFORE the button — not after it. */}
+              <button
+                type="submit"
+                disabled={submitting}
+                className="mt-5 w-full bg-gradient-to-r from-gold to-gold-light text-bg text-sm font-semibold tracking-wider uppercase py-4 rounded-xl shadow-[0_4px_24px_rgba(212,165,74,0.25)] hover:shadow-[0_6px_32px_rgba(212,165,74,0.35)] transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                {submitting
+                  ? paymentEnabled
+                    ? t("co.payRedirecting")
+                    : t("co.submitting")
+                  : paymentEnabled
+                    ? t("co.payStripe")
+                    : t("co.submit")}
+              </button>
               <p className="text-[11px] text-text-faint mt-4">
                 {t("co.confirmNote")}
               </p>

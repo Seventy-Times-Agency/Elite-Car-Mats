@@ -4,7 +4,7 @@ import { prisma } from "@/lib/db/prisma";
 import { requireAdmin, checkAdminCsrf } from "@/lib/security/auth";
 import { brandCreateSchema } from "@/lib/validations/catalog";
 import { brands as codeBrands } from "@/data/catalog";
-import { resetCatalogSeedCache } from "@/lib/db/seed";
+import { resetCatalogSeedCache, mirrorCustomBrandRow } from "@/lib/db/seed";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -75,6 +75,14 @@ export async function POST(request: Request) {
     // Force the next /api/orders cold-start to re-mirror this brand into
     // the Brand table so OrderItem.productId FKs resolve for it.
     resetCatalogSeedCache();
+    // Mirror into the Brand FK table right now too — the cache reset above
+    // only affects THIS lambda; warm /api/orders instances keep their seed
+    // cache until recycle and would otherwise 500 on the missing FK row.
+    try {
+      await mirrorCustomBrandRow({ slug: row.slug, name: row.name, logo: row.logo });
+    } catch (err) {
+      console.error("[admin:catalog:brand:create] mirror failed:", err);
+    }
     return NextResponse.json({ brand: row });
   } catch (err) {
     const msg = err instanceof Error ? err.message : "error";

@@ -10,7 +10,10 @@ export const dynamic = "force-dynamic";
 // promo by its code string, and a rename would orphan that history.
 // Recreate under a new name instead.
 const patchSchema = z.object({
-  discount: z.number().int().min(1).max(100).optional(),
+  // Capped at 99 — a 100% promo makes the order total $0, which Stripe
+  // Checkout rejects (min charge $0.50) and locks the customer out of
+  // completing payment entirely.
+  discount: z.number().int().min(1).max(99).optional(),
   description: z.string().max(200).optional().nullable(),
   maxUses: z.number().int().positive().optional().nullable(),
   minOrder: z.number().nonnegative().optional().nullable(),

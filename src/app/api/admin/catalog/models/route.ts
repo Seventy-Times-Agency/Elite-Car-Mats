@@ -3,8 +3,9 @@ import { revalidateTag } from "next/cache";
 import { prisma } from "@/lib/db/prisma";
 import { requireAdmin, checkAdminCsrf } from "@/lib/security/auth";
 import { modelCreateSchema } from "@/lib/validations/catalog";
-import { resetCatalogSeedCache } from "@/lib/db/seed";
+import { resetCatalogSeedCache, mirrorCustomModelRow } from "@/lib/db/seed";
 import { resolveBrandRef, codeBrandName } from "@/lib/catalog-brand-ref";
+import { asCategory, parseYears } from "@/lib/catalog-normalize";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -59,6 +60,7 @@ export async function POST(request: Request) {
   if ("error" in ref) {
     return NextResponse.json({ error: ref.error }, { status: ref.status });
   }
+  let parentBrand: { slug: string; name: string } | null = null;
   if (ref.brandId) {
     const parent = await prisma.customBrand.findUnique({
       where: { id: ref.brandId },
@@ -66,6 +68,10 @@ export async function POST(request: Request) {
     if (!parent) {
       return NextResponse.json({ error: "brand_not_found" }, { status: 404 });
     }
+    parentBrand = { slug: parent.slug, name: parent.name };
+  } else if (ref.codeBrandSlug) {
+    const name = codeBrandName(ref.codeBrandSlug);
+    if (name) parentBrand = { slug: ref.codeBrandSlug, name };
   }
   try {
     const row = await prisma.customModel.create({
@@ -83,6 +89,25 @@ export async function POST(request: Request) {
     // Force the next /api/orders cold-start to mirror this custom model
     // into Brand/Model/Product so the FK on OrderItem.productId resolves.
     resetCatalogSeedCache();
+    // Mirror right now too — warm /api/orders instances keep their seed
+    // cache, so without this an order for the new model 500s at the FK
+    // until every lambda recycles.
+    if (parentBrand) {
+      try {
+        await mirrorCustomModelRow({
+          id: `${parentBrand.slug}-${row.slug}`,
+          brandId: parentBrand.slug,
+          brandName: parentBrand.name,
+          name: row.name,
+          slug: row.slug,
+          years: parseYears(row.years),
+          bodyType: row.bodyType,
+          category: asCategory(row.category),
+        });
+      } catch (err) {
+        console.error("[admin:catalog:model:create] mirror failed:", err);
+      }
+    }
     return NextResponse.json({ model: row });
   } catch (err) {
     const msg = err instanceof Error ? err.message : "error";

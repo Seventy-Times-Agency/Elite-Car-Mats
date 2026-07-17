@@ -11,6 +11,7 @@ import { sendCustomerOrderEmail, sendOwnerOrderEmail } from "@/lib/email";
 import { signOrderToken } from "@/lib/security/order-token";
 import { calculateItemUnitPrice } from "@/lib/pricing";
 import { loadPriceOverrides } from "@/lib/pricing-overrides";
+import { buildDbProfileResolver } from "@/lib/catalog-merge";
 import { pushOrderToShipstation } from "@/lib/shipping/shipstation";
 import type { MatSetType } from "@/types";
 
@@ -181,6 +182,9 @@ async function sendOrderConfirmations(orderId: string): Promise<void> {
   });
   if (!order) return;
   const overrides = await loadPriceOverrides();
+  // Merged-catalog profile lookup — admin custom models would otherwise
+  // fall back to `standard` pricing in the emailed unit prices.
+  const profileOf = await buildDbProfileResolver();
   const emailData = {
     orderNumber: order.orderNumber,
     orderToken: signOrderToken(order.id),
@@ -217,6 +221,7 @@ async function sendOrderConfirmations(orderId: string): Promise<void> {
           {
             matSet,
             modelId: i.product.modelId,
+            profile: profileOf(i.product.modelId),
             edgeColor: { id: i.edgeColor.id },
             badge: i.badge ? { id: i.badge.id } : null,
             badgeCount: i.badgeCount ?? 1,
@@ -241,7 +246,19 @@ export async function POST(request: Request) {
   }
   const webhookSecret = getWebhookSecret();
   if (!webhookSecret) {
-    return NextResponse.json({ ok: true, skipped: "no-webhook-secret" });
+    // Stripe IS configured but the webhook secret is missing — a config
+    // error (rotation, env migration). Responding 200 here would make
+    // Stripe consider the delivery successful and stop retrying: paid
+    // orders would silently stay PENDING forever with no confirmation
+    // email and no revenue in admin. Fail loudly instead — Stripe retries
+    // and the endpoint shows red in the Dashboard until ops fixes the env.
+    console.error(
+      "[stripe-webhook] STRIPE_WEBHOOK_SECRET is not set while Stripe is configured — refusing event",
+    );
+    return NextResponse.json(
+      { error: "Webhook secret not configured" },
+      { status: 500 },
+    );
   }
 
   const signature = request.headers.get("stripe-signature");
@@ -379,6 +396,24 @@ export async function POST(request: Request) {
         const session = event.data.object as Stripe.Checkout.Session;
         const orderId = orderIdFromSession(session);
         if (orderId) {
+          // A session we deliberately expired because the customer opened
+          // a NEWER one (retry after cancel, second tab) must not cancel
+          // the order — the current session is still payable. The order
+          // row always points at the latest session; a mismatch means
+          // this event is for a superseded session.
+          const current = await prisma.order.findUnique({
+            where: { id: orderId },
+            select: { stripeSessionId: true },
+          });
+          if (
+            current?.stripeSessionId &&
+            current.stripeSessionId !== session.id
+          ) {
+            console.log(
+              `[stripe-webhook] ${event.id} order=${orderId} session superseded — not cancelling`,
+            );
+            break;
+          }
           const res = await prisma.order.updateMany({
             where: { id: orderId, status: "PENDING" },
             data: { status: "CANCELLED" },

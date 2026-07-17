@@ -97,6 +97,13 @@ export interface PriceableItem {
    * Optional for legacy callers — defaults to the `standard` profile.
    */
   modelId?: string;
+  /**
+   * Explicit vehicle profile. When set it wins over the modelId lookup —
+   * required for admin custom-catalog models, which are absent from the
+   * code catalog that `findProfileByModelId` searches (without this a
+   * custom minivan/pickup/semi would silently bill at `standard` rates).
+   */
+  profile?: VehicleConfigProfile;
   edgeColor: { id: string };
   badge?: { id: string } | null;
   /** Brand-logo plates count (1..mats in set). Absent = 1 when badge set. */
@@ -116,12 +123,13 @@ export function clampBadgeCount(
   item: {
     matSet: MatSetType;
     modelId?: string;
+    profile?: VehicleConfigProfile;
     badge?: { id: string } | null | undefined;
     badgeCount?: number | null;
   },
 ): number {
   if (!item.badge) return 0;
-  const profile = findProfileByModelId(item.modelId);
+  const profile = item.profile ?? findProfileByModelId(item.modelId);
   const max = getMatCount(profile, item.matSet);
   const requested = Math.floor(item.badgeCount ?? 1);
   if (!Number.isFinite(requested)) return 1;
@@ -132,6 +140,7 @@ export function calculateItemUnitPrice(
   item: {
     matSet: MatSetType;
     modelId?: string;
+    profile?: VehicleConfigProfile;
     edgeColor: { id: string };
     badge?: { id: string } | null | undefined;
     badgeCount?: number | null;
@@ -139,7 +148,7 @@ export function calculateItemUnitPrice(
   },
   overrides?: PriceOverrideMap,
 ): number {
-  const profile = findProfileByModelId(item.modelId);
+  const profile = item.profile ?? findProfileByModelId(item.modelId);
   const base = getMatSetPrice(profile, item.matSet, overrides);
   const badge = getBadgePrice(overrides) * clampBadgeCount(item);
   const heelPad = item.heelPad ? getHeelPadPrice(overrides) : 0;

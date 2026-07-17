@@ -146,6 +146,7 @@ export async function POST(request: Request) {
         badge: i.badge ? { id: i.badge.id } : null,
         badgeCount: i.badgeCount ?? 1,
         heelPad: i.heelPad ?? false,
+        thirdRow: i.thirdRow ?? false,
       },
       overrides,
     );
@@ -160,6 +161,7 @@ export async function POST(request: Request) {
       descBits.push(`+ ${i.badge.brandName} badge${n > 1 ? ` ×${n}` : ""}`);
     }
     if (i.heelPad) descBits.push(`+ aluminum heel pad`);
+    if (i.thirdRow) descBits.push(`+ ${tDesc("email.thirdRowSuffix")}`);
     const yearSuffix = i.year ? ` · ${i.year}` : "";
     return {
       name: `${brandName} ${modelName}${yearSuffix}`,

@@ -217,6 +217,7 @@ async function sendOrderConfirmations(orderId: string): Promise<void> {
           ? `${i.badge.brandName} badge${(i.badgeCount ?? 1) > 1 ? ` ×${i.badgeCount}` : ""}`
           : null,
         heelPad: i.heelPad ?? false,
+        thirdRow: i.thirdRow ?? false,
         year: i.year ?? null,
         quantity: i.quantity,
         unitPrice: calculateItemUnitPrice(
@@ -228,6 +229,7 @@ async function sendOrderConfirmations(orderId: string): Promise<void> {
             badge: i.badge ? { id: i.badge.id } : null,
             badgeCount: i.badgeCount ?? 1,
             heelPad: i.heelPad ?? false,
+            thirdRow: i.thirdRow ?? false,
           },
           overrides,
         ),

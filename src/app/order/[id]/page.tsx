@@ -228,6 +228,22 @@ export default async function OrderPage({
                         </span>
                       </>
                     )}
+                    {i.heelPad && (
+                      <>
+                        <span className="text-text-faint">·</span>
+                        <span className="text-gold/90">
+                          {s("cart.drawerHeelPadChip")}
+                        </span>
+                      </>
+                    )}
+                    {i.thirdRow && (
+                      <>
+                        <span className="text-text-faint">·</span>
+                        <span className="text-gold/90">
+                          {s("cart.drawerThirdRowChip")}
+                        </span>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>

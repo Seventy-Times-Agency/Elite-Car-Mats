@@ -6,7 +6,7 @@ import {
   MAT_SETS_BY_PROFILE,
   type MatSetOption,
 } from "@/data/catalog/mat-sets";
-import { BADGE_PRICE, HEEL_PAD_PRICE } from "@/lib/pricing";
+import { BADGE_PRICE, HEEL_PAD_PRICE, THIRD_ROW_PRICE } from "@/lib/pricing";
 import type { VehicleConfigProfile } from "@/lib/vehicle-profile";
 import { getDictionary } from "@/i18n/getDictionary";
 import { makeT } from "@/i18n/dictionary";
@@ -60,6 +60,10 @@ export default async function AdminPricingPage() {
     heelPad: {
       defaultPrice: HEEL_PAD_PRICE,
       override: overrideMap.get("addon:heelPad") ?? null,
+    },
+    thirdRow: {
+      defaultPrice: THIRD_ROW_PRICE,
+      override: overrideMap.get("addon:thirdRow") ?? null,
     },
   };
 

@@ -128,7 +128,8 @@ function sameConfig(a: CartItem, b: Omit<CartItem, "id">): boolean {
     a.edgeColor.id === b.edgeColor.id &&
     a.badge?.id === b.badge?.id &&
     (a.badge ? (a.badgeCount ?? 1) : 0) === (b.badge ? (b.badgeCount ?? 1) : 0) &&
-    (a.heelPad ?? false) === (b.heelPad ?? false)
+    (a.heelPad ?? false) === (b.heelPad ?? false) &&
+    (a.thirdRow ?? false) === (b.thirdRow ?? false)
   );
 }
 

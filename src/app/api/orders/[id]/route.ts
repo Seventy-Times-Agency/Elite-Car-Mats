@@ -79,6 +79,8 @@ export async function GET(
       color: { id: i.color.id, name: i.color.name, hex: i.color.hex },
       edgeColor: { id: i.edgeColor.id, name: i.edgeColor.name, hex: i.edgeColor.hex },
       badge: i.badge ? { id: i.badge.id, brandName: i.badge.brandName } : null,
+      heelPad: i.heelPad ?? false,
+      thirdRow: i.thirdRow ?? false,
       quantity: i.quantity,
       price: Number(i.price ?? 0),
     })),

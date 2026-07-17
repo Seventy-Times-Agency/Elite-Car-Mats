@@ -84,6 +84,7 @@ export default function CartPage() {
                       ? ` · ${item.badge.brandName}${(item.badgeCount ?? 1) > 1 ? ` ×${item.badgeCount}` : ""}`
                       : ""}
                     {item.heelPad ? ` · ${t("cart.drawerHeelPadChip")}` : ""}
+                    {item.thirdRow ? ` · ${t("cart.drawerThirdRowChip")}` : ""}
                   </p>
                   <div className="flex items-center gap-3 mt-3">
                     <button

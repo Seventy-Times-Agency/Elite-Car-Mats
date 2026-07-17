@@ -91,6 +91,11 @@ export interface CartItem {
   /** Aluminum heel pad add-on (+$17). */
   heelPad?: boolean;
   /**
+   * Third-row mats add-on — for 7-seat trims of standard-profile
+   * SUVs/crossovers the catalog can't distinguish from 5-seaters.
+   */
+  thirdRow?: boolean;
+  /**
    * Optional trim/floor-configuration note from the customer (hybrid,
    * AWD, 2nd-row captain chairs vs bench...) — one model can have
    * different floor pans per configuration, and the workshop needs

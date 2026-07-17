@@ -19,6 +19,14 @@ export const BADGE_PRICE = 9;
  */
 export const HEEL_PAD_PRICE = 17;
 
+/**
+ * Optional third-row mats add-on. Some standard-profile SUVs/crossovers
+ * come in 7-seat trims the catalog can't distinguish (same model id) —
+ * the configurator exposes a hidden "I have a third row" toggle instead
+ * of forking the catalog. Flat upcharge on top of the cabin set.
+ */
+export const THIRD_ROW_PRICE = 59;
+
 export const CURRENCY = "USD";
 export const CURRENCY_SYMBOL = "$";
 
@@ -89,6 +97,11 @@ export function getHeelPadPrice(overrides?: PriceOverrideMap): number {
   return typeof ov === "number" && Number.isFinite(ov) ? ov : HEEL_PAD_PRICE;
 }
 
+export function getThirdRowPrice(overrides?: PriceOverrideMap): number {
+  const ov = overrides?.get("addon:thirdRow");
+  return typeof ov === "number" && Number.isFinite(ov) ? ov : THIRD_ROW_PRICE;
+}
+
 export interface PriceableItem {
   matSet: MatSetType;
   /**
@@ -110,6 +123,8 @@ export interface PriceableItem {
   badgeCount?: number;
   /** Driver-side aluminum heel pad add-on. Adds HEEL_PAD_PRICE. */
   heelPad?: boolean;
+  /** Third-row mats add-on (7-seat trims of standard-profile SUVs). */
+  thirdRow?: boolean;
   quantity: number;
 }
 
@@ -145,6 +160,7 @@ export function calculateItemUnitPrice(
     badge?: { id: string } | null | undefined;
     badgeCount?: number | null;
     heelPad?: boolean;
+    thirdRow?: boolean;
   },
   overrides?: PriceOverrideMap,
 ): number {
@@ -152,7 +168,8 @@ export function calculateItemUnitPrice(
   const base = getMatSetPrice(profile, item.matSet, overrides);
   const badge = getBadgePrice(overrides) * clampBadgeCount(item);
   const heelPad = item.heelPad ? getHeelPadPrice(overrides) : 0;
-  return base + badge + heelPad;
+  const thirdRow = item.thirdRow ? getThirdRowPrice(overrides) : 0;
+  return base + badge + heelPad + thirdRow;
 }
 
 export function calculateItemTotal(

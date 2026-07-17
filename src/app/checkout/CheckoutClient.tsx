@@ -260,6 +260,7 @@ export function CheckoutClient({ paymentEnabled }: { paymentEnabled: boolean }) 
           // less than the checkout displayed (Sienna ×7 badges bug).
           badgeCount: i.badge ? (i.badgeCount ?? 1) : null,
           heelPad: i.heelPad ?? false,
+          thirdRow: i.thirdRow ?? false,
           quantity: i.quantity,
         })),
         promoCode: promoApplied?.code ?? null,
@@ -637,6 +638,12 @@ export function CheckoutClient({ paymentEnabled }: { paymentEnabled: boolean }) 
                             <>
                               <span>·</span>
                               <span className="text-gold/90">{t("cart.drawerHeelPadChip")}</span>
+                            </>
+                          )}
+                          {i.thirdRow && (
+                            <>
+                              <span>·</span>
+                              <span className="text-gold/90">{t("cart.drawerThirdRowChip")}</span>
                             </>
                           )}
                         </div>

@@ -26,6 +26,8 @@ export interface OrderEmailItem {
   badgeName?: string | null;
   /** Adds an "+ Aluminum heel pad" line under the item when true. */
   heelPad?: boolean;
+  /** Adds a "+ Third row" line under the item when true. */
+  thirdRow?: boolean;
   year?: number | null;
   quantity: number;
   unitPrice: number;
@@ -119,6 +121,9 @@ export function itemsTable(t: TFn, items: OrderEmailItem[]): string {
       const heelPadRow = i.heelPad
         ? `<div style="color:#D4A54A;font-size:12px;margin-top:4px;">+ ${t("email.heelPadSuffix")}</div>`
         : "";
+      const thirdRowRow = i.thirdRow
+        ? `<div style="color:#D4A54A;font-size:12px;margin-top:4px;">+ ${t("email.thirdRowSuffix")}</div>`
+        : "";
       return `
         <tr>
           <td style="padding:14px 0;border-bottom:1px solid #222;">
@@ -133,6 +138,7 @@ export function itemsTable(t: TFn, items: OrderEmailItem[]): string {
             </div>
             ${badgeRow}
             ${heelPadRow}
+            ${thirdRowRow}
           </td>
           <td style="padding:14px 0;border-bottom:1px solid #222;text-align:right;color:#D4A54A;font-weight:600;white-space:nowrap;vertical-align:top;">
             ${formatPrice(i.unitPrice * i.quantity)}

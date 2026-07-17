@@ -209,6 +209,14 @@ export function CartDrawer() {
                             </span>
                           </>
                         )}
+                        {item.thirdRow && (
+                          <>
+                            <span className="text-text-faint">·</span>
+                            <span className="text-gold/90">
+                              {t("cart.drawerThirdRowChip")}
+                            </span>
+                          </>
+                        )}
                       </div>
                     </div>
 

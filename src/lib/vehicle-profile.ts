@@ -248,6 +248,25 @@ export function getAvailableMatSets(
   }
 }
 
+/**
+ * Whether the optional third-row add-on can be sold for this
+ * profile+set. Only standard-profile vehicles qualify: some SUVs and
+ * crossovers exist in 7-seat trims the catalog can't distinguish, so
+ * the configurator exposes a hidden toggle instead of forking the
+ * model list. Minivans already include three rows in their sets;
+ * pickups / two-seaters / semis physically have no third row. Cabin
+ * sets only — a cargo-only order has no rows to extend.
+ *
+ * Single source of truth: the configurator UI, the order API's
+ * validation and the billing paths must all call this.
+ */
+export function thirdRowAvailable(
+  profile: VehicleConfigProfile,
+  matSet: MatSetType,
+): boolean {
+  return profile === "standard" && (matSet === "full" || matSet === "full-cargo");
+}
+
 export function getDefaultMatSet(profile: VehicleConfigProfile): MatSetType {
   // Default = first item in MAT_SETS_BY_PROFILE[profile]. Mirrors the
   // configurator's first option so we don't open the page on the most

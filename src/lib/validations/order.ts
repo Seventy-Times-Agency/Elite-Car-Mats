@@ -17,6 +17,7 @@ export const orderItemSchema = z.object({
   // clamps to the actual mat count of the chosen set via clampBadgeCount.
   badgeCount: z.number().int().min(1).max(20).optional().nullable(),
   heelPad: z.boolean().optional().default(false),
+  thirdRow: z.boolean().optional().default(false),
   quantity: z.number().int().min(1).max(99),
 });
 

@@ -24,6 +24,7 @@ import { MAT_SETS_BY_PROFILE } from "@/data/catalog/mat-sets";
 import { getMergedCatalog, dbModelIdFor } from "@/lib/catalog-merge";
 import {
   getVehicleProfile,
+  thirdRowAvailable,
   type VehicleConfigProfile,
 } from "@/lib/vehicle-profile";
 import { getDictionary, getLocaleFromCookie } from "@/i18n/getDictionary";
@@ -236,6 +237,17 @@ export async function POST(request: Request) {
         { status: 400 },
       );
     }
+    // Third-row add-on is only sold for standard-profile cabin sets —
+    // a hand-crafted POST must not attach it to minivans (already have
+    // 3 rows) or cargo-only orders.
+    if (i.thirdRow && !thirdRowAvailable(profile, i.matSet)) {
+      return NextResponse.json(
+        {
+          error: `The third-row add-on is not available for ${i.brandName} ${i.modelName} with mat set "${i.matSet}".`,
+        },
+        { status: 400 },
+      );
+    }
   }
 
   // Operator stock switches: an out-of-stock add-on must not slip into
@@ -275,6 +287,7 @@ export async function POST(request: Request) {
       badge: i.badgeId ? { id: i.badgeId } : null,
       badgeCount: i.badgeCount ?? 1,
       heelPad: i.heelPad ?? false,
+      thirdRow: i.thirdRow ?? false,
       quantity: i.quantity,
     })),
     overrides,
@@ -336,6 +349,7 @@ export async function POST(request: Request) {
                   })
                 : 1,
               heelPad: i.heelPad ?? false,
+              thirdRow: i.thirdRow ?? false,
               year: i.year ?? null,
               quantity: i.quantity,
               price: calculateItemUnitPrice(
@@ -347,6 +361,7 @@ export async function POST(request: Request) {
                   badge: i.badgeId ? { id: i.badgeId } : null,
                   badgeCount: i.badgeCount ?? 1,
                   heelPad: i.heelPad ?? false,
+                  thirdRow: i.thirdRow ?? false,
                 },
                 overrides,
               ),
@@ -448,6 +463,7 @@ export async function POST(request: Request) {
         edgeColorHex: edgeRow?.hex ?? null,
         badgeName: names.badgeName,
         heelPad: i.heelPad ?? false,
+        thirdRow: i.thirdRow ?? false,
         year: i.year ?? null,
         quantity: i.quantity,
         unitPrice: calculateItemUnitPrice(
@@ -459,6 +475,7 @@ export async function POST(request: Request) {
             badge: i.badgeId ? { id: i.badgeId } : null,
             badgeCount: i.badgeCount ?? 1,
             heelPad: i.heelPad ?? false,
+            thirdRow: i.thirdRow ?? false,
           },
           overrides,
         ),

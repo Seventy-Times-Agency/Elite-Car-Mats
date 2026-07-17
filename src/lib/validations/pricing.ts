@@ -29,7 +29,7 @@ export const priceOverrideUpsertSchema = z.union([
   // under the pseudo-profile `addon` — see getBadgePrice/getHeelPadPrice.
   z.object({
     profile: z.literal("addon"),
-    matSet: z.enum(["badge", "heelPad"]),
+    matSet: z.enum(["badge", "heelPad", "thirdRow"]),
     price: priceField,
   }),
 ]);

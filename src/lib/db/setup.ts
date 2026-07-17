@@ -333,6 +333,10 @@ async function execAll(): Promise<MigrationResult[]> {
       `ALTER TABLE "OrderItem" ADD COLUMN IF NOT EXISTS "heelPad" BOOLEAN NOT NULL DEFAULT FALSE`,
     );
     await run(
+      "orderItem.thirdRow",
+      `ALTER TABLE "OrderItem" ADD COLUMN IF NOT EXISTS "thirdRow" BOOLEAN NOT NULL DEFAULT FALSE`,
+    );
+    await run(
       "orderItem.badgeCount",
       `ALTER TABLE "OrderItem" ADD COLUMN IF NOT EXISTS "badgeCount" INTEGER NOT NULL DEFAULT 1`,
     );

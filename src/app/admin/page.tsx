@@ -202,10 +202,12 @@ export default async function AdminDashboardPage() {
   const t = makeT(dict, fallback);
 
   const now = new Date();
-  const today = startOfDay(now);
-  const last7 = new Date(today);
-  last7.setDate(last7.getDate() - 6);
-  const last30 = new Date(today);
+  // The revenue tiles below are calendar-aligned (today / this week from
+  // Monday / this month from the 1st) in the shop's timezone
+  // (America/New_York) via SQL date_trunc, so they reset on real
+  // day/week/month boundaries instead of sliding. The AOV window stays a
+  // rolling 30 days.
+  const last30 = startOfDay(now);
   last30.setDate(last30.getDate() - 29);
 
   // Revenue aggregations done in SQL — pulling N rows back to JS and
@@ -223,28 +225,35 @@ export default async function AdminDashboardPage() {
     recentOrders,
     aovRow,
     topModelsRaw,
+    weeklyHistoryRaw,
   ] = await Promise.all([
     // Only orders that were actually paid/confirmed count as real —
     // a PENDING (unpaid, possibly abandoned Stripe checkout) or CANCELLED
     // order must not inflate the order count or revenue.
     prisma.order.count({ where: { status: { notIn: ["PENDING", "CANCELLED"] } } }),
+    // Calendar TODAY in the shop's timezone (resets at NY midnight).
     prisma.$queryRaw<RevenueAgg[]>`
       SELECT COALESCE(SUM("total"), 0)::float AS sum, COUNT(*)::bigint AS n
       FROM "Order"
-      WHERE "createdAt" >= ${today}
-        AND "status" NOT IN ('PENDING', 'CANCELLED')
+      WHERE "status" NOT IN ('PENDING', 'CANCELLED')
+        AND ("createdAt" AT TIME ZONE 'UTC') AT TIME ZONE 'America/New_York'
+            >= date_trunc('day', (now() AT TIME ZONE 'America/New_York'))
     `,
+    // Calendar THIS WEEK (from Monday) in the shop's timezone.
     prisma.$queryRaw<RevenueAgg[]>`
       SELECT COALESCE(SUM("total"), 0)::float AS sum, COUNT(*)::bigint AS n
       FROM "Order"
-      WHERE "createdAt" >= ${last7}
-        AND "status" NOT IN ('PENDING', 'CANCELLED')
+      WHERE "status" NOT IN ('PENDING', 'CANCELLED')
+        AND ("createdAt" AT TIME ZONE 'UTC') AT TIME ZONE 'America/New_York'
+            >= date_trunc('week', (now() AT TIME ZONE 'America/New_York'))
     `,
+    // Calendar THIS MONTH (from the 1st) in the shop's timezone.
     prisma.$queryRaw<RevenueAgg[]>`
       SELECT COALESCE(SUM("total"), 0)::float AS sum, COUNT(*)::bigint AS n
       FROM "Order"
-      WHERE "createdAt" >= ${last30}
-        AND "status" NOT IN ('PENDING', 'CANCELLED')
+      WHERE "status" NOT IN ('PENDING', 'CANCELLED')
+        AND ("createdAt" AT TIME ZONE 'UTC') AT TIME ZONE 'America/New_York'
+            >= date_trunc('month', (now() AT TIME ZONE 'America/New_York'))
     `,
     prisma.review.count({ where: { approved: false } }),
     prisma.newsletterSubscriber.count(),
@@ -302,6 +311,27 @@ export default async function AdminDashboardPage() {
       ORDER BY units DESC
       LIMIT 5
     `,
+    // Weekly revenue history — the last 8 calendar weeks (Mon–Sun) in the
+    // shop's timezone, including weeks with zero sales (generate_series
+    // + LEFT JOIN) so an empty week is visibly $0, not missing.
+    prisma.$queryRaw<{ wk: Date; sum: number | null; n: bigint }[]>`
+      WITH weeks AS (
+        SELECT generate_series(
+          date_trunc('week', (now() AT TIME ZONE 'America/New_York')) - interval '7 weeks',
+          date_trunc('week', (now() AT TIME ZONE 'America/New_York')),
+          interval '1 week'
+        ) AS wk
+      )
+      SELECT w.wk AS wk,
+             COALESCE(SUM(o."total"), 0)::float AS sum,
+             COUNT(o."id")::bigint AS n
+      FROM weeks w
+      LEFT JOIN "Order" o
+        ON o."status" NOT IN ('PENDING', 'CANCELLED')
+       AND date_trunc('week', (o."createdAt" AT TIME ZONE 'UTC') AT TIME ZONE 'America/New_York') = w.wk
+      GROUP BY w.wk
+      ORDER BY w.wk DESC
+    `,
   ]);
 
   const revenueToday = Number(todayAgg?.[0]?.sum ?? 0);
@@ -321,6 +351,28 @@ export default async function AdminDashboardPage() {
     brandSlug: r.brandSlug,
     units: Number(r.units),
   }));
+
+  // Weekly history rows: `wk` is the NY-local Monday midnight stored as a
+  // tz-less timestamp, so format it in UTC to read the wall value back
+  // unchanged. Newest week first (index 0 = current week).
+  const fmtDay = (d: Date) =>
+    d.toLocaleDateString("en-US", {
+      timeZone: "UTC",
+      month: "short",
+      day: "numeric",
+    });
+  const weeklyHistory = weeklyHistoryRaw.map((r) => {
+    const start = new Date(r.wk);
+    const end = new Date(start);
+    end.setUTCDate(end.getUTCDate() + 6);
+    return {
+      key: start.toISOString(),
+      range: `${fmtDay(start)} – ${fmtDay(end)}`,
+      revenue: Number(r.sum ?? 0),
+      count: Number(r.n ?? 0),
+    };
+  });
+  const maxWeekRevenue = Math.max(1, ...weeklyHistory.map((w) => w.revenue));
 
   const tiles = [
     {
@@ -449,6 +501,44 @@ export default async function AdminDashboardPage() {
             </div>
           );
         })}
+      </div>
+
+      {/* Weekly revenue history — calendar weeks (Mon–Sun) in the shop
+          timezone, so the operator can check what any recent week earned. */}
+      <div className="mt-8 glass-card rounded-xl p-5">
+        <h2 className="text-sm font-semibold uppercase tracking-[0.2em] text-text-dim mb-4">
+          {t("admin.dashWeeklyTitle")}
+        </h2>
+        <div className="space-y-2.5">
+          {weeklyHistory.map((w, i) => (
+            <div key={w.key} className="flex items-center gap-3">
+              <div className="w-[104px] shrink-0 flex flex-col">
+                <span className="text-xs text-text-dim">{w.range}</span>
+                {i === 0 && (
+                  <span className="text-[9px] uppercase tracking-wider text-gold/80">
+                    {t("admin.dashThisWeek")}
+                  </span>
+                )}
+              </div>
+              <div className="flex-1 h-2 rounded-full bg-bg/60 overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-gold/60 to-gold rounded-full"
+                  style={{
+                    width: `${Math.round((w.revenue / maxWeekRevenue) * 100)}%`,
+                  }}
+                />
+              </div>
+              <div className="w-24 shrink-0 text-right">
+                <span className="text-gold font-semibold text-sm">
+                  {formatPrice(w.revenue)}
+                </span>
+                <span className="block text-[10px] text-text-faint">
+                  {w.count} {t("admin.dashOrdersWord")}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
       <div className="mt-10 grid grid-cols-1 lg:grid-cols-2 gap-8">

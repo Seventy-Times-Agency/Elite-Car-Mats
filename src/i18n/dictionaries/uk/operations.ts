@@ -86,6 +86,8 @@ export const operations: Dict = {
   "admin.dashRevenueWeek": "Виручка за тиждень",
   "admin.dashRevenueMonth": "Виручка за місяць",
   "admin.dashOrdersWord": "замовлень",
+  "admin.dashWeeklyTitle": "Дохід по тижнях (останні 8)",
+  "admin.dashThisWeek": "цей тиждень",
   "admin.dashTotalOrders": "Всього замовлень",
   "admin.dashAllTime": "За весь час",
   "admin.dashPendingReviews": "Відгуки на модерації",

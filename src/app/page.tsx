@@ -13,12 +13,12 @@ export default function HomePage() {
   return (
     <>
       <HeroSection />
+      <BeforeAfterSection />
       <CarSelectorSection />
       <ProcessSection />
       <MaterialsSection />
       <FeaturesSection />
       {/* <GallerySection /> — "Наши работы" temporarily hidden per request */}
-      <BeforeAfterSection />
       <ReviewsSection />
       <ComparisonSection />
       <FAQSection />

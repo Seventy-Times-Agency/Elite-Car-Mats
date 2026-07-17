@@ -578,6 +578,12 @@ export const storefront: Dict = {
   "gallery.tagFullCargo": "Полный + Багажник",
   "gallery.tagFull": "Полный комплект",
   "gallery.tagFrontsCargo": "Передние + Багажник",
+  "beforeAfter.label": "До / После",
+  "beforeAfter.title": "Почувствуйте разницу",
+  "beforeAfter.subtitle": "Один и тот же салон — изношенный штатный коврик против набора EliteCarMats EVA. Потяните ползунок, чтобы сравнить.",
+  "beforeAfter.before": "До",
+  "beforeAfter.after": "После",
+  "beforeAfter.hint": "Потяните, чтобы сравнить",
   "comparison.label": "Сравнение",
   "comparison.title": "Elite vs обычные коврики",
   "comparison.subtitle":

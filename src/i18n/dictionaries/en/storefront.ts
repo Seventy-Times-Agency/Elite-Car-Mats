@@ -581,6 +581,12 @@ export const storefront: Dict = {
   "gallery.tagFullCargo": "Full Set + Cargo",
   "gallery.tagFull": "Full Set",
   "gallery.tagFrontsCargo": "Fronts + Cargo",
+  "beforeAfter.label": "Before / After",
+  "beforeAfter.title": "See the difference",
+  "beforeAfter.subtitle": "Same footwell — a worn factory mat vs. a custom EliteCarMats EVA set. Drag the slider to compare.",
+  "beforeAfter.before": "Before",
+  "beforeAfter.after": "After",
+  "beforeAfter.hint": "Drag to compare",
   "comparison.label": "Comparison",
   "comparison.title": "Elite vs ordinary mats",
   "comparison.subtitle":

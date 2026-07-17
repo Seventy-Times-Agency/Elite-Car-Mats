@@ -81,13 +81,27 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let postPages: MetadataRoute.Sitemap = [];
   try {
     const posts = await listAllPublishedSlugs();
-    postPages = posts.flatMap((p) =>
-      localized(`/blog/${p.slug}`, {
+    postPages = posts.flatMap((p): MetadataRoute.Sitemap => {
+      // A locale-bound post exists at ONE url — getPublishedPost 404s it
+      // on the other two locales, so advertising all three put dead
+      // links (and false hreflang alternates) straight into the index.
+      if (p.locale) {
+        const prefix = p.locale === "en" ? "" : `/${p.locale}`;
+        return [
+          {
+            url: `${SITE}${prefix}/blog/${p.slug}`,
+            lastModified: p.updatedAt,
+            changeFrequency: "monthly",
+            priority: 0.55,
+          },
+        ];
+      }
+      return localized(`/blog/${p.slug}`, {
         lastModified: p.updatedAt,
         changeFrequency: "monthly",
         priority: 0.55,
-      }),
-    );
+      });
+    });
   } catch (err) {
     console.warn("[sitemap] blog query failed:", err);
   }

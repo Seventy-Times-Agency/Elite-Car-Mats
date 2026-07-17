@@ -1,3 +1,4 @@
+import { notFound } from "next/navigation";
 import ProductClient from "./ProductClient";
 import { getMergedCatalogCached } from "@/lib/catalog-merge";
 import { getAddonAvailability } from "@/lib/availability";
@@ -17,6 +18,8 @@ export default async function ProductPage({ params }: Params) {
     brand &&
     (models.find((m) => m.slug === modelSlug && m.brandId === brand.id) ??
       null);
+  // Real 404 for unknown brand/model — see the note in ../page.tsx.
+  if (!brand || !model) notFound();
 
   return (
     <ProductClient

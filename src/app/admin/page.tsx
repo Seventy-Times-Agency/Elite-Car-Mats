@@ -224,21 +224,27 @@ export default async function AdminDashboardPage() {
     aovRow,
     topModelsRaw,
   ] = await Promise.all([
-    prisma.order.count(),
+    // Only orders that were actually paid/confirmed count as real —
+    // a PENDING (unpaid, possibly abandoned Stripe checkout) or CANCELLED
+    // order must not inflate the order count or revenue.
+    prisma.order.count({ where: { status: { notIn: ["PENDING", "CANCELLED"] } } }),
     prisma.$queryRaw<RevenueAgg[]>`
       SELECT COALESCE(SUM("total"), 0)::float AS sum, COUNT(*)::bigint AS n
       FROM "Order"
       WHERE "createdAt" >= ${today}
+        AND "status" NOT IN ('PENDING', 'CANCELLED')
     `,
     prisma.$queryRaw<RevenueAgg[]>`
       SELECT COALESCE(SUM("total"), 0)::float AS sum, COUNT(*)::bigint AS n
       FROM "Order"
       WHERE "createdAt" >= ${last7}
+        AND "status" NOT IN ('PENDING', 'CANCELLED')
     `,
     prisma.$queryRaw<RevenueAgg[]>`
       SELECT COALESCE(SUM("total"), 0)::float AS sum, COUNT(*)::bigint AS n
       FROM "Order"
       WHERE "createdAt" >= ${last30}
+        AND "status" NOT IN ('PENDING', 'CANCELLED')
     `,
     prisma.review.count({ where: { approved: false } }),
     prisma.newsletterSubscriber.count(),
@@ -264,6 +270,7 @@ export default async function AdminDashboardPage() {
         COUNT(*)::bigint AS n
       FROM "Order"
       WHERE "createdAt" >= ${last30}
+        AND "status" NOT IN ('PENDING', 'CANCELLED')
     `,
     // Top-5 models by units sold across all time. Group by model
     // (multiple Product rows per model — one per matSet — would
@@ -286,9 +293,11 @@ export default async function AdminDashboardPage() {
         b."slug" AS "brandSlug",
         SUM(oi."quantity")::bigint AS units
       FROM "OrderItem" oi
+      JOIN "Order"   o ON o."id" = oi."orderId"
       JOIN "Product" p ON p."id" = oi."productId"
       JOIN "Model"   m ON m."id" = p."modelId"
       JOIN "Brand"   b ON b."id" = m."brandId"
+      WHERE o."status" NOT IN ('PENDING', 'CANCELLED')
       GROUP BY m."id", m."name", m."slug", b."name", b."slug"
       ORDER BY units DESC
       LIMIT 5

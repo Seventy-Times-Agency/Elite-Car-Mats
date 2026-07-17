@@ -27,8 +27,8 @@ export function ComparisonSection() {
           </p>
         </Reveal>
 
-        <div className="glass-card rounded-2xl overflow-hidden">
-          <div className="grid grid-cols-[1.1fr_1fr_1fr] lg:grid-cols-[1.3fr_1fr_1fr] divide-x divide-border/30">
+        <div className="hidden lg:block glass-card rounded-2xl overflow-hidden">
+          <div className="grid grid-cols-[1.3fr_1fr_1fr] divide-x divide-border/30">
             <div className="p-5 lg:p-6 bg-bg/50">
               <span className="section-label text-[10px]">{t("comparison.featureCol")}</span>
             </div>
@@ -65,6 +65,33 @@ export function ComparisonSection() {
                     <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
                   </svg>
                   <span className="text-text-dim text-sm leading-relaxed">{r.others}</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Mobile: stacked cards — the 3-column table is unreadable on phones. */}
+        <div className="lg:hidden space-y-3">
+          {rows.map((r) => (
+            <div key={r.feat} className="glass-card rounded-xl p-4">
+              <div className="section-label text-[10px] mb-3">{r.feat}</div>
+              <div className="flex items-start gap-2.5 mb-2.5">
+                <svg className="w-4 h-4 text-gold shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                </svg>
+                <div className="min-w-0">
+                  <div className="text-gold text-[10px] uppercase tracking-[0.12em] font-semibold mb-0.5">Elite Car Mats</div>
+                  <span className="text-text text-sm leading-snug">{r.ours}</span>
+                </div>
+              </div>
+              <div className="flex items-start gap-2.5">
+                <svg className="w-4 h-4 text-text-faint shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+                </svg>
+                <div className="min-w-0">
+                  <div className="text-text-faint text-[10px] uppercase tracking-[0.12em] font-semibold mb-0.5">{t("comparison.othersCol")}</div>
+                  <span className="text-text-dim text-sm leading-snug">{r.others}</span>
                 </div>
               </div>
             </div>

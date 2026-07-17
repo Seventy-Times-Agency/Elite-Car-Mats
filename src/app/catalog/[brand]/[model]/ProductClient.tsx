@@ -256,7 +256,7 @@ export default function ProductClient({
           </nav>
         </div>
       </div>
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-10 pb-28 lg:pb-10">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 lg:pt-5 pb-28 lg:pb-10">
         <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] gap-6 lg:gap-10">
           {/* Mobile-only header — name + price sit above the photo so the
               configurator (year → set → colors) starts right under it. On
@@ -311,7 +311,7 @@ export default function ProductClient({
               const isLive = slide === 0;
               return (
                 <div>
-                  <div className="aspect-[2/3] glass-card rounded-xl relative overflow-hidden p-4 lg:p-5">
+                  <div className="aspect-[2/3] glass-card rounded-xl relative overflow-hidden p-4 lg:p-5 max-w-[290px] mx-auto lg:max-w-none">
                     {isLive ? (
                       showVariantPhoto ? (
                         <Image
@@ -529,7 +529,7 @@ export default function ProductClient({
                 "which generation of this car do you have" qualifier, not
                 a configurator choice. Sits between the trust strip and
                 the configurator so the user confirms fit before styling. */}
-            <div className="mt-5 flex items-center gap-2.5">
+            <div className="mt-4 flex items-center gap-2.5">
               <label
                 htmlFor="year-picker"
                 className="text-[10px] uppercase tracking-[0.18em] text-text-dim font-semibold"
@@ -565,7 +565,7 @@ export default function ProductClient({
               </div>
             </div>
 
-            <div className="mt-6 space-y-4">
+            <div className="mt-5 space-y-4">
               {/* Section 1 — Set */}
               <section className="glass-card rounded-xl p-4">
                 <StepHeader n={1} label={t("prod.stepSet")} value={localizedSet} />

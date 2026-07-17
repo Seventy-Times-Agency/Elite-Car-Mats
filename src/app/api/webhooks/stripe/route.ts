@@ -7,7 +7,7 @@ import {
   getStripe,
 } from "@/lib/payments/stripe";
 import { constructWebhookEvent } from "@/lib/payments/stripe-checkout";
-import { sendCustomerOrderEmail } from "@/lib/email";
+import { sendCustomerOrderEmail, sendOwnerOrderEmail } from "@/lib/email";
 import { signOrderToken } from "@/lib/security/order-token";
 import { calculateItemUnitPrice } from "@/lib/pricing";
 import { loadPriceOverrides } from "@/lib/pricing-overrides";
@@ -165,7 +165,7 @@ async function saveReceiptUrl(
   }
 }
 
-async function sendCustomerConfirmation(orderId: string): Promise<void> {
+async function sendOrderConfirmations(orderId: string): Promise<void> {
   const order = await prisma.order.findUnique({
     where: { id: orderId },
     include: {
@@ -181,7 +181,7 @@ async function sendCustomerConfirmation(orderId: string): Promise<void> {
   });
   if (!order) return;
   const overrides = await loadPriceOverrides();
-  await sendCustomerOrderEmail({
+  const emailData = {
     orderNumber: order.orderNumber,
     orderToken: signOrderToken(order.id),
     customerName: order.customerName,
@@ -226,7 +226,13 @@ async function sendCustomerConfirmation(orderId: string): Promise<void> {
         ),
       };
     }),
-  });
+  };
+  // Both the customer confirmation AND the owner notification are sent
+  // only here — after Stripe confirms the payment succeeded.
+  await Promise.all([
+    sendCustomerOrderEmail(emailData),
+    sendOwnerOrderEmail(emailData),
+  ]);
 }
 
 export async function POST(request: Request) {
@@ -327,7 +333,7 @@ export async function POST(request: Request) {
             // alive until the callback settles.
             after(async () => {
               await saveReceiptUrl(orderId, paymentIntentId);
-              await sendCustomerConfirmation(orderId).catch((err) => {
+              await sendOrderConfirmations(orderId).catch((err) => {
                 console.error(
                   "[stripe-webhook] confirmation email failed:",
                   err,
@@ -356,7 +362,7 @@ export async function POST(request: Request) {
           );
           if (res.count === 1) {
             after(async () => {
-              await sendCustomerConfirmation(orderId).catch((err) => {
+              await sendOrderConfirmations(orderId).catch((err) => {
                 console.error(
                   "[stripe-webhook] confirmation email failed:",
                   err,

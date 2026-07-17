@@ -96,6 +96,8 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
+    // One-time hydration from localStorage — see the note in CartContext.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setItems((prev) => {
       const stored = load();
       if (prev.length === 0) return stored;

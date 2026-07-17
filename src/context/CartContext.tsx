@@ -143,6 +143,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
+    // One-time hydration from localStorage (an external system) — the
+    // setState here is exactly the "subscribe to external state" case;
+    // reading it in the useState initialiser instead is what caused the
+    // hydration-mismatch bug this replaces.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setItems((prev) => {
       const stored = loadCart();
       if (prev.length === 0) return stored;

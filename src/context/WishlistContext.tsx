@@ -4,6 +4,7 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
   type ReactNode,
@@ -34,6 +35,8 @@ interface WishlistContextType {
   remove: (modelId: string) => void;
   clear: () => void;
   count: number;
+  /** False until localStorage has been read on the client. */
+  hydrated: boolean;
 }
 
 const Ctx = createContext<WishlistContextType | undefined>(undefined);
@@ -85,10 +88,26 @@ function save(items: WishlistItem[]) {
 }
 
 export function WishlistProvider({ children }: { children: ReactNode }) {
-  // Lazy init: read localStorage once on first render so a fast click
-  // can't drop the saved list during the mount → effect gap. Same
-  // pattern as CartContext.
-  const [items, setItems] = useState<WishlistItem[]>(() => load());
+  // Two-phase init (same rationale as CartContext): reading localStorage
+  // in the useState initialiser made the first client render differ from
+  // the server HTML — a guaranteed hydration mismatch for anyone with a
+  // saved list (header badge, aria-pressed on hearts, /wishlist grid).
+  const [items, setItems] = useState<WishlistItem[]>([]);
+  const [hydrated, setHydrated] = useState(false);
+
+  useEffect(() => {
+    setItems((prev) => {
+      const stored = load();
+      if (prev.length === 0) return stored;
+      // Preserve any pre-hydration toggles on top of the stored list.
+      const ids = new Set(prev.map((i) => i.modelId));
+      return [...prev, ...stored.filter((i) => !ids.has(i.modelId))].slice(
+        0,
+        MAX_ITEMS,
+      );
+    });
+    setHydrated(true);
+  }, []);
 
   const persist = useCallback((next: WishlistItem[]) => {
     setItems(next);
@@ -122,8 +141,8 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
   const clear = useCallback(() => persist([]), [persist]);
 
   const value = useMemo<WishlistContextType>(
-    () => ({ items, has, toggle, remove, clear, count: items.length }),
-    [items, has, toggle, remove, clear],
+    () => ({ items, has, toggle, remove, clear, count: items.length, hydrated }),
+    [items, has, toggle, remove, clear, hydrated],
   );
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;

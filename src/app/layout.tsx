@@ -106,6 +106,18 @@ export async function generateMetadata(): Promise<Metadata> {
       email: true,
       address: true,
     },
+    // Meta (Facebook) Business Manager domain verification. Set
+    // NEXT_PUBLIC_META_DOMAIN_VERIFICATION to the code from Business
+    // Settings → Brand Safety → Domains; required for Aggregated Event
+    // Measurement, link-preview editing and catalog ads.
+    ...(process.env.NEXT_PUBLIC_META_DOMAIN_VERIFICATION
+      ? {
+          other: {
+            "facebook-domain-verification":
+              process.env.NEXT_PUBLIC_META_DOMAIN_VERIFICATION,
+          },
+        }
+      : {}),
   };
 }
 

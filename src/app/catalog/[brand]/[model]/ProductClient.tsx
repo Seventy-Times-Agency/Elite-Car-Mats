@@ -141,14 +141,17 @@ export default function ProductClient({
   }, []);
 
   // Meta Pixel: product view. Inert until the pixel id is configured.
+  // content_ids MUST match the feed's g:id (ECM-<brand>-<model>-<set>) —
+  // Advantage+ Catalog / dynamic retargeting matches events to catalog
+  // items strictly by id, so any other format gives a 0% match rate.
   useEffect(() => {
     if (!brand || !model) return;
     trackEvent("ViewContent", {
       content_type: "product",
-      content_ids: [`${brand.slug}-${model.slug}`],
+      content_ids: [`ECM-${brand.slug}-${model.slug}-${getDefaultMatSet(profile)}`],
       content_name: `${brand.name} ${model.name}`,
     });
-  }, [brand, model]);
+  }, [brand, model, profile]);
 
   if (!brand || !model)
     return (
@@ -211,7 +214,11 @@ export default function ProductClient({
     });
     trackEvent("AddToCart", {
       content_type: "product",
-      content_ids: [cartModelId],
+      // Feed-format sku (ECM-<brand>-<model>-<set>) — see ViewContent note.
+      content_ids: [`ECM-${cartModelId}-${ms.type}`],
+      contents: [
+        { id: `ECM-${cartModelId}-${ms.type}`, quantity: 1, item_price: unitPrice },
+      ],
       value: unitPrice,
       currency: "USD",
     });

@@ -22,7 +22,12 @@ export default async function ProductPage({ params }: Params) {
   if (!brand || !model) notFound();
 
   return (
+    // Keyed by brand+model: App Router reuses the client component
+    // instance across product→product navigation (⌘K search), which let
+    // the previous car's `year` / configNote state leak into the next
+    // order. The key remounts the configurator with fresh state.
     <ProductClient
+      key={`${brandSlug}-${modelSlug}`}
       brand={brand}
       model={model ?? null}
       addonAvailability={addonAvailability}

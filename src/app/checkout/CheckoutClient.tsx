@@ -91,7 +91,7 @@ interface CreatedOrder {
 
 export function CheckoutClient({ paymentEnabled }: { paymentEnabled: boolean }) {
   const router = useRouter();
-  const { items, clearCart } = useCart();
+  const { items, clearCart, hydrated } = useCart();
   const t = useT();
   const locale = useLocale();
   const priceOverrides = usePriceOverrides();
@@ -209,6 +209,14 @@ export function CheckoutClient({ paymentEnabled }: { paymentEnabled: boolean }) 
       value: total,
       currency: "USD",
       num_items: items.length,
+      content_type: "product",
+      // Feed-format skus (ECM-<brand>-<model>-<set>) for catalog matching.
+      content_ids: items.map((i) => `ECM-${i.modelId}-${i.matSet}`),
+      contents: items.map((i) => ({
+        id: `ECM-${i.modelId}-${i.matSet}`,
+        quantity: i.quantity,
+        item_price: calculateItemUnitPrice(i, priceOverrides),
+      })),
     });
     setSubmitting(true);
     try {
@@ -362,6 +370,10 @@ export function CheckoutClient({ paymentEnabled }: { paymentEnabled: boolean }) 
       setSubmitting(false);
     }
   };
+
+  // Until localStorage is read, render a quiet placeholder instead of
+  // flashing the "cart is empty" screen at every returning customer.
+  if (!hydrated) return <div className="min-h-[60vh]" />;
 
   if (!items.length)
     return (

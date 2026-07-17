@@ -80,7 +80,7 @@ export function HeroSection() {
                   </div>
 
                   {/* Bottom info */}
-                  <div className="absolute bottom-5 left-5 right-5 flex items-end justify-between text-shadow drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
+                  <div className="absolute bottom-5 left-5 right-5 flex items-end justify-between drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
                     <div>
                       <div className="text-[9px] uppercase tracking-[0.2em] text-text-faint">{t("hero.cardEdge")}</div>
                       <div className="text-gold font-semibold text-sm mt-0.5">{t("hero.cardEdgeValue")}</div>

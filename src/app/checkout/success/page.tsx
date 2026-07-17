@@ -37,9 +37,23 @@ function SuccessBody() {
         );
         if (!res.ok || cancelled) return;
         const data = await res.json();
+        const items: { productId?: string; quantity?: number; price?: number }[] =
+          Array.isArray(data.items) ? data.items : [];
+        const withIds = items.filter((i) => typeof i.productId === "string");
         trackEvent(
           "Purchase",
-          { value: Number(data.total ?? 0), currency: "USD" },
+          {
+            value: Number(data.total ?? 0),
+            currency: "USD",
+            content_type: "product",
+            // Feed-format skus so catalog campaigns can match the sale.
+            content_ids: withIds.map((i) => `ECM-${i.productId}`),
+            contents: withIds.map((i) => ({
+              id: `ECM-${i.productId}`,
+              quantity: i.quantity ?? 1,
+              item_price: Number(i.price ?? 0),
+            })),
+          },
           `purchase-${orderNumber}`,
         );
       } catch {

@@ -67,6 +67,10 @@ export function CartDrawer() {
         role="dialog"
         aria-modal="true"
         aria-labelledby="cart-drawer-title"
+        // `inert` while closed: the panel is only translated off-screen,
+        // so without it every button inside stays in the tab order and a
+        // keyboard user falls into invisible controls (WCAG 2.4.3/2.4.7).
+        inert={!isOpen}
         className={`fixed inset-y-0 right-0 z-[61] w-full sm:w-[440px] bg-gradient-to-br from-bg-elevated via-bg to-bg-elevated border-l border-gold/15 shadow-[-30px_0_80px_rgba(0,0,0,0.7)] flex flex-col transition-transform duration-300 ease-out ${
           isOpen ? "translate-x-0" : "translate-x-full"
         }`}

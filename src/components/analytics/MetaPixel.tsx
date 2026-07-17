@@ -2,30 +2,42 @@
 
 import Script from "next/script";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { META_PIXEL_ID } from "@/lib/analytics";
+import { getConsent, CONSENT_EVENT } from "@/lib/consent";
 
 /**
  * Meta Pixel bootstrap. Renders nothing until NEXT_PUBLIC_META_PIXEL_ID
- * is configured. The init snippet fires the first PageView; App Router
- * client-side navigations fire follow-up PageViews from the pathname
- * effect (the browser never reloads, so the snippet alone would only
- * count the landing page).
+ * is configured AND the visitor has accepted cookies — the privacy
+ * policy promises analytics only with consent, so loading fbevents.js
+ * unconditionally would make that promise false (an FTC §5 / CPRA
+ * "sharing" problem, not just a courtesy). The init snippet fires the
+ * first PageView; App Router client-side navigations fire follow-up
+ * PageViews from the pathname effect (the browser never reloads, so the
+ * snippet alone would only count the landing page).
  */
 export function MetaPixel() {
   const pathname = usePathname();
   const first = useRef(true);
+  const [consented, setConsented] = useState(false);
 
   useEffect(() => {
-    if (!META_PIXEL_ID) return;
+    const update = () => setConsented(getConsent() === "accepted");
+    update();
+    window.addEventListener(CONSENT_EVENT, update);
+    return () => window.removeEventListener(CONSENT_EVENT, update);
+  }, []);
+
+  useEffect(() => {
+    if (!META_PIXEL_ID || !consented) return;
     if (first.current) {
       first.current = false;
       return;
     }
     window.fbq?.("track", "PageView");
-  }, [pathname]);
+  }, [pathname, consented]);
 
-  if (!META_PIXEL_ID) return null;
+  if (!META_PIXEL_ID || !consented) return null;
 
   return (
     <>

@@ -69,6 +69,9 @@ export async function GET(
     createdAt: order.createdAt.toISOString(),
     items: order.items.map((i) => ({
       id: i.id,
+      // `<brandSlug>-<modelSlug>-<set>` — prefixed with "ECM-" this is the
+      // Merchant/Meta feed sku, used by the Purchase pixel event.
+      productId: i.productId,
       brandName: i.product.model.brand.name,
       modelName: i.product.model.name,
       matSet: i.product.matSet,

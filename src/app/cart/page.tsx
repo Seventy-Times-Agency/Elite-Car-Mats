@@ -11,10 +11,12 @@ import { localizeColor, localizeMatSet } from "@/i18n/labels";
 import { usePriceOverrides } from "@/context/PriceOverridesContext";
 
 export default function CartPage() {
-  const { items, removeItem, updateQuantity, clearCart } = useCart();
+  const { items, removeItem, updateQuantity, clearCart, hydrated } = useCart();
   const priceOverrides = usePriceOverrides();
   const total = calculateOrderTotal(items, priceOverrides);
   const t = useT();
+
+  if (!hydrated) return <div className="min-h-[60vh]" />;
 
   if (items.length === 0)
     return (

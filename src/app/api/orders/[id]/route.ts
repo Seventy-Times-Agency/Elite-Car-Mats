@@ -126,6 +126,7 @@ export async function PATCH(
       email: true,
       reviewInviteSentAt: true,
       locale: true,
+      carrier: true,
     },
   });
   if (!existing) {
@@ -164,6 +165,7 @@ export async function PATCH(
         customerEmail: existing.email,
         trackingNumber: updated.trackingNumber!,
         orderToken: signOrderToken(updated.id),
+        carrier: existing.carrier,
         locale: existing.locale,
       });
     } catch (err) {

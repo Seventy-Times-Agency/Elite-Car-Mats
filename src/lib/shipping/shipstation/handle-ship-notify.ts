@@ -149,6 +149,7 @@ async function applyShipmentToOrder(shipment: SsShipment): Promise<boolean> {
         customerEmail: order.email,
         trackingNumber: shipment.trackingNumber,
         orderToken: signOrderToken(orderId),
+        carrier: shipment.carrierCode,
         locale: order.locale,
       });
       // Anchor the review invite to the automatic SHIPPED transition —

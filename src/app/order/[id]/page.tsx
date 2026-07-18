@@ -8,6 +8,7 @@ import { CopyNumber } from "./CopyNumber";
 import { getDictionary } from "@/i18n/getDictionary";
 import { makeT, type Dict } from "@/i18n/dictionary";
 import { localizeColor } from "@/i18n/labels";
+import { trackingUrl } from "@/lib/tracking-url";
 
 export const dynamic = "force-dynamic";
 
@@ -138,7 +139,18 @@ export default async function OrderPage({
           {order.trackingNumber && (
             <p className="mt-4 text-sm text-text-dim">
               {s("ord.tracking")}:{" "}
-              <span className="text-text font-mono">{order.trackingNumber}</span>
+              {trackingUrl(order.trackingNumber, order.carrier) ? (
+                <a
+                  href={trackingUrl(order.trackingNumber, order.carrier)!}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gold hover:text-gold-light font-mono underline underline-offset-4 decoration-gold/40 transition-colors"
+                >
+                  {order.trackingNumber}
+                </a>
+              ) : (
+                <span className="text-text font-mono">{order.trackingNumber}</span>
+              )}
             </p>
           )}
           {order.receiptUrl && (

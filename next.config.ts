@@ -13,7 +13,7 @@ const CSP = [
   // dev/preview; production loads the same-origin /_vercel/insights copy.
   // connect.facebook.net serves the Meta Pixel loader (fbevents.js);
   // its beacons are already covered by img-src/connect-src https:.
-  "script-src 'self' 'unsafe-inline' https://vercel.live https://va.vercel-scripts.com https://connect.facebook.net",
+  "script-src 'self' 'unsafe-inline' https://vercel.live https://va.vercel-scripts.com https://connect.facebook.net https://www.googletagmanager.com",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https:",
   "font-src 'self' data:",

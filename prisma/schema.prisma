@@ -156,6 +156,9 @@ model Order {
   // emails render in THIS language — not in the locale of whichever
   // request (admin panel, Stripe webhook) happens to trigger the send.
   locale                String?
+  // Resend id of the scheduled abandoned-checkout email — the webhook
+  // cancels it the moment the customer actually pays.
+  abandonedEmailId      String?
   items                 OrderItem[]
   createdAt             DateTime    @default(now())
   updatedAt             DateTime    @updatedAt

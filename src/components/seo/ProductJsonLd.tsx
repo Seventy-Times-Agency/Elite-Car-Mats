@@ -3,6 +3,7 @@ import {
   FACEBOOK_URL,
   INSTAGRAM_URL,
 } from "@/lib/contacts";
+import { jsonLdString } from "@/lib/seo/json-ld";
 
 interface Props {
   brand: string;
@@ -78,7 +79,7 @@ export function ProductJsonLd({
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
+      dangerouslySetInnerHTML={{ __html: jsonLdString(data) }}
     />
   );
 }
@@ -111,7 +112,7 @@ export function OrganizationJsonLd() {
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
+      dangerouslySetInnerHTML={{ __html: jsonLdString(data) }}
     />
   );
 }
@@ -136,7 +137,7 @@ export function BreadcrumbJsonLd({ items }: { items: BreadcrumbItem[] }) {
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
+      dangerouslySetInnerHTML={{ __html: jsonLdString(data) }}
     />
   );
 }
@@ -159,7 +160,7 @@ export function FaqJsonLd({ items }: { items: FaqItem[] }) {
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
+      dangerouslySetInnerHTML={{ __html: jsonLdString(data) }}
     />
   );
 }

@@ -5,6 +5,8 @@ import { requireAdmin } from "@/lib/security/auth";
 import { verifyOrderToken } from "@/lib/security/order-token";
 import { formatPrice } from "@/lib/pricing";
 import { CopyNumber } from "./CopyNumber";
+import { PayNowButton } from "./PayNowButton";
+import { isStripeConfigured } from "@/lib/payments/stripe";
 import { getDictionary } from "@/i18n/getDictionary";
 import { makeT, type Dict } from "@/i18n/dictionary";
 import { localizeColor } from "@/i18n/labels";
@@ -169,6 +171,12 @@ export default async function OrderPage({
             </p>
           )}
         </div>
+
+        {/* PENDING + Stripe on: one-click "complete payment" — the landing
+            target for the abandoned-checkout email and payment retries. */}
+        {token && order.status === "PENDING" && isStripeConfigured() && (
+          <PayNowButton orderId={order.id} orderToken={token} />
+        )}
 
         {/* Review CTA — once the mats have shipped, the customer's own
             order page is the easiest place to leave a review. The token

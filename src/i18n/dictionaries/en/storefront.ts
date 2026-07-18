@@ -94,7 +94,7 @@ export const storefront: Dict = {
   "hero.titleLine2": "cut for",
   "hero.titleLine3": "your exact car.",
   "hero.subtitle":
-    "Premium EVA, hand-cut to your model's dedicated pattern and hand-sewn in Rochester, NY. Made to order. Free US shipping.",
+    "Premium EVA, hand-cut to your model's dedicated pattern and hand-sewn in Rochester, NY. Made to order — from $119, free US shipping.",
   "hero.learnMore": "How it's made",
   "hero.statModels": "Patterns",
   "hero.statLifespan": "Lifespan",
@@ -282,6 +282,11 @@ export const storefront: Dict = {
   "ord.reviewCtaTitle": "How are the mats?",
   "ord.reviewCtaSub": "Two minutes of your time helps other drivers pick right — and we read every word.",
   "ord.reviewCtaBtn": "Leave a review",
+  "ord.payNowTitle": "Your order is waiting for payment",
+  "ord.payNowSub": "Everything is saved — finish the secure Stripe checkout and we'll start cutting.",
+  "ord.payNow": "Complete payment",
+  "ord.payNowBusy": "Redirecting…",
+  "ord.payNowErr": "Could not start the payment. Please try again, or call/WhatsApp (585) 880-8472.",
   "ord.checkEmail":
     "Order updates go to {email}: confirmation, shipping and the tracking number. Check the Spam folder if you don't see them.",
   "ord.summary": "Order summary",

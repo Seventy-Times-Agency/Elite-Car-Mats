@@ -13,6 +13,8 @@ import { calculateItemUnitPrice } from "@/lib/pricing";
 import { loadPriceOverrides } from "@/lib/pricing-overrides";
 import { buildDbProfileResolver } from "@/lib/catalog-merge";
 import { pushOrderToShipstation } from "@/lib/shipping/shipstation";
+import { cancelScheduledEmail } from "@/lib/email/transport";
+import { sendMetaPurchase } from "@/lib/analytics/meta-capi";
 import type { MatSetType } from "@/types";
 
 // Webhooks must see the raw body for signature verification. In the App
@@ -161,6 +163,47 @@ async function saveReceiptUrl(
   } catch (err) {
     console.error(
       `[stripe-webhook] receipt url fetch failed for order=${orderId}:`,
+      err,
+    );
+  }
+}
+
+
+/**
+ * Post-payment side effects that are nice-to-have but must never block
+ * or fail the webhook: withdraw the scheduled abandoned-checkout email
+ * (the customer paid — the reminder would be embarrassing) and report
+ * the Purchase to Meta's Conversions API (deduped with the browser
+ * pixel via event_id).
+ */
+async function firePostPaymentEffects(orderId: string): Promise<void> {
+  try {
+    const order = await prisma.order.findUnique({
+      where: { id: orderId },
+      include: { items: true },
+    });
+    if (!order) return;
+    if (order.abandonedEmailId) {
+      await cancelScheduledEmail(order.abandonedEmailId);
+    }
+    await sendMetaPurchase({
+      orderNumber: order.orderNumber,
+      valueUsd: Number(order.total ?? 0),
+      email: order.email,
+      phone: order.phone,
+      customerName: order.customerName,
+      city: order.city,
+      state: order.state,
+      zip: order.zip,
+      contents: order.items.map((i) => ({
+        id: `ECM-${i.productId}`,
+        quantity: i.quantity,
+        item_price: Number(i.price ?? 0),
+      })),
+    });
+  } catch (err) {
+    console.error(
+      `[stripe-webhook] post-payment effects failed for order=${orderId}:`,
       err,
     );
   }
@@ -354,6 +397,7 @@ export async function POST(request: Request) {
             // alive until the callback settles.
             after(async () => {
               await saveReceiptUrl(orderId, paymentIntentId);
+              await firePostPaymentEffects(orderId);
               await sendOrderConfirmations(orderId).catch((err) => {
                 console.error(
                   "[stripe-webhook] confirmation email failed:",
@@ -383,6 +427,7 @@ export async function POST(request: Request) {
           );
           if (res.count === 1) {
             after(async () => {
+              await firePostPaymentEffects(orderId);
               await sendOrderConfirmations(orderId).catch((err) => {
                 console.error(
                   "[stripe-webhook] confirmation email failed:",

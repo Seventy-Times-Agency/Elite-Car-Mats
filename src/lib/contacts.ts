@@ -15,9 +15,11 @@ export const CONTACT_PHONE_HREF = `tel:${CONTACT_PHONE_E164}`;
 export const WHATSAPP_HREF = "https://wa.me/15858808472";
 
 /**
- * Social profiles. Empty string = the icon simply doesn't render, so
- * these can go live the moment the URLs are set on Vercel — no code
- * change needed.
+ * Social profiles. Empty string = the icon simply doesn't render.
+ * Env vars override the code defaults, so a handle change is one
+ * Vercel setting away — no code change needed.
  */
 export const FACEBOOK_URL = process.env.NEXT_PUBLIC_FACEBOOK_URL ?? "";
-export const INSTAGRAM_URL = process.env.NEXT_PUBLIC_INSTAGRAM_URL ?? "";
+export const INSTAGRAM_URL =
+  process.env.NEXT_PUBLIC_INSTAGRAM_URL ??
+  "https://www.instagram.com/elitecarmats.us/";

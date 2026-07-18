@@ -13,6 +13,8 @@ import { calculateItemUnitPrice } from "@/lib/pricing";
 import { loadPriceOverrides } from "@/lib/pricing-overrides";
 import { buildDbProfileResolver } from "@/lib/catalog-merge";
 import { pushOrderToShipstation } from "@/lib/shipping/shipstation";
+import { cancelScheduledEmail } from "@/lib/email/transport";
+import { sendMetaPurchase } from "@/lib/analytics/meta-capi";
 import type { MatSetType } from "@/types";
 
 // Webhooks must see the raw body for signature verification. In the App
@@ -161,6 +163,84 @@ async function saveReceiptUrl(
   } catch (err) {
     console.error(
       `[stripe-webhook] receipt url fetch failed for order=${orderId}:`,
+      err,
+    );
+  }
+}
+
+
+/**
+ * Expire any still-open Checkout session for this order that is NOT the
+ * one that just got paid. A session with an in-flight payment can't be
+ * expired by the checkout route (expire only works on status "open"), so
+ * after a payment lands this is the last line of defense against every
+ * "two live sessions" state: without it the other session stays payable
+ * for up to 24h and produces a second charge the status-guarded
+ * updateMany would silently ignore.
+ */
+async function expireOtherOpenSession(
+  orderId: string,
+  paidSessionId: string,
+): Promise<void> {
+  try {
+    const row = await prisma.order.findUnique({
+      where: { id: orderId },
+      select: { stripeSessionId: true },
+    });
+    const otherId = row?.stripeSessionId;
+    if (!otherId || otherId === paidSessionId) return;
+    const stripe = await getStripe();
+    if (!stripe) return;
+    const other = await stripe.checkout.sessions.retrieve(otherId);
+    if (other.status === "open") {
+      await stripe.checkout.sessions.expire(otherId);
+      console.log(
+        `[stripe-webhook] order=${orderId} expired sibling session ${otherId}`,
+      );
+    }
+  } catch (err) {
+    console.error(
+      `[stripe-webhook] sibling session expiry failed for order=${orderId}:`,
+      err,
+    );
+  }
+}
+
+/**
+ * Post-payment side effects that are nice-to-have but must never block
+ * or fail the webhook: withdraw the scheduled abandoned-checkout email
+ * (the customer paid — the reminder would be embarrassing) and report
+ * the Purchase to Meta's Conversions API (deduped with the browser
+ * pixel via event_id).
+ */
+async function firePostPaymentEffects(orderId: string): Promise<void> {
+  try {
+    const order = await prisma.order.findUnique({
+      where: { id: orderId },
+      include: { items: true },
+    });
+    if (!order) return;
+    if (order.abandonedEmailId) {
+      await cancelScheduledEmail(order.abandonedEmailId);
+    }
+    await sendMetaPurchase({
+      orderNumber: order.orderNumber,
+      valueUsd: Number(order.total ?? 0),
+      email: order.email,
+      phone: order.phone,
+      customerName: order.customerName,
+      city: order.city,
+      state: order.state,
+      zip: order.zip,
+      contents: order.items.map((i) => ({
+        id: `ECM-${i.productId}`,
+        quantity: i.quantity,
+        item_price: Number(i.price ?? 0),
+      })),
+    });
+  } catch (err) {
+    console.error(
+      `[stripe-webhook] post-payment effects failed for order=${orderId}:`,
       err,
     );
   }
@@ -353,7 +433,9 @@ export async function POST(request: Request) {
             // floating promise, the serverless runtime keeps the instance
             // alive until the callback settles.
             after(async () => {
+              await expireOtherOpenSession(orderId, session.id);
               await saveReceiptUrl(orderId, paymentIntentId);
+              await firePostPaymentEffects(orderId);
               await sendOrderConfirmations(orderId).catch((err) => {
                 console.error(
                   "[stripe-webhook] confirmation email failed:",
@@ -374,15 +456,45 @@ export async function POST(request: Request) {
         const session = event.data.object as Stripe.Checkout.Session;
         const orderId = orderIdFromSession(session);
         if (orderId) {
+          // Mirror the `completed` handler: delayed-notification methods
+          // (e.g. ACH) must also record the payment intent (refunds need
+          // it), the Stripe-collected shipping address, and the receipt —
+          // otherwise such orders ship to the /checkout form address and
+          // show no receipt link.
+          const paymentIntentId =
+            typeof session.payment_intent === "string"
+              ? session.payment_intent
+              : (session.payment_intent?.id ?? null);
+          const sd = session.collected_information?.shipping_details;
+          const shippingOverlay =
+            sd?.address && sd?.name
+              ? {
+                  customerName: sd.name,
+                  address: [sd.address.line1, sd.address.line2]
+                    .filter(Boolean)
+                    .join(", "),
+                  city: sd.address.city ?? null,
+                  state: sd.address.state ?? null,
+                  zip: sd.address.postal_code ?? null,
+                }
+              : {};
           const res = await prisma.order.updateMany({
             where: { id: orderId, status: "PENDING" },
-            data: { status: "CONFIRMED", paidAt: new Date() },
+            data: {
+              status: "CONFIRMED",
+              paidAt: new Date(),
+              stripePaymentIntentId: paymentIntentId,
+              ...shippingOverlay,
+            },
           });
           console.log(
             `[stripe-webhook] ${event.id} order=${orderId} async-paid (rows=${res.count})`,
           );
           if (res.count === 1) {
             after(async () => {
+              await expireOtherOpenSession(orderId, session.id);
+              await saveReceiptUrl(orderId, paymentIntentId);
+              await firePostPaymentEffects(orderId);
               await sendOrderConfirmations(orderId).catch((err) => {
                 console.error(
                   "[stripe-webhook] confirmation email failed:",

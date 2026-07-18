@@ -289,6 +289,10 @@ async function execAll(): Promise<MigrationResult[]> {
       `ALTER TABLE "Order" ADD COLUMN IF NOT EXISTS "locale" TEXT`,
     );
     await run(
+      "order.abandonedEmailId",
+      `ALTER TABLE "Order" ADD COLUMN IF NOT EXISTS "abandonedEmailId" TEXT`,
+    );
+    await run(
       "Order.orderNumber unique",
       `CREATE UNIQUE INDEX IF NOT EXISTS "Order_orderNumber_key" ON "Order"("orderNumber")`,
     );

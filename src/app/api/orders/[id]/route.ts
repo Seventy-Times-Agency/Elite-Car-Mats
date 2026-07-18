@@ -127,6 +127,7 @@ export async function PATCH(
       reviewInviteSentAt: true,
       locale: true,
       carrier: true,
+      promoCode: true,
     },
   });
   if (!existing) {
@@ -137,6 +138,16 @@ export async function PATCH(
   const data: Record<string, unknown> = {};
   if (status !== undefined) data.status = status;
   if (trackingNumber !== undefined) data.trackingNumber = trackingNumber || null;
+  // A manually replaced tracking number invalidates the ShipStation-
+  // provided carrier (admin may have re-shipped via a different one).
+  // Clearing it lets trackingUrl() sniff the carrier from the number's
+  // format instead of linking a UPS code to the USPS tracker.
+  if (
+    trackingNumber !== undefined &&
+    (trackingNumber || null) !== existing.trackingNumber
+  ) {
+    data.carrier = null;
+  }
   if (status === "DELIVERED" && existing.status !== "DELIVERED") {
     data.deliveredAt = new Date();
   }
@@ -152,10 +163,47 @@ export async function PATCH(
     },
   });
 
+  // Cancelling an unpaid order gives its promo use back — the use was
+  // consumed atomically at creation, and the Stripe-webhook refund only
+  // covers orders that ever had a Checkout session. Without this, every
+  // admin-cancelled PENDING order leaks one use of a limited code.
+  if (
+    status === "CANCELLED" &&
+    existing.status === "PENDING" &&
+    existing.promoCode
+  ) {
+    try {
+      await prisma.$executeRaw`
+        UPDATE "PromoCode"
+           SET "usedCount" = GREATEST("usedCount" - 1, 0)
+         WHERE "code" = ${existing.promoCode}
+      `;
+    } catch (err) {
+      console.error(
+        `[admin:orders] promo refund failed for ${updated.orderNumber}:`,
+        err,
+      );
+    }
+  }
+
+  // "Just shipped" fires the customer email + review invite. Two paths:
+  //   1. status flips into SHIPPED with a tracking number present;
+  //   2. the order is ALREADY shipped and the tracking number arrives in
+  //      a later save (admin flipped status first, pasted tracking after)
+  //      — without this branch that email/invite was unreachable.
+  const effectiveStatus = status ?? existing.status;
   const justShipped =
-    status === "SHIPPED" &&
-    existing.status !== "SHIPPED" &&
-    !!updated.trackingNumber;
+    (status === "SHIPPED" &&
+      existing.status !== "SHIPPED" &&
+      !!updated.trackingNumber) ||
+    (effectiveStatus === "SHIPPED" &&
+      existing.status === "SHIPPED" &&
+      !existing.trackingNumber &&
+      !!updated.trackingNumber);
+
+  // The carrier column may have just been cleared (tracking replaced) —
+  // don't email a link built from the stale value.
+  const effectiveCarrier = "carrier" in data ? null : existing.carrier;
 
   if (justShipped) {
     try {
@@ -165,7 +213,7 @@ export async function PATCH(
         customerEmail: existing.email,
         trackingNumber: updated.trackingNumber!,
         orderToken: signOrderToken(updated.id),
-        carrier: existing.carrier,
+        carrier: effectiveCarrier,
         locale: existing.locale,
       });
     } catch (err) {

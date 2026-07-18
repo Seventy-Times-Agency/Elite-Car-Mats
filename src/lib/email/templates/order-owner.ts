@@ -13,7 +13,11 @@ import {
 export async function sendOwnerOrderEmail(
   data: OrderEmailData,
 ): Promise<void> {
-  const t = await buildT();
+  // Pinned operator locale — NOT the ambient request locale. In the
+  // non-Stripe flow the ambient request belongs to the CUSTOMER, so the
+  // owner's inbox language would vary per customer (and switch to EN the
+  // day Stripe goes live, since the webhook has no cookies).
+  const t = await buildT(process.env.OWNER_LOCALE || "en");
   // Everything below comes straight from the public checkout form —
   // escape it so a crafted name/address can't inject markup into the
   // owner's mailbox.

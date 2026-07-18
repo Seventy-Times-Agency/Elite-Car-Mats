@@ -32,6 +32,7 @@ export const operations: Dict = {
   "admin.orderItemsLabel": "Order contents",
   "admin.badgeChip": "{brand} badge ×{n}",
   "admin.heelPadChip": "Heel pad",
+  "admin.thirdRowChip": "Third-row mats",
   "admin.subtotalLabel": "Subtotal",
   "admin.promoLabel": "Promo",
   "admin.discountLabel": "Discount",
@@ -337,6 +338,13 @@ export const operations: Dict = {
     "Hi {name}! As agreed, here is the invoice for your custom EVA mat set for {car}. Click below to review and pay securely — production starts the moment the payment lands.",
   "email.invAmountLabel": "Amount due",
   "email.invCta": "View & pay invoice",
+  "email.abandSubject": "Your Elite Car Mats order is waiting — {orderNumber}",
+  "email.abandH1": "Your mats are one step away",
+  "email.abandP":
+    "Hi {name}! Your order is saved and the pattern is ready to cut — the only thing missing is the payment. Pick up right where you left off:",
+  "email.abandCta": "Complete my order",
+  "email.abandFoot":
+    "We hold the order for 7 days. Questions? Just reply to this email — or call/WhatsApp (585) 880-8472.",
   "email.invNote":
     "The invoice is payable within {days} days. Questions? Just reply to this email.",
   // Admin: custom-order invoice controls

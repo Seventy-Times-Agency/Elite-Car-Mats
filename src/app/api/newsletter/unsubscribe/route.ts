@@ -33,11 +33,32 @@ function parseParams(url: string): { email: string; token: string | null } {
   };
 }
 
-function confirmationPage(ok: boolean): NextResponse {
-  const title = ok ? "You're unsubscribed" : "Invalid unsubscribe link";
-  const body = ok
-    ? "You won't receive any more marketing emails from Elite Car Mats. Order and shipping notifications are unaffected."
-    : "This unsubscribe link is invalid or incomplete. Please use the link from the bottom of our email, or contact info@elitecarmats.us.";
+type PageKind = "confirm" | "done" | "invalid";
+
+function unsubscribePage(kind: PageKind): NextResponse {
+  const title =
+    kind === "confirm"
+      ? "Unsubscribe from our emails?"
+      : kind === "done"
+        ? "You're unsubscribed"
+        : "Invalid unsubscribe link";
+  const body =
+    kind === "confirm"
+      ? "Click the button below to stop receiving marketing emails from Elite Car Mats. Order and shipping notifications are unaffected."
+      : kind === "done"
+        ? "You won't receive any more marketing emails from Elite Car Mats. Order and shipping notifications are unaffected."
+        : "This unsubscribe link is invalid or incomplete. Please use the link from the bottom of our email, or contact info@elitecarmats.us.";
+  // GET must not mutate: corporate link scanners (Outlook Safe Links,
+  // Proofpoint, AV sandboxes) prefetch every URL in a delivered email
+  // with the valid token attached — a mutating GET would silently
+  // unsubscribe those readers. The form re-POSTs to the same URL (query
+  // string carries e+t), which is also the RFC 8058 one-click endpoint.
+  const confirmForm =
+    kind === "confirm"
+      ? `<form method="post" style="margin-top:28px;">
+      <button type="submit" style="background:#D4A54A;color:#0F0F0F;border:0;border-radius:8px;padding:12px 28px;font-size:13px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;">Confirm unsubscribe</button>
+    </form>`
+      : "";
   return new NextResponse(
     `<!DOCTYPE html>
 <html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
@@ -46,11 +67,14 @@ function confirmationPage(ok: boolean): NextResponse {
   <div style="max-width:480px;margin:0 auto;padding:80px 24px;text-align:center;">
     <div style="font-size:20px;font-weight:700;letter-spacing:0.15em;color:#D4A54A;">ELITE CAR MATS</div>
     <h1 style="font-size:22px;margin-top:32px;">${title}</h1>
-    <p style="color:#a09888;font-size:14px;line-height:1.6;">${body}</p>
+    <p style="color:#a09888;font-size:14px;line-height:1.6;">${body}</p>${confirmForm}
     <a href="/" style="display:inline-block;margin-top:24px;color:#D4A54A;font-size:13px;">elitecarmats.us</a>
   </div>
 </body></html>`,
-    { status: ok ? 200 : 400, headers: { "Content-Type": "text/html; charset=utf-8" } },
+    {
+      status: kind === "invalid" ? 400 : 200,
+      headers: { "Content-Type": "text/html; charset=utf-8" },
+    },
   );
 }
 
@@ -65,10 +89,10 @@ export async function GET(request: Request) {
   }
   const { email, token } = parseParams(request.url);
   if (!email || !verifyUnsubscribeToken(email, token)) {
-    return confirmationPage(false);
+    return unsubscribePage("invalid");
   }
-  await removeSubscriber(email);
-  return confirmationPage(true);
+  // Render-only — the actual removal happens on the form's POST.
+  return unsubscribePage("confirm");
 }
 
 export async function POST(request: Request) {
@@ -85,5 +109,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid link" }, { status: 400 });
   }
   await removeSubscriber(email);
+  // Humans arrive here from the GET confirmation form — give them the
+  // branded "done" page; RFC 8058 robots don't render the response.
+  const accepts = request.headers.get("accept") ?? "";
+  if (accepts.includes("text/html")) {
+    return unsubscribePage("done");
+  }
   return NextResponse.json({ ok: true });
 }

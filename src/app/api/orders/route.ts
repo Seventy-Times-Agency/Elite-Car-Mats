@@ -17,7 +17,9 @@ import { isStripeConfigured } from "@/lib/payments/stripe";
 import {
   sendCustomerOrderEmail,
   sendOwnerOrderEmail,
+  sendAbandonedCheckoutEmail,
 } from "@/lib/email";
+import { orderUrl } from "@/lib/email/transport";
 import { signOrderToken } from "@/lib/security/order-token";
 import { evaColors, edgeColors, badges } from "@/data/catalog";
 import { MAT_SETS_BY_PROFILE } from "@/data/catalog/mat-sets";
@@ -509,6 +511,44 @@ export async function POST(request: Request) {
       ]).catch((err) => console.error("[orders] email send failed:", err)),
     );
   }
+  if (isStripeConfigured()) {
+    // Abandoned-checkout recovery: schedule a "complete your order" email
+    // for +2h. If the customer pays, the webhook cancels it via the
+    // stored Resend id; if they bailed on the Stripe page, it lands with
+    // a one-click link back to their tokened order page (which shows a
+    // "Complete payment" button for PENDING orders).
+    const orderId = createdOrder.id;
+    const payUrl = orderUrl(
+      createdOrder.orderNumber,
+      signOrderToken(orderId),
+    );
+    const totalUsd = Number(createdOrder.total ?? 0);
+    const orderNumber = createdOrder.orderNumber;
+    const customerName = customer.name;
+    const customerEmail = customer.email;
+    after(async () => {
+      try {
+        const emailId = await sendAbandonedCheckoutEmail({
+          orderNumber,
+          customerName,
+          customerEmail,
+          totalUsd,
+          payUrl,
+          scheduledAt: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(),
+          locale: customerLocale,
+        });
+        if (emailId) {
+          await prisma.order.update({
+            where: { id: orderId },
+            data: { abandonedEmailId: emailId },
+          });
+        }
+      } catch (err) {
+        console.error("[orders] abandoned-checkout scheduling failed:", err);
+      }
+    });
+  }
+
   // Stripe enabled: nothing is emailed here. BOTH the customer
   // confirmation AND the owner notification fire from the Stripe webhook
   // after `checkout.session.completed` (payment succeeded) — so an

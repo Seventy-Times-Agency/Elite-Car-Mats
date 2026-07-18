@@ -18,7 +18,7 @@ export async function sendReviewInviteEmail(params: {
   scheduledAt?: string;
   /** Order's stored storefront locale — the customer's language. */
   locale?: string | null;
-}): Promise<void> {
+}): Promise<string | null> {
   const t = await buildT(params.locale);
   const qs = new URLSearchParams({
     order: params.orderNumber,
@@ -38,7 +38,10 @@ export async function sendReviewInviteEmail(params: {
   `,
   );
 
-  await send({
+  // Propagate the Resend id (null = send failed) — the scheduler treats
+  // null as a failure and releases its claim so a later transition can
+  // retry, instead of silently losing the invite forever.
+  return send({
     to: params.customerEmail,
     subject: t("email.revInviteSubject"),
     html,

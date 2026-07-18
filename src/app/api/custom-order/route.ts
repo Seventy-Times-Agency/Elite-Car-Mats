@@ -21,7 +21,10 @@ const schema = z.object({
   bodyType: z.string().trim().max(60).optional().default(""),
   matSet: z.string().trim().max(60).optional().default(""),
   notes: z.string().trim().max(2000).optional().default(""),
-  locale: z.string().trim().max(5).optional().default("ru"),
+  // Default EN — the store's primary market. A stale cached bundle (or a
+  // direct API post) that omits the field must not condemn the customer
+  // to a Russian invoice email later.
+  locale: z.string().trim().max(5).optional().default("en"),
 });
 
 function escape(v: string): string {

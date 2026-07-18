@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import ProductClient from "./ProductClient";
 import { getMergedCatalogCached } from "@/lib/catalog-merge";
@@ -26,11 +27,16 @@ export default async function ProductPage({ params }: Params) {
     // instance across product→product navigation (⌘K search), which let
     // the previous car's `year` / configNote state leak into the next
     // order. The key remounts the configurator with fresh state.
-    <ProductClient
-      key={`${brandSlug}-${modelSlug}`}
-      brand={brand}
-      model={model ?? null}
-      addonAvailability={addonAvailability}
-    />
+    // Suspense: ProductClient consumes useSearchParams (?set= deep-links),
+    // which Next 16 requires to sit under a boundary once any static
+    // rendering is enabled for the route.
+    <Suspense fallback={null}>
+      <ProductClient
+        key={`${brandSlug}-${modelSlug}`}
+        brand={brand}
+        model={model ?? null}
+        addonAvailability={addonAvailability}
+      />
+    </Suspense>
   );
 }

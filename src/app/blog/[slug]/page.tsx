@@ -8,6 +8,7 @@ import { makeT } from "@/i18n/dictionary";
 import { renderMarkdown } from "@/lib/markdown";
 import { BreadcrumbJsonLd } from "@/components/seo/ProductJsonLd";
 import { localeAlternates } from "@/lib/seo/alternates";
+import { jsonLdString } from "@/lib/seo/json-ld";
 
 export const dynamic = "force-dynamic";
 
@@ -93,7 +94,7 @@ export default async function BlogPostPage({ params }: Params) {
     <article className="py-10 lg:py-16 min-h-screen">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdString(articleJsonLd) }}
       />
       <BreadcrumbJsonLd
         items={[

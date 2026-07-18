@@ -13,7 +13,7 @@ const CSP = [
   // dev/preview; production loads the same-origin /_vercel/insights copy.
   // connect.facebook.net serves the Meta Pixel loader (fbevents.js);
   // its beacons are already covered by img-src/connect-src https:.
-  "script-src 'self' 'unsafe-inline' https://vercel.live https://va.vercel-scripts.com https://connect.facebook.net",
+  "script-src 'self' 'unsafe-inline' https://vercel.live https://va.vercel-scripts.com https://connect.facebook.net https://www.googletagmanager.com",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https:",
   "font-src 'self' data:",
@@ -44,7 +44,9 @@ const SECURITY_HEADERS = [
   // permission prompt.
   {
     key: "Permissions-Policy",
-    value: "camera=(), microphone=(), geolocation=(), payment=(self 'https://js.stripe.com')",
+    // Structured-field syntax: allowlist origins take DOUBLE quotes —
+    // single quotes make the member unparseable and browsers drop it.
+    value: 'camera=(), microphone=(), geolocation=(), payment=(self "https://js.stripe.com")',
   },
   // Older browsers need this even though modern ones ignore it.
   { key: "X-XSS-Protection", value: "0" },

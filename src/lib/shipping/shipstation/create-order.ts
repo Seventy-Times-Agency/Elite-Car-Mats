@@ -1,6 +1,7 @@
 import "server-only";
 import { prisma } from "@/lib/db/prisma";
 import { loadPriceOverrides } from "@/lib/pricing-overrides";
+import { buildDbProfileResolver } from "@/lib/catalog-merge";
 import { isShipstationConfigured, getShipstationStoreId } from "../config";
 import { shipstation, ShipstationApiError } from "./client";
 import { mapOrderToShipstation } from "./map-order";
@@ -60,8 +61,12 @@ export async function pushOrderToShipstation(
   }
 
   const overrides = await loadPriceOverrides();
+  // Merged-catalog resolver so admin custom models get their real
+  // profile's line price (a bare code-catalog lookup says `standard`).
+  const profileOf = await buildDbProfileResolver();
   const payload: SsCreateOrderRequest = mapOrderToShipstation(order, {
     overrides,
+    profileOf,
     storeId: getShipstationStoreId() ?? undefined,
   });
 

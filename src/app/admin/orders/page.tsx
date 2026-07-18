@@ -70,6 +70,7 @@ export default async function AdminOrdersPage() {
               badgeBrand: i.badge?.brandName ?? null,
               badgeCount: i.badge ? (i.badgeCount ?? 1) : 0,
               heelPad: i.heelPad ?? false,
+              thirdRow: i.thirdRow ?? false,
               quantity: i.quantity,
               unitPrice: Number(i.price ?? 0),
             }));

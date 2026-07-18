@@ -2,6 +2,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/db/prisma";
 import { getDictionary } from "@/i18n/getDictionary";
 import { makeT } from "@/i18n/dictionary";
+import { jsonLdString } from "@/lib/seo/json-ld";
 
 // force-dynamic and `revalidate` are mutually exclusive — the page is
 // per-request anyway (locale cookie), so the stale revalidate is dropped.
@@ -87,7 +88,7 @@ export default async function ReviewsPage() {
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
+            __html: jsonLdString({
               "@context": "https://schema.org",
               "@type": "Organization",
               name: "Elite Car Mats",

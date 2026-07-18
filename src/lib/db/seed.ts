@@ -277,9 +277,14 @@ export async function mirrorCustomBrandRow(b: {
   name: string;
   logo?: string | null;
 }): Promise<void> {
-  await prisma.brand.createMany({
-    data: [{ id: b.slug, name: b.name, slug: b.slug, logo: b.logo ?? null }],
-    skipDuplicates: true,
+  // Upsert, not createMany+skipDuplicates: a rename (same slug, new name)
+  // must reach the billing mirror too — skipDuplicates is a no-op for an
+  // existing id, so the old name would live forever in admin order rows,
+  // order pages and emails.
+  await prisma.brand.upsert({
+    where: { id: b.slug },
+    create: { id: b.slug, name: b.name, slug: b.slug, logo: b.logo ?? null },
+    update: { name: b.name, logo: b.logo ?? null },
   });
 }
 
@@ -291,21 +296,25 @@ export async function mirrorCustomBrandRow(b: {
  */
 export async function mirrorCustomModelRow(m: CarModel): Promise<void> {
   const modelId = `${m.brandId}-${m.slug}`;
+  // Brand row: create-if-missing only — don't overwrite a code brand's
+  // name with the model's denormalized brandName copy.
   await prisma.brand.createMany({
     data: [{ id: m.brandId, name: m.brandName, slug: m.brandId, logo: null }],
     skipDuplicates: true,
   });
-  await prisma.model.createMany({
-    data: [
-      {
-        id: modelId,
-        name: m.name,
-        slug: m.slug,
-        bodyType: m.bodyType,
-        brandId: m.brandId,
-      },
-    ],
-    skipDuplicates: true,
+  // Model row: upsert so renames/body-type edits (same slug) propagate
+  // to the billing mirror — skipDuplicates would keep the stale name in
+  // admin order rows and transactional emails forever.
+  await prisma.model.upsert({
+    where: { id: modelId },
+    create: {
+      id: modelId,
+      name: m.name,
+      slug: m.slug,
+      bodyType: m.bodyType,
+      brandId: m.brandId,
+    },
+    update: { name: m.name, bodyType: m.bodyType },
   });
   if (m.years.length > 0) {
     await prisma.modelYear.createMany({

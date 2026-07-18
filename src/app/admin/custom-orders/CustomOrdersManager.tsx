@@ -44,6 +44,27 @@ export function CustomOrdersManager({
   const t = useT();
   const [busy, startBusy] = useTransition();
   const [openId, setOpenId] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
+
+  // Surface mutation failures (expired session → 401, CSRF → 403, DB
+  // 500) instead of silently refreshing to the old state — the admin
+  // would otherwise assume the click saved.
+  const mutate = (run: () => Promise<Response>) => {
+    setActionError(null);
+    startBusy(async () => {
+      try {
+        const res = await run();
+        if (!res.ok) {
+          setActionError(t("admin.saveFailed"));
+          return;
+        }
+      } catch {
+        setActionError(t("admin.saveFailed"));
+        return;
+      }
+      router.refresh();
+    });
+  };
 
   const LABELS: Record<Status, string> = {
     NEW: t("admin.customStatusNew"),
@@ -54,33 +75,28 @@ export function CustomOrdersManager({
   };
 
   const setStatus = (id: string, status: Status) => {
-    startBusy(async () => {
-      await fetch(`/api/admin/custom-orders/${id}`, {
+    mutate(() =>
+      fetch(`/api/admin/custom-orders/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status }),
-      });
-      router.refresh();
-    });
+      }),
+    );
   };
 
   const saveNotes = (id: string, adminNotes: string) => {
-    startBusy(async () => {
-      await fetch(`/api/admin/custom-orders/${id}`, {
+    mutate(() =>
+      fetch(`/api/admin/custom-orders/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ adminNotes }),
-      });
-      router.refresh();
-    });
+      }),
+    );
   };
 
   const remove = (id: string) => {
     if (!confirm(t("admin.customConfirmDelete"))) return;
-    startBusy(async () => {
-      await fetch(`/api/admin/custom-orders/${id}`, { method: "DELETE" });
-      router.refresh();
-    });
+    mutate(() => fetch(`/api/admin/custom-orders/${id}`, { method: "DELETE" }));
   };
 
   if (initial.length === 0) {
@@ -93,6 +109,11 @@ export function CustomOrdersManager({
 
   return (
     <div className="space-y-3">
+      {actionError && (
+        <div className="glass-card rounded-lg px-4 py-2.5 text-xs text-error">
+          {actionError}
+        </div>
+      )}
       {initial.map((r) => {
         const expanded = openId === r.id;
         const date = new Date(r.createdAt).toLocaleDateString();

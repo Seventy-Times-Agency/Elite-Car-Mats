@@ -1,6 +1,7 @@
 "use client";
 
 import { useT } from "@/i18n/I18nProvider";
+import { CONTACT_PHONE_DISPLAY, CONTACT_PHONE_HREF } from "@/lib/contacts";
 
 /**
  * Slim accent bar that sits above the sticky header. Communicates the
@@ -49,6 +50,30 @@ export function AnnouncementBar() {
           ·
         </span>
         <span>{t("ann.returns")}</span>
+        <span className="hidden md:inline text-border/60" aria-hidden>
+          ·
+        </span>
+        {/* One tap to a human — same number answers calls and WhatsApp. */}
+        <a
+          href={CONTACT_PHONE_HREF}
+          className="hidden md:inline-flex items-center gap-1.5 text-gold/80 hover:text-gold transition-colors"
+        >
+          <svg
+            className="w-3 h-3"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            aria-hidden
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 0 0 2.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 0 1-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 0 0-1.091-.852H4.5A2.25 2.25 0 0 0 2.25 4.5v2.25Z"
+            />
+          </svg>
+          {CONTACT_PHONE_DISPLAY}
+        </a>
       </div>
     </div>
   );

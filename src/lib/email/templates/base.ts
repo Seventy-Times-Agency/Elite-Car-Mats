@@ -4,6 +4,11 @@ import { getDictionary, getDictionaryFor } from "@/i18n/getDictionary";
 import { DEFAULT_LOCALE, isLocale } from "@/i18n/config";
 import { makeT, type TFn } from "@/i18n/dictionary";
 import { localizeColor, localizeMatSet } from "@/i18n/labels";
+import {
+  CONTACT_PHONE_DISPLAY,
+  CONTACT_PHONE_HREF,
+  WHATSAPP_HREF,
+} from "@/lib/contacts";
 import { MAT_SETS_BY_PROFILE } from "@/data/catalog/mat-sets";
 import type { VehicleConfigProfile } from "@/lib/vehicle-profile";
 import type { MatSetType } from "@/types";
@@ -180,6 +185,11 @@ export function baseTemplate(t: TFn, inner: string): string {
     </div>
     ${inner}
     <div style="margin-top:40px;padding-top:24px;border-top:1px solid #222;text-align:center;color:#8a8a8a;font-size:11px;">
+      <div style="margin-bottom:6px;">
+        <a href="${CONTACT_PHONE_HREF}" style="color:#D4A54A;text-decoration:none;">${CONTACT_PHONE_DISPLAY}</a>
+        <span style="color:#555;margin:0 6px;">·</span>
+        <a href="${WHATSAPP_HREF}" style="color:#D4A54A;text-decoration:none;">WhatsApp</a>
+      </div>
       ${t("email.footerLoc")}
     </div>
   </div>

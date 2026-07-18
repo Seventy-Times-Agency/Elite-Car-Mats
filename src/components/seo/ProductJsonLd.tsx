@@ -1,3 +1,9 @@
+import {
+  CONTACT_PHONE_E164,
+  FACEBOOK_URL,
+  INSTAGRAM_URL,
+} from "@/lib/contacts";
+
 interface Props {
   brand: string;
   model: string;
@@ -86,13 +92,21 @@ export function OrganizationJsonLd() {
     url: SITE,
     logo: `${SITE}/icon`,
     email: "info@elitecarmats.us",
+    telephone: CONTACT_PHONE_E164,
+    contactPoint: {
+      "@type": "ContactPoint",
+      telephone: CONTACT_PHONE_E164,
+      contactType: "customer service",
+      areaServed: "US",
+      availableLanguage: ["English", "Russian", "Ukrainian"],
+    },
     address: {
       "@type": "PostalAddress",
       addressLocality: "Rochester",
       addressRegion: "NY",
       addressCountry: "US",
     },
-    sameAs: [],
+    sameAs: [FACEBOOK_URL, INSTAGRAM_URL].filter(Boolean),
   };
   return (
     <script

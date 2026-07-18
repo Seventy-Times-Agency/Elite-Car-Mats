@@ -250,6 +250,8 @@ export const storefront: Dict = {
     "We couldn't open the payment page. Your order is saved — press the button to try again. You won't be charged twice.",
   "co.errTotalMismatch":
     "The order total didn't verify correctly, so we stopped before payment — you have NOT been charged. Please refresh the page and try again, or contact us.",
+  "co.errPromoGone":
+    "That promo code is no longer valid (it may have expired or hit its usage limit), so the discount was removed. The total above is updated — press the button again to continue.",
   "co.subtotal": "Subtotal",
   "co.discount": "Discount",
   "co.promoPh": "Promo code",

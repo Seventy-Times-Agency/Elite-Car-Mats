@@ -24,7 +24,15 @@ function sha256(value: string): string {
 }
 
 function normalizePhone(phone: string): string {
-  return phone.replace(/[^\d]/g, "");
+  const digits = phone.replace(/[^\d]/g, "");
+  // Meta wants the country code included; bare 10-digit US numbers get
+  // the leading 1 (the store ships US-only).
+  return digits.length === 10 ? `1${digits}` : digits;
+}
+
+/** Meta hashes cities as lowercase letters only ("new york" → "newyork"). */
+function normalizeCity(city: string): string {
+  return city.toLowerCase().replace(/[^a-zа-яёіїєґ]/gi, "");
 }
 
 export interface MetaPurchaseParams {
@@ -56,12 +64,18 @@ export async function sendMetaPurchase(
     if (parts[0]) userData.fn = [sha256(parts[0])];
     if (parts.length > 1) userData.ln = [sha256(parts[parts.length - 1])];
   }
-  if (params.city) userData.ct = [sha256(params.city)];
-  if (params.state) userData.st = [sha256(params.state)];
+  if (params.city) userData.ct = [sha256(normalizeCity(params.city))];
+  // st must be the 2-letter code — skip free-text state names rather
+  // than hash a value Meta can never match.
+  if (params.state && params.state.trim().length === 2)
+    userData.st = [sha256(params.state)];
   if (params.zip) userData.zp = [sha256(params.zip)];
 
   const site = process.env.NEXT_PUBLIC_SITE_URL ?? "https://elitecarmats.us";
   const body = {
+    // In the POST body, not the query string — URLs leak into proxy logs,
+    // APM traces and thrown fetch errors far more readily than bodies.
+    access_token: token,
     data: [
       {
         event_name: "Purchase",
@@ -84,7 +98,7 @@ export async function sendMetaPurchase(
 
   try {
     const res = await fetch(
-      `https://graph.facebook.com/${GRAPH_VERSION}/${pixelId}/events?access_token=${encodeURIComponent(token)}`,
+      `https://graph.facebook.com/${GRAPH_VERSION}/${pixelId}/events`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },

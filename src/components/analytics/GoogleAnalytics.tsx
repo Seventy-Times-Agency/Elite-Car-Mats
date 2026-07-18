@@ -3,7 +3,11 @@
 import Script from "next/script";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { getConsent, CONSENT_EVENT } from "@/lib/consent";
+import {
+  getConsent,
+  scrubOrderTokenFromUrl,
+  CONSENT_EVENT,
+} from "@/lib/consent";
 
 export const GA4_ID = process.env.NEXT_PUBLIC_GA4_ID ?? "";
 
@@ -27,7 +31,13 @@ export function GoogleAnalytics() {
   const [consented, setConsented] = useState(false);
 
   useEffect(() => {
-    const update = () => setConsented(getConsent() === "accepted");
+    const update = () => {
+      const ok = getConsent() === "accepted";
+      // Drop the order token from the address bar BEFORE gtag.js mounts —
+      // it would otherwise ship to GA inside page_location.
+      if (ok && GA4_ID) scrubOrderTokenFromUrl();
+      setConsented(ok);
+    };
     update();
     window.addEventListener(CONSENT_EVENT, update);
     return () => window.removeEventListener(CONSENT_EVENT, update);

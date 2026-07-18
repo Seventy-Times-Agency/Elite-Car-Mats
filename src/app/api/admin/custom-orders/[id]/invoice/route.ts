@@ -81,18 +81,26 @@ export async function POST(
 
   try {
     // Void the previous unpaid invoice so two payable invoices for the
-    // same request can't coexist (double-payment guard).
+    // same request can't coexist (double-payment guard). This must be a
+    // hard gate: if Stripe can't tell us the previous invoice's status,
+    // re-issuing blindly could leave two payable invoices live.
     if (req.stripeInvoiceId) {
-      try {
-        const prev = await stripe.invoices.retrieve(req.stripeInvoiceId);
-        if (prev.status === "open" || prev.status === "draft") {
-          await stripe.invoices.voidInvoice(req.stripeInvoiceId);
-        }
-      } catch (err) {
-        console.warn(
-          `[custom-invoice] failed to void previous invoice ${req.stripeInvoiceId}:`,
-          err,
-        );
+      const prev = await stripe.invoices.retrieve(req.stripeInvoiceId);
+      if (prev.status === "paid") {
+        // Customer paid moments ago and the `invoice.paid` webhook hasn't
+        // landed yet — a second invoice here would be a double payment.
+        // Backfill what the webhook would have written.
+        await prisma.customOrderRequest.updateMany({
+          where: { id: req.id, invoicePaidAt: null },
+          data: { invoicePaidAt: new Date(), status: "CONVERTED" },
+        });
+        return NextResponse.json({ error: "already_paid" }, { status: 409 });
+      }
+      if (prev.status === "draft") {
+        // Drafts can't be voided — Stripe requires deletion.
+        await stripe.invoices.del(req.stripeInvoiceId);
+      } else if (prev.status === "open") {
+        await stripe.invoices.voidInvoice(req.stripeInvoiceId);
       }
     }
 
@@ -145,8 +153,12 @@ export async function POST(
         stripeInvoiceId: finalized.id,
         invoiceUrl,
         invoiceSentAt: new Date(),
-        // Invoice out the door = the request is officially QUOTED.
-        status: req.status === "NEW" ? "QUOTED" : req.status,
+        // Invoice out the door = the request is officially QUOTED
+        // (NEW or already-CONTACTED — the master called first).
+        status:
+          req.status === "NEW" || req.status === "CONTACTED"
+            ? "QUOTED"
+            : req.status,
       },
     });
 

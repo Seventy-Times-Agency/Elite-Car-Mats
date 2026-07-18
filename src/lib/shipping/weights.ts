@@ -27,18 +27,22 @@ const MAT_SET_BASE_GRAMS: Record<MatSetType, number> = {
 
 const BADGE_GRAMS = 50;
 const HEEL_PAD_GRAMS = 50;
+// Two extra third-row mats ≈ a front pair, slightly lighter (smaller cuts).
+const THIRD_ROW_GRAMS = 2000;
 const PACKAGING_GRAMS = 300;
 
 export function estimateItemWeightGrams(opts: {
   matSet: MatSetType;
   hasBadge: boolean;
   hasHeelPad: boolean;
+  hasThirdRow?: boolean;
   quantity: number;
 }): number {
   const unit =
     MAT_SET_BASE_GRAMS[opts.matSet] +
     (opts.hasBadge ? BADGE_GRAMS : 0) +
-    (opts.hasHeelPad ? HEEL_PAD_GRAMS : 0);
+    (opts.hasHeelPad ? HEEL_PAD_GRAMS : 0) +
+    (opts.hasThirdRow ? THIRD_ROW_GRAMS : 0);
   return unit * Math.max(1, opts.quantity);
 }
 
@@ -51,6 +55,7 @@ export function estimateParcelWeightGrams(
     matSet: MatSetType;
     hasBadge: boolean;
     hasHeelPad: boolean;
+    hasThirdRow?: boolean;
     quantity: number;
   }>,
 ): number {

@@ -8,8 +8,13 @@ import {
   useCallback,
   ReactNode,
 } from "react";
-import { CartItem } from "@/types";
-import { findModelById, getVehicleProfile } from "@/lib/vehicle-profile";
+import { CartItem, MatSetType } from "@/types";
+import {
+  findModelById,
+  getVehicleProfile,
+  thirdRowAvailable,
+  type VehicleConfigProfile,
+} from "@/lib/vehicle-profile";
 import { MAT_SETS_BY_PROFILE } from "@/data/catalog/mat-sets";
 
 interface CartContextType {
@@ -31,6 +36,14 @@ interface CartContextType {
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
+
+const VALID_PROFILES = [
+  "standard",
+  "minivan",
+  "twoSeater",
+  "pickup",
+  "semi",
+] as VehicleConfigProfile[];
 
 const CART_STORAGE_KEY = "elitecarmats-cart";
 const CART_SCHEMA_VERSION = 2;
@@ -93,14 +106,35 @@ function loadCart(): CartItem[] {
     // the whole checkout ("Mat set front is not available for …").
     // Unknown modelIds (admin custom catalog) are kept as-is; the
     // server validates those against the merged catalog.
+    let item = it as unknown as CartItem;
+    // Drop a stored profile we don't recognize (schema drift).
+    if (
+      item.profile !== undefined &&
+      !VALID_PROFILES.includes(item.profile)
+    ) {
+      item = { ...item, profile: undefined };
+    }
     const model = findModelById(it.modelId as string);
     if (model) {
       const profile = getVehicleProfile(model);
       if (!MAT_SETS_BY_PROFILE[profile].some((s) => s.type === it.matSet)) {
         continue;
       }
+      // Refresh the stored profile from the current catalog — the code
+      // catalog is source of truth for models it knows about.
+      if (item.profile !== profile) item = { ...item, profile };
+      // A catalog update can reclassify a model into a profile where the
+      // third-row add-on no longer applies (`full` survives the matSet
+      // check for both standard and minivan). Strip the stale flag —
+      // sending `thirdRow: true` would 400 the whole checkout.
+      if (
+        item.thirdRow === true &&
+        !thirdRowAvailable(profile, item.matSet as MatSetType)
+      ) {
+        item = { ...item, thirdRow: false };
+      }
     }
-    out.push(it as unknown as CartItem);
+    out.push(item);
     if (out.length >= MAX_CART_ITEMS) break;
   }
   return out;
@@ -226,6 +260,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const clearCart = useCallback(() => {
     setItems([]);
+    // Persist synchronously, not via the hydration-gated effect: on the
+    // success page (full document load from the Stripe redirect) the
+    // child's clearCart effect runs BEFORE this provider's hydration
+    // effect — which would then "restore" the paid-for cart straight
+    // from the untouched localStorage.
+    saveCart([]);
   }, []);
 
   const openCart = useCallback(() => setIsOpen(true), []);

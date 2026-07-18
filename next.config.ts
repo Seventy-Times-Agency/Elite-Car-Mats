@@ -44,7 +44,9 @@ const SECURITY_HEADERS = [
   // permission prompt.
   {
     key: "Permissions-Policy",
-    value: "camera=(), microphone=(), geolocation=(), payment=(self 'https://js.stripe.com')",
+    // Structured-field syntax: allowlist origins take DOUBLE quotes —
+    // single quotes make the member unparseable and browsers drop it.
+    value: 'camera=(), microphone=(), geolocation=(), payment=(self "https://js.stripe.com")',
   },
   // Older browsers need this even though modern ones ignore it.
   { key: "X-XSS-Protection", value: "0" },

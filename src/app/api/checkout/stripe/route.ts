@@ -36,6 +36,23 @@ const matSetFromEnum: Record<string, MatSetType> = {
   FULL_CARGO: "full-cargo",
 };
 
+/** Best-effort expiry of a Checkout session that must not stay payable. */
+async function expireSessionSafely(sessionId: string): Promise<void> {
+  try {
+    const stripe = await getStripe();
+    if (!stripe) return;
+    const s = await stripe.checkout.sessions.retrieve(sessionId);
+    if (s.status === "open") {
+      await stripe.checkout.sessions.expire(sessionId);
+    }
+  } catch (err) {
+    console.warn(
+      `[stripe-checkout] failed to expire session ${sessionId}:`,
+      err,
+    );
+  }
+}
+
 /**
  * Starts a Stripe Checkout session for an already-created order.
  *
@@ -134,6 +151,8 @@ export async function POST(request: Request) {
   // Stripe line-item descriptions so a US customer doesn't see "Чёрный /
   // Тёмно-синий" on the payment page.
   const tDesc = makeT(getDictionaryFor(locale), getDictionaryFor(DEFAULT_LOCALE));
+
+  try {
   const items = order.items.map((i) => {
     const matSet = matSetFromEnum[i.product.matSet];
     if (!matSet) throw new Error(`Unknown matSet enum: ${i.product.matSet}`);
@@ -185,7 +204,6 @@ export async function POST(request: Request) {
     Math.max(0, recomputedSubtotal - 0.5),
   );
 
-  try {
     const session = await createCheckoutSession({
       orderId: order.id,
       orderNumber: order.orderNumber,
@@ -203,33 +221,46 @@ export async function POST(request: Request) {
       );
     }
 
-    await prisma.order.update({
-      where: { id: order.id },
-      data: { stripeSessionId: session.id },
-    });
+    // Point the order row at the new session atomically: guarded on the
+    // status still being PENDING, and capturing the PREVIOUS session id
+    // in the same statement. Two concurrent "Pay now" clicks would both
+    // read the same stale previous id from the row loaded above — the
+    // session created by the losing request would then never be expired
+    // and stay payable for 24h (double-charge window). The row lock also
+    // closes the race with the 24h `checkout.session.expired` webhook:
+    // if it cancelled the order between our status check and this write,
+    // zero rows match and we abort instead of handing the customer a
+    // payable session for a CANCELLED order.
+    const rows = await prisma.$queryRaw<{ prev: string | null }[]>`
+      WITH prev AS (
+        SELECT "stripeSessionId" AS id FROM "Order"
+         WHERE "id" = ${order.id} FOR UPDATE
+      )
+      UPDATE "Order" o
+         SET "stripeSessionId" = ${session.id}
+        FROM prev
+       WHERE o."id" = ${order.id} AND o."status" = 'PENDING'
+       RETURNING prev.id AS prev
+    `;
+
+    if (rows.length === 0) {
+      // Order flipped to CANCELLED/CONFIRMED mid-flight — kill the
+      // session we just created so it can't be paid into the void.
+      after(() => expireSessionSafely(session.id));
+      return NextResponse.json(
+        { error: "Order is no longer payable" },
+        { status: 409 },
+      );
+    }
 
     // Expire the superseded session AFTER the order row points at the new
     // one — both stay payable for up to 24h otherwise, and a customer with
     // two tabs could be charged twice. Done after the row update so the
     // `checkout.session.expired` webhook sees the session as superseded
     // (id mismatch) and does NOT cancel the still-payable order.
-    const prevSessionId = order.stripeSessionId;
+    const prevSessionId = rows[0]?.prev ?? null;
     if (prevSessionId && prevSessionId !== session.id) {
-      after(async () => {
-        try {
-          const stripe = await getStripe();
-          if (!stripe) return;
-          const prev = await stripe.checkout.sessions.retrieve(prevSessionId);
-          if (prev.status === "open") {
-            await stripe.checkout.sessions.expire(prevSessionId);
-          }
-        } catch (err) {
-          console.warn(
-            `[stripe-checkout] failed to expire superseded session ${prevSessionId}:`,
-            err,
-          );
-        }
-      });
+      after(() => expireSessionSafely(prevSessionId));
     }
 
     return NextResponse.json({ url: session.url, sessionId: session.id });

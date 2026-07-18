@@ -4,7 +4,7 @@ import { prisma } from "@/lib/db/prisma";
 import { requireAdmin, checkAdminCsrf } from "@/lib/security/auth";
 import { brandUpdateSchema } from "@/lib/validations/catalog";
 import { brands as codeBrands } from "@/data/catalog";
-import { resetCatalogSeedCache } from "@/lib/db/seed";
+import { resetCatalogSeedCache, mirrorCustomBrandRow } from "@/lib/db/seed";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -50,6 +50,14 @@ export async function PATCH(request: Request, ctx: Ctx) {
 
   try {
     const row = await prisma.customBrand.update({ where: { id }, data });
+    // Push the (possibly renamed) brand into the billing mirror right
+    // away — the create route does this, and without it here the public
+    // catalog shows the new name while orders/emails keep the old one.
+    await mirrorCustomBrandRow({
+      slug: row.slug,
+      name: row.name,
+      logo: row.logo,
+    });
     revalidateTag("catalog", "default");
     resetCatalogSeedCache();
     return NextResponse.json({ brand: row });

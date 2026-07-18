@@ -32,6 +32,7 @@ export const operations: Dict = {
   "admin.orderItemsLabel": "Order contents",
   "admin.badgeChip": "{brand} badge ×{n}",
   "admin.heelPadChip": "Heel pad",
+  "admin.thirdRowChip": "Third-row mats",
   "admin.subtotalLabel": "Subtotal",
   "admin.promoLabel": "Promo",
   "admin.discountLabel": "Discount",

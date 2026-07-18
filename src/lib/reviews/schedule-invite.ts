@@ -31,8 +31,13 @@ export async function scheduleReviewInvite(params: {
   });
   if (claimed.count !== 1) return false;
 
+  // `transport.send` never throws — it logs and returns null on Resend
+  // errors and network failures alike. Treat null exactly like a thrown
+  // error: release the claim so a later transition can retry, otherwise
+  // any transient Resend hiccup loses the invite forever.
+  let resendId: string | null = null;
   try {
-    await sendReviewInviteEmail({
+    resendId = await sendReviewInviteEmail({
       orderId: params.orderId,
       orderNumber: params.orderNumber,
       customerName: params.customerName,
@@ -40,21 +45,22 @@ export async function scheduleReviewInvite(params: {
       scheduledAt: new Date(Date.now() + params.delayMs).toISOString(),
       locale: params.locale,
     });
-    return true;
   } catch (err) {
     console.error(
       `[review-invite] schedule failed for order=${params.orderId}:`,
       err,
     );
-    // Release the claim so the invite isn't lost forever.
-    await prisma.order
-      .updateMany({
-        where: { id: params.orderId },
-        data: { reviewInviteSentAt: null },
-      })
-      .catch(() => {});
-    return false;
   }
+  if (resendId) return true;
+
+  // Release the claim so the invite isn't lost forever.
+  await prisma.order
+    .updateMany({
+      where: { id: params.orderId },
+      data: { reviewInviteSentAt: null },
+    })
+    .catch(() => {});
+  return false;
 }
 
 /** Invite lands ~9 days after shipping — after typical US transit. */

@@ -1,5 +1,6 @@
 import "server-only";
 import type { MatSetType } from "@/types";
+import type { VehicleConfigProfile } from "@/lib/vehicle-profile";
 import { calculateItemUnitPrice } from "@/lib/pricing";
 import type { PriceOverrideMap } from "@/lib/pricing-overrides";
 import { estimateItemWeightGrams, estimateParcelWeightGrams } from "../weights";
@@ -52,6 +53,10 @@ export interface LoadedOrder {
     quantity: number;
     year: number | null;
     heelPad: boolean;
+    /** Third-row mats add-on — the packer MUST see this. */
+    thirdRow: boolean;
+    /** Brand-logo plates per set; null/legacy = 1. */
+    badgeCount: number | null;
     product: {
       modelId: string;
       matSet: string;
@@ -73,8 +78,11 @@ function buildSku(it: LoadedOrder["items"][number]): string {
     matSet,
     it.color.name,
     `edge-${it.edgeColor.name}`,
-    it.badge ? `badge-${it.badge.brandName}` : "",
+    it.badge
+      ? `badge-${it.badge.brandName}${(it.badgeCount ?? 1) > 1 ? `-x${it.badgeCount}` : ""}`
+      : "",
     it.heelPad ? "heelpad" : "",
+    it.thirdRow ? "3row" : "",
   ];
   return parts
     .filter(Boolean)
@@ -93,8 +101,13 @@ function buildItemName(it: LoadedOrder["items"][number]): string {
     it.year ? String(it.year) : null,
     MAT_SET_LABEL[matSet],
     `${it.color.name} + ${it.edgeColor.name} edge`,
-    it.badge ? `${it.badge.brandName} badge` : null,
+    it.badge
+      ? `${it.badge.brandName} badge${(it.badgeCount ?? 1) > 1 ? ` ×${it.badgeCount}` : ""}`
+      : null,
     it.heelPad ? "aluminum heel pad" : null,
+    // The $59 add-on the customer paid for — without this line the
+    // workshop packs a plain set and the third-row mats never ship.
+    it.thirdRow ? "THIRD-ROW mats" : null,
   ].filter(Boolean);
   return bits.join(" · ").slice(0, 200);
 }
@@ -127,6 +140,12 @@ export function mapOrderToShipstation(
   opts: {
     overrides: PriceOverrideMap;
     storeId?: number | null;
+    /**
+     * Merged-catalog profile resolver (`buildDbProfileResolver`). Without
+     * it the unit-price math falls back to the code-catalog lookup, which
+     * prices admin custom models as `standard`.
+     */
+    profileOf?: (modelId: string) => VehicleConfigProfile;
   },
 ): SsCreateOrderRequest {
   // ItemCharacteristics used by both weight estimation and unit-price math.
@@ -137,6 +156,7 @@ export function mapOrderToShipstation(
       matSet,
       hasBadge: !!it.badge,
       hasHeelPad: !!it.heelPad,
+      hasThirdRow: !!it.thirdRow,
       quantity: it.quantity,
       raw: it,
     };
@@ -147,9 +167,12 @@ export function mapOrderToShipstation(
       {
         matSet: d.matSet,
         modelId: d.raw.product.modelId,
+        profile: opts.profileOf?.(d.raw.product.modelId),
         edgeColor: { id: d.raw.edgeColor.id },
         badge: d.raw.badge ? { id: d.raw.badge.id } : null,
+        badgeCount: d.raw.badgeCount ?? 1,
         heelPad: d.raw.heelPad,
+        thirdRow: d.raw.thirdRow,
       },
       opts.overrides,
     );
@@ -163,6 +186,7 @@ export function mapOrderToShipstation(
           matSet: d.matSet,
           hasBadge: d.hasBadge,
           hasHeelPad: d.hasHeelPad,
+          hasThirdRow: d.hasThirdRow,
           quantity: 1,
         }),
         units: "grams",
@@ -175,6 +199,7 @@ export function mapOrderToShipstation(
       matSet: d.matSet,
       hasBadge: d.hasBadge,
       hasHeelPad: d.hasHeelPad,
+      hasThirdRow: d.hasThirdRow,
       quantity: d.quantity,
     })),
   );

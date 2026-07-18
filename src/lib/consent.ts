@@ -24,6 +24,30 @@ export function getConsent(): ConsentValue | null {
   }
 }
 
+/**
+ * Strip the order-token query param before any analytics script loads.
+ *
+ * `/order/<n>?t=…` and `/checkout/success?…&t=…` carry a never-expiring
+ * HMAC token that unlocks the customer's name/address/phone via the
+ * order API. fbevents.js reports the full URL in its `dl=` beacon and
+ * gtag sends `page_location` — with the token in the address bar, anyone
+ * with access to the Meta/GA property could replay it. Called by both
+ * analytics loaders right before their scripts mount; the current view
+ * keeps working (it was already server-rendered and `useSearchParams`
+ * doesn't observe `history.replaceState`), only a manual refresh loses
+ * the token — the email link still has it.
+ */
+export function scrubOrderTokenFromUrl(): void {
+  try {
+    const u = new URL(window.location.href);
+    if (!u.searchParams.has("t")) return;
+    u.searchParams.delete("t");
+    window.history.replaceState(window.history.state, "", u.toString());
+  } catch {
+    // ignore — worst case the token stays in the URL as before
+  }
+}
+
 export function setConsent(value: ConsentValue): void {
   try {
     localStorage.setItem(KEY, value);

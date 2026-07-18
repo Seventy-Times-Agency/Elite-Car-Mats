@@ -1,5 +1,6 @@
 import "server-only";
 import { Resend } from "resend";
+import { unsubscribeUrl } from "@/lib/security/unsubscribe-token";
 
 const apiKey = process.env.RESEND_API_KEY;
 const fromAddress =
@@ -22,6 +23,7 @@ export async function send({
   html,
   replyTo,
   scheduledAt,
+  marketing,
 }: {
   to: string;
   subject: string;
@@ -30,6 +32,14 @@ export async function send({
   /** ISO 8601 timestamp — Resend holds the email and delivers it then
    *  (max 30 days out). Used for the post-delivery review invite. */
   scheduledAt?: string;
+  /**
+   * Mark commercial (non-transactional) sends. Adds RFC 8058
+   * List-Unsubscribe / List-Unsubscribe-Post headers pointing at the
+   * token-gated opt-out endpoint — Gmail/Yahoo require one-click
+   * unsubscribe for bulk senders, and CAN-SPAM requires an opt-out in
+   * every commercial email. Transactional order emails omit this.
+   */
+  marketing?: boolean;
 }): Promise<void> {
   if (!resend) {
     console.log(
@@ -45,6 +55,14 @@ export async function send({
       html,
       ...(replyTo ? { replyTo } : {}),
       ...(scheduledAt ? { scheduledAt } : {}),
+      ...(marketing
+        ? {
+            headers: {
+              "List-Unsubscribe": `<${unsubscribeUrl(to)}>`,
+              "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+            },
+          }
+        : {}),
     });
     if (error) {
       console.error("[email:error]", subject, error);

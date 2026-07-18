@@ -32,6 +32,10 @@ export default async function AdminCustomOrdersPage() {
     locale: r.locale,
     status: r.status,
     adminNotes: r.adminNotes,
+    invoiceAmount: r.invoiceAmount != null ? Number(r.invoiceAmount) : null,
+    invoiceUrl: r.invoiceUrl,
+    invoiceSentAt: r.invoiceSentAt?.toISOString() ?? null,
+    invoicePaidAt: r.invoicePaidAt?.toISOString() ?? null,
     createdAt: r.createdAt.toISOString(),
   }));
 

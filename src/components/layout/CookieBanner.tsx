@@ -3,8 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useT } from "@/i18n/I18nProvider";
-
-const STORAGE_KEY = "ecm_cookies_v1";
+import { getConsent, setConsent } from "@/lib/consent";
 
 export function CookieBanner() {
   const [visible, setVisible] = useState(false);
@@ -12,17 +11,23 @@ export function CookieBanner() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    if (localStorage.getItem(STORAGE_KEY)) return;
+    // Only a real accepted/rejected choice hides the banner — the old
+    // banner stored a bare timestamp with no decline option, so legacy
+    // visitors are re-asked once and get an actual choice this time.
+    if (getConsent()) return;
     const id = setTimeout(() => setVisible(true), 1200);
     return () => clearTimeout(id);
   }, []);
 
-  const dismiss = () => {
-    try {
-      localStorage.setItem(STORAGE_KEY, new Date().toISOString());
-    } catch {
-      // ignore
-    }
+  const accept = () => {
+    setConsent("accepted");
+    setVisible(false);
+  };
+
+  // Decline (and the ✕) record a rejection: analytics stays OFF. This is
+  // what makes the banner a consent mechanism rather than decoration.
+  const decline = () => {
+    setConsent("rejected");
     setVisible(false);
   };
 
@@ -45,13 +50,19 @@ export function CookieBanner() {
           </Link>
         </p>
         <button
-          onClick={dismiss}
+          onClick={decline}
+          className="shrink-0 text-text-dim hover:text-text text-[11px] font-semibold tracking-wider uppercase px-3 py-2 rounded-lg border border-border/60 hover:border-border-hover transition-colors"
+        >
+          {t("cookies.decline")}
+        </button>
+        <button
+          onClick={accept}
           className="shrink-0 bg-gradient-to-r from-gold to-gold-light text-bg text-[11px] font-semibold tracking-wider uppercase px-4 py-2 rounded-lg hover:shadow-[0_2px_12px_rgba(212,165,74,0.3)] transition-shadow"
         >
           {t("cookies.accept")}
         </button>
         <button
-          onClick={dismiss}
+          onClick={decline}
           aria-label={t("cookies.dismiss")}
           className="shrink-0 text-text-faint hover:text-text-dim transition-colors p-1 -mr-1"
         >

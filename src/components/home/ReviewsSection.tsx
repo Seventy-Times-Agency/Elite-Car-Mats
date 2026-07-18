@@ -71,6 +71,13 @@ export async function ReviewsSection() {
               </span>
             </div>
           </div>
+          <div className="flex items-center gap-5 shrink-0 flex-wrap">
+          <Link
+            href="/reviews/new"
+            className="inline-flex items-center gap-2 bg-gradient-to-r from-gold to-gold-light text-bg text-xs font-semibold tracking-[0.15em] uppercase px-5 py-3 rounded-lg shadow-[0_4px_20px_rgba(212,165,74,0.25)]"
+          >
+            {t("revs.writeCta")}
+          </Link>
           <Link
             href="/reviews"
             className="inline-flex items-center gap-2 text-gold hover:text-gold-light text-sm uppercase tracking-[0.15em] font-medium transition-colors shrink-0"
@@ -80,6 +87,7 @@ export async function ReviewsSection() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
             </svg>
           </Link>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">

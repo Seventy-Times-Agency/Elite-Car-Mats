@@ -7,7 +7,44 @@ import {
 } from "@/data/catalog";
 import { asCategory, parseYears } from "@/lib/catalog-normalize";
 import { getHiddenModelIds } from "@/lib/catalog-visibility";
+import {
+  getVehicleProfile,
+  findProfileByModelId,
+  type VehicleConfigProfile,
+} from "@/lib/vehicle-profile";
 import type { Brand, CarModel, VehicleCategory } from "@/types";
+
+/**
+ * DB-facing model id (`${brandSlug}-${modelSlug}`) for a merged-catalog
+ * model. Custom brands carry a `custom:` prefix on their merge-time id
+ * (so they can't shadow code brands in the UI), but the DB mirror
+ * (Brand/Model/Product rows the OrderItem FK points at) uses the bare
+ * slug — this is the single place that difference is reconciled.
+ * Billing paths MUST use this (not `${m.brandId}-${m.slug}`) when
+ * composing Model/Product ids, or custom-brand orders die at the FK.
+ */
+export function dbModelIdFor(m: CarModel): string {
+  return `${m.brandId.replace(/^custom:/, "")}-${m.slug}`;
+}
+
+/**
+ * Profile lookup for server billing paths that only have a DB modelId
+ * (Stripe checkout, webhook emails). Resolves through the merged catalog
+ * so admin custom models get their REAL profile (minivan/pickup/semi)
+ * instead of the `standard` fallback `findProfileByModelId` would give.
+ */
+export async function buildDbProfileResolver(): Promise<
+  (dbModelId: string) => VehicleConfigProfile
+> {
+  const idx = new Map<string, VehicleConfigProfile>();
+  try {
+    const { models } = await getMergedCatalogCached();
+    for (const m of models) idx.set(dbModelIdFor(m), getVehicleProfile(m));
+  } catch (err) {
+    console.warn("[catalog-merge] profile resolver fell back to code-only:", err);
+  }
+  return (dbModelId) => idx.get(dbModelId) ?? findProfileByModelId(dbModelId);
+}
 
 export interface MergedCatalog {
   brands: Brand[];

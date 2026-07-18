@@ -285,6 +285,10 @@ async function execAll(): Promise<MigrationResult[]> {
       `ALTER TABLE "Order" ADD COLUMN IF NOT EXISTS "promoCode" TEXT`,
     );
     await run(
+      "order.locale",
+      `ALTER TABLE "Order" ADD COLUMN IF NOT EXISTS "locale" TEXT`,
+    );
+    await run(
       "Order.orderNumber unique",
       `CREATE UNIQUE INDEX IF NOT EXISTS "Order_orderNumber_key" ON "Order"("orderNumber")`,
     );
@@ -327,6 +331,10 @@ async function execAll(): Promise<MigrationResult[]> {
     await run(
       "orderItem.heelPad",
       `ALTER TABLE "OrderItem" ADD COLUMN IF NOT EXISTS "heelPad" BOOLEAN NOT NULL DEFAULT FALSE`,
+    );
+    await run(
+      "orderItem.thirdRow",
+      `ALTER TABLE "OrderItem" ADD COLUMN IF NOT EXISTS "thirdRow" BOOLEAN NOT NULL DEFAULT FALSE`,
     );
     await run(
       "orderItem.badgeCount",
@@ -431,6 +439,32 @@ async function execAll(): Promise<MigrationResult[]> {
          "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
          "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
        )`,
+    );
+
+    // Stripe invoice flow for custom orders (phone agreement → invoice).
+    await run(
+      "customOrder.invoiceAmount",
+      `ALTER TABLE "CustomOrderRequest" ADD COLUMN IF NOT EXISTS "invoiceAmount" DECIMAL(10,2)`,
+    );
+    await run(
+      "customOrder.stripeInvoiceId",
+      `ALTER TABLE "CustomOrderRequest" ADD COLUMN IF NOT EXISTS "stripeInvoiceId" TEXT`,
+    );
+    await run(
+      "customOrder.invoiceUrl",
+      `ALTER TABLE "CustomOrderRequest" ADD COLUMN IF NOT EXISTS "invoiceUrl" TEXT`,
+    );
+    await run(
+      "customOrder.invoiceSentAt",
+      `ALTER TABLE "CustomOrderRequest" ADD COLUMN IF NOT EXISTS "invoiceSentAt" TIMESTAMP(3)`,
+    );
+    await run(
+      "customOrder.invoicePaidAt",
+      `ALTER TABLE "CustomOrderRequest" ADD COLUMN IF NOT EXISTS "invoicePaidAt" TIMESTAMP(3)`,
+    );
+    await run(
+      "CustomOrderRequest.stripeInvoiceId unique",
+      `CREATE UNIQUE INDEX IF NOT EXISTS "CustomOrderRequest_stripeInvoiceId_key" ON "CustomOrderRequest"("stripeInvoiceId")`,
     );
 
     await run(

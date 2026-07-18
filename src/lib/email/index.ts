@@ -11,4 +11,5 @@ export { sendContactEmail } from "./templates/contact";
 export { sendShippedEmail } from "./templates/shipped";
 export { sendReviewInviteEmail } from "./templates/review-invite";
 export { sendReviewThanksEmail } from "./templates/review-thanks";
+export { sendCustomInvoiceEmail } from "./templates/custom-invoice";
 export type { OrderEmailItem, OrderEmailData } from "./templates/base";

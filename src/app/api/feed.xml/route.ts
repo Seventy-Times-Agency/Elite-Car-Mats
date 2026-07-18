@@ -2,14 +2,14 @@ import { NextResponse } from "next/server";
 import { getMergedCatalogCached } from "@/lib/catalog-merge";
 import { loadPriceOverridesCached } from "@/lib/pricing-overrides";
 import { getMatSetPrice } from "@/lib/pricing";
-import {
-  MAT_SETS_BY_PROFILE,
-  type MatSetOption,
-} from "@/data/catalog/mat-sets";
+import { MAT_SETS_BY_PROFILE } from "@/data/catalog/mat-sets";
 import {
   getVehicleProfile,
   type VehicleConfigProfile,
 } from "@/lib/vehicle-profile";
+import { getDictionaryFor } from "@/i18n/getDictionary";
+import { makeT } from "@/i18n/dictionary";
+import { localizeMatSet, localizeMatSetDesc } from "@/i18n/labels";
 
 export const runtime = "nodejs";
 // Regenerate hourly at most — Google Merchant Center pulls daily and
@@ -41,12 +41,12 @@ function escapeXml(s: string): string {
 function buildItemDescription(
   brand: string,
   model: string,
-  set: MatSetOption,
+  setDescriptionEn: string,
   yMin: number,
   yMax: number,
 ): string {
   const yearStr = yMin === yMax ? String(yMin) : `${yMin}–${yMax}`;
-  return `Premium EVA car floor mats custom-cut for ${brand} ${model} (${yearStr}). ${set.description}. CNC-cut from a 3D template specific to your year and trim. Made in Rochester, NY. Free US shipping, 30-day returns.`;
+  return `Premium EVA car floor mats custom-cut for ${brand} ${model} (${yearStr}). ${setDescriptionEn}. CNC-cut from a 3D template specific to your year and trim. Made in Rochester, NY. Free US shipping, 30-day returns.`;
 }
 
 export async function GET() {
@@ -58,6 +58,10 @@ export async function GET() {
   // O(1) brand lookup — was a 60-deep `find` inside a 700-item loop,
   // so 42k comparisons per Googlebot poke.
   const brandById = new Map(brands.map((b) => [b.id, b] as const));
+
+  // Mat-set labels/descriptions are stored in canonical Russian — the
+  // feed is EN-only, so localize through the EN dictionary.
+  const tEn = makeT(getDictionaryFor("en"), getDictionaryFor("en"));
 
   const items: string[] = [];
 
@@ -80,19 +84,26 @@ export async function GET() {
       // Deep-link to the configurator with the set pre-selected. The
       // landing page's `?set=` and `?year=` parameters are honoured by
       // ProductClient when present.
-      const link = `${SITE}/catalog/${brand.slug}/${model.slug}?utm_source=google&utm_medium=cpc&utm_campaign=shopping&set=${set.type}`;
-      const title = `${brand.name} ${model.name} — ${set.label} EVA mats`;
+      // utm_medium is deliberately NOT "cpc" — the same feed also powers
+      // free listings, and mislabelling those as paid skews analytics.
+      const link = `${SITE}/catalog/${brand.slug}/${model.slug}?utm_source=google&utm_medium=shopping&utm_campaign=merchant-feed&set=${set.type}`;
+      const setLabelEn = localizeMatSet(tEn, set.label);
+      const setDescEn = localizeMatSetDesc(tEn, set.description);
+      // Product-first title: the item is OUR mats FOR the vehicle — the
+      // OEM name leads only as compatibility, not as g:brand.
+      const title = `EVA Floor Mats for ${brand.name} ${model.name} — ${setLabelEn}`;
       const description = buildItemDescription(
         brand.name,
         model.name,
-        set,
+        setDescEn,
         yMin,
         yMax,
       );
-      // Brand logo as the image until real product photos arrive.
-      // Google requires SOME image_link; brand mark is better than
-      // skipping the item entirely.
-      const image = brand.logo ?? `${SITE}/placeholder-car.svg`;
+      // Real product photo (self-hosted studio shot of the black set).
+      // A car-maker's LOGO here violates Merchant Center image policy
+      // (placeholder/logo images → item disapproval) and rode on an
+      // uncontrolled third-party CDN; SVG isn't supported at all.
+      const image = `${SITE}/mats/black-black.jpg`;
 
       items.push(`
     <item>
@@ -101,9 +112,12 @@ export async function GET() {
       <g:description>${escapeXml(description)}</g:description>
       <g:link>${escapeXml(link)}</g:link>
       <g:image_link>${escapeXml(image)}</g:image_link>
+      <g:additional_image_link>${escapeXml(`${SITE}/mats/gallery/g01-hero-colors.jpg`)}</g:additional_image_link>
+      <g:additional_image_link>${escapeXml(`${SITE}/mats/gallery/g02-install-front.jpg`)}</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>${price.toFixed(2)} USD</g:price>
-      <g:brand>${escapeXml(brand.name)}</g:brand>
+      <g:brand>Elite Car Mats</g:brand>
+      <g:item_group_id>${escapeXml(`ECM-${brand.slug}-${model.slug}`)}</g:item_group_id>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
       <g:google_product_category>${GOOGLE_PRODUCT_CATEGORY}</g:google_product_category>

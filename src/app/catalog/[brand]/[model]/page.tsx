@@ -1,3 +1,4 @@
+import { notFound } from "next/navigation";
 import ProductClient from "./ProductClient";
 import { getMergedCatalogCached } from "@/lib/catalog-merge";
 import { getAddonAvailability } from "@/lib/availability";
@@ -17,9 +18,16 @@ export default async function ProductPage({ params }: Params) {
     brand &&
     (models.find((m) => m.slug === modelSlug && m.brandId === brand.id) ??
       null);
+  // Real 404 for unknown brand/model — see the note in ../page.tsx.
+  if (!brand || !model) notFound();
 
   return (
+    // Keyed by brand+model: App Router reuses the client component
+    // instance across product→product navigation (⌘K search), which let
+    // the previous car's `year` / configNote state leak into the next
+    // order. The key remounts the configurator with fresh state.
     <ProductClient
+      key={`${brandSlug}-${modelSlug}`}
       brand={brand}
       model={model ?? null}
       addonAvailability={addonAvailability}

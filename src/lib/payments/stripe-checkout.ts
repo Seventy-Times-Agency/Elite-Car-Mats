@@ -103,9 +103,17 @@ export async function createCheckoutSession(
     },
     locale: input.locale ?? "auto",
     ...(discounts ? { discounts } : {}),
-    automatic_tax: { enabled: false },
+    // Stripe Tax is opt-in via env: it requires a registration (e.g. the
+    // NY Certificate of Authority) to be configured in the Stripe
+    // Dashboard first. Flip STRIPE_TAX_ENABLED=1 once that's done.
+    automatic_tax: {
+      enabled: process.env.STRIPE_TAX_ENABLED === "1",
+    },
+    // US only — the shipping page promises "all 50 states + DC" and no
+    // international rates/customs terms exist. A CA/MX order would be
+    // paid and then refunded (Stripe fees non-refundable).
     shipping_address_collection: {
-      allowed_countries: ["US", "CA", "MX"],
+      allowed_countries: ["US"],
     },
     // {CHECKOUT_SESSION_ID} is a Stripe placeholder, so we have to
     // hand-build the query string and inject it (URLSearchParams encodes

@@ -2,6 +2,11 @@
 
 import { useState } from "react";
 import { useT } from "@/i18n/I18nProvider";
+import {
+  CONTACT_PHONE_DISPLAY,
+  CONTACT_PHONE_HREF,
+  WHATSAPP_HREF,
+} from "@/lib/contacts";
 
 type Status = "idle" | "sending" | "sent" | "error";
 
@@ -10,7 +15,26 @@ export default function ContactsPage() {
   const input =
     "w-full glass-card rounded-xl px-4 py-3.5 text-sm text-text placeholder:text-text-faint focus:border-gold/40 focus:outline-none focus:shadow-[0_0_0_1px_rgba(212,165,74,0.3)] transition-all";
 
-  const contacts = [
+  const contacts: {
+    l: string;
+    v: string;
+    h?: string;
+    note?: string;
+    external?: boolean;
+  }[] = [
+    {
+      l: t("contacts.phoneLabel"),
+      v: CONTACT_PHONE_DISPLAY,
+      h: CONTACT_PHONE_HREF,
+      note: t("contacts.phoneNote"),
+    },
+    {
+      l: "WhatsApp",
+      v: CONTACT_PHONE_DISPLAY,
+      h: WHATSAPP_HREF,
+      note: t("contacts.whatsappNote"),
+      external: true,
+    },
     { l: t("contacts.emailLabel"), v: "info@elitecarmats.us", h: "mailto:info@elitecarmats.us" },
     { l: t("contacts.addressLabel"), v: t("contacts.addressValue") },
   ];
@@ -67,9 +91,22 @@ export default function ContactsPage() {
               <div key={c.l} className="glass-card rounded-xl p-5">
                 <div className="text-[10px] uppercase tracking-[0.2em] text-gold font-semibold mb-1">{c.l}</div>
                 {c.h ? (
-                  <a href={c.h} className="text-text hover:text-gold transition-colors font-medium">{c.v}</a>
+                  <a
+                    href={c.h}
+                    {...(c.external
+                      ? { target: "_blank", rel: "noopener noreferrer" }
+                      : {})}
+                    className="text-text hover:text-gold transition-colors font-medium"
+                  >
+                    {c.v}
+                  </a>
                 ) : (
                   <div className="text-text font-medium">{c.v}</div>
+                )}
+                {c.note && (
+                  <p className="mt-1 text-[11px] text-text-faint leading-snug">
+                    {c.note}
+                  </p>
                 )}
               </div>
             ))}

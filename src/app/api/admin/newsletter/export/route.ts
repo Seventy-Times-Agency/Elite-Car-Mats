@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
 import { requireAdmin } from "@/lib/security/auth";
+import { unsubscribeUrl } from "@/lib/security/unsubscribe-token";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -27,12 +28,16 @@ export async function GET() {
     orderBy: { createdAt: "desc" },
   });
 
+  // unsubscribeUrl per row: CAN-SPAM requires a working opt-out in every
+  // commercial email, so any campaign built from this export can merge
+  // the column straight into its footer link.
   const rows = [
-    ["email", "source", "createdAt"],
+    ["email", "source", "createdAt", "unsubscribeUrl"],
     ...subs.map((s) => [
       s.email,
       s.source ?? "",
       s.createdAt.toISOString(),
+      unsubscribeUrl(s.email),
     ]),
   ];
   const csv = rows.map((r) => r.map(csvEscape).join(",")).join("\n");

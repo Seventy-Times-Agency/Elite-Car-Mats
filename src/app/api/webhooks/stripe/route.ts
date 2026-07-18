@@ -11,6 +11,7 @@ import { sendCustomerOrderEmail, sendOwnerOrderEmail } from "@/lib/email";
 import { signOrderToken } from "@/lib/security/order-token";
 import { calculateItemUnitPrice } from "@/lib/pricing";
 import { loadPriceOverrides } from "@/lib/pricing-overrides";
+import { buildDbProfileResolver } from "@/lib/catalog-merge";
 import { pushOrderToShipstation } from "@/lib/shipping/shipstation";
 import type { MatSetType } from "@/types";
 
@@ -181,6 +182,9 @@ async function sendOrderConfirmations(orderId: string): Promise<void> {
   });
   if (!order) return;
   const overrides = await loadPriceOverrides();
+  // Merged-catalog profile lookup — admin custom models would otherwise
+  // fall back to `standard` pricing in the emailed unit prices.
+  const profileOf = await buildDbProfileResolver();
   const emailData = {
     orderNumber: order.orderNumber,
     orderToken: signOrderToken(order.id),
@@ -195,6 +199,7 @@ async function sendOrderConfirmations(orderId: string): Promise<void> {
     // promo code lives in Order.promoCode column.
     comment: order.comment,
     total: Number(order.total ?? 0),
+    locale: order.locale,
     items: order.items.map((i) => {
       const matSet = matSetFromEnum[i.product.matSet];
       if (!matSet) throw new Error(`Unknown matSet enum: ${i.product.matSet}`);
@@ -202,6 +207,7 @@ async function sendOrderConfirmations(orderId: string): Promise<void> {
         brandName: i.product.model.brand.name,
         modelName: i.product.model.name,
         matSet,
+        profile: profileOf(i.product.modelId),
         colorName: i.color.name,
         colorHex: i.color.hex,
         edgeColorName: i.edgeColor.name,
@@ -211,16 +217,19 @@ async function sendOrderConfirmations(orderId: string): Promise<void> {
           ? `${i.badge.brandName} badge${(i.badgeCount ?? 1) > 1 ? ` ×${i.badgeCount}` : ""}`
           : null,
         heelPad: i.heelPad ?? false,
+        thirdRow: i.thirdRow ?? false,
         year: i.year ?? null,
         quantity: i.quantity,
         unitPrice: calculateItemUnitPrice(
           {
             matSet,
             modelId: i.product.modelId,
+            profile: profileOf(i.product.modelId),
             edgeColor: { id: i.edgeColor.id },
             badge: i.badge ? { id: i.badge.id } : null,
             badgeCount: i.badgeCount ?? 1,
             heelPad: i.heelPad ?? false,
+            thirdRow: i.thirdRow ?? false,
           },
           overrides,
         ),
@@ -241,7 +250,19 @@ export async function POST(request: Request) {
   }
   const webhookSecret = getWebhookSecret();
   if (!webhookSecret) {
-    return NextResponse.json({ ok: true, skipped: "no-webhook-secret" });
+    // Stripe IS configured but the webhook secret is missing — a config
+    // error (rotation, env migration). Responding 200 here would make
+    // Stripe consider the delivery successful and stop retrying: paid
+    // orders would silently stay PENDING forever with no confirmation
+    // email and no revenue in admin. Fail loudly instead — Stripe retries
+    // and the endpoint shows red in the Dashboard until ops fixes the env.
+    console.error(
+      "[stripe-webhook] STRIPE_WEBHOOK_SECRET is not set while Stripe is configured — refusing event",
+    );
+    return NextResponse.json(
+      { error: "Webhook secret not configured" },
+      { status: 500 },
+    );
   }
 
   const signature = request.headers.get("stripe-signature");
@@ -379,6 +400,24 @@ export async function POST(request: Request) {
         const session = event.data.object as Stripe.Checkout.Session;
         const orderId = orderIdFromSession(session);
         if (orderId) {
+          // A session we deliberately expired because the customer opened
+          // a NEWER one (retry after cancel, second tab) must not cancel
+          // the order — the current session is still payable. The order
+          // row always points at the latest session; a mismatch means
+          // this event is for a superseded session.
+          const current = await prisma.order.findUnique({
+            where: { id: orderId },
+            select: { stripeSessionId: true },
+          });
+          if (
+            current?.stripeSessionId &&
+            current.stripeSessionId !== session.id
+          ) {
+            console.log(
+              `[stripe-webhook] ${event.id} order=${orderId} session superseded — not cancelling`,
+            );
+            break;
+          }
           const res = await prisma.order.updateMany({
             where: { id: orderId, status: "PENDING" },
             data: { status: "CANCELLED" },
@@ -391,6 +430,56 @@ export async function POST(request: Request) {
             // re-delivery can't refund the same use twice.
             await refundPromoUse(orderId);
           }
+        }
+        break;
+      }
+      case "invoice.paid": {
+        // Custom-order invoices (admin-issued after the master agrees a
+        // price by phone). metadata.customOrderId ties the Stripe invoice
+        // back to the CustomOrderRequest row.
+        const invoice = event.data.object as Stripe.Invoice;
+        const customOrderId = invoice.metadata?.customOrderId;
+        if (customOrderId) {
+          const res = await prisma.customOrderRequest.updateMany({
+            where: { id: customOrderId, invoicePaidAt: null },
+            data: { invoicePaidAt: new Date(), status: "CONVERTED" },
+          });
+          console.log(
+            `[stripe-webhook] ${event.id} custom-order=${customOrderId} invoice paid (rows=${res.count})`,
+          );
+          if (res.count === 1) {
+            // Let the owner know production can start — best-effort.
+            after(async () => {
+              try {
+                const req = await prisma.customOrderRequest.findUnique({
+                  where: { id: customOrderId },
+                });
+                if (!req) return;
+                const { send, ownerEmail } = await import(
+                  "@/lib/email/transport"
+                );
+                const amount = Number(req.invoiceAmount ?? 0).toFixed(2);
+                await send({
+                  to: ownerEmail,
+                  subject: `Custom order paid — ${req.make} ${req.model} ${req.year} ($${amount})`,
+                  html: `<p>Invoice for the custom order was paid.</p>
+<p><b>${req.name}</b> · ${req.email} · ${req.phone}</p>
+<p>${req.make} ${req.model} ${req.year}${req.matSet ? ` · ${req.matSet}` : ""}</p>
+<p>Amount: <b>$${amount}</b></p>
+<p>Production can start — the request is marked CONVERTED in the admin panel.</p>`,
+                });
+              } catch (err) {
+                console.error(
+                  "[stripe-webhook] custom-invoice owner email failed:",
+                  err,
+                );
+              }
+            });
+          }
+        } else {
+          console.log(
+            `[stripe-webhook] ${event.id} invoice.paid without customOrderId — ignored`,
+          );
         }
         break;
       }

@@ -3,8 +3,9 @@ import { revalidateTag } from "next/cache";
 import { prisma } from "@/lib/db/prisma";
 import { requireAdmin, checkAdminCsrf } from "@/lib/security/auth";
 import { modelUpdateSchema } from "@/lib/validations/catalog";
-import { resetCatalogSeedCache } from "@/lib/db/seed";
-import { resolveBrandRef } from "@/lib/catalog-brand-ref";
+import { resetCatalogSeedCache, mirrorCustomModelRow } from "@/lib/db/seed";
+import { resolveBrandRef, codeBrandName } from "@/lib/catalog-brand-ref";
+import { asCategory, parseYears } from "@/lib/catalog-normalize";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -60,9 +61,34 @@ export async function PATCH(request: Request, ctx: Ctx) {
   if (d.years !== undefined) data.years = d.years;
 
   try {
-    const row = await prisma.customModel.update({ where: { id }, data });
+    const row = await prisma.customModel.update({
+      where: { id },
+      data,
+      include: { brand: { select: { slug: true, name: true } } },
+    });
     revalidateTag("catalog", "default");
     resetCatalogSeedCache();
+    // Mirror the (possibly renamed/re-yeared) row into Brand/Model/Product
+    // right away — warm /api/orders instances won't re-seed until recycle.
+    const brandSlug = row.brand?.slug ?? row.codeBrandSlug;
+    const brandName =
+      row.brand?.name ?? codeBrandName(row.codeBrandSlug) ?? null;
+    if (brandSlug && brandName) {
+      try {
+        await mirrorCustomModelRow({
+          id: `${brandSlug}-${row.slug}`,
+          brandId: brandSlug,
+          brandName,
+          name: row.name,
+          slug: row.slug,
+          years: parseYears(row.years),
+          bodyType: row.bodyType,
+          category: asCategory(row.category),
+        });
+      } catch (mirrorErr) {
+        console.error("[admin:catalog:model:update] mirror failed:", mirrorErr);
+      }
+    }
     return NextResponse.json({ model: row });
   } catch (err) {
     const msg = err instanceof Error ? err.message : "error";

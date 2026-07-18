@@ -5,12 +5,24 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useT } from "@/i18n/I18nProvider";
 import { trackEvent } from "@/lib/analytics";
+import { useCart } from "@/context/CartContext";
+import { clearPendingOrder } from "@/lib/checkout-session";
 
 function SuccessBody() {
   const t = useT();
   const sp = useSearchParams();
+  const { clearCart } = useCart();
   const orderNumber = sp?.get("order") ?? "";
   const token = sp?.get("t") ?? "";
+
+  // Payment confirmed — NOW the cart can go. Checkout deliberately keeps
+  // the cart through the Stripe redirect so a cancelled payment returns
+  // to a retryable checkout instead of an empty store.
+  useEffect(() => {
+    if (!orderNumber) return;
+    clearCart();
+    clearPendingOrder();
+  }, [orderNumber, clearCart]);
 
   // Meta Pixel: Purchase, with the order total fetched via the tokened
   // order API. eventID = order number so a reloaded success page doesn't
@@ -25,9 +37,23 @@ function SuccessBody() {
         );
         if (!res.ok || cancelled) return;
         const data = await res.json();
+        const items: { productId?: string; quantity?: number; price?: number }[] =
+          Array.isArray(data.items) ? data.items : [];
+        const withIds = items.filter((i) => typeof i.productId === "string");
         trackEvent(
           "Purchase",
-          { value: Number(data.total ?? 0), currency: "USD" },
+          {
+            value: Number(data.total ?? 0),
+            currency: "USD",
+            content_type: "product",
+            // Feed-format skus so catalog campaigns can match the sale.
+            content_ids: withIds.map((i) => `ECM-${i.productId}`),
+            contents: withIds.map((i) => ({
+              id: `ECM-${i.productId}`,
+              quantity: i.quantity ?? 1,
+              item_price: Number(i.price ?? 0),
+            })),
+          },
           `purchase-${orderNumber}`,
         );
       } catch {

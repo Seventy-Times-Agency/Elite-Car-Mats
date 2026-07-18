@@ -2,11 +2,13 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db/prisma";
 import { requireAdmin, checkAdminCsrf } from "@/lib/security/auth";
-import { sendShippedEmail, sendReviewInviteEmail } from "@/lib/email";
+import { sendShippedEmail } from "@/lib/email";
 import { verifyOrderToken, signOrderToken } from "@/lib/security/order-token";
-
-/** Delay before the post-delivery review invite lands (Resend holds it). */
-const REVIEW_INVITE_DELAY_MS = 24 * 60 * 60 * 1000; // 1 day
+import {
+  scheduleReviewInvite,
+  REVIEW_INVITE_AFTER_SHIP_MS,
+  REVIEW_INVITE_AFTER_DELIVERY_MS,
+} from "@/lib/reviews/schedule-invite";
 
 const updateSchema = z.object({
   status: z
@@ -67,6 +69,9 @@ export async function GET(
     createdAt: order.createdAt.toISOString(),
     items: order.items.map((i) => ({
       id: i.id,
+      // `<brandSlug>-<modelSlug>-<set>` — prefixed with "ECM-" this is the
+      // Merchant/Meta feed sku, used by the Purchase pixel event.
+      productId: i.productId,
       brandName: i.product.model.brand.name,
       modelName: i.product.model.name,
       matSet: i.product.matSet,
@@ -74,6 +79,8 @@ export async function GET(
       color: { id: i.color.id, name: i.color.name, hex: i.color.hex },
       edgeColor: { id: i.edgeColor.id, name: i.edgeColor.name, hex: i.edgeColor.hex },
       badge: i.badge ? { id: i.badge.id, brandName: i.badge.brandName } : null,
+      heelPad: i.heelPad ?? false,
+      thirdRow: i.thirdRow ?? false,
       quantity: i.quantity,
       price: Number(i.price ?? 0),
     })),
@@ -118,6 +125,8 @@ export async function PATCH(
       customerName: true,
       email: true,
       reviewInviteSentAt: true,
+      locale: true,
+      carrier: true,
     },
   });
   if (!existing) {
@@ -149,34 +158,47 @@ export async function PATCH(
     !!updated.trackingNumber;
 
   if (justShipped) {
-    await sendShippedEmail({
-      orderNumber: updated.orderNumber,
-      customerName: existing.customerName,
-      customerEmail: existing.email,
-      trackingNumber: updated.trackingNumber!,
-      orderToken: signOrderToken(updated.id),
-    });
+    try {
+      await sendShippedEmail({
+        orderNumber: updated.orderNumber,
+        customerName: existing.customerName,
+        customerEmail: existing.email,
+        trackingNumber: updated.trackingNumber!,
+        orderToken: signOrderToken(updated.id),
+        carrier: existing.carrier,
+        locale: existing.locale,
+      });
+    } catch (err) {
+      // Status is already flipped — a Resend hiccup shouldn't bubble up
+      // as a 500 and trick the operator into re-clicking (= re-emailing).
+      console.error(
+        `[admin:orders] shipped email failed for ${updated.orderNumber}:`,
+        err,
+      );
+    }
   }
 
-  // First transition into DELIVERED schedules the review invite for
-  // ~1 day out (Resend `scheduledAt` — no cron). reviewInviteSentAt
-  // guards re-sends when the status is toggled back and forth.
-  const justDelivered =
-    status === "DELIVERED" &&
-    existing.status !== "DELIVERED" &&
-    !existing.reviewInviteSentAt;
-
-  if (justDelivered) {
-    await sendReviewInviteEmail({
+  // Review invite scheduling (atomic claim inside — safe to call from
+  // concurrent transitions). SHIPPED is the reliable auto-set status
+  // (ShipStation webhook), so the invite is anchored there with a
+  // post-transit delay; a manual DELIVERED flip shortens it to ~1 day.
+  if (justShipped) {
+    await scheduleReviewInvite({
       orderId: updated.id,
       orderNumber: updated.orderNumber,
       customerName: existing.customerName,
       customerEmail: existing.email,
-      scheduledAt: new Date(Date.now() + REVIEW_INVITE_DELAY_MS).toISOString(),
+      delayMs: REVIEW_INVITE_AFTER_SHIP_MS,
+      locale: existing.locale,
     });
-    await prisma.order.update({
-      where: { id: updated.id },
-      data: { reviewInviteSentAt: new Date() },
+  } else if (status === "DELIVERED" && existing.status !== "DELIVERED") {
+    await scheduleReviewInvite({
+      orderId: updated.id,
+      orderNumber: updated.orderNumber,
+      customerName: existing.customerName,
+      customerEmail: existing.email,
+      delayMs: REVIEW_INVITE_AFTER_DELIVERY_MS,
+      locale: existing.locale,
     });
   }
 

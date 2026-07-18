@@ -2,7 +2,7 @@ import { randomBytes } from "node:crypto";
 import { NextResponse, after } from "next/server";
 import { prisma } from "@/lib/db/prisma";
 import { ensureSchema } from "@/lib/db/setup";
-import { ensureCatalogSeed } from "@/lib/db/seed";
+import { ensureCatalogSeed, resetCatalogSeedCache } from "@/lib/db/seed";
 import { createOrderSchema } from "@/lib/validations/order";
 import {
   calculateItemUnitPrice,
@@ -21,9 +21,13 @@ import {
 import { signOrderToken } from "@/lib/security/order-token";
 import { evaColors, edgeColors, badges } from "@/data/catalog";
 import { MAT_SETS_BY_PROFILE } from "@/data/catalog/mat-sets";
-import { getMergedCatalog } from "@/lib/catalog-merge";
-import { getVehicleProfile } from "@/lib/vehicle-profile";
-import { getDictionary } from "@/i18n/getDictionary";
+import { getMergedCatalog, dbModelIdFor } from "@/lib/catalog-merge";
+import {
+  getVehicleProfile,
+  thirdRowAvailable,
+  type VehicleConfigProfile,
+} from "@/lib/vehicle-profile";
+import { getDictionary, getLocaleFromCookie } from "@/i18n/getDictionary";
 import { makeT } from "@/i18n/dictionary";
 import type { OrderItemInput } from "@/lib/validations/order";
 
@@ -42,7 +46,7 @@ function generateOrderNumber(): string {
 async function buildResolveNames() {
   const { dict, fallback } = await getDictionary();
   const t = makeT(dict, fallback);
-  return (item: OrderItemInput) => {
+  return (item: OrderItemInput, profile?: VehicleConfigProfile) => {
     const color = evaColors.find((c) => c.id === item.colorId);
     const edge = edgeColors.find((c) => c.id === item.edgeColorId);
     // The set is already validated against the catalog higher up in POST
@@ -65,6 +69,7 @@ async function buildResolveNames() {
       ? clampBadgeCount({
           matSet: item.matSet,
           modelId: item.modelId,
+          profile,
           badge: { id: badgeRow.id },
           badgeCount: item.badgeCount,
         })
@@ -142,7 +147,8 @@ export async function POST(request: Request) {
     const direct = allModels.find(
       (m) =>
         m.id === i.modelId ||
-        `${m.brandId}-${m.slug}` === i.modelId,
+        `${m.brandId}-${m.slug}` === i.modelId ||
+        dbModelIdFor(m) === i.modelId,
     );
     const byName =
       direct ??
@@ -151,9 +157,16 @@ export async function POST(request: Request) {
           m.brandName.toLowerCase() === i.brandName.toLowerCase() &&
           m.name.toLowerCase() === i.modelName.toLowerCase(),
       );
-    const modelId = byName ? `${byName.brandId}-${byName.slug}` : null;
+    // DB-facing id: custom-brand merge ids carry a `custom:` prefix that
+    // the Brand/Model/Product mirror does NOT — dbModelIdFor strips it so
+    // the OrderItem.productId FK resolves for custom-catalog orders too.
+    const modelId = byName ? dbModelIdFor(byName) : null;
     const productId = modelId ? `${modelId}-${i.matSet}` : null;
-    return { item: i, modelId, productId };
+    // Resolve the profile from the merged model row while we have it —
+    // findProfileByModelId can't see custom models and would fall back to
+    // `standard`, billing custom minivans/pickups/semis at wrong rates.
+    const profile = byName ? getVehicleProfile(byName) : null;
+    return { item: i, model: byName ?? null, profile, modelId, productId };
   });
 
   const unresolved = itemsResolved.filter((r) => !r.productId);
@@ -213,20 +226,24 @@ export async function POST(request: Request) {
   // a semi truck and be billed at the sedan-cargo $79 — a silent
   // pricing-bypass vector. The model has already been resolved above,
   // so we can trust the catalog row.
-  const modelByCartId = new Map<string, (typeof allModels)[number]>();
-  for (const m of allModels) {
-    modelByCartId.set(`${m.brandId}-${m.slug}`, m);
-  }
-  for (const { item: i, modelId } of itemsResolved) {
-    const lookupId = modelId ?? i.modelId;
-    const m = modelByCartId.get(lookupId);
-    if (!m) continue; // unreachable: covered by the unresolved check above
-    const profile = getVehicleProfile(m);
+  for (const { item: i, profile } of itemsResolved) {
+    if (!profile) continue; // unreachable: covered by the unresolved check above
     const allowed = MAT_SETS_BY_PROFILE[profile];
     if (!allowed.some((s) => s.type === i.matSet)) {
       return NextResponse.json(
         {
           error: `Mat set "${i.matSet}" is not available for ${i.brandName} ${i.modelName}.`,
+        },
+        { status: 400 },
+      );
+    }
+    // Third-row add-on is only sold for standard-profile cabin sets —
+    // a hand-crafted POST must not attach it to minivans (already have
+    // 3 rows) or cargo-only orders.
+    if (i.thirdRow && !thirdRowAvailable(profile, i.matSet)) {
+      return NextResponse.json(
+        {
+          error: `The third-row add-on is not available for ${i.brandName} ${i.modelName} with mat set "${i.matSet}".`,
         },
         { status: 400 },
       );
@@ -255,14 +272,22 @@ export async function POST(request: Request) {
   // Empty Map on DB error so checkout never blocks on a Neon hiccup.
   const overrides = await loadPriceOverrides();
 
+  // Storefront locale of THIS request = the customer's language. Stored
+  // on the order so every later transactional email (Stripe webhook,
+  // admin ship/review flows — requests with someone else's or no locale)
+  // renders in the language the customer actually shopped in.
+  const customerLocale = await getLocaleFromCookie();
+
   const subtotal = calculateOrderTotal(
-    itemsResolved.map(({ item: i, modelId }) => ({
+    itemsResolved.map(({ item: i, modelId, profile }) => ({
       matSet: i.matSet,
       modelId: modelId ?? i.modelId,
+      profile: profile ?? undefined,
       edgeColor: { id: i.edgeColorId },
       badge: i.badgeId ? { id: i.badgeId } : null,
       badgeCount: i.badgeCount ?? 1,
       heelPad: i.heelPad ?? false,
+      thirdRow: i.thirdRow ?? false,
       quantity: i.quantity,
     })),
     overrides,
@@ -279,9 +304,8 @@ export async function POST(request: Request) {
     }
   }
 
-  let createdOrder;
-  try {
-    createdOrder = await prisma.$transaction(async (tx) => {
+  const runCreateTransaction = () =>
+    prisma.$transaction(async (tx) => {
       let appliedDiscount = 0;
       let appliedCode: string | null = null;
       if (promoPreview) {
@@ -307,9 +331,10 @@ export async function POST(request: Request) {
           zip: shipping.zip || null,
           comment: shipping.comment || null,
           promoCode: appliedCode,
+          locale: customerLocale,
           total,
           items: {
-            create: itemsResolved.map(({ item: i, modelId, productId }) => ({
+            create: itemsResolved.map(({ item: i, modelId, productId, profile }) => ({
               productId: productId!,
               colorId: i.colorId,
               edgeColorId: i.edgeColorId,
@@ -318,21 +343,25 @@ export async function POST(request: Request) {
                 ? clampBadgeCount({
                     matSet: i.matSet,
                     modelId: modelId ?? i.modelId,
+                    profile: profile ?? undefined,
                     badge: { id: i.badgeId },
                     badgeCount: i.badgeCount,
                   })
                 : 1,
               heelPad: i.heelPad ?? false,
+              thirdRow: i.thirdRow ?? false,
               year: i.year ?? null,
               quantity: i.quantity,
               price: calculateItemUnitPrice(
                 {
                   matSet: i.matSet,
                   modelId: modelId ?? i.modelId,
+                  profile: profile ?? undefined,
                   edgeColor: { id: i.edgeColorId },
                   badge: i.badgeId ? { id: i.badgeId } : null,
                   badgeCount: i.badgeCount ?? 1,
                   heelPad: i.heelPad ?? false,
+                  thirdRow: i.thirdRow ?? false,
                 },
                 overrides,
               ),
@@ -353,6 +382,26 @@ export async function POST(request: Request) {
         },
       });
     });
+
+  let createdOrder;
+  try {
+    try {
+      createdOrder = await runCreateTransaction();
+    } catch (err) {
+      // FK violation (P2003) usually means this lambda's catalog-seed cache
+      // predates an admin-added custom brand/model — the Product row exists
+      // in code terms but not yet in THIS instance's mirrored DB view.
+      // Re-run the seed once (cross-instance safe: createMany+skipDuplicates)
+      // and retry, instead of bouncing the customer with a 500.
+      const e = err as { code?: string };
+      if (e.code !== "P2003") throw err;
+      console.warn(
+        "[orders] FK violation — re-mirroring catalog seed and retrying once",
+      );
+      resetCatalogSeedCache();
+      await ensureCatalogSeed();
+      createdOrder = await runCreateTransaction();
+    }
   } catch (err) {
     // Never leak DB internals into the client response — log and emit a
     // generic message. The detailed cause stays in server logs.
@@ -399,30 +448,34 @@ export async function POST(request: Request) {
   // so customers who abandon Stripe never get falsely confirmed. We do
   // still notify the owner immediately so they see the lead.
   if (!isStripeConfigured()) {
-    const emailItems = itemsResolved.map(({ item: i, modelId }) => {
-      const names = resolveNames(i);
+    const emailItems = itemsResolved.map(({ item: i, modelId, profile }) => {
+      const names = resolveNames(i, profile ?? undefined);
       const colorRow = evaColors.find((c) => c.id === i.colorId);
       const edgeRow = edgeColors.find((c) => c.id === i.edgeColorId);
       return {
         brandName: i.brandName,
         modelName: i.modelName,
         matSet: i.matSet,
+        profile: profile ?? undefined,
         colorName: names.colorName,
         colorHex: colorRow?.hex ?? null,
         edgeColorName: names.edgeColorName,
         edgeColorHex: edgeRow?.hex ?? null,
         badgeName: names.badgeName,
         heelPad: i.heelPad ?? false,
+        thirdRow: i.thirdRow ?? false,
         year: i.year ?? null,
         quantity: i.quantity,
         unitPrice: calculateItemUnitPrice(
           {
             matSet: i.matSet,
             modelId: modelId ?? i.modelId,
+            profile: profile ?? undefined,
             edgeColor: { id: i.edgeColorId },
             badge: i.badgeId ? { id: i.badgeId } : null,
             badgeCount: i.badgeCount ?? 1,
             heelPad: i.heelPad ?? false,
+            thirdRow: i.thirdRow ?? false,
           },
           overrides,
         ),
@@ -443,6 +496,7 @@ export async function POST(request: Request) {
       comment: shipping.comment || null,
       total: Number(createdOrder.total ?? 0),
       items: emailItems,
+      locale: customerLocale,
     };
     // Deferred via `after`: emails never fail (or delay) the order
     // response, and the serverless runtime keeps the instance alive until

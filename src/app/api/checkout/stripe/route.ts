@@ -1,13 +1,18 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import type Stripe from "stripe";
 import { z } from "zod";
 import { prisma } from "@/lib/db/prisma";
 import { rateLimit, getClientIp } from "@/lib/security/rate-limit";
-import { isStripeConfigured } from "@/lib/payments/stripe";
+import { isStripeConfigured, getStripe } from "@/lib/payments/stripe";
 import { createCheckoutSession } from "@/lib/payments/stripe-checkout";
 import { signOrderToken, verifyOrderToken } from "@/lib/security/order-token";
 import { calculateItemUnitPrice } from "@/lib/pricing";
 import { loadPriceOverrides } from "@/lib/pricing-overrides";
+import { buildDbProfileResolver } from "@/lib/catalog-merge";
+import { getDictionaryFor } from "@/i18n/getDictionary";
+import { DEFAULT_LOCALE } from "@/i18n/config";
+import { makeT } from "@/i18n/dictionary";
+import { localizeColor } from "@/i18n/labels";
 import type { MatSetType } from "@/types";
 
 const schema = z.object({
@@ -122,6 +127,13 @@ export async function POST(request: Request) {
   // used at creation, so checkout total matches the order total even
   // if admin changed prices in between.
   const overrides = await loadPriceOverrides();
+  // Profile via the merged catalog — findProfileByModelId alone can't see
+  // admin custom models and would bill them at `standard` rates.
+  const profileOf = await buildDbProfileResolver();
+  // Color names are stored in their canonical Russian form — localize the
+  // Stripe line-item descriptions so a US customer doesn't see "Чёрный /
+  // Тёмно-синий" on the payment page.
+  const tDesc = makeT(getDictionaryFor(locale), getDictionaryFor(DEFAULT_LOCALE));
   const items = order.items.map((i) => {
     const matSet = matSetFromEnum[i.product.matSet];
     if (!matSet) throw new Error(`Unknown matSet enum: ${i.product.matSet}`);
@@ -129,21 +141,27 @@ export async function POST(request: Request) {
       {
         matSet,
         modelId: i.product.modelId,
+        profile: profileOf(i.product.modelId),
         edgeColor: { id: i.edgeColor.id },
         badge: i.badge ? { id: i.badge.id } : null,
         badgeCount: i.badgeCount ?? 1,
         heelPad: i.heelPad ?? false,
+        thirdRow: i.thirdRow ?? false,
       },
       overrides,
     );
     const brandName = i.product.model.brand.name;
     const modelName = i.product.model.name;
-    const descBits = [i.color.name, i.edgeColor.name];
+    const descBits = [
+      localizeColor(tDesc, i.color.name),
+      localizeColor(tDesc, i.edgeColor.name),
+    ];
     if (i.badge) {
       const n = i.badgeCount ?? 1;
       descBits.push(`+ ${i.badge.brandName} badge${n > 1 ? ` ×${n}` : ""}`);
     }
     if (i.heelPad) descBits.push(`+ aluminum heel pad`);
+    if (i.thirdRow) descBits.push(`+ ${tDesc("email.thirdRowSuffix")}`);
     const yearSuffix = i.year ? ` · ${i.year}` : "";
     return {
       name: `${brandName} ${modelName}${yearSuffix}`,
@@ -159,7 +177,13 @@ export async function POST(request: Request) {
   );
   const dbTotal = Number(order.total ?? 0);
   // Difference between subtotal and stored total is the promo discount.
-  const discountUsd = Math.max(0, recomputedSubtotal - dbTotal);
+  // Clamped so the session total never drops below Stripe's $0.50 card
+  // minimum — a 100%-off promo would otherwise make session creation
+  // throw and lock the customer out of paying entirely.
+  const discountUsd = Math.min(
+    Math.max(0, recomputedSubtotal - dbTotal),
+    Math.max(0, recomputedSubtotal - 0.5),
+  );
 
   try {
     const session = await createCheckoutSession({
@@ -183,6 +207,30 @@ export async function POST(request: Request) {
       where: { id: order.id },
       data: { stripeSessionId: session.id },
     });
+
+    // Expire the superseded session AFTER the order row points at the new
+    // one — both stay payable for up to 24h otherwise, and a customer with
+    // two tabs could be charged twice. Done after the row update so the
+    // `checkout.session.expired` webhook sees the session as superseded
+    // (id mismatch) and does NOT cancel the still-payable order.
+    const prevSessionId = order.stripeSessionId;
+    if (prevSessionId && prevSessionId !== session.id) {
+      after(async () => {
+        try {
+          const stripe = await getStripe();
+          if (!stripe) return;
+          const prev = await stripe.checkout.sessions.retrieve(prevSessionId);
+          if (prev.status === "open") {
+            await stripe.checkout.sessions.expire(prevSessionId);
+          }
+        } catch (err) {
+          console.warn(
+            `[stripe-checkout] failed to expire superseded session ${prevSessionId}:`,
+            err,
+          );
+        }
+      });
+    }
 
     return NextResponse.json({ url: session.url, sessionId: session.id });
   } catch (err) {

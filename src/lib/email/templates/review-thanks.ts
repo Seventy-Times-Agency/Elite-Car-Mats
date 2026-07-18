@@ -13,8 +13,10 @@ export async function sendReviewThanksEmail(params: {
   discountPercent: number;
   /** Days until the code expires — rendered in the email copy. */
   validDays: number;
+  /** Originating order's storefront locale — the customer's language. */
+  locale?: string | null;
 }): Promise<void> {
-  const t = await buildT();
+  const t = await buildT(params.locale);
   const html = baseTemplate(
     t,
     `

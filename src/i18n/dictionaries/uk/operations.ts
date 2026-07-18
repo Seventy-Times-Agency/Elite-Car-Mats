@@ -128,6 +128,7 @@ export const operations: Dict = {
   "admin.availOut": "немає в наявності",
   "admin.pricingMetallicBadge": "Металевий бейдж бренду",
   "admin.pricingHeelPad": "Алюмінієва накладка під педаль",
+  "admin.pricingThirdRow": "Килимки третього ряду (7 місць)",
   "admin.pricingEdgeRow": "Окантовка — {id}",
   "admin.pricingNoSurcharge": "Без доплати",
   "admin.pricingFeedH": "Google Shopping feed",
@@ -295,11 +296,12 @@ export const operations: Dict = {
   "email.matSetFullCargo": "Повний комплект",
   "email.badgeSuffix": "Шильдик {brand}",
   "email.heelPadSuffix": "Алюмінієва накладка під педаль",
+  "email.thirdRowSuffix": "Килимки третього ряду",
   "email.noteLabel": "Коментар",
   "email.custSubject": "Замовлення {orderNumber} прийнято — EliteCarMats",
   "email.custH1": "Дякуємо за замовлення, {name}!",
   "email.custP": 
-    "Ваше замовлення прийнято. Ми зв'яжемося для підтвердження найближчим часом.",
+    "Ваше замовлення прийнято — вже запускаємо розкрій. Трек-номер надійде на пошту в момент відправлення з нашої майстерні в Рочестері.",
   "email.orderNumberLabel": "Номер замовлення",
   "email.totalLabel": "Разом",
   "email.custTrackBtn": "Відстежити замовлення",
@@ -327,4 +329,25 @@ export const operations: Dict = {
   "email.revThanksTerms":
     "Одне використання · діє {days} днів · вводиться під час оформлення замовлення",
   "email.revThanksCta": "Перейти до каталогу →",
+
+  // Інвойс за індивідуальним замовленням
+  "email.invSubject": "Ваш рахунок від Elite Car Mats — {car}",
+  "email.invH1": "Ваш рахунок готовий",
+  "email.invP":
+    "Вітаємо, {name}! Як домовлялися, надсилаємо рахунок за індивідуальний комплект EVA-килимків для {car}. Натисніть кнопку нижче, щоб перевірити та безпечно оплатити — запускаємо виробництво одразу після оплати.",
+  "email.invAmountLabel": "До сплати",
+  "email.invCta": "Відкрити й оплатити рахунок",
+  "email.invNote":
+    "Рахунок дійсний {days} днів. Є запитання? Просто дайте відповідь на цей лист.",
+  // Адмінка: інвойс за індивідуальним замовленням
+  "admin.invSection": "Рахунок (інвойс)",
+  "admin.invAmountPh": "Погоджена сума, USD",
+  "admin.invSend": "Виставити рахунок",
+  "admin.invResend": "Перевиставити рахунок",
+  "admin.invSending": "Надсилаємо…",
+  "admin.invSentAt": "Рахунок надіслано",
+  "admin.invPaidAt": "Оплачено",
+  "admin.invOpen": "Відкрити рахунок →",
+  "admin.invError": "Не вдалося надіслати рахунок. Перевірте, що Stripe налаштовано, і спробуйте ще раз.",
+  "admin.invConfirmResend": "Вже є неоплачений рахунок — анулювати його та надіслати новий?",
 };

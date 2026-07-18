@@ -8,6 +8,12 @@
   --color-gold-glow: rgba(212, 165, 74, 0.15);
 
   --color-bg: #0F0F0F;
+  /* Slightly darker/lighter shades of the page bg used in gradients
+     (cart drawer, home sections, announcement bar). These MUST exist:
+     Tailwind v4 silently drops unknown color utilities, and a missing
+     token turns from-bg-elevated/bg-bg-deep into transparent stops. */
+  --color-bg-deep: #0A0A0A;
+  --color-bg-elevated: #1A1A1A;
   --color-surface: #171717;
   --color-surface-hover: #1E1E1E;
   --color-surface-elevated: #222222;

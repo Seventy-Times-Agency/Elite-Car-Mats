@@ -19,6 +19,14 @@ export const BADGE_PRICE = 9;
  */
 export const HEEL_PAD_PRICE = 17;
 
+/**
+ * Optional third-row mats add-on. Some standard-profile SUVs/crossovers
+ * come in 7-seat trims the catalog can't distinguish (same model id) —
+ * the configurator exposes a hidden "I have a third row" toggle instead
+ * of forking the catalog. Flat upcharge on top of the cabin set.
+ */
+export const THIRD_ROW_PRICE = 59;
+
 export const CURRENCY = "USD";
 export const CURRENCY_SYMBOL = "$";
 
@@ -89,6 +97,11 @@ export function getHeelPadPrice(overrides?: PriceOverrideMap): number {
   return typeof ov === "number" && Number.isFinite(ov) ? ov : HEEL_PAD_PRICE;
 }
 
+export function getThirdRowPrice(overrides?: PriceOverrideMap): number {
+  const ov = overrides?.get("addon:thirdRow");
+  return typeof ov === "number" && Number.isFinite(ov) ? ov : THIRD_ROW_PRICE;
+}
+
 export interface PriceableItem {
   matSet: MatSetType;
   /**
@@ -97,12 +110,21 @@ export interface PriceableItem {
    * Optional for legacy callers — defaults to the `standard` profile.
    */
   modelId?: string;
+  /**
+   * Explicit vehicle profile. When set it wins over the modelId lookup —
+   * required for admin custom-catalog models, which are absent from the
+   * code catalog that `findProfileByModelId` searches (without this a
+   * custom minivan/pickup/semi would silently bill at `standard` rates).
+   */
+  profile?: VehicleConfigProfile;
   edgeColor: { id: string };
   badge?: { id: string } | null;
   /** Brand-logo plates count (1..mats in set). Absent = 1 when badge set. */
   badgeCount?: number;
   /** Driver-side aluminum heel pad add-on. Adds HEEL_PAD_PRICE. */
   heelPad?: boolean;
+  /** Third-row mats add-on (7-seat trims of standard-profile SUVs). */
+  thirdRow?: boolean;
   quantity: number;
 }
 
@@ -116,12 +138,13 @@ export function clampBadgeCount(
   item: {
     matSet: MatSetType;
     modelId?: string;
+    profile?: VehicleConfigProfile;
     badge?: { id: string } | null | undefined;
     badgeCount?: number | null;
   },
 ): number {
   if (!item.badge) return 0;
-  const profile = findProfileByModelId(item.modelId);
+  const profile = item.profile ?? findProfileByModelId(item.modelId);
   const max = getMatCount(profile, item.matSet);
   const requested = Math.floor(item.badgeCount ?? 1);
   if (!Number.isFinite(requested)) return 1;
@@ -132,18 +155,21 @@ export function calculateItemUnitPrice(
   item: {
     matSet: MatSetType;
     modelId?: string;
+    profile?: VehicleConfigProfile;
     edgeColor: { id: string };
     badge?: { id: string } | null | undefined;
     badgeCount?: number | null;
     heelPad?: boolean;
+    thirdRow?: boolean;
   },
   overrides?: PriceOverrideMap,
 ): number {
-  const profile = findProfileByModelId(item.modelId);
+  const profile = item.profile ?? findProfileByModelId(item.modelId);
   const base = getMatSetPrice(profile, item.matSet, overrides);
   const badge = getBadgePrice(overrides) * clampBadgeCount(item);
   const heelPad = item.heelPad ? getHeelPadPrice(overrides) : 0;
-  return base + badge + heelPad;
+  const thirdRow = item.thirdRow ? getThirdRowPrice(overrides) : 0;
+  return base + badge + heelPad + thirdRow;
 }
 
 export function calculateItemTotal(

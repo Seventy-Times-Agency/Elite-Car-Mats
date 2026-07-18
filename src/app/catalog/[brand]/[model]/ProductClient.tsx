@@ -13,12 +13,14 @@ import type { Brand, CarModel, MatSetType } from "@/types";
 import {
   getBadgePrice,
   getHeelPadPrice,
+  getThirdRowPrice,
   calculateItemUnitPrice,
   formatPrice,
 } from "@/lib/pricing";
 import {
   getVehicleProfile,
   getDefaultMatSet,
+  thirdRowAvailable,
   type VehicleConfigProfile,
 } from "@/lib/vehicle-profile";
 import { ProductJsonLd, BreadcrumbJsonLd } from "@/components/seo/ProductJsonLd";
@@ -117,6 +119,9 @@ export default function ProductClient({
   const [badge, setBadge] = useState(false);
   const [badgeCount, setBadgeCount] = useState(1);
   const [heelPad, setHeelPad] = useState(false);
+  // Third-row add-on. Hidden behind a low-key toggle: the catalog can't
+  // tell 5- from 7-seat trims of the same model, so the customer opts in.
+  const [thirdRow, setThirdRow] = useState(false);
   // Trim/floor configuration note (hybrid, AWD, captain chairs...) — one
   // model can have different floor pans; the workshop cuts by this.
   const [configNote, setConfigNote] = useState("");
@@ -141,14 +146,17 @@ export default function ProductClient({
   }, []);
 
   // Meta Pixel: product view. Inert until the pixel id is configured.
+  // content_ids MUST match the feed's g:id (ECM-<brand>-<model>-<set>) —
+  // Advantage+ Catalog / dynamic retargeting matches events to catalog
+  // items strictly by id, so any other format gives a 0% match rate.
   useEffect(() => {
     if (!brand || !model) return;
     trackEvent("ViewContent", {
       content_type: "product",
-      content_ids: [`${brand.slug}-${model.slug}`],
+      content_ids: [`ECM-${brand.slug}-${model.slug}-${getDefaultMatSet(profile)}`],
       content_name: `${brand.name} ${model.name}`,
     });
-  }, [brand, model]);
+  }, [brand, model, profile]);
 
   if (!brand || !model)
     return (
@@ -177,6 +185,11 @@ export default function ProductClient({
   // Also hidden entirely while the operator marks it out of stock.
   const heelPadAvailable = ms.type !== "cargo" && addonAvailability.heelPad;
   const effHeelPad = heelPad && heelPadAvailable;
+  // Only standard-profile cabin sets can extend to a third row (minivans
+  // already include 3 rows; cargo-only has no rows). Raw state survives
+  // set switches; the effective flag is what's priced and added to cart.
+  const thirdRowOk = thirdRowAvailable(profile, ms.type);
+  const effThirdRow = thirdRow && thirdRowOk;
   const unitPrice = calculateItemUnitPrice(
     {
       matSet: ms.type,
@@ -185,6 +198,7 @@ export default function ProductClient({
       badge: badge && bdg ? { id: bdg.id } : null,
       badgeCount: effBadgeCount,
       heelPad: effHeelPad,
+      thirdRow: effThirdRow,
     },
     priceOverrides,
   );
@@ -206,12 +220,17 @@ export default function ProductClient({
       badge: badge && bdg ? bdg : undefined,
       badgeCount: badge && bdg ? effBadgeCount : undefined,
       heelPad: effHeelPad,
+      thirdRow: effThirdRow,
       configNote: configNote.trim() || undefined,
       quantity: 1,
     });
     trackEvent("AddToCart", {
       content_type: "product",
-      content_ids: [cartModelId],
+      // Feed-format sku (ECM-<brand>-<model>-<set>) — see ViewContent note.
+      content_ids: [`ECM-${cartModelId}-${ms.type}`],
+      contents: [
+        { id: `ECM-${cartModelId}-${ms.type}`, quantity: 1, item_price: unitPrice },
+      ],
       value: unitPrice,
       currency: "USD",
     });
@@ -843,6 +862,42 @@ export default function ProductClient({
                     </span>
                   </label>
                   )}
+
+                  {/* Third-row add-on: hidden behind a low-key toggle. The
+                      catalog can't tell 5- from 7-seat trims of the same
+                      model, so the customer reveals the option themselves.
+                      Only standard-profile cabin sets qualify (minivans
+                      already include 3 rows). */}
+                  {thirdRowOk &&
+                    (effThirdRow ? (
+                      <label className="flex items-center gap-3 cursor-pointer rounded-lg p-3 transition-all duration-200 border border-gold/60 bg-gold-glow shadow-[0_0_14px_rgba(212,165,74,0.12)]">
+                        <input
+                          type="checkbox"
+                          checked
+                          onChange={() => setThirdRow(false)}
+                          className="w-4 h-4 text-gold focus:ring-gold accent-[#D4A54A] rounded shrink-0"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <div className="text-text text-[11px] font-semibold truncate">
+                            {t("prod.thirdRowName")}
+                          </div>
+                          <div className="text-text-dim text-[10px] mt-0.5 truncate">
+                            {t("prod.thirdRowSubtext")}
+                          </div>
+                        </div>
+                        <span className="shrink-0 inline-flex items-center rounded-md bg-gold/10 px-2 py-1 text-[11px] font-bold text-gold ring-1 ring-gold/30">
+                          +{formatPrice(getThirdRowPrice(priceOverrides))}
+                        </span>
+                      </label>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => setThirdRow(true)}
+                        className="w-full text-left rounded-lg border border-dashed border-border/60 px-3 py-2.5 text-[11px] text-text-dim hover:text-gold hover:border-gold/40 transition-colors"
+                      >
+                        + {t("prod.thirdRowToggle")}
+                      </button>
+                    ))}
                 </div>
                 {/* Trim / floor-pan note: hybrids, AWD, captain chairs —
                     the workshop picks the cut pattern by this. */}

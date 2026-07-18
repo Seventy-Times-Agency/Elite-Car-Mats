@@ -22,6 +22,12 @@ interface CartContextType {
   isOpen: boolean;
   openCart: () => void;
   closeCart: () => void;
+  /**
+   * False until localStorage has been read on the client. Pages that
+   * branch on "cart is empty" should render a neutral state until this
+   * flips, instead of flashing the empty-cart screen.
+   */
+  hydrated: boolean;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -112,16 +118,65 @@ function saveCart(items: CartItem[]): void {
   }
 }
 
+/** Same-configuration predicate used for cart line merging. */
+function sameConfig(a: CartItem, b: Omit<CartItem, "id">): boolean {
+  return (
+    a.modelId === b.modelId &&
+    a.year === b.year &&
+    a.matSet === b.matSet &&
+    a.color.id === b.color.id &&
+    a.edgeColor.id === b.edgeColor.id &&
+    a.badge?.id === b.badge?.id &&
+    (a.badge ? (a.badgeCount ?? 1) : 0) === (b.badge ? (b.badgeCount ?? 1) : 0) &&
+    (a.heelPad ?? false) === (b.heelPad ?? false) &&
+    (a.thirdRow ?? false) === (b.thirdRow ?? false)
+  );
+}
+
 export function CartProvider({ children }: { children: ReactNode }) {
-  // Lazy initialiser: load the cart synchronously on first render so we
-  // don't have a "first render = []" flash that lets a fast-clicker drop
-  // their saved cart between mount and the load effect.
-  const [items, setItems] = useState<CartItem[]>(() => loadCart());
+  // Two-phase init: the server (and the first client render) always see
+  // an empty cart, localStorage is read in an effect. Reading it in a
+  // lazy useState initialiser guaranteed a hydration mismatch for every
+  // returning visitor with a non-empty cart (header badge, /cart,
+  // /checkout, aria-labels all differed from the server HTML).
+  const [items, setItems] = useState<CartItem[]>([]);
+  const [hydrated, setHydrated] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
+    // One-time hydration from localStorage (an external system) — the
+    // setState here is exactly the "subscribe to external state" case;
+    // reading it in the useState initialiser instead is what caused the
+    // hydration-mismatch bug this replaces.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setItems((prev) => {
+      const stored = loadCart();
+      if (prev.length === 0) return stored;
+      // A very fast click can add an item before this effect runs —
+      // merge it on top of the stored cart instead of dropping either.
+      const merged = [...stored];
+      for (const it of prev) {
+        const idx = merged.findIndex((m) => sameConfig(m, it));
+        if (idx >= 0) {
+          merged[idx] = {
+            ...merged[idx],
+            quantity: Math.min(99, merged[idx].quantity + it.quantity),
+          };
+        } else if (merged.length < MAX_CART_ITEMS) {
+          merged.push(it);
+        }
+      }
+      return merged;
+    });
+    setHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    // Don't persist the pre-hydration empty state — that first
+    // `items = []` render would wipe the saved cart before it's loaded.
+    if (!hydrated) return;
     saveCart(items);
-  }, [items]);
+  }, [items, hydrated]);
 
   // Lock body scroll while the drawer is open. Capture the original value
   // once at component mount — re-running on every isOpen flip would otherwise
@@ -141,18 +196,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const addItem = useCallback((item: Omit<CartItem, "id">) => {
     setItems((prev) => {
-      const existing = prev.find(
-        (i) =>
-          i.modelId === item.modelId &&
-          i.year === item.year &&
-          i.matSet === item.matSet &&
-          i.color.id === item.color.id &&
-          i.edgeColor.id === item.edgeColor.id &&
-          i.badge?.id === item.badge?.id &&
-          (i.badge ? (i.badgeCount ?? 1) : 0) ===
-            (item.badge ? (item.badgeCount ?? 1) : 0) &&
-          (i.heelPad ?? false) === (item.heelPad ?? false),
-      );
+      const existing = prev.find((i) => sameConfig(i, item));
       if (existing) {
         return prev.map((i) =>
           i.id === existing.id
@@ -201,6 +245,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         isOpen,
         openCart,
         closeCart,
+        hydrated,
       }}
     >
       {children}

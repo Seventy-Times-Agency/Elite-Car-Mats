@@ -9,6 +9,11 @@ import { useT } from "@/i18n/I18nProvider";
 import { splitLocaleFromPath } from "@/i18n/locale-path";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { HeaderSearch } from "./HeaderSearch";
+import {
+  CONTACT_PHONE_DISPLAY,
+  CONTACT_PHONE_HREF,
+  WHATSAPP_HREF,
+} from "@/lib/contacts";
 
 export function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -89,6 +94,10 @@ export function Header() {
             href={ctaHref}
             className={`hidden md:inline-flex items-center gap-1.5 bg-gradient-to-r from-gold to-gold-light text-bg text-xs font-semibold tracking-[0.15em] uppercase px-4 py-2 rounded-lg shadow-[0_2px_12px_rgba(212,165,74,0.25)] hover:shadow-[0_4px_18px_rgba(212,165,74,0.4)] transition-all ${ctaVisible ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-1 pointer-events-none"}`}
             aria-hidden={!ctaVisible}
+            // pointer-events-none doesn't remove keyboard focus — without
+            // this, Tab lands on an invisible link the screen reader also
+            // ignores (classic aria-hidden-focus failure).
+            tabIndex={ctaVisible ? 0 : -1}
           >
             {t("nav.ctaShort")}
             <svg
@@ -218,6 +227,25 @@ export function Header() {
             >
               {t("nav.ctaMobile")}
             </a>
+            {/* One tap to a human: call or WhatsApp — any question, orders
+                and returns included. */}
+            <div className="mt-3 pt-3 border-t border-border/40 flex items-center gap-2">
+              <a
+                href={CONTACT_PHONE_HREF}
+                className="flex-1 text-center glass-card rounded-lg py-2.5 text-sm text-text hover:text-gold transition-colors"
+              >
+                {CONTACT_PHONE_DISPLAY}
+              </a>
+              <a
+                href={WHATSAPP_HREF}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => setMenuOpen(false)}
+                className="flex-1 text-center glass-card rounded-lg py-2.5 text-sm text-text hover:text-gold transition-colors"
+              >
+                WhatsApp
+              </a>
+            </div>
           </nav>
         </div>
       )}

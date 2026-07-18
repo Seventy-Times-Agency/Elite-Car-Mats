@@ -46,9 +46,21 @@ async function issueReviewPromo(reviewId: string): Promise<void> {
       email: true,
       promoCode: true,
       approved: true,
+      orderId: true,
     },
   });
   if (!review?.approved || !review.email || review.promoCode) return;
+
+  // Verified-buyer reviews carry the order — reuse its locale so the
+  // thank-you lands in the customer's language, not the admin's.
+  let orderLocale: string | null = null;
+  if (review.orderId) {
+    const order = await prisma.order.findUnique({
+      where: { id: review.orderId },
+      select: { locale: true },
+    });
+    orderLocale = order?.locale ?? null;
+  }
 
   let code = generateReviewCode();
   for (let attempt = 0; attempt < 3; attempt++) {
@@ -87,6 +99,7 @@ async function issueReviewPromo(reviewId: string): Promise<void> {
     promoCode: code,
     discountPercent: REVIEW_PROMO_DISCOUNT,
     validDays: REVIEW_PROMO_DAYS,
+    locale: orderLocale,
   });
   console.log(
     `[admin:reviews] review ${review.id} approved → promo ${code} sent`,

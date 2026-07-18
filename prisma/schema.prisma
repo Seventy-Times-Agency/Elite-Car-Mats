@@ -152,6 +152,10 @@ model Order {
   // Review-invite email scheduled (fires ~1 day after DELIVERED). Guard
   // against re-sending when the status is toggled back and forth.
   reviewInviteSentAt    DateTime?
+  // Storefront locale (en/ru/uk) the customer ordered in. Transactional
+  // emails render in THIS language — not in the locale of whichever
+  // request (admin panel, Stripe webhook) happens to trigger the send.
+  locale                String?
   items                 OrderItem[]
   createdAt             DateTime    @default(now())
   updatedAt             DateTime    @updatedAt
@@ -181,6 +185,8 @@ model OrderItem {
   // we can re-render the original configuration on the order page
   // and so the Stripe webhook can describe the line-item correctly.
   heelPad     Boolean    @default(false)
+  // Third-row mats add-on (7-seat trims of standard-profile SUVs).
+  thirdRow    Boolean    @default(false)
   year        Int?
   quantity    Int        @default(1)
   price       Decimal?   @db.Decimal(10, 2)
@@ -266,6 +272,14 @@ model CustomOrderRequest {
   locale     String?
   status     CustomOrderStatus @default(NEW)
   adminNotes String?
+  // Stripe hosted invoice issued by the admin after the master agrees a
+  // price with the customer on the phone. QUOTED = invoice sent,
+  // CONVERTED = invoice paid (flipped by the invoice.paid webhook).
+  invoiceAmount   Decimal?  @db.Decimal(10, 2)
+  stripeInvoiceId String?   @unique
+  invoiceUrl      String?
+  invoiceSentAt   DateTime?
+  invoicePaidAt   DateTime?
   createdAt  DateTime          @default(now())
   updatedAt  DateTime          @updatedAt
 

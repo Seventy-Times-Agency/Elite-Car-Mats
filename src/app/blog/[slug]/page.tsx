@@ -27,7 +27,18 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   return {
     title: post.title,
     description: post.excerpt,
-    alternates: await localeAlternates(`/blog/${post.slug}`),
+    // hreflang alternates only when the post really exists in all three
+    // locales (locale=null renders everywhere). A locale-bound post 404s
+    // on the other two prefixes — advertising them as translations sends
+    // crawlers to dead URLs.
+    alternates: post.locale
+      ? {
+          canonical:
+            post.locale === "en"
+              ? `${SITE}/blog/${post.slug}`
+              : `${SITE}/${post.locale}/blog/${post.slug}`,
+        }
+      : await localeAlternates(`/blog/${post.slug}`),
     openGraph: {
       type: "article",
       title: post.title,

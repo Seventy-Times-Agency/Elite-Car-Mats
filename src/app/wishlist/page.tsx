@@ -6,8 +6,10 @@ import { useT } from "@/i18n/I18nProvider";
 import { localizeBody } from "@/i18n/labels";
 
 export default function WishlistPage() {
-  const { items, remove, clear } = useWishlist();
+  const { items, remove, clear, hydrated } = useWishlist();
   const t = useT();
+
+  if (!hydrated) return <div className="min-h-[60vh]" />;
 
   if (items.length === 0) {
     return (

@@ -128,6 +128,7 @@ export const operations: Dict = {
   "admin.availOut": "нет в наличии",
   "admin.pricingMetallicBadge": "Металлический бейдж бренда",
   "admin.pricingHeelPad": "Алюминиевая накладка под педаль",
+  "admin.pricingThirdRow": "Коврики третьего ряда (7 мест)",
   "admin.pricingEdgeRow": "Окантовка — {id}",
   "admin.pricingNoSurcharge": "Без доплаты",
   "admin.pricingFeedH": "Google Shopping feed",
@@ -296,10 +297,11 @@ export const operations: Dict = {
   "email.matSetFullCargo": "Полный комплект",
   "email.badgeSuffix": "Шильдик {brand}",
   "email.heelPadSuffix": "Алюминиевая накладка под педаль",
+  "email.thirdRowSuffix": "Коврики третьего ряда",
   "email.noteLabel": "Комментарий",
   "email.custSubject": "Заказ {orderNumber} принят — EliteCarMats",
   "email.custH1": "Спасибо за заказ, {name}!",
-  "email.custP": "Ваш заказ принят. Мы свяжемся для подтверждения в ближайшее время.",
+  "email.custP": "Ваш заказ принят — уже запускаем раскрой. Трек-номер придёт на почту в момент отправки из нашей мастерской в Рочестере.",
   "email.orderNumberLabel": "Номер заказа",
   "email.totalLabel": "Итого",
   "email.custTrackBtn": "Отследить заказ",
@@ -327,4 +329,25 @@ export const operations: Dict = {
   "email.revThanksTerms":
     "Одно использование · действует {days} дней · вводится при оформлении заказа",
   "email.revThanksCta": "Перейти в каталог →",
+
+  // Инвойс по индивидуальному заказу
+  "email.invSubject": "Ваш счёт от Elite Car Mats — {car}",
+  "email.invH1": "Ваш счёт готов",
+  "email.invP":
+    "Здравствуйте, {name}! Как договорились, отправляем счёт за индивидуальный комплект EVA-ковриков для {car}. Нажмите кнопку ниже, чтобы проверить и безопасно оплатить — запускаем производство сразу после оплаты.",
+  "email.invAmountLabel": "К оплате",
+  "email.invCta": "Открыть и оплатить счёт",
+  "email.invNote":
+    "Счёт действителен {days} дней. Есть вопросы? Просто ответьте на это письмо.",
+  // Админка: инвойс по индивидуальному заказу
+  "admin.invSection": "Счёт (инвойс)",
+  "admin.invAmountPh": "Согласованная сумма, USD",
+  "admin.invSend": "Выставить счёт",
+  "admin.invResend": "Перевыставить счёт",
+  "admin.invSending": "Отправляем…",
+  "admin.invSentAt": "Счёт отправлен",
+  "admin.invPaidAt": "Оплачен",
+  "admin.invOpen": "Открыть счёт →",
+  "admin.invError": "Не удалось отправить счёт. Проверьте, что Stripe настроен, и попробуйте ещё раз.",
+  "admin.invConfirmResend": "Уже есть неоплаченный счёт — аннулировать его и отправить новый?",
 };

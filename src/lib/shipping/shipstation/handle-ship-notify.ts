@@ -2,6 +2,10 @@ import "server-only";
 import { prisma } from "@/lib/db/prisma";
 import { sendShippedEmail } from "@/lib/email";
 import { signOrderToken } from "@/lib/security/order-token";
+import {
+  scheduleReviewInvite,
+  REVIEW_INVITE_AFTER_SHIP_MS,
+} from "@/lib/reviews/schedule-invite";
 import { shipstation } from "./client";
 import type { SsShipment, SsShipmentList } from "./types";
 
@@ -135,6 +139,7 @@ async function applyShipmentToOrder(shipment: SsShipment): Promise<boolean> {
         orderNumber: true,
         customerName: true,
         email: true,
+        locale: true,
       },
     });
     if (order) {
@@ -144,6 +149,19 @@ async function applyShipmentToOrder(shipment: SsShipment): Promise<boolean> {
         customerEmail: order.email,
         trackingNumber: shipment.trackingNumber,
         orderToken: signOrderToken(orderId),
+        carrier: shipment.carrierCode,
+        locale: order.locale,
+      });
+      // Anchor the review invite to the automatic SHIPPED transition —
+      // the manual DELIVERED flip this used to depend on rarely happens,
+      // which meant no invites and zero collected reviews.
+      await scheduleReviewInvite({
+        orderId,
+        orderNumber: order.orderNumber,
+        customerName: order.customerName,
+        customerEmail: order.email,
+        delayMs: REVIEW_INVITE_AFTER_SHIP_MS,
+        locale: order.locale,
       });
     }
   } catch (err) {

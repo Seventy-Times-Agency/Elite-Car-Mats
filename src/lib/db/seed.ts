@@ -265,6 +265,71 @@ async function runSeed(): Promise<CatalogSeedSummary> {
   };
 }
 
+/**
+ * Mirror ONE admin-created custom brand into the Brand table immediately.
+ * Called synchronously from the admin create route — the process-level
+ * seed cache (`resetCatalogSeedCache`) only resets in the lambda that
+ * served the admin request, so warm instances of /api/orders would
+ * otherwise miss the new FK target until they recycle.
+ */
+export async function mirrorCustomBrandRow(b: {
+  slug: string;
+  name: string;
+  logo?: string | null;
+}): Promise<void> {
+  await prisma.brand.createMany({
+    data: [{ id: b.slug, name: b.name, slug: b.slug, logo: b.logo ?? null }],
+    skipDuplicates: true,
+  });
+}
+
+/**
+ * Mirror ONE admin-created/updated custom model into Brand / Model /
+ * ModelYear / Product immediately (same id convention as runSeed), so an
+ * order for it can resolve its OrderItem.productId FK on any instance
+ * without waiting for a cold-start re-seed.
+ */
+export async function mirrorCustomModelRow(m: CarModel): Promise<void> {
+  const modelId = `${m.brandId}-${m.slug}`;
+  await prisma.brand.createMany({
+    data: [{ id: m.brandId, name: m.brandName, slug: m.brandId, logo: null }],
+    skipDuplicates: true,
+  });
+  await prisma.model.createMany({
+    data: [
+      {
+        id: modelId,
+        name: m.name,
+        slug: m.slug,
+        bodyType: m.bodyType,
+        brandId: m.brandId,
+      },
+    ],
+    skipDuplicates: true,
+  });
+  if (m.years.length > 0) {
+    await prisma.modelYear.createMany({
+      data: m.years.map((year) => ({
+        id: `${modelId}-${year}`,
+        modelId,
+        year,
+      })),
+      skipDuplicates: true,
+    });
+  }
+  const profile = getVehicleProfile(m);
+  await prisma.product.createMany({
+    data: matSets.map((set) => ({
+      id: `${modelId}-${set.type}`,
+      modelId,
+      matSet: matSetToEnum[set.type],
+      price: getMatSetPrice(profile, set.type),
+      images: [] as string[],
+    })),
+    skipDuplicates: true,
+  });
+}
+
 let cached: Promise<CatalogSeedSummary> | null = null;
 
 export function ensureCatalogSeed(): Promise<CatalogSeedSummary> {

@@ -196,6 +196,16 @@ const STRICT_TWO_SEATER_IDS = new Set<string>([
   "spider",
 ]);
 
+/**
+ * Model ids in STRICT_TWO_SEATER_IDS are not globally unique — e.g. "sl"
+ * is both the Mercedes SL roadster and the Saturn SL sedan. Brand-qualified
+ * (`${brandId}-${id}`) entries here opt a specific brand's model back OUT
+ * of the two-seater profile when its id collides with a genuine roadster.
+ */
+const STRICT_TWO_SEATER_EXCEPTIONS = new Set<string>([
+  "saturn-sl", // Saturn SL — a compact sedan, not the Mercedes SL
+]);
+
 export function getVehicleProfile(model: CarModel): VehicleConfigProfile {
   // Commercial big-rigs and medium-duty box trucks: front cabin only
   if (model.category === "commercial") return "semi";
@@ -209,7 +219,12 @@ export function getVehicleProfile(model: CarModel): VehicleConfigProfile {
   if (model.bodyType === "Минивэн") return "minivan";
 
   // Strict 2-seaters
-  if (STRICT_TWO_SEATER_IDS.has(model.id)) return "twoSeater";
+  if (
+    STRICT_TWO_SEATER_IDS.has(model.id) &&
+    !STRICT_TWO_SEATER_EXCEPTIONS.has(`${model.brandId}-${model.id}`)
+  ) {
+    return "twoSeater";
+  }
 
   return "standard";
 }
@@ -231,6 +246,25 @@ export function getAvailableMatSets(
     default:
       return ["full", "cargo", "full-cargo"];
   }
+}
+
+/**
+ * Whether the optional third-row add-on can be sold for this
+ * profile+set. Only standard-profile vehicles qualify: some SUVs and
+ * crossovers exist in 7-seat trims the catalog can't distinguish, so
+ * the configurator exposes a hidden toggle instead of forking the
+ * model list. Minivans already include three rows in their sets;
+ * pickups / two-seaters / semis physically have no third row. Cabin
+ * sets only — a cargo-only order has no rows to extend.
+ *
+ * Single source of truth: the configurator UI, the order API's
+ * validation and the billing paths must all call this.
+ */
+export function thirdRowAvailable(
+  profile: VehicleConfigProfile,
+  matSet: MatSetType,
+): boolean {
+  return profile === "standard" && (matSet === "full" || matSet === "full-cargo");
 }
 
 export function getDefaultMatSet(profile: VehicleConfigProfile): MatSetType {

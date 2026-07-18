@@ -8,7 +8,10 @@ export const dynamic = "force-dynamic";
 
 const createSchema = z.object({
   code: z.string().min(2).max(64),
-  discount: z.number().int().min(1).max(100),
+  // Capped at 99 — a 100% promo makes the order total $0, which Stripe
+  // Checkout rejects (min charge $0.50) and locks the customer out of
+  // completing payment entirely.
+  discount: z.number().int().min(1).max(99),
   description: z.string().max(200).optional().nullable(),
   maxUses: z.number().int().positive().optional().nullable(),
   minOrder: z.number().nonnegative().optional().nullable(),

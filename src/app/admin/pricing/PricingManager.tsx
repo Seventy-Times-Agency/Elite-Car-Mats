@@ -28,6 +28,7 @@ interface AddonPrice {
 interface AddonRows {
   badge: AddonPrice;
   heelPad: AddonPrice;
+  thirdRow: AddonPrice;
 }
 
 export interface AddonAvailabilityProps {
@@ -269,13 +270,22 @@ export function PricingManager({
                     price: addons.badge,
                     availKey: "badges" as const,
                     available: availability.badges,
-                  },
+                  } as const,
                   {
                     matSet: "heelPad",
                     label: t("admin.pricingHeelPad"),
                     price: addons.heelPad,
                     availKey: "heelPad" as const,
                     available: availability.heelPad,
+                  },
+                  {
+                    matSet: "thirdRow",
+                    label: t("admin.pricingThirdRow"),
+                    // Always sellable — it's cut from the same material as
+                    // the main set, so there's no stock switch for it.
+                    price: addons.thirdRow,
+                    availKey: null,
+                    available: null,
                   },
                 ]
               ).map((row) => {
@@ -355,19 +365,23 @@ export function PricingManager({
                               {t("admin.pricingBtnReset")}
                             </button>
                           )}
-                          <button
-                            onClick={() => toggleAvailability(row.availKey, !row.available)}
-                            disabled={busy}
-                            className={`text-[11px] uppercase tracking-wider px-2.5 py-1 rounded-full border transition-colors ${
-                              row.available
-                                ? "border-green-400/40 text-green-400 hover:border-green-400"
-                                : "border-error/40 text-error hover:border-error"
-                            }`}
-                          >
-                            {row.available
-                              ? t("admin.availInStock")
-                              : t("admin.availOut")}
-                          </button>
+                          {row.availKey !== null && (
+                            <button
+                              onClick={() =>
+                                toggleAvailability(row.availKey!, !row.available)
+                              }
+                              disabled={busy}
+                              className={`text-[11px] uppercase tracking-wider px-2.5 py-1 rounded-full border transition-colors ${
+                                row.available
+                                  ? "border-green-400/40 text-green-400 hover:border-green-400"
+                                  : "border-error/40 text-error hover:border-error"
+                              }`}
+                            >
+                              {row.available
+                                ? t("admin.availInStock")
+                                : t("admin.availOut")}
+                            </button>
+                          )}
                         </span>
                       )}
                     </td>

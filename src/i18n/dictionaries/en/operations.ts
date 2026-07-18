@@ -129,6 +129,7 @@ export const operations: Dict = {
   "admin.availOut": "out of stock",
   "admin.pricingMetallicBadge": "Metallic brand badge",
   "admin.pricingHeelPad": "Aluminum heel pad",
+  "admin.pricingThirdRow": "Third-row mats (7-seat option)",
   "admin.pricingEdgeRow": "Edge surcharge — {id}",
   "admin.pricingNoSurcharge": "No surcharge",
   "admin.pricingFeedH": "Google Shopping feed",
@@ -296,6 +297,7 @@ export const operations: Dict = {
   "email.matSetFullCargo": "Complete Set",
   "email.badgeSuffix": "{brand} badge",
   "email.heelPadSuffix": "Aluminum heel pad",
+  "email.thirdRowSuffix": "Third-row mats",
   "email.noteLabel": "Note",
   "email.custSubject": "Order {orderNumber} received — Elite Car Mats",
   "email.custH1": "Thanks for your order, {name}!",
@@ -327,4 +329,25 @@ export const operations: Dict = {
   "email.revThanksCodeLabel": "Your promo code",
   "email.revThanksTerms": "One-time use · valid for {days} days · apply at checkout",
   "email.revThanksCta": "Browse the catalog →",
+
+  // Custom-order invoice
+  "email.invSubject": "Your Elite Car Mats invoice — {car}",
+  "email.invH1": "Your invoice is ready",
+  "email.invP":
+    "Hi {name}! As agreed, here is the invoice for your custom EVA mat set for {car}. Click below to review and pay securely — production starts the moment the payment lands.",
+  "email.invAmountLabel": "Amount due",
+  "email.invCta": "View & pay invoice",
+  "email.invNote":
+    "The invoice is payable within {days} days. Questions? Just reply to this email.",
+  // Admin: custom-order invoice controls
+  "admin.invSection": "Invoice",
+  "admin.invAmountPh": "Agreed amount, USD",
+  "admin.invSend": "Send invoice",
+  "admin.invResend": "Re-issue invoice",
+  "admin.invSending": "Sending…",
+  "admin.invSentAt": "Invoice sent",
+  "admin.invPaidAt": "Paid",
+  "admin.invOpen": "Open invoice →",
+  "admin.invError": "Failed to send the invoice. Check that Stripe is configured and try again.",
+  "admin.invConfirmResend": "An unpaid invoice already exists — void it and send a new one?",
 };

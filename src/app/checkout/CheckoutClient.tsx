@@ -1,7 +1,12 @@
 "use client";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/context/CartContext";
+import {
+  loadPendingOrder,
+  savePendingOrder,
+  clearPendingOrder,
+} from "@/lib/checkout-session";
 import Link from "next/link";
 import {
   calculateItemUnitPrice,
@@ -86,7 +91,7 @@ interface CreatedOrder {
 
 export function CheckoutClient({ paymentEnabled }: { paymentEnabled: boolean }) {
   const router = useRouter();
-  const { items, clearCart } = useCart();
+  const { items, clearCart, hydrated } = useCart();
   const t = useT();
   const locale = useLocale();
   const priceOverrides = usePriceOverrides();
@@ -112,6 +117,15 @@ export function CheckoutClient({ paymentEnabled }: { paymentEnabled: boolean }) 
   const [promoError, setPromoError] = useState<string | null>(null);
   const [promoChecking, setPromoChecking] = useState(false);
   const createdOrderRef = useRef<CreatedOrder | null>(null);
+
+  // Rehydrate an order created before a Stripe redirect — a customer who
+  // cancelled on the Stripe page and clicked "Try again" reuses their
+  // PENDING order instead of creating a duplicate (double promo use).
+  useEffect(() => {
+    if (!createdOrderRef.current) {
+      createdOrderRef.current = loadPendingOrder();
+    }
+  }, []);
 
   const onChange = (
     e: React.ChangeEvent<
@@ -195,6 +209,14 @@ export function CheckoutClient({ paymentEnabled }: { paymentEnabled: boolean }) 
       value: total,
       currency: "USD",
       num_items: items.length,
+      content_type: "product",
+      // Feed-format skus (ECM-<brand>-<model>-<set>) for catalog matching.
+      content_ids: items.map((i) => `ECM-${i.modelId}-${i.matSet}`),
+      contents: items.map((i) => ({
+        id: `ECM-${i.modelId}-${i.matSet}`,
+        quantity: i.quantity,
+        item_price: calculateItemUnitPrice(i, priceOverrides),
+      })),
     });
     setSubmitting(true);
     try {
@@ -238,6 +260,7 @@ export function CheckoutClient({ paymentEnabled }: { paymentEnabled: boolean }) 
           // less than the checkout displayed (Sienna ×7 badges bug).
           badgeCount: i.badge ? (i.badgeCount ?? 1) : null,
           heelPad: i.heelPad ?? false,
+          thirdRow: i.thirdRow ?? false,
           quantity: i.quantity,
         })),
         promoCode: promoApplied?.code ?? null,
@@ -288,6 +311,7 @@ export function CheckoutClient({ paymentEnabled }: { paymentEnabled: boolean }) 
         }
 
         createdOrderRef.current = { fingerprint, ...data };
+        savePendingOrder(createdOrderRef.current);
       }
 
       // With payments on, a missing orderToken is a server misconfig
@@ -315,7 +339,10 @@ export function CheckoutClient({ paymentEnabled }: { paymentEnabled: boolean }) 
           if (payRes.ok) {
             const payData = await payRes.json();
             if (payData?.url) {
-              clearCart();
+              // Deliberately NOT clearing the cart here — payment hasn't
+              // happened yet. A customer who cancels on the Stripe page
+              // comes back to an intact cart and can retry in one click;
+              // the success page clears the cart after actual payment.
               window.location.assign(payData.url);
               return;
             }
@@ -334,6 +361,7 @@ export function CheckoutClient({ paymentEnabled }: { paymentEnabled: boolean }) 
       }
 
       clearCart();
+      clearPendingOrder();
       const tokenQs = data.orderToken
         ? `?t=${encodeURIComponent(data.orderToken)}`
         : "";
@@ -343,6 +371,10 @@ export function CheckoutClient({ paymentEnabled }: { paymentEnabled: boolean }) 
       setSubmitting(false);
     }
   };
+
+  // Until localStorage is read, render a quiet placeholder instead of
+  // flashing the "cart is empty" screen at every returning customer.
+  if (!hydrated) return <div className="min-h-[60vh]" />;
 
   if (!items.length)
     return (
@@ -538,24 +570,6 @@ export function CheckoutClient({ paymentEnabled }: { paymentEnabled: boolean }) 
                 />
               </div>
             </div>
-            {formError && (
-              <div className="text-sm text-error glass-card rounded-xl px-4 py-3 border-error/30">
-                {formError}
-              </div>
-            )}
-            <button
-              type="submit"
-              disabled={submitting}
-              className="w-full bg-gradient-to-r from-gold to-gold-light text-bg text-sm font-semibold tracking-wider uppercase py-4 rounded-xl shadow-[0_4px_24px_rgba(212,165,74,0.25)] hover:shadow-[0_6px_32px_rgba(212,165,74,0.35)] transition-all disabled:opacity-60 disabled:cursor-not-allowed"
-            >
-              {submitting
-                ? paymentEnabled
-                  ? t("co.payRedirecting")
-                  : t("co.submitting")
-                : paymentEnabled
-                  ? t("co.payStripe")
-                  : t("co.submit")}
-            </button>
           </div>
           <div>
             <div className="glass-card rounded-xl p-6 sticky top-24">
@@ -624,6 +638,12 @@ export function CheckoutClient({ paymentEnabled }: { paymentEnabled: boolean }) 
                             <>
                               <span>·</span>
                               <span className="text-gold/90">{t("cart.drawerHeelPadChip")}</span>
+                            </>
+                          )}
+                          {i.thirdRow && (
+                            <>
+                              <span>·</span>
+                              <span className="text-gold/90">{t("cart.drawerThirdRowChip")}</span>
                             </>
                           )}
                         </div>
@@ -706,6 +726,27 @@ export function CheckoutClient({ paymentEnabled }: { paymentEnabled: boolean }) 
                   </span>
                 </div>
               </div>
+              {formError && (
+                <div className="mt-4 text-sm text-error glass-card rounded-xl px-4 py-3 border-error/30">
+                  {formError}
+                </div>
+              )}
+              {/* The pay button lives in the summary card so on mobile the
+                  customer sees the itemised total and the promo field
+                  BEFORE the button — not after it. */}
+              <button
+                type="submit"
+                disabled={submitting}
+                className="mt-5 w-full bg-gradient-to-r from-gold to-gold-light text-bg text-sm font-semibold tracking-wider uppercase py-4 rounded-xl shadow-[0_4px_24px_rgba(212,165,74,0.25)] hover:shadow-[0_6px_32px_rgba(212,165,74,0.35)] transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                {submitting
+                  ? paymentEnabled
+                    ? t("co.payRedirecting")
+                    : t("co.submitting")
+                  : paymentEnabled
+                    ? t("co.payStripe")
+                    : t("co.submit")}
+              </button>
               <p className="text-[11px] text-text-faint mt-4">
                 {t("co.confirmNote")}
               </p>

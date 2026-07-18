@@ -3,6 +3,18 @@
 import Link from "next/link";
 import { NewsletterForm } from "./NewsletterForm";
 import { useT } from "@/i18n/I18nProvider";
+import {
+  CONTACT_PHONE_DISPLAY,
+  CONTACT_PHONE_HREF,
+  WHATSAPP_HREF,
+  FACEBOOK_URL,
+  INSTAGRAM_URL,
+} from "@/lib/contacts";
+import {
+  WhatsAppIcon,
+  FacebookIcon,
+  InstagramIcon,
+} from "@/components/common/ContactIcons";
 
 export function Footer() {
   const t = useT();
@@ -14,6 +26,7 @@ export function Footer() {
         { h: "/blog", l: t("footer.navBlog") },
         { h: "/about", l: t("footer.navAbout") },
         { h: "/reviews", l: t("footer.navReviews") },
+        { h: "/reviews/new", l: t("footer.leaveReview") },
         { h: "/contacts", l: t("nav.contact") },
         { h: "/track", l: t("nav.track") },
       ],
@@ -76,6 +89,28 @@ export function Footer() {
             <ul className="space-y-2.5 text-sm text-text-dim">
               <li>
                 <a
+                  href={CONTACT_PHONE_HREF}
+                  className="text-text font-medium hover:text-gold transition-colors"
+                >
+                  {CONTACT_PHONE_DISPLAY}
+                </a>
+                <div className="text-[11px] text-text-faint mt-0.5">
+                  {t("footer.phoneNote")}
+                </div>
+              </li>
+              <li>
+                <a
+                  href={WHATSAPP_HREF}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 hover:text-gold transition-colors"
+                >
+                  <WhatsAppIcon className="w-3.5 h-3.5" />
+                  WhatsApp
+                </a>
+              </li>
+              <li>
+                <a
                   href="mailto:info@elitecarmats.us"
                   className="hover:text-gold transition-colors"
                 >
@@ -83,6 +118,32 @@ export function Footer() {
                 </a>
               </li>
               <li>Rochester, NY, USA</li>
+              {(FACEBOOK_URL || INSTAGRAM_URL) && (
+                <li className="pt-1 flex items-center gap-3">
+                  {FACEBOOK_URL && (
+                    <a
+                      href={FACEBOOK_URL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label="Facebook"
+                      className="text-text-dim hover:text-gold transition-colors"
+                    >
+                      <FacebookIcon className="w-4.5 h-4.5" />
+                    </a>
+                  )}
+                  {INSTAGRAM_URL && (
+                    <a
+                      href={INSTAGRAM_URL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label="Instagram"
+                      className="text-text-dim hover:text-gold transition-colors"
+                    >
+                      <InstagramIcon className="w-4.5 h-4.5" />
+                    </a>
+                  )}
+                </li>
+              )}
               <li className="pt-2">
                 <Link
                   href="/contacts"

@@ -158,6 +158,29 @@ export default async function OrderPage({
           )}
         </div>
 
+        {/* Review CTA — once the mats have shipped, the customer's own
+            order page is the easiest place to leave a review. The token
+            link marks the review "verified buyer" and pre-fills the form. */}
+        {token &&
+          (order.status === "SHIPPED" || order.status === "DELIVERED") && (
+            <div className="glass-card rounded-xl p-5 mb-6 flex flex-col sm:flex-row sm:items-center gap-4">
+              <div className="flex-1">
+                <div className="text-text font-semibold text-sm">
+                  {s("ord.reviewCtaTitle")}
+                </div>
+                <p className="text-text-dim text-xs mt-1 leading-relaxed">
+                  {s("ord.reviewCtaSub")}
+                </p>
+              </div>
+              <Link
+                href={`/reviews/new?order=${encodeURIComponent(order.orderNumber)}&t=${encodeURIComponent(token)}`}
+                className="shrink-0 inline-flex items-center justify-center gap-2 bg-gradient-to-r from-gold to-gold-light text-bg text-xs font-semibold tracking-[0.15em] uppercase px-5 py-3 rounded-lg shadow-[0_4px_20px_rgba(212,165,74,0.25)]"
+              >
+                {s("ord.reviewCtaBtn")}
+              </Link>
+            </div>
+          )}
+
         <div className="glass-card rounded-xl p-4 mb-6 flex items-start gap-3">
           <svg className="w-5 h-5 text-gold shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24" aria-hidden>
             <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />

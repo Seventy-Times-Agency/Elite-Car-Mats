@@ -142,6 +142,7 @@ export const storefront: Dict = {
   "footer.navAbout": "About us",
   "footer.navBlog": "Blog",
   "footer.navReviews": "Reviews",
+  "footer.leaveReview": "Leave a review",
   "revs.metaTitle": "Customer reviews",
   "revs.metaDesc": "Verified customer reviews of Elite Car Mats premium EVA floor mats.",
   "revs.label": "Reviews",
@@ -278,6 +279,9 @@ export const storefront: Dict = {
   "ord.status": "Status",
   "ord.tracking": "Tracking number",
   "ord.receipt": "Payment receipt",
+  "ord.reviewCtaTitle": "How are the mats?",
+  "ord.reviewCtaSub": "Two minutes of your time helps other drivers pick right — and we read every word.",
+  "ord.reviewCtaBtn": "Leave a review",
   "ord.checkEmail":
     "Order updates go to {email}: confirmation, shipping and the tracking number. Check the Spam folder if you don't see them.",
   "ord.summary": "Order summary",

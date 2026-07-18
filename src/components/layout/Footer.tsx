@@ -26,6 +26,7 @@ export function Footer() {
         { h: "/blog", l: t("footer.navBlog") },
         { h: "/about", l: t("footer.navAbout") },
         { h: "/reviews", l: t("footer.navReviews") },
+        { h: "/reviews/new", l: t("footer.leaveReview") },
         { h: "/contacts", l: t("nav.contact") },
         { h: "/track", l: t("nav.track") },
       ],

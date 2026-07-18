@@ -140,6 +140,7 @@ export const storefront: Dict = {
   "footer.navAbout": "О компании",
   "footer.navBlog": "Блог",
   "footer.navReviews": "Отзывы",
+  "footer.leaveReview": "Оставить отзыв",
   "revs.metaTitle": "Отзывы покупателей",
   "revs.metaDesc": "Реальные отзывы о ковриках Elite Car Mats от наших покупателей.",
   "revs.label": "Отзывы",
@@ -275,6 +276,9 @@ export const storefront: Dict = {
   "ord.status": "Статус",
   "ord.tracking": "Трек-номер",
   "ord.receipt": "Чек об оплате",
+  "ord.reviewCtaTitle": "Как вам коврики?",
+  "ord.reviewCtaSub": "Две минуты вашего времени помогут другим водителям с выбором — мы читаем каждый отзыв.",
+  "ord.reviewCtaBtn": "Оставить отзыв",
   "ord.checkEmail":
     "Все обновления заказа приходят на {email}: подтверждение, отправка и трек-номер. Если писем не видно — проверьте папку «Спам».",
   "ord.summary": "Состав заказа",

@@ -140,6 +140,7 @@ export const storefront: Dict = {
   "footer.navAbout": "Про компанію",
   "footer.navBlog": "Блог",
   "footer.navReviews": "Відгуки",
+  "footer.leaveReview": "Залишити відгук",
   "revs.metaTitle": "Відгуки покупців",
   "revs.metaDesc": "Перевірені відгуки реальних покупців Elite Car Mats.",
   "revs.label": "Відгуки",
@@ -276,6 +277,9 @@ export const storefront: Dict = {
   "ord.status": "Статус",
   "ord.tracking": "Трек-номер",
   "ord.receipt": "Чек про оплату",
+  "ord.reviewCtaTitle": "Як вам килимки?",
+  "ord.reviewCtaSub": "Дві хвилини вашого часу допоможуть іншим водіям з вибором — ми читаємо кожен відгук.",
+  "ord.reviewCtaBtn": "Залишити відгук",
   "ord.checkEmail":
     "Всі оновлення замовлення надходять на {email}: підтвердження, відправлення і трек-номер. Якщо листів не видно — перевірте папку «Спам».",
   "ord.summary": "Склад замовлення",

@@ -1,4 +1,5 @@
 import { NextResponse, after } from "next/server";
+import { revalidateTag } from "next/cache";
 import { z } from "zod";
 import { randomBytes } from "node:crypto";
 import { prisma } from "@/lib/db/prisma";
@@ -145,6 +146,10 @@ export async function PATCH(
 
   try {
     const review = await prisma.review.update({ where: { id }, data });
+    // Approving, un-approving or editing all change what the home-page
+    // strip and /reviews show — drop the cached reads immediately
+    // instead of waiting out their TTL.
+    revalidateTag("reviews", "default");
     // First approval mints the thank-you promo + email. Deferred so a
     // slow Resend call doesn't hold up the admin UI; issueReviewPromo
     // re-checks state and is a no-op on repeat approvals.
@@ -175,6 +180,7 @@ export async function DELETE(
   const { id } = await context.params;
   try {
     await prisma.review.delete({ where: { id } });
+    revalidateTag("reviews", "default");
     return NextResponse.json({ ok: true });
   } catch (err) {
     console.error("[admin:reviews:delete]", err);

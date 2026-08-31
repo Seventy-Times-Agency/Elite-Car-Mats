@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidateTag } from "next/cache";
 import { z } from "zod";
 import { requireAdmin, checkAdminCsrf } from "@/lib/security/auth";
 import {
@@ -44,5 +45,8 @@ export async function POST(request: Request) {
   }
 
   await setAddonAvailability(parsed.data);
+  // The product page reads the cached twin — bust it so switching an
+  // add-on off is visible on the storefront immediately.
+  revalidateTag("availability", "default");
   return NextResponse.json(await getAddonAvailability());
 }

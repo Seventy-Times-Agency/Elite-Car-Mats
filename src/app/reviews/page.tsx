@@ -1,46 +1,13 @@
 import Link from "next/link";
-import { prisma } from "@/lib/db/prisma";
+import { listPublicReviews } from "@/lib/reviews/public";
 import { getDictionary } from "@/i18n/getDictionary";
 import { makeT } from "@/i18n/dictionary";
 
 // force-dynamic and `revalidate` are mutually exclusive — the page is
 // per-request anyway (locale cookie), so the stale revalidate is dropped.
+// The Postgres read behind it is cached separately in the data cache,
+// which is what keeps this page off Neon on every visit.
 export const dynamic = "force-dynamic";
-
-interface PublicReview {
-  id: string;
-  customerName: string;
-  carModel: string;
-  text: string;
-  rating: number;
-  verified: boolean;
-  photos: string[];
-  createdAt: string;
-}
-
-async function loadReviews(): Promise<PublicReview[]> {
-  try {
-    const rows = await prisma.review.findMany({
-      where: { approved: true },
-      orderBy: { createdAt: "desc" },
-      take: 50,
-      select: {
-        id: true,
-        customerName: true,
-        carModel: true,
-        text: true,
-        rating: true,
-        verified: true,
-        photos: true,
-        createdAt: true,
-      },
-    });
-    return rows.map((r) => ({ ...r, createdAt: r.createdAt.toISOString() }));
-  } catch (err) {
-    console.error("[reviews] load failed:", err);
-    return [];
-  }
-}
 
 function Stars({ value }: { value: number }) {
   const filled = Math.max(0, Math.min(5, value));
@@ -72,7 +39,7 @@ function VerifiedBadge({ label }: { label: string }) {
 }
 
 export default async function ReviewsPage() {
-  const reviews = await loadReviews();
+  const reviews = await listPublicReviews();
   const { dict, fallback } = await getDictionary();
   const t = makeT(dict, fallback);
 

@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import ProductClient from "./ProductClient";
 import { getMergedCatalogCached } from "@/lib/catalog-merge";
-import { getAddonAvailability } from "@/lib/availability";
+import { getAddonAvailabilityCached } from "@/lib/availability";
 
 interface Params {
   params: Promise<{ brand: string; model: string }>;
@@ -11,7 +11,7 @@ export default async function ProductPage({ params }: Params) {
   const { brand: brandSlug, model: modelSlug } = await params;
   const [{ brands, models }, addonAvailability] = await Promise.all([
     getMergedCatalogCached(),
-    getAddonAvailability(),
+    getAddonAvailabilityCached(),
   ]);
   const brand = brands.find((b) => b.slug === brandSlug) ?? null;
   const model =

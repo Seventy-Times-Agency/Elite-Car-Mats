@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { prisma } from "@/lib/db/prisma";
+import { getHomeReviews } from "@/lib/reviews/public";
 import { getDictionary } from "@/i18n/getDictionary";
 import { makeT } from "@/i18n/dictionary";
 
@@ -9,44 +9,10 @@ import { makeT } from "@/i18n/dictionary";
  * so the empty shop doesn't advertise an empty reviews page.
  */
 export async function ReviewsSection() {
-  let reviews: {
-    id: string;
-    customerName: string;
-    carModel: string;
-    text: string;
-    rating: number;
-    verified: boolean;
-  }[] = [];
-  let total = 0;
-  let avg = 0;
-  try {
-    const [rows, agg] = await Promise.all([
-      prisma.review.findMany({
-        where: { approved: true },
-        orderBy: { createdAt: "desc" },
-        take: 3,
-        select: {
-          id: true,
-          customerName: true,
-          carModel: true,
-          text: true,
-          rating: true,
-          verified: true,
-        },
-      }),
-      prisma.review.aggregate({
-        where: { approved: true },
-        _count: { _all: true },
-        _avg: { rating: true },
-      }),
-    ]);
-    reviews = rows;
-    total = agg._count._all;
-    avg = agg._avg.rating ?? 0;
-  } catch (err) {
-    console.error("[home-reviews] load failed:", err);
-    return null;
-  }
+  // Cached read — see lib/reviews/public.ts. A DB failure surfaces here
+  // as an empty list, which renders nothing, exactly as the old inline
+  // try/catch did.
+  const { reviews, total, avg } = await getHomeReviews();
   if (reviews.length === 0) return null;
 
   const { dict, fallback } = await getDictionary();

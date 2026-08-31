@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidateTag } from "next/cache";
 import { prisma } from "@/lib/db/prisma";
 import { requireAdmin, checkAdminCsrf } from "@/lib/security/auth";
 import { postCreateSchema } from "@/lib/validations/post";
@@ -53,6 +54,9 @@ export async function POST(request: Request) {
         locale: d.locale ?? null,
       },
     });
+    // Publishing must show up on /blog and in the sitemap now, not in
+    // ten minutes.
+    revalidateTag("blog", "default");
     return NextResponse.json({ post });
   } catch (err) {
     const msg = err instanceof Error ? err.message : "error";

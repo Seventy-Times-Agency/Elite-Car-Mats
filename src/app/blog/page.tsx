@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
-import { listPublishedPosts } from "@/lib/blog";
+import { listPublishedPostsCached } from "@/lib/blog";
 import { getDictionary } from "@/i18n/getDictionary";
 import { makeT } from "@/i18n/dictionary";
 import { localeAlternates } from "@/lib/seo/alternates";
@@ -31,7 +31,7 @@ function formatDate(iso: string | Date | null, locale: string): string {
 export default async function BlogIndexPage() {
   const { locale, dict, fallback } = await getDictionary();
   const t = makeT(dict, fallback);
-  const posts = await listPublishedPosts(locale);
+  const posts = await listPublishedPostsCached(locale);
 
   return (
     <div className="py-14 lg:py-20 min-h-screen">

@@ -1,4 +1,5 @@
 import "server-only";
+import { unstable_cache } from "next/cache";
 import { prisma } from "@/lib/db/prisma";
 
 /**
@@ -39,6 +40,30 @@ export async function getAddonAvailability(): Promise<AddonAvailability> {
     return { badges: true, heelPad: true };
   }
 }
+
+/**
+ * Cached wrapper for the DISPLAY path only — the public product page
+ * asked Postgres for two key/value rows on every single view.
+ *
+ * Mirrors the split already used for price overrides: anything that
+ * decides what a customer is actually charged or shipped — /api/orders
+ * above all — keeps calling `getAddonAvailability` directly, so an
+ * operator switching an add-on off blocks the very next order instead
+ * of the next cache window. Showing a just-disabled add-on for a few
+ * minutes is cosmetic; selling one is not.
+ *
+ * Tag is `availability`; admin/availability POST calls
+ * `revalidateTag("availability")`, so the storefront updates on save
+ * anyway and the TTL is only a backstop.
+ *
+ * The plain object here survives `unstable_cache`'s JSON round-trip
+ * unchanged — no Maps, Sets or Dates to revive.
+ */
+export const getAddonAvailabilityCached = unstable_cache(
+  async (): Promise<AddonAvailability> => getAddonAvailability(),
+  ["addon-availability-v1"],
+  { tags: ["availability"], revalidate: 3600 },
+);
 
 export async function setAddonAvailability(
   patch: Partial<AddonAvailability>,

@@ -145,8 +145,6 @@ model Order {
   stripeSessionId       String?     @unique
   stripePaymentIntentId String?
   paidAt                DateTime?
-  // ShipStation integration (optional — populated when SS env vars are set)
-  shipstationOrderId    String?
   // Stripe-hosted receipt page for the customer ("Чек об оплате").
   receiptUrl            String?
   // Review-invite email scheduled (fires ~1 day after DELIVERED). Guard

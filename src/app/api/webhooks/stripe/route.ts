@@ -12,7 +12,6 @@ import { signOrderToken } from "@/lib/security/order-token";
 import { calculateItemUnitPrice } from "@/lib/pricing";
 import { loadPriceOverrides } from "@/lib/pricing-overrides";
 import { buildDbProfileResolver } from "@/lib/catalog-merge";
-import { pushOrderToShipstation } from "@/lib/shipping/shipstation";
 import { cancelScheduledEmail } from "@/lib/email/transport";
 import { sendMetaPurchase } from "@/lib/analytics/meta-capi";
 import type { MatSetType } from "@/types";
@@ -48,7 +47,7 @@ const matSetFromEnum: Record<string, MatSetType> = {
  *
  * Throws on DB error so the caller responds 500 and Stripe retries — the
  * old behaviour of "fail open and run side effects anyway" would otherwise
- * race a second retry into duplicated emails and ShipStation pushes.
+ * race a second retry into duplicated confirmation emails.
  */
 async function claimEvent(eventId: string): Promise<boolean> {
   // Lazy table creation — re-runs are no-ops thanks to IF NOT EXISTS.
@@ -104,32 +103,6 @@ async function refundPromoUse(orderId: string): Promise<void> {
   } catch (err) {
     console.error(
       `[stripe-webhook] promo refund failed for order=${orderId}:`,
-      err,
-    );
-  }
-}
-
-/**
- * Push the order to ShipStation if the integration is enabled. Failures
- * are logged but never thrown — Stripe must always get its 200 OK so it
- * doesn't keep retrying. Missed pushes can be reconciled from the admin
- * UI later.
- */
-async function pushToShipstationSafely(orderId: string): Promise<void> {
-  try {
-    const result = await pushOrderToShipstation(orderId);
-    if (result.ok) {
-      console.log(
-        `[stripe-webhook] order=${orderId} pushed to shipstation id=${result.shipstationOrderId}`,
-      );
-    } else {
-      console.log(
-        `[stripe-webhook] order=${orderId} shipstation skip: ${result.reason}`,
-      );
-    }
-  } catch (err) {
-    console.error(
-      `[stripe-webhook] shipstation push failed for order=${orderId}:`,
       err,
     );
   }
@@ -399,9 +372,8 @@ export async function POST(request: Request) {
           // Also overlay the shipping address Stripe collected on
           // Checkout (bill-to ≠ ship-to). Customer entered an address
           // in our /checkout form, but Stripe's shipping form is the
-          // final source of truth — overwrite so the ShipStation push
-          // and the order detail page reflect what'll actually be
-          // shipped.
+          // final source of truth — overwrite so the order detail page
+          // reflects what'll actually be shipped.
           const sd = session.collected_information?.shipping_details;
           const shippingOverlay =
             sd?.address && sd?.name
@@ -428,8 +400,8 @@ export async function POST(request: Request) {
             `[stripe-webhook] ${event.id} order=${orderId} paid (rows=${res.count})`,
           );
           if (res.count === 1) {
-            // Deferred via `after` so a slow Resend / ShipStation call
-            // can't trip Stripe's 30s webhook timeout — and, unlike a bare
+            // Deferred via `after` so a slow Resend call can't trip
+            // Stripe's 30s webhook timeout — and, unlike a bare
             // floating promise, the serverless runtime keeps the instance
             // alive until the callback settles.
             after(async () => {
@@ -442,7 +414,6 @@ export async function POST(request: Request) {
                   err,
                 );
               });
-              await pushToShipstationSafely(orderId);
             });
           }
         } else {
@@ -501,7 +472,6 @@ export async function POST(request: Request) {
                   err,
                 );
               });
-              await pushToShipstationSafely(orderId);
             });
           }
         }

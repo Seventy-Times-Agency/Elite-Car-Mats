@@ -494,7 +494,7 @@ export async function POST(request: Request) {
       state: shipping.state || null,
       zip: shipping.zip || null,
       // Pass the customer's raw note (without the internal promo
-      // annotation we glue onto Order.comment for ShipStation).
+      // annotation we glue onto Order.comment for the packing slip).
       comment: shipping.comment || null,
       total: Number(createdOrder.total ?? 0),
       items: emailItems,

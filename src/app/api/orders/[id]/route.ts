@@ -138,8 +138,8 @@ export async function PATCH(
   const data: Record<string, unknown> = {};
   if (status !== undefined) data.status = status;
   if (trackingNumber !== undefined) data.trackingNumber = trackingNumber || null;
-  // A manually replaced tracking number invalidates the ShipStation-
-  // provided carrier (admin may have re-shipped via a different one).
+  // A replaced tracking number invalidates any carrier stored against
+  // the old one (the admin may have re-shipped via a different one).
   // Clearing it lets trackingUrl() sniff the carrier from the number's
   // format instead of linking a UPS code to the USPS tracker.
   if (
@@ -228,7 +228,7 @@ export async function PATCH(
 
   // Review invite scheduling (atomic claim inside — safe to call from
   // concurrent transitions). SHIPPED is the reliable auto-set status
-  // (ShipStation webhook), so the invite is anchored there with a
+  // (admin marks the order shipped), so the invite is anchored there with a
   // post-transit delay; a manual DELIVERED flip shortens it to ~1 day.
   if (justShipped) {
     await scheduleReviewInvite({

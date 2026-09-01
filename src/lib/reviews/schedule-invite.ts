@@ -8,7 +8,7 @@ import { sendReviewInviteEmail } from "@/lib/email";
  * The invite used to fire only on a manual DELIVERED transition in the
  * admin — a status nobody reliably sets, so in practice no invites went
  * out and the store collected zero reviews. It now ALSO schedules on
- * SHIPPED (ShipStation webhook or admin), a transition that happens
+ * SHIPPED (set by the admin), a transition that happens
  * automatically, with a longer delay to land after the package does.
  *
  * The `reviewInviteSentAt IS NULL` guard is claimed atomically via

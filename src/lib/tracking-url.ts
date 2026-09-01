@@ -1,7 +1,7 @@
 /**
  * Carrier tracking-page URL for a tracking number. Client-safe.
  *
- * Preference order: the carrier code stored on the order (ShipStation
+ * Preference order: the carrier code stored on the order (legacy —
  * writes e.g. "usps" / "ups" / "fedex" into Order.carrier), then a
  * format sniff of the number itself — USPS numbers are long digit
  * strings usually starting 9x, UPS starts "1Z", FedEx is 12/15 digits.

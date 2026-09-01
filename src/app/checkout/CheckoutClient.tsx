@@ -297,10 +297,18 @@ export function CheckoutClient({ paymentEnabled }: { paymentEnabled: boolean }) 
         // This exact drift already happened once: badgeCount wasn't sent,
         // the page said $354 and Stripe charged $303.
         const serverTotal = Number(data.total ?? NaN);
+
+        // The order EXISTS from here on (and any promo use is consumed) —
+        // remember it before any early return below, so a retry with the
+        // same payload reuses it instead of creating a duplicate and
+        // burning a second promo use.
+        createdOrderRef.current = { fingerprint, ...data };
+        savePendingOrder(createdOrderRef.current);
+
         if (
           Number.isFinite(serverTotal) &&
           serverTotal !== total &&
-          serverTotal !== subtotal // promo consumed/expired server-side
+          serverTotal !== subtotal
         ) {
           console.error(
             `[checkout] total mismatch: displayed=${total} server=${serverTotal}`,
@@ -310,8 +318,29 @@ export function CheckoutClient({ paymentEnabled }: { paymentEnabled: boolean }) 
           return;
         }
 
-        createdOrderRef.current = { fingerprint, ...data };
-        savePendingOrder(createdOrderRef.current);
+        // Promo raced to expiry server-side: the order was billed at the
+        // full subtotal. Don't silently send the customer to Stripe for
+        // more than the page showed — drop the promo from the UI, explain,
+        // and let them confirm with a second click (the order is reused).
+        if (
+          Number.isFinite(serverTotal) &&
+          discount > 0 &&
+          serverTotal === subtotal &&
+          serverTotal !== total
+        ) {
+          // The retry will send `promoCode: null` — re-key the stored
+          // order under that future fingerprint so it is reused (the
+          // server already billed this order at the full subtotal).
+          createdOrderRef.current = {
+            fingerprint: JSON.stringify({ ...payload, promoCode: null }),
+            ...data,
+          };
+          savePendingOrder(createdOrderRef.current);
+          setPromoApplied(null);
+          setFormError(t("co.errPromoGone"));
+          setSubmitting(false);
+          return;
+        }
       }
 
       // With payments on, a missing orderToken is a server misconfig

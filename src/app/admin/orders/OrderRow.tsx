@@ -39,6 +39,8 @@ export interface OrderItemView {
   /** 0 = no badge; otherwise plates count. */
   badgeCount: number;
   heelPad: boolean;
+  /** Paid third-row add-on — the workshop must see it to produce it. */
+  thirdRow: boolean;
   quantity: number;
   unitPrice: number;
 }
@@ -276,6 +278,11 @@ export function OrderRow({
                     {i.heelPad && (
                       <span className="text-gold/90">
                         {t("admin.heelPadChip")}
+                      </span>
+                    )}
+                    {i.thirdRow && (
+                      <span className="text-gold/90">
+                        {t("admin.thirdRowChip")}
                       </span>
                     )}
                   </div>

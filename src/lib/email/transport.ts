@@ -40,15 +40,15 @@ export async function send({
    * every commercial email. Transactional order emails omit this.
    */
   marketing?: boolean;
-}): Promise<void> {
+}): Promise<string | null> {
   if (!resend) {
     console.log(
       `[email:skipped] RESEND_API_KEY not set. Would send "${subject}" to ${to}`,
     );
-    return;
+    return null;
   }
   try {
-    const { error } = await resend.emails.send({
+    const { data, error } = await resend.emails.send({
       from: fromAddress,
       to,
       subject,
@@ -66,9 +66,26 @@ export async function send({
     });
     if (error) {
       console.error("[email:error]", subject, error);
+      return null;
     }
+    return data?.id ?? null;
   } catch (err) {
     console.error("[email:exception]", subject, err);
+    return null;
+  }
+}
+
+/**
+ * Cancel a previously scheduled email (Resend holds scheduled sends
+ * until their delivery time). Best-effort: used to withdraw the
+ * abandoned-checkout reminder the moment the customer actually pays.
+ */
+export async function cancelScheduledEmail(id: string): Promise<void> {
+  if (!resend || !id) return;
+  try {
+    await resend.emails.cancel(id);
+  } catch (err) {
+    console.error("[email:cancel]", id, err);
   }
 }
 

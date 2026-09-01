@@ -269,10 +269,6 @@ async function execAll(): Promise<MigrationResult[]> {
       `ALTER TABLE "Order" ADD COLUMN IF NOT EXISTS "deliveredAt" TIMESTAMP(3)`,
     );
     await run(
-      "order.shipstationOrderId",
-      `ALTER TABLE "Order" ADD COLUMN IF NOT EXISTS "shipstationOrderId" TEXT`,
-    );
-    await run(
       "order.receiptUrl",
       `ALTER TABLE "Order" ADD COLUMN IF NOT EXISTS "receiptUrl" TEXT`,
     );
@@ -287,6 +283,10 @@ async function execAll(): Promise<MigrationResult[]> {
     await run(
       "order.locale",
       `ALTER TABLE "Order" ADD COLUMN IF NOT EXISTS "locale" TEXT`,
+    );
+    await run(
+      "order.abandonedEmailId",
+      `ALTER TABLE "Order" ADD COLUMN IF NOT EXISTS "abandonedEmailId" TEXT`,
     );
     await run(
       "Order.orderNumber unique",

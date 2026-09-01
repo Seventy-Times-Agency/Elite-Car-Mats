@@ -74,6 +74,15 @@ export interface Product {
 export interface CartItem {
   id: string;
   modelId: string;
+  /**
+   * Vehicle profile resolved at add-to-cart time from the MERGED catalog
+   * (code + admin custom models). Client-side price display falls back
+   * to a code-catalog lookup when absent — which resolves admin custom
+   * models to `standard` and shows wrong/zero prices — so the product
+   * page stores the real profile here. Display-only: the server always
+   * re-resolves the profile itself for billing.
+   */
+  profile?: import("@/lib/vehicle-profile").VehicleConfigProfile;
   brandName: string;
   modelName: string;
   year: number;

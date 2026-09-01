@@ -15,6 +15,7 @@ import { CartDrawer } from "@/components/cart/CartDrawer";
 import { OrganizationJsonLd } from "@/components/seo/ProductJsonLd";
 import { I18nProvider } from "@/i18n/I18nProvider";
 import { MetaPixel } from "@/components/analytics/MetaPixel";
+import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
 import { getDictionary } from "@/i18n/getDictionary";
 import { LOCALE_HTML_LANG, LOCALE_OG } from "@/i18n/config";
 import { makeT } from "@/i18n/dictionary";
@@ -178,6 +179,7 @@ export default async function RootLayout({
         <Analytics />
         {/* Meta Pixel — inert until NEXT_PUBLIC_META_PIXEL_ID is set. */}
         <MetaPixel />
+        <GoogleAnalytics />
       </body>
     </html>
   );

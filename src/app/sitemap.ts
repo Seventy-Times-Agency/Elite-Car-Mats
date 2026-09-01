@@ -1,5 +1,5 @@
 import { MetadataRoute } from "next";
-import { listAllPublishedSlugs } from "@/lib/blog";
+import { listAllPublishedSlugsCached } from "@/lib/blog";
 import { getMergedCatalogCached } from "@/lib/catalog-merge";
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://elitecarmats.us";
@@ -80,7 +80,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // re-fetch later and pick the posts up next pass.
   let postPages: MetadataRoute.Sitemap = [];
   try {
-    const posts = await listAllPublishedSlugs();
+    const posts = await listAllPublishedSlugsCached();
     postPages = posts.flatMap((p): MetadataRoute.Sitemap => {
       // A locale-bound post exists at ONE url — getPublishedPost 404s it
       // on the other two locales, so advertising all three put dead

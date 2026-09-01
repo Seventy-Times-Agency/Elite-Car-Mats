@@ -4,7 +4,11 @@ import Script from "next/script";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { META_PIXEL_ID } from "@/lib/analytics";
-import { getConsent, CONSENT_EVENT } from "@/lib/consent";
+import {
+  getConsent,
+  scrubOrderTokenFromUrl,
+  CONSENT_EVENT,
+} from "@/lib/consent";
 
 /**
  * Meta Pixel bootstrap. Renders nothing until NEXT_PUBLIC_META_PIXEL_ID
@@ -22,7 +26,13 @@ export function MetaPixel() {
   const [consented, setConsented] = useState(false);
 
   useEffect(() => {
-    const update = () => setConsented(getConsent() === "accepted");
+    const update = () => {
+      const ok = getConsent() === "accepted";
+      // Drop the order token from the address bar BEFORE fbevents.js
+      // mounts — the pixel reports the full URL in its `dl=` beacon.
+      if (ok && META_PIXEL_ID) scrubOrderTokenFromUrl();
+      setConsented(ok);
+    };
     update();
     window.addEventListener(CONSENT_EVENT, update);
     return () => window.removeEventListener(CONSENT_EVENT, update);

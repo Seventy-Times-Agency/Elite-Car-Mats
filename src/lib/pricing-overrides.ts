@@ -56,7 +56,7 @@ const loadPriceOverrideEntriesCached = unstable_cache(
 /**
  * Cached wrapper for display-only read paths (feed.xml, product page
  * metadata). Billing paths — /api/orders, /api/checkout/stripe,
- * /api/webhooks/stripe, shipstation/create-order — keep using the raw
+ * /api/webhooks/stripe — keep using the raw
  * function so any admin override is reflected on the next charge.
  * Tag is `pricing`; admin/pricing POST calls revalidateTag("pricing").
  *

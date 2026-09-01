@@ -9,7 +9,7 @@ export async function sendShippedEmail(params: {
   customerEmail: string;
   trackingNumber: string;
   orderToken?: string;
-  /** Carrier code (ShipStation writes usps/ups/fedex) — used to link
+  /** Carrier code (usps/ups/fedex) when known — used to link
    *  the tracking number straight to the carrier's tracking page. */
   carrier?: string | null;
   /** Order's stored storefront locale — the customer's language. */

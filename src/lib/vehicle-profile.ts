@@ -209,14 +209,40 @@ const STRICT_TWO_SEATER_EXCEPTIONS = new Set<string>([
 export function getVehicleProfile(model: CarModel): VehicleConfigProfile {
   // Commercial big-rigs and medium-duty box trucks: front cabin only
   if (model.category === "commercial") return "semi";
-  if (model.bodyType === "Седельный тягач") return "semi";
-  if (model.bodyType === "Грузовик") return "semi";
 
-  // Pickups: two-row cabin, no truck-bed liner anymore
-  if (model.bodyType === "Пикап") return "pickup";
+  // The code catalog uses canonical Russian bodyType strings, but the
+  // admin custom-catalog form is free text and its placeholder suggests
+  // English ("Sedan, SUV, Pickup…") — recognize both, case-insensitively,
+  // or every custom pickup/minivan/truck silently prices as `standard`.
+  const bt = (model.bodyType ?? "").trim().toLowerCase();
+
+  if (
+    bt === "седельный тягач" ||
+    bt === "грузовик" ||
+    bt === "semi" ||
+    bt === "semi truck" ||
+    bt === "semi-truck" ||
+    bt === "tractor" ||
+    bt === "box truck"
+  ) {
+    return "semi";
+  }
+
+  // Pickups: two-row cabin, no truck-bed liner anymore. In US English a
+  // bare "truck" means a pickup, not a big rig.
+  if (
+    bt === "пикап" ||
+    bt === "pickup" ||
+    bt === "pickup truck" ||
+    bt === "truck"
+  ) {
+    return "pickup";
+  }
 
   // Minivans: three rows of seats + trunk
-  if (model.bodyType === "Минивэн") return "minivan";
+  if (bt === "минивэн" || bt === "minivan" || bt === "van") {
+    return "minivan";
+  }
 
   // Strict 2-seaters
   if (

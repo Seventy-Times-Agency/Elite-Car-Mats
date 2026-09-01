@@ -2,12 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { getPublishedPost } from "@/lib/blog";
+import { getPublishedPostCached } from "@/lib/blog";
 import { getDictionary } from "@/i18n/getDictionary";
 import { makeT } from "@/i18n/dictionary";
 import { renderMarkdown } from "@/lib/markdown";
 import { BreadcrumbJsonLd } from "@/components/seo/ProductJsonLd";
 import { localeAlternates } from "@/lib/seo/alternates";
+import { jsonLdString } from "@/lib/seo/json-ld";
 
 export const dynamic = "force-dynamic";
 
@@ -21,7 +22,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { slug } = await params;
   const { locale, dict, fallback } = await getDictionary();
   const t = makeT(dict, fallback);
-  const post = await getPublishedPost(slug, locale);
+  const post = await getPublishedPostCached(slug, locale);
   if (!post) return { title: t("blog.notFoundMeta") };
 
   return {
@@ -61,7 +62,7 @@ export default async function BlogPostPage({ params }: Params) {
   const { slug } = await params;
   const { locale, dict, fallback } = await getDictionary();
   const t = makeT(dict, fallback);
-  const post = await getPublishedPost(slug, locale);
+  const post = await getPublishedPostCached(slug, locale);
   if (!post) notFound();
 
   const html = renderMarkdown(post.content);
@@ -93,7 +94,7 @@ export default async function BlogPostPage({ params }: Params) {
     <article className="py-10 lg:py-16 min-h-screen">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdString(articleJsonLd) }}
       />
       <BreadcrumbJsonLd
         items={[

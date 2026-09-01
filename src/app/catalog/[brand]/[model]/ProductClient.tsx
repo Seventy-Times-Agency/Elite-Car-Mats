@@ -149,14 +149,21 @@ export default function ProductClient({
   // content_ids MUST match the feed's g:id (ECM-<brand>-<model>-<set>) —
   // Advantage+ Catalog / dynamic retargeting matches events to catalog
   // items strictly by id, so any other format gives a 0% match rate.
+  // Primitive deps only — the brand/model objects get a fresh identity on
+  // every server re-render (locale switch, revalidation), which would
+  // re-fire ViewContent for the same product and inflate Meta stats.
+  const brandSlug = brand?.slug;
+  const modelSlug = model?.slug;
+  const brandName = brand?.name;
+  const modelName = model?.name;
   useEffect(() => {
-    if (!brand || !model) return;
+    if (!brandSlug || !modelSlug) return;
     trackEvent("ViewContent", {
       content_type: "product",
-      content_ids: [`ECM-${brand.slug}-${model.slug}-${getDefaultMatSet(profile)}`],
-      content_name: `${brand.name} ${model.name}`,
+      content_ids: [`ECM-${brandSlug}-${modelSlug}-${getDefaultMatSet(profile)}`],
+      content_name: `${brandName} ${modelName}`,
     });
-  }, [brand, model, profile]);
+  }, [brandSlug, modelSlug, brandName, modelName, profile]);
 
   if (!brand || !model)
     return (
@@ -194,6 +201,10 @@ export default function ProductClient({
     {
       matSet: ms.type,
       modelId: cartModelId,
+      // Explicit profile from the merged-catalog model prop — a bare
+      // modelId lookup only knows code models and would price admin
+      // custom models as `standard`.
+      profile,
       edgeColor: { id: edge.id },
       badge: badge && bdg ? { id: bdg.id } : null,
       badgeCount: effBadgeCount,
@@ -210,6 +221,7 @@ export default function ProductClient({
   const add = () => {
     addItem({
       modelId: cartModelId,
+      profile,
       brandName: brand.name,
       modelName: model.name,
       year,

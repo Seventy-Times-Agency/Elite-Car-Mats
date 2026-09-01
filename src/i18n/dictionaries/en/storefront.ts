@@ -94,7 +94,7 @@ export const storefront: Dict = {
   "hero.titleLine2": "cut for",
   "hero.titleLine3": "your exact car.",
   "hero.subtitle":
-    "Premium EVA, hand-cut to your model's dedicated pattern and hand-sewn in Rochester, NY. Made to order — from $119, free US shipping.",
+    "Premium EVA, hand-cut to your model's dedicated pattern and hand-sewn in Rochester, NY. Made to order — from $89, free US shipping.",
   "hero.learnMore": "How it's made",
   "hero.statModels": "Patterns",
   "hero.statLifespan": "Lifespan",
@@ -649,7 +649,7 @@ export const storefront: Dict = {
     "Use the configurator at the top of the home page: pick your make, model, and year. Every mat is cut from an individual pattern for your VIN range — the fit is precise, with no gaps or pedal interference. If your model isn't listed, email info@elitecarmats.us and we'll cut a pattern within 3 business days.",
   "faq.q3": "What sets do you offer and which should I choose?",
   "faq.a3":
-    "Most vehicles get 3 options. \"Full Set\" — the full cabin, front + rear rows ($119). \"Cargo\" — a separate trunk mat ($79). \"Full Set + Cargo\" — the whole cabin plus the trunk ($198). Three-row minivans and commercial trucks have their own sets — the configurator shows exactly what's available for your model. For most customers, \"Full Set + Cargo\" is the sweet spot — especially if you have kids, a dog, or frequent road trips.",
+    "Most vehicles get 3 options. \"Full Set\" — the full cabin, front + rear rows ($129). \"Cargo\" — a separate trunk mat ($79). \"Full Set + Cargo\" — the whole cabin plus the trunk ($208). Three-row minivans and commercial trucks have their own sets — the configurator shows exactly what's available for your model. For most customers, \"Full Set + Cargo\" is the sweet spot — especially if you have kids, a dog, or frequent road trips.",
   "faq.q4": "What colors and edge options are available?",
   "faq.a4":
     "Mat base: 5 colors — black, gray, brown, beige, and red. Edge trim: 11 colors, from classic black to yellow, red, or navy accents. You can also add a metal brand plate to any mat in the set and an aluminum heel pad to the driver's mat.",

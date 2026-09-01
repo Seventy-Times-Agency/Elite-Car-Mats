@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 import { Header } from "@/components/layout/Header";
 import { AnnouncementBar } from "@/components/layout/AnnouncementBar";
@@ -177,6 +178,13 @@ export default async function RootLayout({
             Enable the Analytics tab for the project in the Vercel
             dashboard to start collecting. */}
         <Analytics />
+        {/* Speed Insights — real-visitor Core Web Vitals (LCP, CLS, INP).
+            Same deal as Analytics above: cookieless and served from our
+            own origin (/_vercel/speed-insights/*), so `script-src 'self'`
+            already covers it and it stays outside the consent gate.
+            Worth having before the product-page video lands — it is the
+            measurement that tells us whether the video hurt LCP. */}
+        <SpeedInsights />
         {/* Meta Pixel — inert until NEXT_PUBLIC_META_PIXEL_ID is set. */}
         <MetaPixel />
         <GoogleAnalytics />

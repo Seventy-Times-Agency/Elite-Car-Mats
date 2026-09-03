@@ -4,6 +4,7 @@ import { requireAdmin } from "@/lib/security/auth";
 import { getStripe } from "@/lib/payments/stripe";
 import { prisma } from "@/lib/db/prisma";
 import { AdminShell } from "@/components/admin/AdminShell";
+import { FunnelPanel } from "@/components/admin/FunnelPanel";
 import { formatPrice } from "@/lib/pricing";
 import { getDictionary } from "@/i18n/getDictionary";
 import { makeT } from "@/i18n/dictionary";
@@ -439,6 +440,10 @@ export default async function AdminDashboardPage() {
       title={t("admin.dashTitle")}
       subtitle={t("admin.dashSubtitle")}
     >
+      {/* Own-side conversion funnel — where visitors drop out between
+          the landing page and a paid order. */}
+      <FunnelPanel t={t} />
+
       {/* Integration health — answers "does the server see my keys" at
           a glance, since env typos in Vercel are otherwise invisible. */}
       <div className="glass-card rounded-xl p-4 mb-6">

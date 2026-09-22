@@ -2,6 +2,13 @@
 
 # EliteCarMats — agent briefing
 
+> **Read `HANDOVER.md` first.** This file maps the code; HANDOVER.md carries
+> the project's state: what was done and why, what is deployed, what is
+> still open, and the one constraint that governs every new feature (no
+> per-request Postgres reads on public pages — it took the shop down for
+> four days). It also records which remote production actually builds from,
+> which is not always the one you just pushed to.
+
 ## What this is
 
 Premium EVA car-mat e-commerce site for the U.S. market.

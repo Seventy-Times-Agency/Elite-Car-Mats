@@ -9,13 +9,12 @@ import {
 import { constructWebhookEvent } from "@/lib/payments/stripe-checkout";
 import { sendCustomerOrderEmail, sendOwnerOrderEmail } from "@/lib/email";
 import { signOrderToken } from "@/lib/security/order-token";
-import { calculateItemUnitPrice } from "@/lib/pricing";
+import { lineFromDb, lineUnitPrice } from "@/lib/orders/line-items";
 import { loadPriceOverrides } from "@/lib/pricing-overrides";
 import { buildDbProfileResolver } from "@/lib/catalog-merge";
 import { cancelScheduledEmail } from "@/lib/email/transport";
 import { escapeHtml } from "@/lib/email/templates/base";
 import { sendMetaPurchase } from "@/lib/analytics/meta-capi";
-import type { MatSetType } from "@/types";
 
 // Webhooks must see the raw body for signature verification. In the App
 // Router there is no body parser to disable — the route reads
@@ -31,13 +30,6 @@ function orderIdFromSession(session: Stripe.Checkout.Session): string | null {
     null
   );
 }
-
-const matSetFromEnum: Record<string, MatSetType> = {
-  FRONT: "front",
-  FULL: "full",
-  CARGO: "cargo",
-  FULL_CARGO: "full-cargo",
-};
 
 /**
  * Process a Stripe event id idempotently. Returns true if this is the first
@@ -255,13 +247,12 @@ async function sendOrderConfirmations(orderId: string): Promise<void> {
     total: Number(order.total ?? 0),
     locale: order.locale,
     items: order.items.map((i) => {
-      const matSet = matSetFromEnum[i.product.matSet];
-      if (!matSet) throw new Error(`Unknown matSet enum: ${i.product.matSet}`);
+      const line = lineFromDb(i, profileOf);
       return {
         brandName: i.product.model.brand.name,
         modelName: i.product.model.name,
-        matSet,
-        profile: profileOf(i.product.modelId),
+        matSet: line.matSet,
+        profile: line.profile,
         colorName: i.color.name,
         colorHex: i.color.hex,
         edgeColorName: i.edgeColor.name,
@@ -274,19 +265,7 @@ async function sendOrderConfirmations(orderId: string): Promise<void> {
         thirdRow: i.thirdRow ?? false,
         year: i.year ?? null,
         quantity: i.quantity,
-        unitPrice: calculateItemUnitPrice(
-          {
-            matSet,
-            modelId: i.product.modelId,
-            profile: profileOf(i.product.modelId),
-            edgeColor: { id: i.edgeColor.id },
-            badge: i.badge ? { id: i.badge.id } : null,
-            badgeCount: i.badgeCount ?? 1,
-            heelPad: i.heelPad ?? false,
-            thirdRow: i.thirdRow ?? false,
-          },
-          overrides,
-        ),
+        unitPrice: lineUnitPrice(line, overrides),
       };
     }),
   };

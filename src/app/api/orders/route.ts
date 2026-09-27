@@ -4,10 +4,12 @@ import { prisma } from "@/lib/db/prisma";
 import { ensureCatalogSeed, resetCatalogSeedCache } from "@/lib/db/seed";
 import { createOrderSchema } from "@/lib/validations/order";
 import {
-  calculateItemUnitPrice,
-  calculateOrderTotal,
-  clampBadgeCount,
-} from "@/lib/pricing";
+  badgePlates,
+  lineFromRequest,
+  lineUnitPrice,
+  linesTotal,
+  storedBadgeCount,
+} from "@/lib/orders/line-items";
 import { loadPriceOverrides } from "@/lib/pricing-overrides";
 import { getAddonAvailability } from "@/lib/availability";
 import { rateLimit, getClientIp } from "@/lib/security/rate-limit";
@@ -67,13 +69,7 @@ async function buildResolveNames() {
       throw new Error(`Unknown badge id: ${item.badgeId}`);
     }
     const badgeQty = badgeRow
-      ? clampBadgeCount({
-          matSet: item.matSet,
-          modelId: item.modelId,
-          profile,
-          badge: { id: badgeRow.id },
-          badgeCount: item.badgeCount,
-        })
+      ? badgePlates(lineFromRequest(item, { profile }))
       : 0;
     return {
       colorName: color.name,
@@ -276,18 +272,8 @@ export async function POST(request: Request) {
   // renders in the language the customer actually shopped in.
   const customerLocale = await getLocaleFromCookie();
 
-  const subtotal = calculateOrderTotal(
-    itemsResolved.map(({ item: i, modelId, profile }) => ({
-      matSet: i.matSet,
-      modelId: modelId ?? i.modelId,
-      profile: profile ?? undefined,
-      edgeColor: { id: i.edgeColorId },
-      badge: i.badgeId ? { id: i.badgeId } : null,
-      badgeCount: i.badgeCount ?? 1,
-      heelPad: i.heelPad ?? false,
-      thirdRow: i.thirdRow ?? false,
-      quantity: i.quantity,
-    })),
+  const subtotal = linesTotal(
+    itemsResolved.map((r) => lineFromRequest(r.item, r)),
     overrides,
   );
 
@@ -332,38 +318,22 @@ export async function POST(request: Request) {
           locale: customerLocale,
           total,
           items: {
-            create: itemsResolved.map(({ item: i, modelId, productId, profile }) => ({
-              productId: productId!,
-              colorId: i.colorId,
-              edgeColorId: i.edgeColorId,
-              badgeId: i.badgeId || null,
-              badgeCount: i.badgeId
-                ? clampBadgeCount({
-                    matSet: i.matSet,
-                    modelId: modelId ?? i.modelId,
-                    profile: profile ?? undefined,
-                    badge: { id: i.badgeId },
-                    badgeCount: i.badgeCount,
-                  })
-                : 1,
-              heelPad: i.heelPad ?? false,
-              thirdRow: i.thirdRow ?? false,
-              year: i.year ?? null,
-              quantity: i.quantity,
-              price: calculateItemUnitPrice(
-                {
-                  matSet: i.matSet,
-                  modelId: modelId ?? i.modelId,
-                  profile: profile ?? undefined,
-                  edgeColor: { id: i.edgeColorId },
-                  badge: i.badgeId ? { id: i.badgeId } : null,
-                  badgeCount: i.badgeCount ?? 1,
-                  heelPad: i.heelPad ?? false,
-                  thirdRow: i.thirdRow ?? false,
-                },
-                overrides,
-              ),
-            })),
+            create: itemsResolved.map((r) => {
+              const i = r.item;
+              const line = lineFromRequest(i, r);
+              return {
+                productId: r.productId!,
+                colorId: i.colorId,
+                edgeColorId: i.edgeColorId,
+                badgeId: line.badgeId,
+                badgeCount: storedBadgeCount(line),
+                heelPad: line.heelPad,
+                thirdRow: line.thirdRow,
+                year: i.year ?? null,
+                quantity: i.quantity,
+                price: lineUnitPrice(line, overrides),
+              };
+            }),
           },
         },
         select: {
@@ -464,17 +434,8 @@ export async function POST(request: Request) {
         thirdRow: i.thirdRow ?? false,
         year: i.year ?? null,
         quantity: i.quantity,
-        unitPrice: calculateItemUnitPrice(
-          {
-            matSet: i.matSet,
-            modelId: modelId ?? i.modelId,
-            profile: profile ?? undefined,
-            edgeColor: { id: i.edgeColorId },
-            badge: i.badgeId ? { id: i.badgeId } : null,
-            badgeCount: i.badgeCount ?? 1,
-            heelPad: i.heelPad ?? false,
-            thirdRow: i.thirdRow ?? false,
-          },
+        unitPrice: lineUnitPrice(
+          lineFromRequest(i, { modelId, profile }),
           overrides,
         ),
       };

@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/context/CartContext";
+import { trackFunnel } from "@/lib/analytics/funnel-client";
 import {
   loadPendingOrder,
   savePendingOrder,
@@ -205,6 +206,8 @@ export function CheckoutClient({ paymentEnabled }: { paymentEnabled: boolean }) 
     ev.preventDefault();
     setFormError(null);
     if (!validate()) return;
+    // Funnel: the pay button was pressed and the form validated.
+    trackFunnel("pay_click");
     trackEvent("InitiateCheckout", {
       value: total,
       currency: "USD",

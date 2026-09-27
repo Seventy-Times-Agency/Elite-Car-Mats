@@ -31,7 +31,8 @@ describe("itemsTable", () => {
       },
     ]);
     expect(html).toContain("Toyota Camry · 2025");
-    expect(html).toContain("EVA Trunk Organizer");
+    expect(html).toContain("Honeycomb Trunk Organizer");
+    expect(html).not.toContain("EVA Trunk Organizer");
     expect(html).toContain("Gray · light-gray trim");
     expect(html).toContain("×2");
     expect(html).toContain("$98");

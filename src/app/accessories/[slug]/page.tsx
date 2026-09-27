@@ -66,7 +66,7 @@ export default async function AccessoryPage({ params, searchParams }: Params) {
     description: t(`acc.${slug}.metaDesc`),
     image: accessory.variants.flatMap((v) => v.images.map((i) => `${SITE}${i}`)),
     brand: { "@type": "Brand", name: "Elite Car Mats" },
-    material: "EVA",
+    material: accessory.material,
     offers: accessory.variants.map((v) => ({
       "@type": "Offer",
       sku: accessorySku(slug, v.id),

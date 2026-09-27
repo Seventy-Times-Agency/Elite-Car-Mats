@@ -6,14 +6,13 @@ import { rateLimit, getClientIp } from "@/lib/security/rate-limit";
 import { isStripeConfigured, getStripe } from "@/lib/payments/stripe";
 import { createCheckoutSession } from "@/lib/payments/stripe-checkout";
 import { signOrderToken, verifyOrderToken } from "@/lib/security/order-token";
-import { calculateItemUnitPrice } from "@/lib/pricing";
+import { lineFromDb, lineUnitPrice } from "@/lib/orders/line-items";
 import { loadPriceOverrides } from "@/lib/pricing-overrides";
 import { buildDbProfileResolver } from "@/lib/catalog-merge";
 import { getDictionaryFor } from "@/i18n/getDictionary";
 import { DEFAULT_LOCALE } from "@/i18n/config";
 import { makeT } from "@/i18n/dictionary";
 import { localizeColor } from "@/i18n/labels";
-import type { MatSetType } from "@/types";
 
 const schema = z.object({
   orderId: z.string().min(1),
@@ -27,13 +26,6 @@ const LOCALE_MAP: Record<string, Stripe.Checkout.SessionCreateParams.Locale> = {
   ru: "ru",
   en: "en",
   uk: "auto", // Stripe Checkout has no `uk` locale yet
-};
-
-const matSetFromEnum: Record<string, MatSetType> = {
-  FRONT: "front",
-  FULL: "full",
-  CARGO: "cargo",
-  FULL_CARGO: "full-cargo",
 };
 
 /** Best-effort expiry of a Checkout session that must not stay payable. */
@@ -154,21 +146,8 @@ export async function POST(request: Request) {
 
   try {
   const items = order.items.map((i) => {
-    const matSet = matSetFromEnum[i.product.matSet];
-    if (!matSet) throw new Error(`Unknown matSet enum: ${i.product.matSet}`);
-    const unitPriceUsd = calculateItemUnitPrice(
-      {
-        matSet,
-        modelId: i.product.modelId,
-        profile: profileOf(i.product.modelId),
-        edgeColor: { id: i.edgeColor.id },
-        badge: i.badge ? { id: i.badge.id } : null,
-        badgeCount: i.badgeCount ?? 1,
-        heelPad: i.heelPad ?? false,
-        thirdRow: i.thirdRow ?? false,
-      },
-      overrides,
-    );
+    const line = lineFromDb(i, profileOf);
+    const unitPriceUsd = lineUnitPrice(line, overrides);
     const brandName = i.product.model.brand.name;
     const modelName = i.product.model.name;
     const descBits = [

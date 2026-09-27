@@ -15,6 +15,11 @@ import { createHash } from "node:crypto";
  *   NEXT_PUBLIC_META_PIXEL_ID — the dataset (pixel) id
  *   META_CAPI_TOKEN           — Events Manager → Settings → Generate
  *                               access token
+ *
+ * Optional: META_CAPI_TEST_EVENT_CODE — the code from Events Manager →
+ * "Test events". When set, every event is tagged with it and lands in
+ * the test-events view instead of the real data set. Meant for the
+ * preview sandbox only; never set it in Production.
  */
 
 const GRAPH_VERSION = "v21.0";
@@ -72,7 +77,9 @@ export async function sendMetaPurchase(
   if (params.zip) userData.zp = [sha256(params.zip)];
 
   const site = process.env.NEXT_PUBLIC_SITE_URL ?? "https://elitecarmats.us";
+  const testEventCode = process.env.META_CAPI_TEST_EVENT_CODE?.trim();
   const body = {
+    ...(testEventCode ? { test_event_code: testEventCode } : {}),
     // In the POST body, not the query string — URLs leak into proxy logs,
     // APM traces and thrown fetch errors far more readily than bodies.
     access_token: token,

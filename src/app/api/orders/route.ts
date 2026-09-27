@@ -1,14 +1,15 @@
 import { randomBytes } from "node:crypto";
 import { NextResponse, after } from "next/server";
 import { prisma } from "@/lib/db/prisma";
-import { ensureSchema } from "@/lib/db/setup";
 import { ensureCatalogSeed, resetCatalogSeedCache } from "@/lib/db/seed";
 import { createOrderSchema } from "@/lib/validations/order";
 import {
-  calculateItemUnitPrice,
-  calculateOrderTotal,
-  clampBadgeCount,
-} from "@/lib/pricing";
+  badgePlates,
+  lineFromRequest,
+  lineUnitPrice,
+  linesTotal,
+  storedBadgeCount,
+} from "@/lib/orders/line-items";
 import { loadPriceOverrides } from "@/lib/pricing-overrides";
 import { getAddonAvailability } from "@/lib/availability";
 import { rateLimit, getClientIp } from "@/lib/security/rate-limit";
@@ -68,13 +69,7 @@ async function buildResolveNames() {
       throw new Error(`Unknown badge id: ${item.badgeId}`);
     }
     const badgeQty = badgeRow
-      ? clampBadgeCount({
-          matSet: item.matSet,
-          modelId: item.modelId,
-          profile,
-          badge: { id: badgeRow.id },
-          badgeCount: item.badgeCount,
-        })
+      ? badgePlates(lineFromRequest(item, { profile }))
       : 0;
     return {
       colorName: color.name,
@@ -88,15 +83,12 @@ async function buildResolveNames() {
 }
 
 export async function POST(request: Request) {
-  // First-deploy safety net. After SCHEMA_BOOTSTRAPPED=1 is set in the
-  // environment we skip the per-cold-start schema/seed checks (they're
-  // already cached one-shot per process, but the very first request on
-  // a fresh lambda still pays them — env flag lets ops short-circuit
-  // entirely once the admin has run /api/admin/migrate once).
-  if (process.env.SCHEMA_BOOTSTRAPPED !== "1") {
-    await ensureSchema();
-    await ensureCatalogSeed();
-  }
+  // No schema bootstrap or catalog mirror here: both used to run on every
+  // cold start of this route (dozens of DDL statements under an advisory
+  // lock plus a createMany over ~4000 Product rows) and cost Neon compute
+  // on the one path that must stay cheap. Schema comes from the admin
+  // login / POST /api/admin/migrate; a missing Product row is handled by
+  // the P2003 retry below, which re-mirrors the catalog exactly once.
 
   const ip = getClientIp(request);
   const limit = await rateLimit(`orders:${ip}`);
@@ -280,18 +272,8 @@ export async function POST(request: Request) {
   // renders in the language the customer actually shopped in.
   const customerLocale = await getLocaleFromCookie();
 
-  const subtotal = calculateOrderTotal(
-    itemsResolved.map(({ item: i, modelId, profile }) => ({
-      matSet: i.matSet,
-      modelId: modelId ?? i.modelId,
-      profile: profile ?? undefined,
-      edgeColor: { id: i.edgeColorId },
-      badge: i.badgeId ? { id: i.badgeId } : null,
-      badgeCount: i.badgeCount ?? 1,
-      heelPad: i.heelPad ?? false,
-      thirdRow: i.thirdRow ?? false,
-      quantity: i.quantity,
-    })),
+  const subtotal = linesTotal(
+    itemsResolved.map((r) => lineFromRequest(r.item, r)),
     overrides,
   );
 
@@ -336,38 +318,22 @@ export async function POST(request: Request) {
           locale: customerLocale,
           total,
           items: {
-            create: itemsResolved.map(({ item: i, modelId, productId, profile }) => ({
-              productId: productId!,
-              colorId: i.colorId,
-              edgeColorId: i.edgeColorId,
-              badgeId: i.badgeId || null,
-              badgeCount: i.badgeId
-                ? clampBadgeCount({
-                    matSet: i.matSet,
-                    modelId: modelId ?? i.modelId,
-                    profile: profile ?? undefined,
-                    badge: { id: i.badgeId },
-                    badgeCount: i.badgeCount,
-                  })
-                : 1,
-              heelPad: i.heelPad ?? false,
-              thirdRow: i.thirdRow ?? false,
-              year: i.year ?? null,
-              quantity: i.quantity,
-              price: calculateItemUnitPrice(
-                {
-                  matSet: i.matSet,
-                  modelId: modelId ?? i.modelId,
-                  profile: profile ?? undefined,
-                  edgeColor: { id: i.edgeColorId },
-                  badge: i.badgeId ? { id: i.badgeId } : null,
-                  badgeCount: i.badgeCount ?? 1,
-                  heelPad: i.heelPad ?? false,
-                  thirdRow: i.thirdRow ?? false,
-                },
-                overrides,
-              ),
-            })),
+            create: itemsResolved.map((r) => {
+              const i = r.item;
+              const line = lineFromRequest(i, r);
+              return {
+                productId: r.productId!,
+                colorId: i.colorId,
+                edgeColorId: i.edgeColorId,
+                badgeId: line.badgeId,
+                badgeCount: storedBadgeCount(line),
+                heelPad: line.heelPad,
+                thirdRow: line.thirdRow,
+                year: i.year ?? null,
+                quantity: i.quantity,
+                price: lineUnitPrice(line, overrides),
+              };
+            }),
           },
         },
         select: {
@@ -468,17 +434,8 @@ export async function POST(request: Request) {
         thirdRow: i.thirdRow ?? false,
         year: i.year ?? null,
         quantity: i.quantity,
-        unitPrice: calculateItemUnitPrice(
-          {
-            matSet: i.matSet,
-            modelId: modelId ?? i.modelId,
-            profile: profile ?? undefined,
-            edgeColor: { id: i.edgeColorId },
-            badge: i.badgeId ? { id: i.badgeId } : null,
-            badgeCount: i.badgeCount ?? 1,
-            heelPad: i.heelPad ?? false,
-            thirdRow: i.thirdRow ?? false,
-          },
+        unitPrice: lineUnitPrice(
+          lineFromRequest(i, { modelId, profile }),
           overrides,
         ),
       };

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db/prisma";
 import { requireAdmin, checkAdminCsrf } from "@/lib/security/auth";
+import { getStripe } from "@/lib/payments/stripe";
 import { sendShippedEmail } from "@/lib/email";
 import { verifyOrderToken, signOrderToken } from "@/lib/security/order-token";
 import {
@@ -128,6 +129,7 @@ export async function PATCH(
       locale: true,
       carrier: true,
       promoCode: true,
+      stripeSessionId: true,
     },
   });
   if (!existing) {
@@ -182,6 +184,30 @@ export async function PATCH(
       console.error(
         `[admin:orders] promo refund failed for ${updated.orderNumber}:`,
         err,
+      );
+    }
+  }
+
+  // Cancelling a PENDING order must also close its Checkout session:
+  // otherwise the customer's still-open Stripe tab can pay for an order
+  // the admin has already written off. Expiring a session that is not
+  // `open` throws — swallow it, the outcome (no payment possible) holds.
+  // The resulting `checkout.session.expired` webhook is a no-op: the
+  // order is no longer PENDING.
+  if (
+    status === "CANCELLED" &&
+    existing.status === "PENDING" &&
+    existing.stripeSessionId
+  ) {
+    try {
+      const stripe = await getStripe();
+      if (stripe) {
+        await stripe.checkout.sessions.expire(existing.stripeSessionId);
+      }
+    } catch (err) {
+      console.warn(
+        `[admin:orders] could not expire Stripe session for ${updated.orderNumber}:`,
+        err instanceof Error ? err.message : err,
       );
     }
   }

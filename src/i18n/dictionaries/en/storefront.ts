@@ -257,6 +257,7 @@ export const storefront: Dict = {
   "co.promoPh": "Promo code",
   "co.promoApply": "Apply",
   "co.promoRemove": "Remove",
+  "co.promoErr.invalid": "This promo code can't be applied",
   "co.promoErr.not_found": "Promo code not found",
   "co.promoErr.inactive": "Promo code is disabled",
   "co.promoErr.expired": "Promo code has expired",

@@ -17,6 +17,7 @@ import { OrganizationJsonLd } from "@/components/seo/ProductJsonLd";
 import { I18nProvider } from "@/i18n/I18nProvider";
 import { MetaPixel } from "@/components/analytics/MetaPixel";
 import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
+import { FunnelTracker } from "@/components/analytics/FunnelTracker";
 import { getDictionary } from "@/i18n/getDictionary";
 import { LOCALE_HTML_LANG, LOCALE_OG } from "@/i18n/config";
 import { makeT } from "@/i18n/dictionary";
@@ -185,6 +186,11 @@ export default async function RootLayout({
             Worth having before the product-page video lands — it is the
             measurement that tells us whether the video hurt LCP. */}
         <SpeedInsights />
+        {/* Own-side conversion funnel for /admin. Anonymous counters only —
+            no cookie, no identifier, nothing personal — so it sits outside
+            the consent gate for the same reason Analytics does. Inert
+            until Upstash is configured; see lib/analytics/funnel.ts. */}
+        <FunnelTracker />
         {/* Meta Pixel — inert until NEXT_PUBLIC_META_PIXEL_ID is set. */}
         <MetaPixel />
         <GoogleAnalytics />

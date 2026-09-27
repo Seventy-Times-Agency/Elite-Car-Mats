@@ -7,6 +7,7 @@ import { evaColors, edgeColors, badges } from "@/data/catalog";
 import { matPhotoSrc } from "@/data/catalog/mat-photos";
 import { MAT_SETS_BY_PROFILE } from "@/data/catalog/mat-sets";
 import { useCart } from "@/context/CartContext";
+import { trackFunnel } from "@/lib/analytics/funnel-client";
 import { MatPreview } from "@/components/product/MatPreview";
 import { MatColorSwatch } from "@/components/product/MatColorSwatch";
 import type { Brand, CarModel, MatSetType } from "@/types";
@@ -236,6 +237,7 @@ export default function ProductClient({
       configNote: configNote.trim() || undefined,
       quantity: 1,
     });
+    trackFunnel("add_to_cart");
     trackEvent("AddToCart", {
       content_type: "product",
       // Feed-format sku (ECM-<brand>-<model>-<set>) — see ViewContent note.
@@ -636,7 +638,15 @@ export default function ProductClient({
                     return (
                       <button
                         key={s.type}
-                        onClick={() => setSet(s.type)}
+                        onClick={() => {
+                          setSet(s.type);
+                          // Funnel: "configured" = touched the configurator.
+                          // A set and both colours are preselected, so only
+                          // counting set picks missed everyone who kept the
+                          // default set and changed a colour. Fired from the
+                          // colour pickers too; deduped per session client-side.
+                          trackFunnel("configured");
+                        }}
                         className={`px-3 py-2.5 text-left rounded-lg transition-all duration-200 ${
                           set === s.type
                             ? "border-2 border-gold bg-gold-glow"
@@ -688,6 +698,7 @@ export default function ProductClient({
                           localizedName={localizeColor(t, c.name)}
                           onClick={() => {
                             setColor(c);
+                            trackFunnel("configured");
                             setSlide(0);
                           }}
                           showLabel={false}
@@ -713,6 +724,7 @@ export default function ProductClient({
                           localizedName={localizeColor(t, c.name)}
                           onClick={() => {
                             setEdge(c);
+                            trackFunnel("configured");
                             setSlide(0);
                           }}
                           size="sm"

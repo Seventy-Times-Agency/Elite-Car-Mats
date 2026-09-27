@@ -13,6 +13,7 @@ interface NavItem {
 const NAV: NavItem[] = [
   { href: "/admin", key: "admin.navDashboard", icon: "◆" },
   { href: "/admin/orders", key: "admin.navOrders", icon: "▸" },
+  { href: "/admin/funnel", key: "admin.navFunnel", icon: "▽" },
   { href: "/admin/blog", key: "admin.navBlog", icon: "✦" },
   { href: "/admin/catalog", key: "admin.navCatalog", icon: "▤" },
   { href: "/admin/promos", key: "admin.navPromos", icon: "%" },

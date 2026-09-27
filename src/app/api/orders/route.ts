@@ -1,7 +1,6 @@
 import { randomBytes } from "node:crypto";
 import { NextResponse, after } from "next/server";
 import { prisma } from "@/lib/db/prisma";
-import { ensureSchema } from "@/lib/db/setup";
 import { ensureCatalogSeed, resetCatalogSeedCache } from "@/lib/db/seed";
 import { createOrderSchema } from "@/lib/validations/order";
 import {
@@ -88,15 +87,12 @@ async function buildResolveNames() {
 }
 
 export async function POST(request: Request) {
-  // First-deploy safety net. After SCHEMA_BOOTSTRAPPED=1 is set in the
-  // environment we skip the per-cold-start schema/seed checks (they're
-  // already cached one-shot per process, but the very first request on
-  // a fresh lambda still pays them — env flag lets ops short-circuit
-  // entirely once the admin has run /api/admin/migrate once).
-  if (process.env.SCHEMA_BOOTSTRAPPED !== "1") {
-    await ensureSchema();
-    await ensureCatalogSeed();
-  }
+  // No schema bootstrap or catalog mirror here: both used to run on every
+  // cold start of this route (dozens of DDL statements under an advisory
+  // lock plus a createMany over ~4000 Product rows) and cost Neon compute
+  // on the one path that must stay cheap. Schema comes from the admin
+  // login / POST /api/admin/migrate; a missing Product row is handled by
+  // the P2003 retry below, which re-mirrors the catalog exactly once.
 
   const ip = getClientIp(request);
   const limit = await rateLimit(`orders:${ip}`);

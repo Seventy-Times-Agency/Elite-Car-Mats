@@ -27,7 +27,11 @@ const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://elitecarmats.us";
  * Carpet Kits & Floor Mats". Numeric ID is more durable than the
  * string path — Google can rename categories without breaking us.
  */
-const GOOGLE_PRODUCT_CATEGORY = "8203";
+// Verified against taxonomy-with-ids.en-US.txt on 2026-09-27: 8203 was
+// "Ski & Snowboard Goggle Accessories" — every item in the feed sat in
+// the wrong vertical. 8232 = "Vehicles & Parts > Vehicle Parts &
+// Accessories > Motor Vehicle Parts > Motor Vehicle Carpet & Upholstery".
+const GOOGLE_PRODUCT_CATEGORY = "8232";
 
 function escapeXml(s: string): string {
   return s

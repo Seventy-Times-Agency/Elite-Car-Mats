@@ -101,6 +101,16 @@ export async function createCheckoutSession(
       orderId: input.orderId,
       orderNumber: input.orderNumber,
     },
+    // Same tags on the PaymentIntent: `payment_intent.payment_failed`
+    // delivers the intent, not the session, and the order row only learns
+    // the intent id on success — without this a declined card can't be
+    // matched to an order.
+    payment_intent_data: {
+      metadata: {
+        orderId: input.orderId,
+        orderNumber: input.orderNumber,
+      },
+    },
     locale: input.locale ?? "auto",
     ...(discounts ? { discounts } : {}),
     // Stripe Tax is opt-in via env: it requires a registration (e.g. the

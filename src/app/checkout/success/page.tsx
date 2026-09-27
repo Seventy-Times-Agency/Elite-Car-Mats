@@ -7,6 +7,7 @@ import { useT } from "@/i18n/I18nProvider";
 import { trackEvent } from "@/lib/analytics";
 import { useCart } from "@/context/CartContext";
 import { clearPendingOrder } from "@/lib/checkout-session";
+import { accessorySku } from "@/data/accessories";
 
 function SuccessBody() {
   const t = useT();
@@ -40,22 +41,35 @@ function SuccessBody() {
         );
         if (!res.ok || cancelled) return;
         const data = await res.json();
-        const items: { productId?: string; quantity?: number; price?: number }[] =
-          Array.isArray(data.items) ? data.items : [];
-        const withIds = items.filter((i) => typeof i.productId === "string");
+        const items: {
+          productId?: string | null;
+          kind?: string;
+          accessorySlug?: string | null;
+          accessoryVariant?: string | null;
+          quantity?: number;
+          price?: number;
+        }[] = Array.isArray(data.items) ? data.items : [];
+        // Feed-format skus so catalog campaigns can match the sale — the
+        // same ids the server-side CAPI Purchase sends (webhook).
+        const withIds = items.flatMap((i) => {
+          const id =
+            i.kind === "accessory" && i.accessorySlug && i.accessoryVariant
+              ? accessorySku(i.accessorySlug, i.accessoryVariant)
+              : typeof i.productId === "string"
+                ? `ECM-${i.productId}`
+                : null;
+          return id
+            ? [{ id, quantity: i.quantity ?? 1, item_price: Number(i.price ?? 0) }]
+            : [];
+        });
         trackEvent(
           "Purchase",
           {
             value: Number(data.total ?? 0),
             currency: "USD",
             content_type: "product",
-            // Feed-format skus so catalog campaigns can match the sale.
-            content_ids: withIds.map((i) => `ECM-${i.productId}`),
-            contents: withIds.map((i) => ({
-              id: `ECM-${i.productId}`,
-              quantity: i.quantity ?? 1,
-              item_price: Number(i.price ?? 0),
-            })),
+            content_ids: withIds.map((i) => i.id),
+            contents: withIds,
           },
           `purchase-${orderNumber}`,
         );

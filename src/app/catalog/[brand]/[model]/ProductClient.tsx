@@ -38,6 +38,15 @@ import {
 } from "@/i18n/labels";
 import { usePriceOverrides } from "@/context/PriceOverridesContext";
 
+// Product rich results need an image. The default black set plus two
+// gallery shots; absolute so crawlers don't have to resolve them.
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://elitecarmats.us";
+const JSONLD_IMAGES = [
+  `${SITE_URL}/mats/black-black.jpg`,
+  `${SITE_URL}/mats/gallery/g01-hero-colors.jpg`,
+  `${SITE_URL}/mats/gallery/g02-install-front.jpg`,
+];
+
 function StepHeader({
   n,
   label,
@@ -264,6 +273,7 @@ export default function ProductClient({
         name={t("prod.jsonLdName", { brand: brand.name, model: model.name })}
         description={t("prod.jsonLdDesc", { brand: brand.name, model: model.name })}
         url={`/catalog/${brand.slug}/${model.slug}`}
+        image={JSONLD_IMAGES}
       />
       <BreadcrumbJsonLd
         items={[
@@ -355,6 +365,7 @@ export default function ProductClient({
                             edge: localizedEdge,
                           })}
                           fill
+                          priority
                           sizes="(max-width: 1024px) 100vw, 50vw"
                           className="object-cover"
                         />

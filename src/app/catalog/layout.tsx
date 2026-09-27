@@ -11,6 +11,9 @@ export async function generateMetadata(): Promise<Metadata> {
     openGraph: {
       title: t("cat.ogTitle"),
       description: t("cat.ogDesc"),
+      // Own openGraph object replaces the root one entirely (shallow
+      // merge), so the default share card has to be restated here.
+      images: ["/opengraph-image"],
     },
   };
 }

@@ -29,6 +29,8 @@ import { trackEvent } from "@/lib/analytics";
 import { ProductFaq } from "@/components/product/ProductFaq";
 import { WishlistButton } from "@/components/product/WishlistButton";
 import { OrganizerCrossSell } from "@/components/product/OrganizerCrossSell";
+import { ModelGuideSection } from "@/components/product/ModelGuide";
+import type { ModelGuide } from "@/data/model-guides";
 import { useT } from "@/i18n/I18nProvider";
 import {
   localizeBody,
@@ -80,11 +82,14 @@ export default function ProductClient({
   brand,
   model,
   addonAvailability = { badges: true, heelPad: true, organizer: true },
+  guide = null,
 }: {
   brand: Brand | null;
   model: CarModel | null;
   /** Operator stock switches — out-of-stock add-ons are not offered. */
   addonAvailability?: { badges: boolean; heelPad: boolean; organizer?: boolean };
+  /** Hand-written model notes (English, best-sellers only). */
+  guide?: ModelGuide | null;
 }) {
   const searchParams = useSearchParams();
   const t = useT();
@@ -1005,6 +1010,10 @@ export default function ProductClient({
           </div>
         </div>
       </div>
+
+      {guide && (
+        <ModelGuideSection brand={brand.name} model={model.name} guide={guide} />
+      )}
 
       <ProductFaq brand={brand.name} model={model.name} />
 

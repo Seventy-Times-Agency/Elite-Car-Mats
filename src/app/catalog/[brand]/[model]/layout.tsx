@@ -6,6 +6,7 @@ import { getVehicleProfile, getDefaultMatSet } from "@/lib/vehicle-profile";
 import { getDictionary } from "@/i18n/getDictionary";
 import { makeT } from "@/i18n/dictionary";
 import { localeAlternates } from "@/lib/seo/alternates";
+import { getModelGuide } from "@/data/model-guides";
 
 const MODEL_OG_IMAGE = "/mats/black-black.jpg";
 
@@ -20,7 +21,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const model = models.find(
     (m) => m.slug === modelSlug && m.brandId === brand?.id,
   );
-  const { dict, fallback } = await getDictionary();
+  const { locale, dict, fallback } = await getDictionary();
   const t = makeT(dict, fallback);
   if (!brand || !model) return { title: t("prod.metaNotFound") };
 
@@ -37,9 +38,11 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
     price,
   };
 
+  const guide = locale === "en" ? getModelGuide(brand.slug, model.slug) : null;
+
   return {
     title: t("prod.metaTitle", vars),
-    description: t("prod.metaDesc", vars),
+    description: guide?.metaDescription ?? t("prod.metaDesc", vars),
     openGraph: {
       title: t("prod.ogTitle", vars),
       description: t("prod.ogDesc", vars),

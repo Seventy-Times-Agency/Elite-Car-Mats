@@ -10,8 +10,8 @@ import {
 } from "@/lib/checkout-session";
 import Link from "next/link";
 import {
-  calculateItemUnitPrice,
-  calculateOrderTotal,
+  cartItemUnitPrice,
+  cartTotal,
   formatPrice,
 } from "@/lib/pricing";
 import { useT, useLocale } from "@/i18n/I18nProvider";
@@ -19,6 +19,9 @@ import { localizeMatSet, localizeColor } from "@/i18n/labels";
 import { TrustBadges } from "@/components/common/TrustBadges";
 import { trackEvent } from "@/lib/analytics";
 import { usePriceOverrides } from "@/context/PriceOverridesContext";
+import { isAccessoryItem, type MatCartItem } from "@/types";
+import { accessoryView } from "@/lib/accessories/display";
+import { accessorySku } from "@/data/accessories";
 
 // USPS-compatible postal abbreviations for the 50 states + DC. Used to
 // constrain the shipping form to a real value (and let the browser
@@ -148,7 +151,7 @@ export function CheckoutClient({ paymentEnabled }: { paymentEnabled: boolean }) 
   const inputError =
     "border-error/60 focus:border-error/80 focus:shadow-[0_0_0_1px_rgba(239,68,68,0.4)]";
 
-  const subtotal = calculateOrderTotal(items, priceOverrides);
+  const subtotal = cartTotal(items, priceOverrides);
   const discount = promoApplied?.amount ?? 0;
   const total = Math.max(0, subtotal - discount);
 
@@ -214,11 +217,17 @@ export function CheckoutClient({ paymentEnabled }: { paymentEnabled: boolean }) 
       num_items: items.length,
       content_type: "product",
       // Feed-format skus (ECM-<brand>-<model>-<set>) for catalog matching.
-      content_ids: items.map((i) => `ECM-${i.modelId}-${i.matSet}`),
+      content_ids: items.map((i) =>
+        isAccessoryItem(i)
+          ? accessorySku(i.accessorySlug, i.variantId)
+          : `ECM-${i.modelId}-${i.matSet}`,
+      ),
       contents: items.map((i) => ({
-        id: `ECM-${i.modelId}-${i.matSet}`,
+        id: isAccessoryItem(i)
+          ? accessorySku(i.accessorySlug, i.variantId)
+          : `ECM-${i.modelId}-${i.matSet}`,
         quantity: i.quantity,
-        item_price: calculateItemUnitPrice(i, priceOverrides),
+        item_price: cartItemUnitPrice(i, priceOverrides),
       })),
     });
     setSubmitting(true);
@@ -240,7 +249,10 @@ export function CheckoutClient({ paymentEnabled }: { paymentEnabled: boolean }) 
           comment: [
             form.comment.trim(),
             ...items
-              .filter((i) => i.configNote?.trim())
+              .filter(
+                (i): i is MatCartItem =>
+                  !isAccessoryItem(i) && !!i.configNote?.trim(),
+              )
               .map(
                 (i) =>
                   `${i.brandName} ${i.modelName} ${i.year}: ${i.configNote!.trim()}`,
@@ -250,7 +262,15 @@ export function CheckoutClient({ paymentEnabled }: { paymentEnabled: boolean }) 
             .join("\n")
             .slice(0, 1000),
         },
-        items: items.map((i) => ({
+        items: items.map((i) =>
+          isAccessoryItem(i)
+            ? {
+                kind: "accessory" as const,
+                accessorySlug: i.accessorySlug,
+                variantId: i.variantId,
+                quantity: i.quantity,
+              }
+            : {
           modelId: i.modelId,
           brandName: i.brandName,
           modelName: i.modelName,
@@ -265,7 +285,8 @@ export function CheckoutClient({ paymentEnabled }: { paymentEnabled: boolean }) 
           heelPad: i.heelPad ?? false,
           thirdRow: i.thirdRow ?? false,
           quantity: i.quantity,
-        })),
+        },
+        ),
         promoCode: promoApplied?.code ?? null,
       };
       const fingerprint = JSON.stringify(payload);
@@ -608,7 +629,35 @@ export function CheckoutClient({ paymentEnabled }: { paymentEnabled: boolean }) 
               <span className="section-label text-[10px]">{t("co.yourOrder")}</span>
               <div className="mt-4 space-y-3">
                 {items.map((i) => {
-                  const unit = calculateItemUnitPrice(i, priceOverrides);
+                  const unit = cartItemUnitPrice(i, priceOverrides);
+                  if (isAccessoryItem(i)) {
+                    const acc = accessoryView(t, i.accessorySlug, i.variantId);
+                    return (
+                      <div
+                        key={i.id}
+                        className="text-sm border-b border-border/30 pb-3 flex gap-3"
+                      >
+                        <div
+                          className="w-10 h-10 rounded-md border border-border/60 shrink-0 bg-cover bg-center"
+                          style={{ backgroundImage: `url(${acc.image})` }}
+                          aria-hidden
+                        />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex justify-between gap-2">
+                            <div className="text-text font-medium text-[13px] truncate">
+                              {acc.title}
+                            </div>
+                            <div className="text-gold text-sm shrink-0">
+                              {formatPrice(unit * i.quantity)}
+                            </div>
+                          </div>
+                          <div className="text-text-faint text-[11px] mt-1">
+                            {acc.variantLabel} · ×{i.quantity}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  }
                   return (
                     <div
                       key={i.id}

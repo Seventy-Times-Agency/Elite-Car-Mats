@@ -1,4 +1,5 @@
-import { MatSetType } from "@/types";
+import { MatSetType, type CartItem, isAccessoryItem } from "@/types";
+import { findAccessory } from "@/data/accessories";
 import {
   MAT_SETS_BY_PROFILE,
   getMatSetOption,
@@ -100,6 +101,36 @@ export function getHeelPadPrice(overrides?: PriceOverrideMap): number {
 export function getThirdRowPrice(overrides?: PriceOverrideMap): number {
   const ov = overrides?.get("addon:thirdRow");
   return typeof ov === "number" && Number.isFinite(ov) ? ov : THIRD_ROW_PRICE;
+}
+
+/**
+ * Accessory price: admin override under the pseudo-profile `accessory`
+ * (row `accessory:<slug>`), else the catalog default. Unknown slug → 0,
+ * which the order API rejects before it can be billed.
+ */
+export function getAccessoryPrice(
+  slug: string,
+  overrides?: PriceOverrideMap,
+): number {
+  const ov = overrides?.get(`accessory:${slug}`);
+  if (typeof ov === "number" && Number.isFinite(ov)) return ov;
+  return findAccessory(slug)?.price ?? 0;
+}
+
+/** Unit price of any cart line — mat set or accessory. */
+export function cartItemUnitPrice(
+  item: CartItem,
+  overrides?: PriceOverrideMap,
+): number {
+  if (isAccessoryItem(item)) return getAccessoryPrice(item.accessorySlug, overrides);
+  return calculateItemUnitPrice(item, overrides);
+}
+
+export function cartTotal(items: CartItem[], overrides?: PriceOverrideMap): number {
+  return items.reduce(
+    (sum, item) => sum + cartItemUnitPrice(item, overrides) * item.quantity,
+    0,
+  );
 }
 
 export interface PriceableItem {

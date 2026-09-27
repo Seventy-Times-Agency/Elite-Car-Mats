@@ -1,8 +1,11 @@
 import { z } from "zod";
+import { ACCESSORY_SLUGS } from "@/data/accessories";
 
 const matSetEnum = z.enum(["front", "full", "cargo", "full-cargo"]);
 
 export const orderItemSchema = z.object({
+  // Absent on clients built before accessories existed — means a mat set.
+  kind: z.literal("mat").optional(),
   modelId: z.string().min(1),
   brandName: z.string().min(1),
   modelName: z.string().min(1),
@@ -20,6 +23,16 @@ export const orderItemSchema = z.object({
   thirdRow: z.boolean().optional().default(false),
   quantity: z.number().int().min(1).max(99),
 });
+
+/** Accessory line (trunk organizer …). Catalog-validated by the API. */
+export const accessoryItemSchema = z.object({
+  kind: z.literal("accessory"),
+  accessorySlug: z.enum(ACCESSORY_SLUGS),
+  variantId: z.string().min(1).max(40),
+  quantity: z.number().int().min(1).max(99),
+});
+
+export const anyOrderItemSchema = z.union([orderItemSchema, accessoryItemSchema]);
 
 export const createOrderSchema = z.object({
   customer: z.object({
@@ -50,7 +63,7 @@ export const createOrderSchema = z.object({
     comment: z.string().trim().max(1000).optional().default(""),
   }),
   items: z
-    .array(orderItemSchema)
+    .array(anyOrderItemSchema)
     .min(1, "Корзина пуста")
     .max(50, "Слишком много позиций в заказе"),
   promoCode: z.string().trim().max(64).optional().nullable(),
@@ -58,3 +71,9 @@ export const createOrderSchema = z.object({
 
 export type CreateOrderInput = z.infer<typeof createOrderSchema>;
 export type OrderItemInput = z.infer<typeof orderItemSchema>;
+export type AccessoryItemInput = z.infer<typeof accessoryItemSchema>;
+export type AnyOrderItemInput = z.infer<typeof anyOrderItemSchema>;
+
+export function isAccessoryInput(i: AnyOrderItemInput): i is AccessoryItemInput {
+  return i.kind === "accessory";
+}

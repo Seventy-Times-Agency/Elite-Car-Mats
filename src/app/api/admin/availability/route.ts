@@ -13,6 +13,7 @@ export const dynamic = "force-dynamic";
 const patchSchema = z.object({
   badges: z.boolean().optional(),
   heelPad: z.boolean().optional(),
+  organizer: z.boolean().optional(),
 });
 
 export async function GET() {

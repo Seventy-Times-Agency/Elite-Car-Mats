@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { ACCESSORY_SLUGS } from "@/data/accessories";
 
 const profileEnum = z.enum([
   "standard",
@@ -30,6 +31,13 @@ export const priceOverrideUpsertSchema = z.union([
   z.object({
     profile: z.literal("addon"),
     matSet: z.enum(["badge", "heelPad", "thirdRow"]),
+    price: priceField,
+  }),
+  // Accessories (trunk organizer …): pseudo-profile `accessory`, the
+  // "matSet" column carries the catalog slug — see getAccessoryPrice.
+  z.object({
+    profile: z.literal("accessory"),
+    matSet: z.enum(ACCESSORY_SLUGS),
     price: priceField,
   }),
 ]);

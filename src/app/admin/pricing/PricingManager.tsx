@@ -29,11 +29,14 @@ interface AddonRows {
   badge: AddonPrice;
   heelPad: AddonPrice;
   thirdRow: AddonPrice;
+  /** Trunk organizer accessory — override row `accessory:trunk-organizer`. */
+  organizer: AddonPrice;
 }
 
 export interface AddonAvailabilityProps {
   badges: boolean;
   heelPad: boolean;
+  organizer: boolean;
 }
 
 export function PricingManager({
@@ -49,7 +52,10 @@ export function PricingManager({
   const router = useRouter();
   const [busy, startBusy] = useTransition();
 
-  const toggleAvailability = (key: "badges" | "heelPad", value: boolean) => {
+  const toggleAvailability = (
+    key: "badges" | "heelPad" | "organizer",
+    value: boolean,
+  ) => {
     startBusy(async () => {
       await fetch("/api/admin/availability", {
         method: "POST",
@@ -287,9 +293,18 @@ export function PricingManager({
                     availKey: null,
                     available: null,
                   },
+                  {
+                    profile: "accessory" as const,
+                    matSet: "trunk-organizer",
+                    label: t("admin.accessoryOrganizer"),
+                    price: addons.organizer,
+                    availKey: "organizer" as const,
+                    available: availability.organizer,
+                  },
                 ]
               ).map((row) => {
-                const key = `addon:${row.matSet}`;
+                const profile = ("profile" in row && row.profile) || "addon";
+                const key = `${profile}:${row.matSet}`;
                 const live = row.price.override ?? row.price.defaultPrice;
                 const isEditing = editingKey === key;
                 return (
@@ -330,7 +345,7 @@ export function PricingManager({
                         <span className="inline-flex gap-1">
                           <button
                             type="button"
-                            onClick={() => save("addon", row.matSet)}
+                            onClick={() => save(profile, row.matSet)}
                             disabled={busy}
                             className="text-gold text-[11px] font-semibold uppercase tracking-wider px-2 py-1 hover:text-gold-light disabled:opacity-50"
                           >
@@ -349,7 +364,7 @@ export function PricingManager({
                         <span className="inline-flex items-center gap-1">
                           <button
                             type="button"
-                            onClick={() => startEdit("addon", row.matSet, live)}
+                            onClick={() => startEdit(profile, row.matSet, live)}
                             disabled={busy}
                             className="text-text-dim text-[11px] uppercase tracking-wider px-2 py-1 hover:text-gold"
                           >
@@ -358,7 +373,7 @@ export function PricingManager({
                           {row.price.override !== null && (
                             <button
                               type="button"
-                              onClick={() => clearOverride("addon", row.matSet)}
+                              onClick={() => clearOverride(profile, row.matSet)}
                               disabled={busy}
                               className="text-text-faint text-[11px] uppercase tracking-wider px-2 py-1 hover:text-error"
                             >

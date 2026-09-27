@@ -170,8 +170,13 @@ model OrderItem {
   id          String     @id @default(cuid())
   orderId     String
   order       Order      @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  productId   String
-  product     Product    @relation(fields: [productId], references: [id])
+  // Line kind: "mat" (a Product row, the original model) or "accessory"
+  // (catalog slug + variant from src/data/accessories.ts, no Product).
+  kind        String     @default("mat")
+  productId   String?
+  product     Product?   @relation(fields: [productId], references: [id])
+  accessorySlug    String?
+  accessoryVariant String?
   colorId     String
   color       EvaColor   @relation(fields: [colorId], references: [id])
   edgeColorId String

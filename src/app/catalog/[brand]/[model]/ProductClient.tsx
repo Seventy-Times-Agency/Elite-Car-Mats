@@ -28,6 +28,7 @@ import { ProductJsonLd, BreadcrumbJsonLd } from "@/components/seo/ProductJsonLd"
 import { trackEvent } from "@/lib/analytics";
 import { ProductFaq } from "@/components/product/ProductFaq";
 import { WishlistButton } from "@/components/product/WishlistButton";
+import { OrganizerCrossSell } from "@/components/product/OrganizerCrossSell";
 import { useT } from "@/i18n/I18nProvider";
 import {
   localizeBody,
@@ -69,12 +70,12 @@ function StepHeader({
 export default function ProductClient({
   brand,
   model,
-  addonAvailability = { badges: true, heelPad: true },
+  addonAvailability = { badges: true, heelPad: true, organizer: true },
 }: {
   brand: Brand | null;
   model: CarModel | null;
   /** Operator stock switches — out-of-stock add-ons are not offered. */
-  addonAvailability?: { badges: boolean; heelPad: boolean };
+  addonAvailability?: { badges: boolean; heelPad: boolean; organizer?: boolean };
 }) {
   const searchParams = useSearchParams();
   const t = useT();
@@ -942,6 +943,12 @@ export default function ProductClient({
                   />
                 </div>
               </section>
+
+              {/* Cross-sell: trunk organizer in the matching trim. Its own
+                  cart line — see src/components/product/OrganizerCrossSell. */}
+              {addonAvailability.organizer !== false && (
+                <OrganizerCrossSell edgeColorId={edge.id} />
+              )}
 
               {/* Submit — desktop only */}
               <button

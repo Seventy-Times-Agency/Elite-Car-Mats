@@ -12,6 +12,8 @@ export interface CheckoutLineItem {
   /** Unit price in USD (as a plain number — we convert to cents below). */
   unitPriceUsd: number;
   quantity: number;
+  /** Absolute image URLs shown on the Checkout page (accessories). */
+  images?: string[];
 }
 
 export interface CreateCheckoutSessionInput {
@@ -53,6 +55,7 @@ export async function createCheckoutSession(
         currency: "usd",
         unit_amount: Math.round(it.unitPriceUsd * 100),
         product_data: {
+          ...(it.images?.length ? { images: it.images } : {}),
           name: it.name,
           ...(it.description ? { description: it.description } : {}),
         },

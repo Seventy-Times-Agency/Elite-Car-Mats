@@ -373,4 +373,9 @@ export const operations: Dict = {
   "admin.invOpen": "Open invoice →",
   "admin.invError": "Failed to send the invoice. Check that Stripe is configured and try again.",
   "admin.invConfirmResend": "An unpaid invoice already exists — void it and send a new one?",
+  // ---- Accessories ----
+  "admin.accessoryOrganizer": "Trunk organizer (accessory)",
+  "admin.availOrganizer": "Organizer in stock",
+  "admin.accessoryChip": "Accessory",
+
 };

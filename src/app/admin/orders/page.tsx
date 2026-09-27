@@ -59,10 +59,16 @@ export default async function AdminOrdersPage() {
           {orders.map((o) => {
             const items: OrderItemView[] = o.items.map((i) => ({
               id: i.id,
-              brandName: i.product.model.brand.name,
-              modelName: i.product.model.name,
+              accessory:
+                i.kind === "accessory" && i.accessorySlug && i.accessoryVariant
+                  ? { slug: i.accessorySlug, variantId: i.accessoryVariant }
+                  : null,
+              brandName: i.product?.model.brand.name ?? "",
+              modelName: i.product?.model.name ?? "",
               year: i.year,
-              matSetLabel: MATSET_LABEL[i.product.matSet] ?? i.product.matSet,
+              matSetLabel: i.product
+                ? (MATSET_LABEL[i.product.matSet] ?? i.product.matSet)
+                : "",
               colorName: i.color.name,
               colorHex: i.color.hex,
               edgeColorName: i.edgeColor.name,

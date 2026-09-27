@@ -340,6 +340,25 @@ async function execAll(): Promise<MigrationResult[]> {
       "orderItem.badgeCount",
       `ALTER TABLE "OrderItem" ADD COLUMN IF NOT EXISTS "badgeCount" INTEGER NOT NULL DEFAULT 1`,
     );
+    // Accessories (2026-09): a line may be a catalog accessory instead
+    // of a Product row. Colour FKs stay — accessory variants reuse the
+    // mat colour ids.
+    await run(
+      "orderItem.kind",
+      `ALTER TABLE "OrderItem" ADD COLUMN IF NOT EXISTS "kind" TEXT NOT NULL DEFAULT 'mat'`,
+    );
+    await run(
+      "orderItem.productId nullable",
+      `ALTER TABLE "OrderItem" ALTER COLUMN "productId" DROP NOT NULL`,
+    );
+    await run(
+      "orderItem.accessorySlug",
+      `ALTER TABLE "OrderItem" ADD COLUMN IF NOT EXISTS "accessorySlug" TEXT`,
+    );
+    await run(
+      "orderItem.accessoryVariant",
+      `ALTER TABLE "OrderItem" ADD COLUMN IF NOT EXISTS "accessoryVariant" TEXT`,
+    );
 
     // ------------------------------------------------------------------
     // Reviews + promos.

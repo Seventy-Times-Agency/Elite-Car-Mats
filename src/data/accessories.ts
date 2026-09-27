@@ -55,10 +55,13 @@ export const ACCESSORIES: Accessory[] = [
           `${ORGANIZER_IMG}/organizer-grey-closed.jpg`,
           `${ORGANIZER_IMG}/organizer-grey-open.jpg`,
           `${ORGANIZER_IMG}/organizer-grey-trunk.jpg`,
+          `${ORGANIZER_IMG}/organizer-grey-trunk-2.jpg`,
         ],
       },
     ],
-    gallery: [`${ORGANIZER_IMG}/organizer-grey-trunk-2.jpg`],
+    // Deliberately empty: a shared shot would put the wrong colour into
+    // a variant's gallery. Every image belongs to exactly one variant.
+    gallery: [],
   },
 ];
 

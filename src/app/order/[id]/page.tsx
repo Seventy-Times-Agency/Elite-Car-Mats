@@ -56,6 +56,12 @@ function matSetLabel(code: string, dict: Dict, fallback: Dict): string {
   return (dict[key] ?? fallback[key] ?? code) as string;
 }
 
+// `ECM-<base36 timestamp>-<8 hex>` (generateOrderNumber in /api/orders)
+// or the row's cuid, which the admin panel links by.
+const ORDER_REF = /^(?:ECM-[A-Z0-9]{6,10}-[A-F0-9]{8}|c[a-z0-9]{24})$/;
+// HMAC-SHA256 hex — see lib/security/order-token.ts.
+const ORDER_TOKEN = /^[a-f0-9]{64}$/i;
+
 export default async function OrderPage({
   params,
   searchParams,
@@ -65,6 +71,18 @@ export default async function OrderPage({
 }) {
   const { id } = await params;
   const { t: token } = await searchParams;
+
+  // Cheap gates before the database. Scanners hit /order/<anything> all
+  // day; each miss used to be a Postgres round-trip that woke Neon. A
+  // real link always carries a well-formed order number (or cuid) and a
+  // 64-hex token — anything else bounces without a query. The admin
+  // (cookie, no token) is the one legitimate caller without a token.
+  if (!ORDER_REF.test(id)) {
+    redirect(`/track?error=invalid&n=${encodeURIComponent(id.slice(0, 40))}`);
+  }
+  if (!(token && ORDER_TOKEN.test(token)) && !(await requireAdmin())) {
+    redirect(`/track?error=invalid&n=${encodeURIComponent(id)}`);
+  }
 
   const order = await prisma.order.findFirst({
     where: { OR: [{ id }, { orderNumber: id }] },

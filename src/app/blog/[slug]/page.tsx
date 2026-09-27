@@ -3,6 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { getPublishedPostCached } from "@/lib/blog";
+import { SLUG_REGEX } from "@/lib/validations/catalog";
 import { getDictionary } from "@/i18n/getDictionary";
 import { makeT } from "@/i18n/dictionary";
 import { renderMarkdown } from "@/lib/markdown";
@@ -18,10 +19,15 @@ interface Params {
   params: Promise<{ slug: string }>;
 }
 
+function isPlausibleSlug(slug: string): boolean {
+  return slug.length >= 2 && slug.length <= 120 && SLUG_REGEX.test(slug);
+}
+
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { slug } = await params;
   const { locale, dict, fallback } = await getDictionary();
   const t = makeT(dict, fallback);
+  if (!isPlausibleSlug(slug)) return { title: t("blog.notFoundMeta") };
   const post = await getPublishedPostCached(slug, locale);
   if (!post) return { title: t("blog.notFoundMeta") };
 
@@ -60,6 +66,10 @@ function formatDate(iso: Date | null, locale: string): string {
 
 export default async function BlogPostPage({ params }: Params) {
   const { slug } = await params;
+  // Shape check before the (cached) lookup: a scanner's random path can
+  // never match a stored slug, and without this every miss went past the
+  // cache to Postgres. Same rule the admin enforces on create.
+  if (!isPlausibleSlug(slug)) notFound();
   const { locale, dict, fallback } = await getDictionary();
   const t = makeT(dict, fallback);
   const post = await getPublishedPostCached(slug, locale);

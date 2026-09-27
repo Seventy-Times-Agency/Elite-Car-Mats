@@ -256,13 +256,32 @@ A инфраструктура и тесты → B Meta ч.1 и C Google ч.1 (�
 данные) → D сумки → E Meta/Google ч.2 → F SEO → G наблюдаемость →
 H конверсия.
 
-**Превью как песочница** требует переменных только для Preview:
-`STRIPE_SECRET_KEY`=sk_test, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`=pk_test
-(боевой сейчас стоит на оба окружения — разделить), `STRIPE_WEBHOOK_SECRET`
-от отдельного endpoint тестового режима на адрес превью, `DATABASE_URL`
-ветки `preview`, и убрать `NEXT_PUBLIC_META_PIXEL_ID` из Preview.
+**Превью как песочница** (ветка `feat/accessories`, алиас
+`elitecarmats-git-feat-accessories-…vercel.app`). Что уже сделано 27.09:
+в тестовом режиме Stripe создан endpoint на `<алиас>/api/webhooks/stripe`,
+подписан на 6 событий (4 Checkout + `invoice.paid` +
+`payment_intent.payment_failed` — прод пока слушает только 4); в Vercel
+добавлена `NEXT_PUBLIC_SITE_URL` **только для ветки** `feat/accessories`
+с адресом превью — иначе `success_url`/`cancel_url` Stripe вели бы на
+прод, где заказа нет.
+
+**Ловушка Vercel:** переменные, сохранённые как *Secret* с префиксом
+`NEXT_PUBLIC_` (`NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`,
+`NEXT_PUBLIC_META_PIXEL_ID`), редактировать нельзя вовсе — форма требует
+убрать префикс или сменить тип, а тип у сохранённого секрета не меняется.
+Поэтому песочница строится не правкой существующих переменных, а
+**переопределением на ветку**: Add → Environments → Preview Branches →
+`feat/accessories`. Значение для ветки перекрывает общее Preview-значение.
+Так нужно завести: `STRIPE_SECRET_KEY`=sk_test,
+`NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`=pk_test, `STRIPE_WEBHOOK_SECRET`=whsec
+тестового endpoint, `DATABASE_URL`=строка ветки `preview` в Neon.
+`NEXT_PUBLIC_META_PIXEL_ID` трогать не нужно: пиксель гейтится согласием
+на куки — на превью просто не принимать баннер.
 Защита превью-деплоев включена — Stripe до вебхука не достучится, пока
-владелец не выключит Require Log In или не вставит bypass-токен в URL.
+владелец не выключит Vercel Authentication для превью (Settings →
+Deployment Protection) или не вставит bypass-токен в URL endpoint'а.
+После вставки переменных нужен Redeploy ветки: значения подхватываются
+только новой сборкой.
 
 ---
 

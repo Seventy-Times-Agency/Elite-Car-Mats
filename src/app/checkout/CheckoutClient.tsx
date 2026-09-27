@@ -476,14 +476,20 @@ export function CheckoutClient({ paymentEnabled }: { paymentEnabled: boolean }) 
                     placeholder={t("co.phone")}
                     aria-label={t("co.phone")}
                     aria-invalid={Boolean(errors.phone)}
-                    aria-describedby={errors.phone ? "co-err-phone" : undefined}
+                    aria-describedby={errors.phone ? "co-err-phone" : "co-hint-phone"}
                     autoComplete="tel"
                     required
                     className={`${input} ${errors.phone ? inputError : ""}`}
                   />
-                  {errors.phone && (
+                  {errors.phone ? (
                     <p id="co-err-phone" className="text-[11px] text-error mt-1.5">
                       {errors.phone}
+                    </p>
+                  ) : (
+                    // Phone stays required: sets are custom-cut and the
+                    // workshop regularly has to confirm trim details.
+                    <p id="co-hint-phone" className="text-[11px] text-text-dim mt-1.5 leading-snug">
+                      {t("co.phoneHint")}
                     </p>
                   )}
                 </div>

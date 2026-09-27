@@ -223,6 +223,7 @@ export const storefront: Dict = {
   "co.shipping": "Shipping",
   "co.name": "Name *",
   "co.phone": "Phone *",
+  "co.phoneHint": "Every set is cut by hand for your car. If anything needs clarifying, we'll call or text you — about this order only.",
   "co.email": "Email *",
   "co.address": "Address *",
   "co.city": "City",

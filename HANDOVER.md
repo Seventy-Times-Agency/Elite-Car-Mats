@@ -396,9 +396,10 @@ www, категория в фиде, обновление Next.js, ключи Up
   в трёх языках. Цвета вариантов = id цветов ковриков, поэтому
   `OrderItem.colorId/edgeColorId` заполняются как обычно.
 - Схема: `OrderItem.kind` (`mat`|`accessory`), `productId` стал nullable,
-  `accessorySlug`, `accessoryVariant`. DDL в `setup.ts` — **выполнится при
-  первом входе в админку** (или `POST /api/admin/migrate`) на каждой базе
-  (превью и прод) — до этого заказ с органайзером упадёт на вставке.
+  `accessorySlug`, `accessoryVariant`. DDL в `setup.ts` выполняется входом
+  в админку или `POST /api/admin/migrate`. **Выполнено на обеих базах
+  27.09**: превью — входом владельца, прод — `POST /api/admin/migrate`
+  (96 шагов, 0 ошибок).
 - Корзина: `CartItem = MatCartItem | AccessoryCartItem`, отдельная строка.
   Цена: `getAccessoryPrice(slug, overrides)`, override-ключ
   `accessory:trunk-organizer`; наличие — `StoreSetting`
@@ -589,3 +590,4 @@ Resend. Ни одна из них не блокирует передачу — �
 | 27.09 | Merchant Center создан под аккаунтом клиента, фид подключён, доставка и возврат заданы |
 | 27.09 | серверный Purchase (CAPI) проверен на превью тестовым заказом; фид: id ≤ 50 символов |
 | 27.09 | органайзер в багажник: каталог, страницы, конфигуратор, заказ/Stripe/письма — проверено на превью |
+| 27.09 | органайзер влит в прод (`7708964`), миграция схемы на проде выполнена |

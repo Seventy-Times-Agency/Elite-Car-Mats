@@ -2,7 +2,9 @@ import { randomBytes } from "node:crypto";
 import { NextResponse, after } from "next/server";
 import { prisma } from "@/lib/db/prisma";
 import { ensureCatalogSeed, resetCatalogSeedCache } from "@/lib/db/seed";
-import { createOrderSchema } from "@/lib/validations/order";
+import { createOrderSchema, isAccessoryInput } from "@/lib/validations/order";
+import { getAccessoryPrice } from "@/lib/pricing";
+import { findAccessoryVariant } from "@/data/accessories";
 import {
   badgePlates,
   lineFromRequest,
@@ -114,7 +116,13 @@ export async function POST(request: Request) {
     );
   }
 
-  const { customer, shipping, items, promoCode } = parsed.data;
+  const { customer, shipping, items: allItems, promoCode } = parsed.data;
+  // Mat sets and accessories take different paths below: mats resolve a
+  // Product row per line, accessories are catalog slug + variant.
+  const items = allItems.filter(
+    (i): i is OrderItemInput => !isAccessoryInput(i),
+  );
+  const accessoryItems = allItems.filter(isAccessoryInput);
 
   // Manual-confirm flow ships to the address from this form, so it must
   // be present. With Stripe enabled the address is collected on the
@@ -261,6 +269,32 @@ export async function POST(request: Request) {
     );
   }
 
+  // Accessories: the pair must exist in the code catalog (a stale cart
+  // or a hand-crafted POST must not create a line we cannot make), and
+  // the operator's stock switch applies exactly like the add-ons above.
+  const accessoriesResolved = accessoryItems.map((a) => ({
+    item: a,
+    found: findAccessoryVariant(a.accessorySlug, a.variantId),
+  }));
+  const badAccessory = accessoriesResolved.find((r) => !r.found);
+  if (badAccessory) {
+    return NextResponse.json(
+      {
+        error: `Unknown accessory "${badAccessory.item.accessorySlug}/${badAccessory.item.variantId}". Please remove it from the cart and add it again.`,
+      },
+      { status: 400 },
+    );
+  }
+  if (
+    !availability.organizer &&
+    accessoryItems.some((a) => a.accessorySlug === "trunk-organizer")
+  ) {
+    return NextResponse.json(
+      { error: "The trunk organizer is temporarily out of stock." },
+      { status: 400 },
+    );
+  }
+
   // Single DB read for admin-set price overrides — used to bill the
   // customer at the latest rate even before code defaults are pushed.
   // Empty Map on DB error so checkout never blocks on a Neon hiccup.
@@ -272,10 +306,15 @@ export async function POST(request: Request) {
   // renders in the language the customer actually shopped in.
   const customerLocale = await getLocaleFromCookie();
 
-  const subtotal = linesTotal(
-    itemsResolved.map((r) => lineFromRequest(r.item, r)),
-    overrides,
-  );
+  const subtotal =
+    linesTotal(
+      itemsResolved.map((r) => lineFromRequest(r.item, r)),
+      overrides,
+    ) +
+    accessoryItems.reduce(
+      (sum, a) => sum + getAccessoryPrice(a.accessorySlug, overrides) * a.quantity,
+      0,
+    );
 
   // Pre-validate the promo code so we can short-circuit invalid codes
   // before opening a transaction. The actual usage decrement happens
@@ -318,22 +357,35 @@ export async function POST(request: Request) {
           locale: customerLocale,
           total,
           items: {
-            create: itemsResolved.map((r) => {
-              const i = r.item;
-              const line = lineFromRequest(i, r);
-              return {
-                productId: r.productId!,
-                colorId: i.colorId,
-                edgeColorId: i.edgeColorId,
-                badgeId: line.badgeId,
-                badgeCount: storedBadgeCount(line),
-                heelPad: line.heelPad,
-                thirdRow: line.thirdRow,
-                year: i.year ?? null,
-                quantity: i.quantity,
-                price: lineUnitPrice(line, overrides),
-              };
-            }),
+            create: [
+              ...itemsResolved.map((r) => {
+                const i = r.item;
+                const line = lineFromRequest(i, r);
+                return {
+                  productId: r.productId!,
+                  colorId: i.colorId,
+                  edgeColorId: i.edgeColorId,
+                  badgeId: line.badgeId,
+                  badgeCount: storedBadgeCount(line),
+                  heelPad: line.heelPad,
+                  thirdRow: line.thirdRow,
+                  year: i.year ?? null,
+                  quantity: i.quantity,
+                  price: lineUnitPrice(line, overrides),
+                };
+              }),
+              // Accessory rows: no Product; colours come from the
+              // variant so the same FK columns stay populated.
+              ...accessoriesResolved.map(({ item: a, found }) => ({
+                kind: "accessory",
+                accessorySlug: a.accessorySlug,
+                accessoryVariant: a.variantId,
+                colorId: found!.variant.evaColorId,
+                edgeColorId: found!.variant.edgeColorId,
+                quantity: a.quantity,
+                price: getAccessoryPrice(a.accessorySlug, overrides),
+              })),
+            ],
           },
         },
         select: {
@@ -440,6 +492,23 @@ export async function POST(request: Request) {
         ),
       };
     });
+    const accessoryEmailItems = accessoriesResolved.map(({ item: a, found }) => {
+      const v = found!.variant;
+      const colorRow = evaColors.find((c) => c.id === v.evaColorId);
+      const edgeRow = edgeColors.find((c) => c.id === v.edgeColorId);
+      return {
+        accessory: { slug: a.accessorySlug, variantId: a.variantId },
+        brandName: "",
+        modelName: "",
+        matSet: "accessory",
+        colorName: colorRow?.name ?? v.evaColorId,
+        colorHex: colorRow?.hex ?? null,
+        edgeColorName: edgeRow?.name ?? v.edgeColorId,
+        edgeColorHex: edgeRow?.hex ?? null,
+        quantity: a.quantity,
+        unitPrice: getAccessoryPrice(a.accessorySlug, overrides),
+      };
+    });
     const emailData = {
       orderNumber: createdOrder.orderNumber,
       orderToken: signOrderToken(createdOrder.id),
@@ -454,7 +523,7 @@ export async function POST(request: Request) {
       // annotation we glue onto Order.comment for the packing slip).
       comment: shipping.comment || null,
       total: Number(createdOrder.total ?? 0),
-      items: emailItems,
+      items: [...emailItems, ...accessoryEmailItems],
       locale: customerLocale,
     };
     // Deferred via `after`: emails never fail (or delay) the order

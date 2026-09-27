@@ -2,18 +2,20 @@
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
 import {
-  calculateItemUnitPrice,
-  calculateOrderTotal,
+  cartItemUnitPrice,
+  cartTotal,
   formatPrice,
 } from "@/lib/pricing";
 import { useT } from "@/i18n/I18nProvider";
 import { localizeColor, localizeMatSet } from "@/i18n/labels";
 import { usePriceOverrides } from "@/context/PriceOverridesContext";
+import { isAccessoryItem } from "@/types";
+import { accessoryView } from "@/lib/accessories/display";
 
 export default function CartPage() {
   const { items, removeItem, updateQuantity, clearCart, hydrated } = useCart();
   const priceOverrides = usePriceOverrides();
-  const total = calculateOrderTotal(items, priceOverrides);
+  const total = cartTotal(items, priceOverrides);
   const t = useT();
 
   if (!hydrated) return <div className="min-h-[60vh]" />;
@@ -60,31 +62,45 @@ export default function CartPage() {
         </div>
         <div className="space-y-3">
           {items.map((item) => {
-            const unit = calculateItemUnitPrice(item, priceOverrides);
+            const unit = cartItemUnitPrice(item, priceOverrides);
+            const mat = isAccessoryItem(item) ? null : item;
+            const acc = isAccessoryItem(item)
+              ? accessoryView(t, item.accessorySlug, item.variantId)
+              : null;
             return (
               <div key={item.id} className="glass-card rounded-xl p-5 flex gap-4">
                 <div
-                  className="w-14 h-14 rounded-lg border border-border shrink-0"
-                  style={{ backgroundColor: item.color.hex }}
+                  className="w-14 h-14 rounded-lg border border-border shrink-0 bg-cover bg-center"
+                  style={
+                    mat
+                      ? { backgroundColor: mat.color.hex }
+                      : { backgroundImage: `url(${acc!.image})` }
+                  }
                 />
                 <div className="flex-1 min-w-0">
                   <div className="flex justify-between gap-3">
                     <h3 className="text-text font-medium text-sm">
-                      {item.brandName} {item.modelName}
+                      {mat ? `${mat.brandName} ${mat.modelName}` : acc!.title}
                     </h3>
                     <span className="text-gold text-sm font-semibold shrink-0">
                       {formatPrice(unit * item.quantity)}
                     </span>
                   </div>
                   <p className="text-text-faint text-xs mt-1">
-                    {item.year} · {localizeMatSet(t, item.matSetLabel)} ·{" "}
-                    {localizeColor(t, item.color.name)} ·{" "}
-                    {localizeColor(t, item.edgeColor.name)}
-                    {item.badge
-                      ? ` · ${item.badge.brandName}${(item.badgeCount ?? 1) > 1 ? ` ×${item.badgeCount}` : ""}`
-                      : ""}
-                    {item.heelPad ? ` · ${t("cart.drawerHeelPadChip")}` : ""}
-                    {item.thirdRow ? ` · ${t("cart.drawerThirdRowChip")}` : ""}
+                    {mat ? (
+                      <>
+                        {mat.year} · {localizeMatSet(t, mat.matSetLabel)} ·{" "}
+                        {localizeColor(t, mat.color.name)} ·{" "}
+                        {localizeColor(t, mat.edgeColor.name)}
+                        {mat.badge
+                          ? ` · ${mat.badge.brandName}${(mat.badgeCount ?? 1) > 1 ? ` ×${mat.badgeCount}` : ""}`
+                          : ""}
+                        {mat.heelPad ? ` · ${t("cart.drawerHeelPadChip")}` : ""}
+                        {mat.thirdRow ? ` · ${t("cart.drawerThirdRowChip")}` : ""}
+                      </>
+                    ) : (
+                      acc!.variantLabel
+                    )}
                   </p>
                   <div className="flex items-center gap-3 mt-3">
                     <button

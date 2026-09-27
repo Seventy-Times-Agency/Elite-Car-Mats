@@ -373,4 +373,9 @@ export const operations: Dict = {
   "admin.invOpen": "Открыть счёт →",
   "admin.invError": "Не удалось отправить счёт. Проверьте, что Stripe настроен, и попробуйте ещё раз.",
   "admin.invConfirmResend": "Уже есть неоплаченный счёт — аннулировать его и отправить новый?",
+  // ---- Accessories ----
+  "admin.accessoryOrganizer": "Органайзер в багажник (аксессуар)",
+  "admin.availOrganizer": "Органайзер в наличии",
+  "admin.accessoryChip": "Аксессуар",
+
 };

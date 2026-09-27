@@ -8,7 +8,8 @@ import {
   useCallback,
   ReactNode,
 } from "react";
-import { CartItem, MatSetType } from "@/types";
+import { AccessoryCartItem, CartItem, MatCartItem, MatSetType, isAccessoryItem } from "@/types";
+import { findAccessoryVariant } from "@/data/accessories";
 import {
   findModelById,
   getVehicleProfile,
@@ -19,7 +20,7 @@ import { MAT_SETS_BY_PROFILE } from "@/data/catalog/mat-sets";
 
 interface CartContextType {
   items: CartItem[];
-  addItem: (item: Omit<CartItem, "id">) => void;
+  addItem: (item: NewCartItem) => void;
   removeItem: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
   clearCart: () => void;
@@ -44,6 +45,12 @@ const VALID_PROFILES = [
   "pickup",
   "semi",
 ] as VehicleConfigProfile[];
+
+/**
+ * A line as `addItem` receives it. Spelled out per kind: `Omit<CartItem,
+ * "id">` on the union would erase the discriminant.
+ */
+export type NewCartItem = Omit<MatCartItem, "id"> | Omit<AccessoryCartItem, "id">;
 
 const CART_STORAGE_KEY = "elitecarmats-cart";
 const CART_SCHEMA_VERSION = 2;
@@ -87,6 +94,26 @@ function loadCart(): CartItem[] {
   const out: CartItem[] = [];
   for (const it of candidate as unknown[]) {
     if (!isObject(it)) continue;
+    // Accessory lines: only need to still exist in the catalog.
+    if (it.kind === "accessory") {
+      if (
+        typeof it.id === "string" &&
+        typeof it.accessorySlug === "string" &&
+        typeof it.variantId === "string" &&
+        typeof it.quantity === "number" &&
+        findAccessoryVariant(it.accessorySlug, it.variantId)
+      ) {
+        out.push({
+          kind: "accessory",
+          id: it.id,
+          accessorySlug: it.accessorySlug,
+          variantId: it.variantId,
+          quantity: Math.min(99, Math.max(1, Math.floor(it.quantity))),
+        });
+        if (out.length >= MAX_CART_ITEMS) break;
+      }
+      continue;
+    }
     if (
       typeof it.id !== "string" ||
       typeof it.modelId !== "string" ||
@@ -106,7 +133,7 @@ function loadCart(): CartItem[] {
     // the whole checkout ("Mat set front is not available for …").
     // Unknown modelIds (admin custom catalog) are kept as-is; the
     // server validates those against the merged catalog.
-    let item = it as unknown as CartItem;
+    let item = it as unknown as MatCartItem;
     // Drop a stored profile we don't recognize (schema drift).
     if (
       item.profile !== undefined &&
@@ -153,7 +180,15 @@ function saveCart(items: CartItem[]): void {
 }
 
 /** Same-configuration predicate used for cart line merging. */
-function sameConfig(a: CartItem, b: Omit<CartItem, "id">): boolean {
+function sameConfig(a: CartItem, b: NewCartItem): boolean {
+  if (isAccessoryItem(a) || b.kind === "accessory") {
+    return (
+      isAccessoryItem(a) &&
+      b.kind === "accessory" &&
+      a.accessorySlug === b.accessorySlug &&
+      a.variantId === b.variantId
+    );
+  }
   return (
     a.modelId === b.modelId &&
     a.year === b.year &&
@@ -228,7 +263,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     document.body.style.overflow = isOpen ? "hidden" : "";
   }, [isOpen]);
 
-  const addItem = useCallback((item: Omit<CartItem, "id">) => {
+  const addItem = useCallback((item: NewCartItem) => {
     setItems((prev) => {
       const existing = prev.find((i) => sameConfig(i, item));
       if (existing) {
@@ -239,7 +274,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         );
       }
       if (prev.length >= MAX_CART_ITEMS) return prev;
-      return [...prev, { ...item, id: crypto.randomUUID() }];
+      return [...prev, { ...item, id: crypto.randomUUID() } as CartItem];
     });
   }, []);
 

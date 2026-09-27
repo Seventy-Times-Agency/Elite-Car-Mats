@@ -73,9 +73,12 @@ export async function GET(
       // `<brandSlug>-<modelSlug>-<set>` — prefixed with "ECM-" this is the
       // Merchant/Meta feed sku, used by the Purchase pixel event.
       productId: i.productId,
-      brandName: i.product.model.brand.name,
-      modelName: i.product.model.name,
-      matSet: i.product.matSet,
+      kind: i.kind,
+      accessorySlug: i.accessorySlug,
+      accessoryVariant: i.accessoryVariant,
+      brandName: i.product?.model.brand.name ?? "",
+      modelName: i.product?.model.name ?? "",
+      matSet: i.product?.matSet ?? "ACCESSORY",
       year: i.year ?? null,
       color: { id: i.color.id, name: i.color.name, hex: i.color.hex },
       edgeColor: { id: i.edgeColor.id, name: i.edgeColor.name, hex: i.edgeColor.hex },

@@ -17,11 +17,14 @@ export interface AddonAvailability {
   badges: boolean;
   /** Aluminum driver-side heel pad. */
   heelPad: boolean;
+  /** EVA trunk organizer (accessory, sold standalone and as a cross-sell). */
+  organizer: boolean;
 }
 
 const KEYS: Record<keyof AddonAvailability, string> = {
   badges: "addon.badges.available",
   heelPad: "addon.heelPad.available",
+  organizer: "accessory.trunk-organizer.available",
 };
 
 export async function getAddonAvailability(): Promise<AddonAvailability> {
@@ -34,10 +37,11 @@ export async function getAddonAvailability(): Promise<AddonAvailability> {
     return {
       badges: map.get(KEYS.badges) !== "0",
       heelPad: map.get(KEYS.heelPad) !== "0",
+      organizer: map.get(KEYS.organizer) !== "0",
     };
   } catch (err) {
     console.warn("[availability] read failed, defaulting to available:", err);
-    return { badges: true, heelPad: true };
+    return { badges: true, heelPad: true, organizer: true };
   }
 }
 
@@ -61,7 +65,7 @@ export async function getAddonAvailability(): Promise<AddonAvailability> {
  */
 export const getAddonAvailabilityCached = unstable_cache(
   async (): Promise<AddonAvailability> => getAddonAvailability(),
-  ["addon-availability-v1"],
+  ["addon-availability-v2"],
   { tags: ["availability"], revalidate: 3600 },
 );
 

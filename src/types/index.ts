@@ -71,7 +71,10 @@ export interface Product {
   price?: number;
 }
 
-export interface CartItem {
+/** A configured mat set in the cart (the original cart line). */
+export interface MatCartItem {
+  /** Absent on carts saved before accessories existed — means "mat". */
+  kind?: "mat";
   id: string;
   modelId: string;
   /**
@@ -114,6 +117,24 @@ export interface CartItem {
   configNote?: string;
   quantity: number;
   price?: number;
+}
+
+/**
+ * An accessory line (trunk organizer …). Not tied to a car; identified
+ * by catalog slug + variant, see src/data/accessories.ts.
+ */
+export interface AccessoryCartItem {
+  kind: "accessory";
+  id: string;
+  accessorySlug: string;
+  variantId: string;
+  quantity: number;
+}
+
+export type CartItem = MatCartItem | AccessoryCartItem;
+
+export function isAccessoryItem(item: CartItem): item is AccessoryCartItem {
+  return item.kind === "accessory";
 }
 
 export interface Review {

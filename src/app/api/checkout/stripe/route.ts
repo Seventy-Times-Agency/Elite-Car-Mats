@@ -7,6 +7,8 @@ import { isStripeConfigured, getStripe } from "@/lib/payments/stripe";
 import { createCheckoutSession } from "@/lib/payments/stripe-checkout";
 import { signOrderToken, verifyOrderToken } from "@/lib/security/order-token";
 import { lineFromDb, lineUnitPrice } from "@/lib/orders/line-items";
+import { getAccessoryPrice } from "@/lib/pricing";
+import { accessoryView } from "@/lib/accessories/display";
 import { loadPriceOverrides } from "@/lib/pricing-overrides";
 import { buildDbProfileResolver } from "@/lib/catalog-merge";
 import { getDictionaryFor } from "@/i18n/getDictionary";
@@ -145,8 +147,20 @@ export async function POST(request: Request) {
   const tDesc = makeT(getDictionaryFor(locale), getDictionaryFor(DEFAULT_LOCALE));
 
   try {
+  const site = process.env.NEXT_PUBLIC_SITE_URL ?? "https://elitecarmats.us";
   const items = order.items.map((i) => {
-    const line = lineFromDb(i, profileOf);
+    if (i.kind === "accessory" && i.accessorySlug && i.accessoryVariant) {
+      const acc = accessoryView(tDesc, i.accessorySlug, i.accessoryVariant);
+      return {
+        name: acc.title,
+        description: acc.variantLabel,
+        unitPriceUsd: getAccessoryPrice(i.accessorySlug, overrides),
+        quantity: i.quantity,
+        images: acc.image ? [`${site}${acc.image}`] : undefined,
+      };
+    }
+    if (!i.product) throw new Error(`Order item ${i.id} has no product`);
+    const line = lineFromDb({ ...i, product: i.product }, profileOf);
     const unitPriceUsd = lineUnitPrice(line, overrides);
     const brandName = i.product.model.brand.name;
     const modelName = i.product.model.name;

@@ -5,14 +5,16 @@ import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/context/CartContext";
 import {
-  calculateItemUnitPrice,
-  calculateOrderTotal,
+  cartItemUnitPrice,
+  cartTotal,
   formatPrice,
 } from "@/lib/pricing";
 import { useT } from "@/i18n/I18nProvider";
 import { localizeColor, localizeMatSet } from "@/i18n/labels";
 import { TrustBadges } from "@/components/common/TrustBadges";
 import { usePriceOverrides } from "@/context/PriceOverridesContext";
+import { isAccessoryItem } from "@/types";
+import { accessoryView } from "@/lib/accessories/display";
 
 export function CartDrawer() {
   const {
@@ -44,7 +46,7 @@ export function CartDrawer() {
     if (isOpen) closeBtnRef.current?.focus();
   }, [isOpen]);
 
-  const subtotal = calculateOrderTotal(items, priceOverrides);
+  const subtotal = cartTotal(items, priceOverrides);
 
   const goCheckout = () => {
     closeCart();
@@ -119,31 +121,43 @@ export function CartDrawer() {
         ) : (
           <div className="flex-1 overflow-y-auto px-5 py-4 space-y-3">
             {items.map((item) => {
-              const unit = calculateItemUnitPrice(item, priceOverrides);
+              const unit = cartItemUnitPrice(item, priceOverrides);
+              const mat = isAccessoryItem(item) ? null : item;
+              const acc = isAccessoryItem(item)
+                ? accessoryView(t, item.accessorySlug, item.variantId)
+                : null;
               return (
                 <div
                   key={item.id}
                   className="glass-card rounded-xl p-4 flex gap-3"
                 >
-                  {/* Color preview tile */}
+                  {/* Color preview tile (mats) / product photo (accessories) */}
                   <div className="shrink-0">
-                    <div
-                      className="w-14 h-14 rounded-lg border border-border/60 shadow-inner relative overflow-hidden"
-                      style={{ backgroundColor: item.color.hex }}
-                      aria-hidden
-                    >
+                    {mat ? (
                       <div
-                        className="absolute inset-0 border-[3px] rounded-lg"
-                        style={{ borderColor: item.edgeColor.hex }}
+                        className="w-14 h-14 rounded-lg border border-border/60 shadow-inner relative overflow-hidden"
+                        style={{ backgroundColor: mat.color.hex }}
+                        aria-hidden
+                      >
+                        <div
+                          className="absolute inset-0 border-[3px] rounded-lg"
+                          style={{ borderColor: mat.edgeColor.hex }}
+                        />
+                      </div>
+                    ) : (
+                      <div
+                        className="w-14 h-14 rounded-lg border border-border/60 bg-cover bg-center"
+                        style={{ backgroundImage: `url(${acc!.image})` }}
+                        aria-hidden
                       />
-                    </div>
+                    )}
                   </div>
 
                   {/* Details */}
                   <div className="flex-1 min-w-0">
                     <div className="flex justify-between gap-3">
                       <h3 className="text-text font-medium text-sm leading-tight truncate">
-                        {item.brandName} {item.modelName}
+                        {mat ? `${mat.brandName} ${mat.modelName}` : acc!.title}
                       </h3>
                       <button
                         onClick={() => removeItem(item.id)}
@@ -167,41 +181,46 @@ export function CartDrawer() {
                       </button>
                     </div>
 
+                    {!mat ? (
+                      <div className="mt-1.5 text-text-dim text-[11px] leading-snug">
+                        {acc!.variantLabel}
+                      </div>
+                    ) : (
                     <div className="mt-1.5 text-text-dim text-[11px] leading-snug space-y-0.5">
                       <div>
-                        {item.year} ·{" "}
-                        {localizeMatSet(t, item.matSetLabel)}
+                        {mat.year} ·{" "}
+                        {localizeMatSet(t, mat.matSetLabel)}
                       </div>
                       <div className="flex items-center gap-1.5 flex-wrap">
                         <span className="inline-flex items-center gap-1">
                           <span
                             className="w-2 h-2 rounded-sm border border-border/60"
-                            style={{ backgroundColor: item.color.hex }}
+                            style={{ backgroundColor: mat.color.hex }}
                             aria-hidden
                           />
-                          {localizeColor(t, item.color.name)}
+                          {localizeColor(t, mat.color.name)}
                         </span>
                         <span className="text-text-faint">·</span>
                         <span className="inline-flex items-center gap-1">
                           <span
                             className="w-2 h-2 rounded-full"
-                            style={{ backgroundColor: item.edgeColor.hex }}
+                            style={{ backgroundColor: mat.edgeColor.hex }}
                             aria-hidden
                           />
-                          {localizeColor(t, item.edgeColor.name)}
+                          {localizeColor(t, mat.edgeColor.name)}
                         </span>
-                        {item.badge && (
+                        {mat.badge && (
                           <>
                             <span className="text-text-faint">·</span>
                             <span className="text-gold/90">
-                              {item.badge.brandName}
-                              {(item.badgeCount ?? 1) > 1
-                                ? ` ×${item.badgeCount}`
+                              {mat.badge.brandName}
+                              {(mat.badgeCount ?? 1) > 1
+                                ? ` ×${mat.badgeCount}`
                                 : ""}
                             </span>
                           </>
                         )}
-                        {item.heelPad && (
+                        {mat.heelPad && (
                           <>
                             <span className="text-text-faint">·</span>
                             <span className="text-gold/90">
@@ -209,7 +228,7 @@ export function CartDrawer() {
                             </span>
                           </>
                         )}
-                        {item.thirdRow && (
+                        {mat.thirdRow && (
                           <>
                             <span className="text-text-faint">·</span>
                             <span className="text-gold/90">
@@ -219,6 +238,7 @@ export function CartDrawer() {
                         )}
                       </div>
                     </div>
+                    )}
 
                     <div className="mt-2.5 flex items-center justify-between gap-2">
                       <div className="inline-flex items-center rounded-md border border-border/60 overflow-hidden">

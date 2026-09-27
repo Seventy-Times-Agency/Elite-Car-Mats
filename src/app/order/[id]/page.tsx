@@ -10,6 +10,7 @@ import { isStripeConfigured } from "@/lib/payments/stripe";
 import { getDictionary } from "@/i18n/getDictionary";
 import { makeT, type Dict } from "@/i18n/dictionary";
 import { localizeColor } from "@/i18n/labels";
+import { accessoryView } from "@/lib/accessories/display";
 import { trackingUrl } from "@/lib/tracking-url";
 
 export const dynamic = "force-dynamic";
@@ -231,25 +232,38 @@ export default async function OrderPage({
         <div className="glass-card rounded-xl p-6 mb-6">
           <span className="section-label text-[10px]">{s("ord.summary")}</span>
           <div className="mt-4 space-y-3">
-            {order.items.map((i) => (
+            {order.items.map((i) => {
+              const acc =
+                i.kind === "accessory" && i.accessorySlug && i.accessoryVariant
+                  ? accessoryView(tLabels, i.accessorySlug, i.accessoryVariant)
+                  : null;
+              return (
               <div
                 key={i.id}
                 className="flex gap-4 py-3 border-b border-border/30 last:border-0"
               >
                 <div
-                  className="w-14 h-14 rounded-lg border border-border/60 shrink-0 relative overflow-hidden shadow-inner"
-                  style={{ backgroundColor: i.color.hex }}
+                  className="w-14 h-14 rounded-lg border border-border/60 shrink-0 relative overflow-hidden shadow-inner bg-cover bg-center"
+                  style={
+                    acc
+                      ? { backgroundImage: `url(${acc.image})` }
+                      : { backgroundColor: i.color.hex }
+                  }
                   aria-hidden
                 >
-                  <div
-                    className="absolute inset-0 border-[3px] rounded-lg"
-                    style={{ borderColor: i.edgeColor.hex }}
-                  />
+                  {!acc && (
+                    <div
+                      className="absolute inset-0 border-[3px] rounded-lg"
+                      style={{ borderColor: i.edgeColor.hex }}
+                    />
+                  )}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex justify-between gap-3">
                     <h3 className="text-text font-medium text-sm">
-                      {i.product.model.brand.name} {i.product.model.name}
+                      {acc
+                        ? acc.title
+                        : `${i.product?.model.brand.name ?? ""} ${i.product?.model.name ?? ""}`}
                       {i.year ? <span className="text-text-faint font-normal"> · {i.year}</span> : null}
                     </h3>
                     <span className="text-gold text-sm font-semibold shrink-0">
@@ -257,7 +271,7 @@ export default async function OrderPage({
                     </span>
                   </div>
                   <p className="text-text-dim text-xs mt-1.5">
-                    {matSetLabel(i.product.matSet, dict, fallback)} · ×{i.quantity}
+                    {acc ? acc.variantLabel : matSetLabel(i.product?.matSet ?? "", dict, fallback)} · ×{i.quantity}
                   </p>
                   <div className="mt-2 flex items-center gap-2 flex-wrap text-[11px] text-text-dim">
                     <span className="inline-flex items-center gap-1.5">
@@ -308,7 +322,8 @@ export default async function OrderPage({
                   </div>
                 </div>
               </div>
-            ))}
+              );
+            })}
           </div>
           <div className="flex justify-between items-baseline mt-5 pt-4 border-t border-border/50">
             <span className="text-text-dim text-xs uppercase tracking-wider">

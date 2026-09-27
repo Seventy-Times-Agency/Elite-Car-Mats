@@ -41,6 +41,8 @@ export default async function NewReviewPage({
           id: true,
           customerName: true,
           items: {
+            // The car prefill only makes sense for a mat line.
+            where: { productId: { not: null } },
             take: 1,
             select: {
               year: true,
@@ -57,7 +59,7 @@ export default async function NewReviewPage({
         verifiedLink = true;
         prefillName = order.customerName;
         const it = order.items[0];
-        if (it) {
+        if (it?.product) {
           prefillCar = `${it.product.model.brand.name} ${it.product.model.name}${it.year ? ` ${it.year}` : ""}`;
         }
       }

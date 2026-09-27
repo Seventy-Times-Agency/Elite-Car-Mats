@@ -5,6 +5,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useT, useLocale } from "@/i18n/I18nProvider";
 import { localizeColor, localizeMatSet } from "@/i18n/labels";
+import { accessoryView } from "@/lib/accessories/display";
 import { formatPrice } from "@/lib/pricing";
 
 type Status =
@@ -26,6 +27,8 @@ const STATUS_COLOR: Record<Status, string> = {
 
 export interface OrderItemView {
   id: string;
+  /** Accessory line (trunk organizer …) — title/variant via acc.* keys. */
+  accessory?: { slug: string; variantId: string } | null;
   brandName: string;
   modelName: string;
   year: number | null;
@@ -232,7 +235,9 @@ export function OrderRow({
                 >
                   <div className="flex items-baseline justify-between gap-3 flex-wrap">
                     <div className="font-semibold text-text">
-                      {i.brandName} {i.modelName}
+                      {i.accessory
+                        ? accessoryView(t, i.accessory.slug, i.accessory.variantId).title
+                        : `${i.brandName} ${i.modelName}`}
                       {i.year ? (
                         <span className="text-text-faint font-normal">
                           {" "}
@@ -241,7 +246,10 @@ export function OrderRow({
                       ) : null}
                       <span className="text-gold font-normal">
                         {" "}
-                        · {localizeMatSet(t, i.matSetLabel)}
+                        ·{" "}
+                        {i.accessory
+                          ? accessoryView(t, i.accessory.slug, i.accessory.variantId).variantLabel
+                          : localizeMatSet(t, i.matSetLabel)}
                       </span>
                     </div>
                     <div className="text-gold font-semibold shrink-0 tabular-nums">

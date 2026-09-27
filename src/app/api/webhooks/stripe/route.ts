@@ -10,6 +10,8 @@ import { constructWebhookEvent } from "@/lib/payments/stripe-checkout";
 import { sendCustomerOrderEmail, sendOwnerOrderEmail } from "@/lib/email";
 import { signOrderToken } from "@/lib/security/order-token";
 import { lineFromDb, lineUnitPrice } from "@/lib/orders/line-items";
+import { getAccessoryPrice } from "@/lib/pricing";
+import { accessorySku } from "@/data/accessories";
 import { loadPriceOverrides } from "@/lib/pricing-overrides";
 import { buildDbProfileResolver } from "@/lib/catalog-merge";
 import { cancelScheduledEmail } from "@/lib/email/transport";
@@ -199,7 +201,10 @@ async function firePostPaymentEffects(orderId: string): Promise<void> {
       state: order.state,
       zip: order.zip,
       contents: order.items.map((i) => ({
-        id: `ECM-${i.productId}`,
+        id:
+          i.kind === "accessory" && i.accessorySlug && i.accessoryVariant
+            ? accessorySku(i.accessorySlug, i.accessoryVariant)
+            : `ECM-${i.productId}`,
         quantity: i.quantity,
         item_price: Number(i.price ?? 0),
       })),
@@ -247,7 +252,22 @@ async function sendOrderConfirmations(orderId: string): Promise<void> {
     total: Number(order.total ?? 0),
     locale: order.locale,
     items: order.items.map((i) => {
-      const line = lineFromDb(i, profileOf);
+      if (i.kind === "accessory" && i.accessorySlug && i.accessoryVariant) {
+        return {
+          accessory: { slug: i.accessorySlug, variantId: i.accessoryVariant },
+          brandName: "",
+          modelName: "",
+          matSet: "accessory",
+          colorName: i.color.name,
+          colorHex: i.color.hex,
+          edgeColorName: i.edgeColor.name,
+          edgeColorHex: i.edgeColor.hex,
+          quantity: i.quantity,
+          unitPrice: getAccessoryPrice(i.accessorySlug, overrides),
+        };
+      }
+      if (!i.product) throw new Error(`Order item ${i.id} has no product`);
+      const line = lineFromDb({ ...i, product: i.product }, profileOf);
       return {
         brandName: i.product.model.brand.name,
         modelName: i.product.model.name,

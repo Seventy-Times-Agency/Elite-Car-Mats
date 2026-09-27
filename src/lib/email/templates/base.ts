@@ -14,6 +14,12 @@ import type { VehicleConfigProfile } from "@/lib/vehicle-profile";
 import type { MatSetType } from "@/types";
 
 export interface OrderEmailItem {
+  /**
+   * Set for accessory lines (trunk organizer …): the title and variant
+   * label come from the `acc.*` dictionary keys, brand/model/matSet are
+   * ignored. Colour fields still carry the variant's body/trim colours.
+   */
+  accessory?: { slug: string; variantId: string } | null;
   brandName: string;
   modelName: string;
   matSet: string;
@@ -120,6 +126,12 @@ export function itemsTable(t: TFn, items: OrderEmailItem[]): string {
   return items
     .map((i) => {
       const titleSuffix = i.year ? ` · ${i.year}` : "";
+      const title = i.accessory
+        ? t(`acc.${i.accessory.slug}.name`)
+        : `${i.brandName} ${i.modelName}${titleSuffix}`;
+      const subline = i.accessory
+        ? t(`acc.variant.${i.accessory.variantId}`)
+        : matSetLabel(t, i.matSet, i.profile);
       const badgeRow = i.badgeName
         ? `<div style="color:#D4A54A;font-size:12px;margin-top:4px;">+ ${i.badgeName}</div>`
         : "";
@@ -132,9 +144,9 @@ export function itemsTable(t: TFn, items: OrderEmailItem[]): string {
       return `
         <tr>
           <td style="padding:14px 0;border-bottom:1px solid #222;">
-            <div style="color:#F0ECE5;font-weight:500;">${i.brandName} ${i.modelName}${titleSuffix}</div>
+            <div style="color:#F0ECE5;font-weight:500;">${title}</div>
             <div style="color:#8a8a8a;font-size:12px;margin-top:6px;">
-              ${matSetLabel(t, i.matSet, i.profile)} · ×${i.quantity}
+              ${subline} · ×${i.quantity}
             </div>
             <div style="color:#bbb;font-size:12px;margin-top:6px;line-height:18px;">
               ${swatch(i.colorHex, "square")}${localizeColor(t, i.colorName)}

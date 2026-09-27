@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { CatalogClient } from "./CatalogClient";
 import { getDictionary } from "@/i18n/getDictionary";
 import { makeT } from "@/i18n/dictionary";
@@ -31,6 +32,11 @@ export default async function CatalogPage() {
             {t("catalog.heading")}
           </h1>
           <p className="mt-3 text-text-dim text-sm">{statsStr}</p>
+          <p className="mt-2 text-xs text-text-faint">
+            <Link href="/accessories" className="text-gold hover:underline">
+              {t("acc.listTitle")} →
+            </Link>
+          </p>
         </div>
         <CatalogClient brands={ranked} />
       </div>

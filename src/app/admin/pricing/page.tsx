@@ -7,6 +7,7 @@ import {
   type MatSetOption,
 } from "@/data/catalog/mat-sets";
 import { BADGE_PRICE, HEEL_PAD_PRICE, THIRD_ROW_PRICE } from "@/lib/pricing";
+import { findAccessory } from "@/data/accessories";
 import type { VehicleConfigProfile } from "@/lib/vehicle-profile";
 import { getDictionary } from "@/i18n/getDictionary";
 import { makeT } from "@/i18n/dictionary";
@@ -64,6 +65,10 @@ export default async function AdminPricingPage() {
     thirdRow: {
       defaultPrice: THIRD_ROW_PRICE,
       override: overrideMap.get("addon:thirdRow") ?? null,
+    },
+    organizer: {
+      defaultPrice: findAccessory("trunk-organizer")?.price ?? 0,
+      override: overrideMap.get("accessory:trunk-organizer") ?? null,
     },
   };
 

@@ -5,7 +5,8 @@
  * but not invent products. Copy lives in the i18n dictionaries under
  * `acc.<slug>.*` and `acc.variant.<id>`.
  *
- * Variant colours reuse the mat EVA / edge colour ids on purpose: the
+ * Variant colours reuse the mat EVA / edge colour ids on purpose (the
+ * organizer itself is fabric, not EVA — only the colour ids are shared): the
  * order row can then keep its colorId / edgeColorId foreign keys, every
  * renderer localises the names through the existing colour tables, and
  * the configurator can pick the trim that matches the customer's mats.
@@ -25,6 +26,8 @@ export interface Accessory {
   slug: string;
   /** Default USD price; admin override key is `accessory:<slug>`. */
   price: number;
+  /** What it is made of — feed `g:material` and Product JSON-LD. */
+  material: string;
   variants: AccessoryVariant[];
   /** Lifestyle shots shared by all variants (gallery tail). */
   gallery: string[];
@@ -36,6 +39,9 @@ export const ACCESSORIES: Accessory[] = [
   {
     slug: "trunk-organizer",
     price: 49,
+    // Fabric with a honeycomb pattern — NOT EVA. Only the pattern is
+    // shared with the mats; calling it EVA would misstate the material.
+    material: "Fabric",
     variants: [
       {
         id: "black-red",

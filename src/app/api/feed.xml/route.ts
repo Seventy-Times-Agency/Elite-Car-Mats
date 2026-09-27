@@ -168,7 +168,7 @@ export async function GET() {
       <g:brand>Elite Car Mats</g:brand>
       <g:item_group_id>${escapeXml(`ECM-ACC-${acc.slug}`)}</g:item_group_id>
       <g:color>${escapeXml(color)}</g:color>
-      <g:material>EVA</g:material>
+      <g:material>${escapeXml(acc.material)}</g:material>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
       <g:google_product_category>8237</g:google_product_category>

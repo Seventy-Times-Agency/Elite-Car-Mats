@@ -59,6 +59,10 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "upload.wikimedia.org" },
       { protocol: "https", hostname: "commons.wikimedia.org" },
       { protocol: "https", hostname: "cdn.imagin.studio" },
+      // Blog covers: the admin form requires an absolute URL, so photos
+      // already in /public arrive as https://elitecarmats.us/…
+      { protocol: "https", hostname: "elitecarmats.us" },
+      { protocol: "https", hostname: "www.elitecarmats.us" },
     ],
   },
   async headers() {

@@ -56,6 +56,8 @@ export const operations: Dict = {
   "admin.navReviews": "Отзывы",
   "admin.navCustomOrders": "Индив. заказы",
   "admin.navNewsletter": "Рассылка",
+  "admin.navFunnel": "Воронка",
+  "admin.funnelSubtitle": "Где отваливаются посетители между сайтом и оплаченным заказом",
   "admin.intgCharges": "Stripe: приём платежей",
   "admin.intgPayouts": "Stripe: выплаты",
   "admin.intgEnabled": "включён",

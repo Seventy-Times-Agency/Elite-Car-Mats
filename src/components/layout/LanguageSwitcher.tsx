@@ -23,10 +23,10 @@ export function LanguageSwitcher() {
         onClick={() => setOpen((p) => !p)}
         aria-label={t("lang.aria")}
         aria-expanded={open}
-        className="flex items-center gap-1.5 text-[11px] font-semibold tracking-[0.15em] text-text-dim hover:text-gold transition-colors px-2 py-1 rounded-md border border-border/50 hover:border-gold/40"
+        className="flex items-center gap-1 sm:gap-1.5 text-[11px] font-semibold tracking-[0.15em] text-text-dim hover:text-gold transition-colors px-1.5 sm:px-2 py-1 rounded-md border border-border/50 hover:border-gold/40"
       >
         <svg
-          className="w-3.5 h-3.5"
+          className="hidden sm:block w-3.5 h-3.5"
           fill="none"
           stroke="currentColor"
           strokeWidth={1.6}

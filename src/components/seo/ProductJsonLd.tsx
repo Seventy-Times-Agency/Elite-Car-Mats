@@ -11,7 +11,7 @@ interface Props {
   price: number;
   name?: string;
   description?: string;
-  image?: string;
+  image?: string | string[];
   url: string;
   /**
    * Optional aggregate rating. **Only pass real numbers from real
@@ -42,7 +42,7 @@ export function ProductJsonLd({
     brand: { "@type": "Brand", name: "Elite Car Mats" },
     category: "Auto Floor Mats",
     sku: `ECM-${brand.toLowerCase().replace(/\s+/g, "-")}-${model.toLowerCase().replace(/\s+/g, "-")}`,
-    image: image ? [image] : undefined,
+    image: image ? (Array.isArray(image) ? image : [image]) : undefined,
     offers: {
       "@type": "Offer",
       url,

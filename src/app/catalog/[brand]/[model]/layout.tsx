@@ -7,6 +7,8 @@ import { getDictionary } from "@/i18n/getDictionary";
 import { makeT } from "@/i18n/dictionary";
 import { localeAlternates } from "@/lib/seo/alternates";
 
+const MODEL_OG_IMAGE = "/mats/black-black.jpg";
+
 interface Params {
   params: Promise<{ brand: string; model: string }>;
 }
@@ -41,6 +43,9 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
     openGraph: {
       title: t("prod.ogTitle", vars),
       description: t("prod.ogDesc", vars),
+      // Real product photo — the model page's share card and the one
+      // Google may pick for the rich result.
+      images: [{ url: MODEL_OG_IMAGE, width: 900, height: 1350 }],
     },
     alternates: await localeAlternates(`/catalog/${brand.slug}/${model.slug}`),
   };

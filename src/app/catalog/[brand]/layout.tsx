@@ -25,6 +25,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
         brand: brand.name,
         count: brand.modelsCount,
       }),
+      images: ["/opengraph-image"],
     },
     alternates: await localeAlternates(`/catalog/${brand.slug}`),
   };

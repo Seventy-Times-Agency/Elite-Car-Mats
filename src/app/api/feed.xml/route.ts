@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getMergedCatalogCached } from "@/lib/catalog-merge";
 import { loadPriceOverridesCached } from "@/lib/pricing-overrides";
 import { getMatSetPrice } from "@/lib/pricing";
+import { feedItemGroupId, feedSku } from "@/lib/feed/sku";
 import { MAT_SETS_BY_PROFILE } from "@/data/catalog/mat-sets";
 import {
   getVehicleProfile,
@@ -84,7 +85,7 @@ export async function GET() {
       const price = getMatSetPrice(profile, set.type, overrides);
       if (!Number.isFinite(price) || price <= 0) continue;
 
-      const sku = `ECM-${brand.slug}-${model.slug}-${set.type}`;
+      const sku = feedSku(brand.slug, model.slug, set.type);
       // Deep-link to the configurator with the set pre-selected. The
       // landing page's `?set=` and `?year=` parameters are honoured by
       // ProductClient when present.
@@ -121,7 +122,7 @@ export async function GET() {
       <g:availability>in_stock</g:availability>
       <g:price>${price.toFixed(2)} USD</g:price>
       <g:brand>Elite Car Mats</g:brand>
-      <g:item_group_id>${escapeXml(`ECM-${brand.slug}-${model.slug}`)}</g:item_group_id>
+      <g:item_group_id>${escapeXml(feedItemGroupId(brand.slug, model.slug))}</g:item_group_id>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
       <g:google_product_category>${GOOGLE_PRODUCT_CATEGORY}</g:google_product_category>

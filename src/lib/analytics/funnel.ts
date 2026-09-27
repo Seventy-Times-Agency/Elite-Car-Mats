@@ -68,6 +68,29 @@ export function shopDayKey(d: Date = new Date()): string {
   }).format(d);
 }
 
+/**
+ * Midnight of a shop-day key as an instant, honouring DST — the panel's
+ * Postgres window must start where the Redis day bucket starts, and a
+ * hard-coded -04:00 is wrong for five months of the year.
+ */
+export function shopDayStart(day: string): Date {
+  const utcMidnight = new Date(`${day}T00:00:00Z`);
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/New_York",
+    hourCycle: "h23",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).formatToParts(utcMidnight);
+  const get = (t: string) => Number(parts.find((x) => x.type === t)?.value ?? 0);
+  // What New York's wall clock read at UTC midnight → the zone offset.
+  const wall = Date.UTC(get("year"), get("month") - 1, get("day"), get("hour"), get("minute"));
+  const offsetMs = wall - utcMidnight.getTime();
+  return new Date(utcMidnight.getTime() - offsetMs);
+}
+
 /** The last `n` shop-day keys, oldest first (today included). */
 export function recentDayKeys(n: number): string[] {
   const out: string[] = [];

@@ -640,8 +640,11 @@ export default function ProductClient({
                         key={s.type}
                         onClick={() => {
                           setSet(s.type);
-                          // Funnel: picking a set is the moment a visitor
-                          // stops browsing and starts configuring.
+                          // Funnel: "configured" = touched the configurator.
+                          // A set and both colours are preselected, so only
+                          // counting set picks missed everyone who kept the
+                          // default set and changed a colour. Fired from the
+                          // colour pickers too; deduped per session client-side.
                           trackFunnel("configured");
                         }}
                         className={`px-3 py-2.5 text-left rounded-lg transition-all duration-200 ${
@@ -695,6 +698,7 @@ export default function ProductClient({
                           localizedName={localizeColor(t, c.name)}
                           onClick={() => {
                             setColor(c);
+                            trackFunnel("configured");
                             setSlide(0);
                           }}
                           showLabel={false}
@@ -720,6 +724,7 @@ export default function ProductClient({
                           localizedName={localizeColor(t, c.name)}
                           onClick={() => {
                             setEdge(c);
+                            trackFunnel("configured");
                             setSlide(0);
                           }}
                           size="sm"

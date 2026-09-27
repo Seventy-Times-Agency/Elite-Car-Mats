@@ -72,6 +72,7 @@ export const operations: Dict = {
   "admin.funnelOfPrev": "of previous step",
   "admin.funnelOff": "Not collecting yet — set UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN, then redeploy.",
   "admin.funnelEmpty": "No visits recorded in this period yet.",
+  "admin.funnelUnavailable": "Redis is configured but not answering — check the Upstash database and the two UPSTASH_* values in Vercel.",
   "admin.funnelVisit": "Visited the site",
   "admin.funnelCatalog": "Opened the catalog",
   "admin.funnelProduct": "Opened a car page",

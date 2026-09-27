@@ -2,6 +2,7 @@ import { prisma } from "@/lib/db/prisma";
 import {
   readFunnel,
   recentDayKeys,
+  shopDayStart,
   funnelEnabled,
   FUNNEL_STEPS,
   type FunnelStep,
@@ -58,7 +59,7 @@ export async function FunnelPanel({ t }: { t: TFn }) {
 
   const days = recentDayKeys(DAYS);
   // Window start in the shop's timezone, matching the Redis day buckets.
-  const since = new Date(`${days[0]}T00:00:00-04:00`);
+  const since = shopDayStart(days[0]);
 
   const [counts, orderRows] = await Promise.all([
     readFunnel(days),
@@ -70,6 +71,19 @@ export async function FunnelPanel({ t }: { t: TFn }) {
       WHERE "createdAt" >= ${since}
     `,
   ]);
+
+  // Configured but unreachable (deleted database, bad token): say so.
+  // Zeros here would read as "nobody visited", which is a different fact.
+  if (counts === null) {
+    return (
+      <div className="glass-card rounded-xl p-4 mb-6">
+        <div className="text-[10px] uppercase tracking-[0.2em] text-text-faint mb-3">
+          {t("admin.funnelTitle")}
+        </div>
+        <p className="text-xs text-red-400">{t("admin.funnelUnavailable")}</p>
+      </div>
+    );
+  }
 
   const created = Number(orderRows?.[0]?.created ?? 0);
   const paid = Number(orderRows?.[0]?.paid ?? 0);

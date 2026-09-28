@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useT } from "@/i18n/I18nProvider";
 import { FaqJsonLd } from "@/components/seo/ProductJsonLd";
+import { useShippingVars } from "@/context/PriceOverridesContext";
 
 /**
  * Product-page FAQ. Six evergreen questions every car-mat shopper asks
@@ -21,11 +22,12 @@ const FAQ_KEYS: { q: string; a: string }[] = [
 
 export function ProductFaq({ brand, model }: { brand: string; model: string }) {
   const t = useT();
+  const ship = useShippingVars();
   const [open, setOpen] = useState<number | null>(0);
 
   const items = FAQ_KEYS.map(({ q, a }) => ({
     q: t(q, { brand, model }),
-    a: t(a, { brand, model }),
+    a: t(a, { brand, model, ...ship }),
   }));
 
   return (

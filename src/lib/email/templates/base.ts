@@ -58,6 +58,8 @@ export interface OrderEmailData {
   /** Free-form note from the customer at checkout (no promo annotation). */
   comment?: string | null;
   total: number;
+  /** Shipping included in `total`; null/undefined on pre-shipping orders. */
+  shippingCost?: number | null;
   items: OrderEmailItem[];
   /** Order's stored storefront locale — the customer's language. */
   locale?: string | null;
@@ -170,6 +172,19 @@ export function itemsTable(t: TFn, items: OrderEmailItem[]): string {
  * Used in both customer and owner emails — owners especially need this
  * for delivery instructions like "leave at door" / "call on arrival".
  */
+/**
+ * "Shipping" row above the total. Omitted for orders placed before paid
+ * shipping existed (null), so old emails don't suddenly show a line.
+ */
+export function shippingRow(t: TFn, shippingCost: number | null | undefined): string {
+  if (shippingCost === null || shippingCost === undefined) return "";
+  const value = shippingCost > 0 ? formatPrice(shippingCost) : t("email.shippingFree");
+  return `<tr>
+        <td style="padding-top:12px;color:#8a8a8a;font-size:11px;letter-spacing:0.2em;text-transform:uppercase;">${t("email.shippingLabel")}</td>
+        <td style="padding-top:12px;text-align:right;color:#F0ECE5;font-size:14px;">${value}</td>
+      </tr>`;
+}
+
 export function commentBlock(t: TFn, comment: string | null | undefined): string {
   const trimmed = comment?.trim();
   if (!trimmed) return "";

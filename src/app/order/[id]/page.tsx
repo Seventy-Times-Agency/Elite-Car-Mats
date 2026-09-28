@@ -325,6 +325,16 @@ export default async function OrderPage({
               );
             })}
           </div>
+          {order.shippingCost !== null && (
+            <div className="flex justify-between items-baseline mt-5 text-xs">
+              <span className="text-text-dim">{s("cart.shippingLine")}</span>
+              <span className="text-text-dim">
+                {Number(order.shippingCost) > 0
+                  ? formatPrice(Number(order.shippingCost))
+                  : s("cart.shippingFree")}
+              </span>
+            </div>
+          )}
           <div className="flex justify-between items-baseline mt-5 pt-4 border-t border-border/50">
             <span className="text-text-dim text-xs uppercase tracking-wider">
               {s("ord.total")}

@@ -30,7 +30,7 @@ export const FAMILY_GUIDES: Record<string, ModelGuide> = {
       "2022 was sold as both the new WL and the older WK: tell us which one you have.",
     ],
     metaDescription:
-      "Jeep Grand Cherokee EVA floor mats, 1993–2025, cut for ZJ, WJ, WK, WK2 and WL. Grand Cherokee L and 4xe pages too. Free US shipping.",
+      "Jeep Grand Cherokee EVA floor mats, 1993–2026, cut for ZJ, WJ, WK, WK2 and WL. Grand Cherokee L and 4xe pages too. 30-day returns.",
   },
 
   "ford/explorer": {
@@ -48,7 +48,7 @@ export const FAMILY_GUIDES: Record<string, ModelGuide> = {
     ],
     tips: [THIRD_ROW_TIP, SECOND_ROW_TIP, "1991–2003 three-door or Explorer Sport: tell us in the trim field."],
     metaDescription:
-      "Ford Explorer EVA floor mats, 1991–2025: three-door, five-door and three-row models, bench or captain's chairs. Hand-cut, free US shipping.",
+      "Ford Explorer EVA floor mats, 1991–2027: three-door, five-door and three-row models, bench or captain's chairs. Hand-cut, 30-day returns.",
   },
 
   "toyota/highlander": {
@@ -64,7 +64,7 @@ export const FAMILY_GUIDES: Record<string, ModelGuide> = {
     ],
     tips: [THIRD_ROW_TIP, SECOND_ROW_TIP, "Highlander Hybrid and the larger Grand Highlander have their own pages in our catalog."],
     metaDescription:
-      "Toyota Highlander EVA floor mats, 2001–2025, with third-row mats and bench or captain's chair layouts. Hand-cut, free US shipping.",
+      "Toyota Highlander EVA floor mats, 2001–2026, with third-row mats and bench or captain's chair layouts. Hand-cut, 30-day returns.",
   },
 
   "toyota/grand-highlander": {
@@ -77,7 +77,7 @@ export const FAMILY_GUIDES: Record<string, ModelGuide> = {
     ],
     tips: [THIRD_ROW_TIP, SECOND_ROW_TIP, "Grand Highlander Hybrid has its own page in our catalog."],
     metaDescription:
-      "Toyota Grand Highlander EVA floor mats for 2024–2025, three rows with bench or captain's chairs. Hand-cut in Rochester, NY, free shipping.",
+      "Toyota Grand Highlander EVA floor mats for 2024–2026, three rows with bench or captain's chairs. Hand-cut in Rochester, NY, 30-day returns.",
   },
 
   "honda/pilot": {
@@ -93,7 +93,7 @@ export const FAMILY_GUIDES: Record<string, ModelGuide> = {
     ],
     tips: [THIRD_ROW_TIP, SECOND_ROW_TIP],
     metaDescription:
-      "Honda Pilot EVA floor mats, 2003–2025: all three rows, bench or captain's chairs, plus cargo. Hand-cut in Rochester, NY, free US shipping.",
+      "Honda Pilot EVA floor mats, 2003–2026: all three rows, bench or captain's chairs, plus cargo. Hand-cut in Rochester, NY, 30-day returns.",
   },
 
   "kia/telluride": {
@@ -102,11 +102,12 @@ export const FAMILY_GUIDES: Record<string, ModelGuide> = {
       "Kia skipped the 2026 model year: the 2025 Telluride was followed directly by the redesigned 2027 model.",
     ],
     generations: [
+      { years: "2027+", name: "2nd gen", note: "Full redesign; adds a Telluride Hybrid. There is no 2026 model year." },
       { years: "2020–2025", name: "1st gen", note: "V6 only; refreshed for 2023." },
     ],
     tips: [THIRD_ROW_TIP, SECOND_ROW_TIP],
     metaDescription:
-      "Kia Telluride EVA floor mats for 2020–2025: three rows, eight seats or seven with captain's chairs, plus cargo. Free US shipping.",
+      "Kia Telluride EVA floor mats for 2020–2027: three rows, eight seats or seven with captain's chairs, plus cargo. 30-day returns.",
   },
 
   "hyundai/santa-fe": {
@@ -126,7 +127,7 @@ export const FAMILY_GUIDES: Record<string, ModelGuide> = {
       "Santa Fe Sport, Santa Fe XL and Santa Fe Hybrid have their own pages in our catalog.",
     ],
     metaDescription:
-      "Hyundai Santa Fe EVA floor mats, 2001–2025, two-row and three-row versions of every generation. Sport, XL and Hybrid too. Free US shipping.",
+      "Hyundai Santa Fe EVA floor mats, 2001–2027, two-row and three-row versions of every generation. Sport, XL and Hybrid too. 30-day returns.",
   },
 
   "hyundai/palisade": {
@@ -140,7 +141,7 @@ export const FAMILY_GUIDES: Record<string, ModelGuide> = {
     ],
     tips: [THIRD_ROW_TIP, SECOND_ROW_TIP],
     metaDescription:
-      "Hyundai Palisade EVA floor mats for 2020–2025: all three rows, bench or captain's chairs, and cargo. Hand-cut, free US shipping.",
+      "Hyundai Palisade EVA floor mats for 2020–2026: all three rows, bench or captain's chairs, and cargo. Hand-cut, 30-day returns.",
   },
 
   "kia/sorento": {
@@ -156,7 +157,7 @@ export const FAMILY_GUIDES: Record<string, ModelGuide> = {
     ],
     tips: [THIRD_ROW_TIP, SECOND_ROW_TIP, "Sorento Hybrid has its own page in our catalog."],
     metaDescription:
-      "Kia Sorento EVA floor mats, 2003–2025: five, six and seven seats, gas, Hybrid or Plug-in. Cut per generation, free US shipping.",
+      "Kia Sorento EVA floor mats, 2003–2026: five, six and seven seats, gas, Hybrid or Plug-in. Cut per generation, 30-day returns.",
   },
 
   "chevrolet/traverse": {
@@ -171,7 +172,7 @@ export const FAMILY_GUIDES: Record<string, ModelGuide> = {
     ],
     tips: [THIRD_ROW_TIP, SECOND_ROW_TIP, "2024 Traverse Limited: write “Limited” so we use the earlier generation."],
     metaDescription:
-      "Chevrolet Traverse EVA floor mats, 2009–2025: three rows, bench or captain's chairs, plus a large cargo liner. Free US shipping.",
+      "Chevrolet Traverse EVA floor mats, 2009–2026: three rows, bench or captain's chairs, plus a large cargo liner. 30-day returns.",
   },
 
   "toyota/sienna": {
@@ -187,7 +188,7 @@ export const FAMILY_GUIDES: Record<string, ModelGuide> = {
     ],
     tips: [MINIVAN_ROWS_TIP, "Seven or eight seats? Write it in the trim field."],
     metaDescription:
-      "Toyota Sienna EVA floor mats, 1998–2025: every row and the cargo area, seven or eight seats, hybrid and AWD. Free US shipping.",
+      "Toyota Sienna EVA floor mats, 1998–2026: every row and the cargo area, seven or eight seats, hybrid and AWD. 30-day returns.",
   },
 
   "honda/odyssey": {
@@ -204,6 +205,6 @@ export const FAMILY_GUIDES: Record<string, ModelGuide> = {
     ],
     tips: [MINIVAN_ROWS_TIP, "Seven or eight seats, and Magic Slide or not? Write it in the trim field."],
     metaDescription:
-      "Honda Odyssey EVA floor mats, 1995–2025: all rows and cargo, seven or eight seats, Magic Slide second row. Hand-cut, free US shipping.",
+      "Honda Odyssey EVA floor mats, 1995–2027: all rows and cargo, seven or eight seats, Magic Slide second row. Hand-cut, 30-day returns.",
   },
 };

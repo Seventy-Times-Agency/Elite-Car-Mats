@@ -17,6 +17,8 @@ import { buildDbProfileResolver } from "@/lib/catalog-merge";
 import { cancelScheduledEmail } from "@/lib/email/transport";
 import { escapeHtml } from "@/lib/email/templates/base";
 import { sendMetaPurchase } from "@/lib/analytics/meta-capi";
+import { reportProblem } from "@/lib/ops/journal";
+import { logOrderEvent } from "@/lib/orders/events";
 
 // Webhooks must see the raw body for signature verification. In the App
 // Router there is no body parser to disable — the route reads
@@ -250,6 +252,7 @@ async function sendOrderConfirmations(orderId: string): Promise<void> {
     // promo code lives in Order.promoCode column.
     comment: order.comment,
     total: Number(order.total ?? 0),
+    shippingCost: order.shippingCost === null ? null : Number(order.shippingCost),
     locale: order.locale,
     items: order.items.map((i) => {
       if (i.kind === "accessory" && i.accessorySlug && i.accessoryVariant) {
@@ -327,6 +330,9 @@ export async function POST(request: Request) {
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     console.error("[stripe-webhook] invalid signature:", msg);
+    // Repeated = STRIPE_WEBHOOK_SECRET doesn't match the endpoint: paid
+    // orders would silently stay PENDING. A single one can be a probe.
+    await reportProblem({ area: "webhook.signature", severity: "critical", message: msg });
     return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
   }
 
@@ -343,6 +349,7 @@ export async function POST(request: Request) {
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     console.error(`[stripe-webhook] claimEvent failed for ${event.id}:`, msg);
+    await reportProblem({ area: "webhook.claim", severity: "critical", message: msg });
     // Return 500 so Stripe re-delivers — better than fail-open and a
     // possible double-send if a transient DB blip clears.
     return NextResponse.json(
@@ -399,6 +406,11 @@ export async function POST(request: Request) {
           console.log(
             `[stripe-webhook] ${event.id} order=${orderId} paid (rows=${res.count})`,
           );
+          if (res.count === 1) {
+            await logOrderEvent(orderId, "paid", {
+              amount: (session.amount_total ?? 0) / 100,
+            });
+          }
           if (res.count === 1) {
             // Deferred via `after` so a slow Resend call can't trip
             // Stripe's 30s webhook timeout — and, unlike a bare
@@ -462,6 +474,12 @@ export async function POST(request: Request) {
             `[stripe-webhook] ${event.id} order=${orderId} async-paid (rows=${res.count})`,
           );
           if (res.count === 1) {
+            await logOrderEvent(orderId, "paid", {
+              amount: (session.amount_total ?? 0) / 100,
+              async: 1,
+            });
+          }
+          if (res.count === 1) {
             after(async () => {
               await expireOtherOpenSession(orderId, session.id);
               await saveReceiptUrl(orderId, paymentIntentId);
@@ -507,6 +525,12 @@ export async function POST(request: Request) {
           console.log(
             `[stripe-webhook] ${event.id} order=${orderId} cancelled (rows=${res.count})`,
           );
+          if (res.count === 1) {
+            await logOrderEvent(
+              orderId,
+              event.type === "checkout.session.expired" ? "expired" : "async_failed",
+            );
+          }
           if (res.count === 1) {
             // Guarded by the status transition above, so a webhook
             // re-delivery can't refund the same use twice.
@@ -578,6 +602,14 @@ export async function POST(request: Request) {
         const pi = event.data.object as Stripe.PaymentIntent;
         const lastErr = pi.last_payment_error;
         const orderNumber = pi.metadata?.orderNumber ?? "unknown";
+        const failedOrderId = pi.metadata?.orderId;
+        if (failedOrderId) {
+          await logOrderEvent(failedOrderId, "payment_failed", {
+            code: lastErr?.code ?? null,
+            decline: lastErr?.decline_code ?? null,
+            message: lastErr?.message ?? null,
+          });
+        }
         console.warn(
           `[stripe-webhook] ${event.id} payment failed order=${orderNumber} ` +
             `pi=${pi.id} code=${lastErr?.code ?? "-"} ` +
@@ -597,6 +629,12 @@ export async function POST(request: Request) {
     console.error(
       `[stripe-webhook] handler error event=${event.id} type=${event.type} :: ${msg}`,
     );
+    await reportProblem({
+      area: "webhook.handler",
+      severity: "critical",
+      message: msg,
+      context: event.type,
+    });
     // Give the claim back — otherwise Stripe's retry of this 500 would hit
     // the "already processed" fast path and the event would be dropped
     // for good (e.g. a paid order stuck in PENDING forever).

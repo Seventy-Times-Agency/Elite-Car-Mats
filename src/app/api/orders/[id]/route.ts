@@ -10,6 +10,7 @@ import {
   REVIEW_INVITE_AFTER_SHIP_MS,
   REVIEW_INVITE_AFTER_DELIVERY_MS,
 } from "@/lib/reviews/schedule-invite";
+import { logOrderEvent } from "@/lib/orders/events";
 
 const updateSchema = z.object({
   status: z
@@ -167,6 +168,14 @@ export async function PATCH(
       trackingNumber: true,
     },
   });
+
+  if (status !== undefined && status !== existing.status) {
+    await logOrderEvent(existing.id, "status", {
+      from: existing.status,
+      to: status,
+      by: "admin",
+    });
+  }
 
   // Cancelling an unpaid order gives its promo use back — the use was
   // consumed atomically at creation, and the Stripe-webhook refund only

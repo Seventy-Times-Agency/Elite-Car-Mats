@@ -65,7 +65,7 @@ export function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16 lg:h-20">
         <Link
           href="/"
-          className="font-bold text-lg lg:text-xl tracking-[0.12em] uppercase"
+          className="font-bold text-base sm:text-lg lg:text-xl tracking-[0.08em] sm:tracking-[0.12em] uppercase shrink-0"
           aria-label={t("nav.logoAria")}
         >
           Elite<span className="text-gold">Car</span>Mats
@@ -86,7 +86,10 @@ export function Header() {
           ))}
         </nav>
 
-        <div className="flex items-center gap-2 lg:gap-3">
+        {/* gap-1 below sm: at 375px the logo + six controls overflowed by
+            ~35px and phones then widened the layout viewport, dragging the
+            fixed add-to-cart bar and cookie banner off-screen too. */}
+        <div className="flex items-center gap-1 sm:gap-2 lg:gap-3">
           <HeaderSearch />
 
           <LanguageSwitcher />

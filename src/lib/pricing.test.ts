@@ -7,6 +7,11 @@ import {
   calculateOrderTotal,
   clampBadgeCount,
   getMatSetPrice,
+  getShippingSettings,
+  bundleSavings,
+  shippingFor,
+  SHIPPING_FEE,
+  FREE_SHIPPING_FROM,
   type PriceOverrideMap,
 } from "./pricing";
 import { MAT_SETS_BY_PROFILE } from "@/data/catalog/mat-sets";
@@ -148,5 +153,57 @@ describe("calculateOrderTotal", () => {
 
   it("is zero for an empty cart", () => {
     expect(calculateOrderTotal([])).toBe(0);
+  });
+});
+
+describe("shipping", () => {
+  it("charges the flat fee below the threshold and nothing from it", () => {
+    expect(shippingFor(119)).toBe(SHIPPING_FEE);
+    expect(shippingFor(FREE_SHIPPING_FROM - 0.01)).toBe(SHIPPING_FEE);
+    expect(shippingFor(FREE_SHIPPING_FROM)).toBe(0);
+    expect(shippingFor(277)).toBe(0);
+  });
+
+  it("follows admin overrides: fee 0 = always free, threshold 0 = always paid", () => {
+    expect(shippingFor(50, new Map([["shipping:fee", 0]]))).toBe(0);
+    expect(shippingFor(500, new Map([["shipping:freeFrom", 0]]))).toBe(SHIPPING_FEE);
+    const ov = new Map([["shipping:fee", 12], ["shipping:freeFrom", 150]]);
+    expect(shippingFor(149, ov)).toBe(12);
+    expect(shippingFor(150, ov)).toBe(0);
+    expect(getShippingSettings(ov)).toEqual({ fee: 12, freeFrom: 150 });
+  });
+});
+
+describe("bundle savings", () => {
+  it("is zero at code defaults (combo = sum of parts)", () => {
+    expect(bundleSavings("standard", "full-cargo")).toBe(0);
+    expect(bundleSavings("minivan", "full-cargo")).toBe(0);
+    expect(bundleSavings("standard", "full")).toBe(0);
+  });
+
+  it("shows the gap once the admin lowers the combo price", () => {
+    const ov = new Map([["standard:full-cargo", 179]]);
+    expect(bundleSavings("standard", "full-cargo", ov)).toBe(
+      getMatSetPrice("standard", "full") + getMatSetPrice("standard", "cargo") - 179,
+    );
+    // pickups sell no combo
+    expect(bundleSavings("pickup", "full-cargo", ov)).toBe(0);
+  });
+});
+
+describe("per-product shipping", () => {
+  it("an order pays the highest product fee, once", () => {
+    const ov = new Map([
+      ["shipping:semi.front", 40],
+      ["shipping:accessory.trunk-organizer", 8],
+    ]);
+    expect(shippingFor(100, ov, ["standard.full"])).toBe(SHIPPING_FEE);
+    expect(shippingFor(100, ov, ["accessory.trunk-organizer"])).toBe(8);
+    expect(shippingFor(150, ov, ["standard.full", "semi.front", "accessory.trunk-organizer"])).toBe(40);
+  });
+
+  it("the free threshold still wins", () => {
+    const ov = new Map([["shipping:semi.front", 40]]);
+    expect(shippingFor(FREE_SHIPPING_FROM, ov, ["semi.front"])).toBe(0);
   });
 });

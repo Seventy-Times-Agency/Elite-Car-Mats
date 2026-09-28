@@ -7,6 +7,7 @@ import { AdminShell } from "@/components/admin/AdminShell";
 import { formatPrice } from "@/lib/pricing";
 import { getDictionary } from "@/i18n/getDictionary";
 import { makeT } from "@/i18n/dictionary";
+import { listProblems } from "@/lib/ops/journal";
 
 export const dynamic = "force-dynamic";
 
@@ -423,6 +424,8 @@ export default async function AdminDashboardPage() {
     },
   ];
 
+  const problems = await listProblems();
+  const criticalProblems = problems?.filter((p) => p.severity === "critical").length ?? 0;
   const [stripeChecks, resendChecks] = await Promise.all([
     stripeLiveCheck(t),
     resendLiveCheck(t),
@@ -439,6 +442,35 @@ export default async function AdminDashboardPage() {
       title={t("admin.dashTitle")}
       subtitle={t("admin.dashSubtitle")}
     >
+      {/* One-line health from the problem journal — green when quiet. */}
+      {problems !== null && (
+        <Link
+          href="/admin/journal"
+          className="glass-card rounded-xl px-4 py-3 mb-4 flex items-center gap-3 hover:border-gold/30 transition-colors"
+        >
+          <span
+            className={`w-2.5 h-2.5 rounded-full shrink-0 ${
+              problems.length === 0
+                ? "bg-success"
+                : criticalProblems > 0
+                  ? "bg-error"
+                  : "bg-gold/70"
+            }`}
+            aria-hidden
+          />
+          <span className="text-sm text-text">
+            {problems.length === 0
+              ? t("journal.allGood")
+              : t("journal.summary", { total: problems.length, critical: criticalProblems })}
+          </span>
+          {problems.length > 0 && (
+            <span className="ml-auto text-[11px] uppercase tracking-wider text-gold">
+              {t("journal.open")} →
+            </span>
+          )}
+        </Link>
+      )}
+
       {/* Integration health — answers "does the server see my keys" at
           a glance, since env typos in Vercel are otherwise invisible. */}
       <div className="glass-card rounded-xl p-4 mb-6">

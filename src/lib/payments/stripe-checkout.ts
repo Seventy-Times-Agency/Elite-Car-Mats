@@ -24,6 +24,9 @@ export interface CreateCheckoutSessionInput {
   /** Discount in whole USD applied to the order subtotal. Translated into a
    *  Stripe-side coupon so the customer sees the price they were quoted. */
   discountUsd?: number;
+  /** Flat shipping stored on the order (0 = free). Shown by Stripe as its
+   *  own shipping line; coupons never touch it. */
+  shippingUsd?: number;
   /** Token for the magic order URL embedded in the success_url. */
   orderToken?: string;
   /** Preferred locale for Stripe Checkout UI. Falls back to auto. */
@@ -128,6 +131,21 @@ export async function createCheckoutSession(
     shipping_address_collection: {
       allowed_countries: ["US"],
     },
+    shipping_options: [
+      {
+        shipping_rate_data: {
+          type: "fixed_amount",
+          fixed_amount: {
+            amount: Math.round((input.shippingUsd ?? 0) * 100),
+            currency: "usd",
+          },
+          display_name:
+            (input.shippingUsd ?? 0) > 0
+              ? "Standard shipping (USPS / UPS)"
+              : "Free shipping (USPS / UPS)",
+        },
+      },
+    ],
     // {CHECKOUT_SESSION_ID} is a Stripe placeholder, so we have to
     // hand-build the query string and inject it (URLSearchParams encodes
     // the braces).

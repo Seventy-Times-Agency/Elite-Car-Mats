@@ -17,6 +17,17 @@ export const siteUrl =
  * generally treat email send as fire-and-forget so a Resend outage doesn't
  * block an order from being recorded.
  */
+/** Lazy import: the journal's own owner alert goes through `send`. */
+async function journalEmailFailure(error: unknown, subject: string): Promise<void> {
+  const { reportProblem } = await import("@/lib/ops/journal");
+  await reportProblem({
+    area: "email.send",
+    severity: "warning",
+    error: error instanceof Error ? error : JSON.stringify(error),
+    context: subject,
+  });
+}
+
 export async function send({
   to,
   subject,
@@ -66,11 +77,13 @@ export async function send({
     });
     if (error) {
       console.error("[email:error]", subject, error);
+      await journalEmailFailure(error, subject);
       return null;
     }
     return data?.id ?? null;
   } catch (err) {
     console.error("[email:exception]", subject, err);
+    await journalEmailFailure(err, subject);
     return null;
   }
 }

@@ -15,6 +15,8 @@ import { getDictionaryFor } from "@/i18n/getDictionary";
 import { DEFAULT_LOCALE } from "@/i18n/config";
 import { makeT } from "@/i18n/dictionary";
 import { localizeColor } from "@/i18n/labels";
+import { reportProblem } from "@/lib/ops/journal";
+import { logOrderEvent } from "@/lib/orders/events";
 
 const schema = z.object({
   orderId: z.string().min(1),
@@ -187,7 +189,11 @@ export async function POST(request: Request) {
     (s, it) => s + it.unitPriceUsd * it.quantity,
     0,
   );
-  const dbTotal = Number(order.total ?? 0);
+  // Shipping is part of the stored total but billed as Stripe's own
+  // shipping line, so take it out before deriving the promo discount.
+  // NULL = order from before paid shipping (shipped free).
+  const shippingUsd = Number(order.shippingCost ?? 0);
+  const dbTotal = Number(order.total ?? 0) - shippingUsd;
   // Difference between subtotal and stored total is the promo discount.
   // Clamped so the session total never drops below Stripe's $0.50 card
   // minimum — a 100%-off promo would otherwise make session creation
@@ -203,6 +209,7 @@ export async function POST(request: Request) {
       customerEmail: order.email,
       items,
       discountUsd,
+      shippingUsd,
       orderToken: signOrderToken(order.id),
       locale: LOCALE_MAP[locale] ?? "auto",
     });
@@ -256,9 +263,14 @@ export async function POST(request: Request) {
       after(() => expireSessionSafely(prevSessionId));
     }
 
+    await logOrderEvent(order.id, "checkout_opened", {
+      amount: Number(order.total ?? 0),
+    });
+
     return NextResponse.json({ url: session.url, sessionId: session.id });
   } catch (err) {
     console.error("[stripe-checkout:error]", err);
+    await reportProblem({ area: "checkout.session", severity: "critical", error: err });
     return NextResponse.json(
       { error: "Failed to create checkout session" },
       { status: 502 },

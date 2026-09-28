@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { ACCESSORIES, accessorySku, findAccessory } from "@/data/accessories";
 import { getAddonAvailabilityCached } from "@/lib/availability";
 import { loadPriceOverridesCached } from "@/lib/pricing-overrides";
-import { getAccessoryPrice } from "@/lib/pricing";
+import { getAccessoryPrice, shippingFor } from "@/lib/pricing";
 import { getDictionary } from "@/i18n/getDictionary";
 import { makeT } from "@/i18n/dictionary";
 import { localeAlternates } from "@/lib/seo/alternates";
@@ -80,7 +80,11 @@ export default async function AccessoryPage({ params, searchParams }: Params) {
       itemCondition: "https://schema.org/NewCondition",
       shippingDetails: {
         "@type": "OfferShippingDetails",
-        shippingRate: { "@type": "MonetaryAmount", value: 0, currency: "USD" },
+        shippingRate: {
+          "@type": "MonetaryAmount",
+          value: shippingFor(price, overrides, [`accessory.${slug}`]),
+          currency: "USD",
+        },
         shippingDestination: { "@type": "DefinedRegion", addressCountry: "US" },
       },
     })),

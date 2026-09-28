@@ -2,9 +2,11 @@
 
 import { LegalLayout } from "@/components/legal/LegalLayout";
 import { useT } from "@/i18n/I18nProvider";
+import { useShippingVars } from "@/context/PriceOverridesContext";
 
 export default function DeliveryPage() {
   const t = useT();
+  const ship = useShippingVars();
   return (
     <LegalLayout
       title={t("delivery.title")}
@@ -27,7 +29,7 @@ export default function DeliveryPage() {
       <h2>{t("delivery.costH")}</h2>
       <ul>
         <li>
-          <strong>{t("delivery.c1Pre")}</strong> {t("delivery.c1")}
+          <strong>{t("delivery.c1Pre", ship)}</strong> {t("delivery.c1", ship)}
         </li>
         <li>{t("delivery.c2")}</li>
         <li>{t("delivery.c3")}</li>

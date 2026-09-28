@@ -7,6 +7,7 @@ import { useT, useLocale } from "@/i18n/I18nProvider";
 import { localizeColor, localizeMatSet } from "@/i18n/labels";
 import { accessoryView } from "@/lib/accessories/display";
 import { formatPrice } from "@/lib/pricing";
+import { PaymentHistory, type OrderEventView } from "./PaymentHistory";
 
 type Status =
   | "PENDING"
@@ -63,10 +64,13 @@ interface Order {
   promoCode: string | null;
   subtotal: number;
   discount: number;
+  /** Included in `total`; null on orders from before paid shipping. */
+  shipping: number | null;
   total: number;
   trackingNumber: string | null;
   itemsCount: number;
   createdAt: string;
+  events: OrderEventView[];
 }
 
 export function OrderRow({
@@ -326,6 +330,16 @@ export function OrderRow({
                 </span>
               </div>
             )}
+            {order.shipping !== null && (
+              <div className="flex justify-between gap-4">
+                <span className="text-text-dim">{t("admin.shippingLabel")}</span>
+                <span className="text-text tabular-nums">
+                  {order.shipping > 0
+                    ? formatPrice(order.shipping)
+                    : t("admin.shippingFree")}
+                </span>
+              </div>
+            )}
             <div className="flex justify-between gap-4 pt-1.5 border-t border-border/30">
               <span className="text-text font-semibold">
                 {t("admin.totalLabel")}
@@ -334,6 +348,16 @@ export function OrderRow({
                 {formatPrice(order.total)}
               </span>
             </div>
+          </div>
+
+          <div className="rounded-lg border border-border/40 bg-bg/30 px-3 py-2.5">
+            <div className="text-[10px] uppercase tracking-[0.2em] text-text-faint font-semibold mb-2">
+              {t("admin.historyH")}
+            </div>
+            <PaymentHistory
+              events={order.events}
+              statusLabel={(s) => STATUS_LABEL[s as Status] ?? s}
+            />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

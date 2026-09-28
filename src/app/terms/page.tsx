@@ -2,9 +2,11 @@
 
 import { LegalLayout } from "@/components/legal/LegalLayout";
 import { useT } from "@/i18n/I18nProvider";
+import { useShippingVars } from "@/context/PriceOverridesContext";
 
 export default function TermsPage() {
   const t = useT();
+  const ship = useShippingVars();
   return (
     <LegalLayout
       title={t("terms.title")}
@@ -19,7 +21,7 @@ export default function TermsPage() {
         <li>{t("terms.s2l1")}</li>
         <li>{t("terms.s2l2")}</li>
         <li>{t("terms.s2l3")}</li>
-        <li>{t("terms.s2l4")}</li>
+        <li>{t("terms.s2l4", ship)}</li>
       </ul>
 
       <h2>{t("terms.s3H")}</h2>

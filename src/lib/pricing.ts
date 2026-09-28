@@ -117,6 +117,99 @@ export function getAccessoryPrice(
   return findAccessory(slug)?.price ?? 0;
 }
 
+/**
+ * Shipping: flat fee, free once the merchandise subtotal (after promo)
+ * reaches the threshold. Both are admin-editable under the pseudo-profile
+ * `shipping` (rows `shipping:fee`, `shipping:freeFrom`). Fee 0 = free
+ * shipping on every order; threshold 0 = no threshold (fee always).
+ */
+export const SHIPPING_FEE = 15;
+export const FREE_SHIPPING_FROM = 200;
+
+export interface ShippingSettings {
+  fee: number;
+  freeFrom: number;
+}
+
+export function getShippingSettings(
+  overrides?: PriceOverrideMap,
+): ShippingSettings {
+  const fee = overrides?.get("shipping:fee");
+  const freeFrom = overrides?.get("shipping:freeFrom");
+  return {
+    fee: typeof fee === "number" && Number.isFinite(fee) ? fee : SHIPPING_FEE,
+    freeFrom:
+      typeof freeFrom === "number" && Number.isFinite(freeFrom)
+        ? freeFrom
+        : FREE_SHIPPING_FROM,
+  };
+}
+
+/** `{fee}` / `{freeFrom}` for the shipping copy in the dictionaries. */
+export function shippingCopyVars(
+  overrides?: PriceOverrideMap,
+): { fee: string; freeFrom: string } {
+  const { fee, freeFrom } = getShippingSettings(overrides);
+  return { fee: formatPrice(fee), freeFrom: formatPrice(freeFrom) };
+}
+
+/**
+ * Per-product shipping key: `<profile>.<matSet>` for mat sets,
+ * `accessory.<slug>` for accessories. Admin row `shipping:<key>`
+ * overrides the default fee for that product.
+ */
+export function shippingKeyFor(item: CartItem): string {
+  if (isAccessoryItem(item)) return `accessory.${item.accessorySlug}`;
+  return `${findProfileByModelId(item.modelId)}.${item.matSet}`;
+}
+
+/** Shipping fee of one product bought on its own (threshold aside). */
+export function productShippingFee(key: string, overrides?: PriceOverrideMap): number {
+  const ov = overrides?.get(`shipping:${key}`);
+  if (typeof ov === "number" && Number.isFinite(ov)) return ov;
+  return getShippingSettings(overrides).fee;
+}
+
+/**
+ * Shipping for an order. Everything ships in one parcel, so the order
+ * pays the highest fee among its products (not the sum), and nothing
+ * once the merchandise subtotal (already net of promo) reaches the
+ * free-shipping threshold. Without `keys` the default fee applies.
+ */
+export function shippingFor(
+  merchandiseUsd: number,
+  overrides?: PriceOverrideMap,
+  keys: string[] = [],
+): number {
+  const { fee, freeFrom } = getShippingSettings(overrides);
+  if (freeFrom > 0 && merchandiseUsd >= freeFrom) return 0;
+  const fees = keys.length ? keys.map((k) => productShippingFee(k, overrides)) : [fee];
+  return Math.max(0, ...fees);
+}
+
+/**
+ * How much the complete set (cabin + trunk) saves against buying the
+ * cabin set and the trunk mat separately. 0 while the admin keeps the
+ * combo at the sum of its parts — which is the code default, so no
+ * discount shows until someone lowers the `full-cargo` price.
+ */
+export function bundleSavings(
+  profile: VehicleConfigProfile,
+  type: MatSetType,
+  overrides?: PriceOverrideMap,
+): number {
+  if (type !== "full-cargo") return 0;
+  const sets = MAT_SETS_BY_PROFILE[profile] ?? [];
+  const has = (t: MatSetType) => sets.some((s) => s.type === t);
+  const cabin: MatSetType | null = has("full") ? "full" : has("front") ? "front" : null;
+  if (!cabin || !has("cargo") || !has("full-cargo")) return 0;
+  const parts =
+    getMatSetPrice(profile, cabin, overrides) +
+    getMatSetPrice(profile, "cargo", overrides);
+  const saving = parts - getMatSetPrice(profile, "full-cargo", overrides);
+  return saving > 0 ? Math.round(saving * 100) / 100 : 0;
+}
+
 /** Unit price of any cart line — mat set or accessory. */
 export function cartItemUnitPrice(
   item: CartItem,

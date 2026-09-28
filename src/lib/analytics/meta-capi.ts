@@ -1,5 +1,6 @@
 import "server-only";
 import { createHash } from "node:crypto";
+import { reportProblem } from "@/lib/ops/journal";
 
 /**
  * Meta Conversions API — server-side Purchase events.
@@ -120,10 +121,17 @@ export async function sendMetaPurchase(
       console.error(
         `[meta-capi] Purchase ${params.orderNumber} rejected: ${res.status} ${text.slice(0, 300)}`,
       );
+      await reportProblem({
+        area: "capi",
+        severity: "warning",
+        message: `HTTP ${res.status} ${text.slice(0, 200)}`,
+        context: params.orderNumber,
+      });
     } else {
       console.log(`[meta-capi] Purchase ${params.orderNumber} sent`);
     }
   } catch (err) {
     console.error(`[meta-capi] Purchase ${params.orderNumber} failed:`, err);
+    await reportProblem({ area: "capi", severity: "warning", error: err, context: params.orderNumber });
   }
 }

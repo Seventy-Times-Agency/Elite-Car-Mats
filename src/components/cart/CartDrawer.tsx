@@ -1,12 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import { ShippingLine, useBilledTotal } from "@/components/cart/ShippingLine";
 import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/context/CartContext";
 import {
   cartItemUnitPrice,
   cartTotal,
+  shippingKeyFor,
   formatPrice,
 } from "@/lib/pricing";
 import { useT } from "@/i18n/I18nProvider";
@@ -47,6 +49,8 @@ export function CartDrawer() {
   }, [isOpen]);
 
   const subtotal = cartTotal(items, priceOverrides);
+  const shipKeys = items.map(shippingKeyFor);
+  const billed = useBilledTotal(subtotal, shipKeys);
 
   const goCheckout = () => {
     closeCart();
@@ -279,12 +283,13 @@ export function CartDrawer() {
         {/* Footer */}
         {items.length > 0 && (
           <div className="border-t border-border/40 px-5 py-4 space-y-3 bg-bg/40">
+            <ShippingLine merchandise={subtotal} keys={shipKeys} />
             <div className="flex justify-between items-baseline">
               <span className="text-text-dim text-xs uppercase tracking-[0.2em]">
                 {t("cart.total")}
               </span>
               <span className="text-gold text-2xl font-bold">
-                {formatPrice(subtotal)}
+                {formatPrice(billed)}
               </span>
             </div>
             <button

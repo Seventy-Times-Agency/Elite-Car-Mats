@@ -3,6 +3,7 @@ import { z } from "zod";
 import { Resend } from "resend";
 import { rateLimit, getClientIp } from "@/lib/security/rate-limit";
 import { prisma } from "@/lib/db/prisma";
+import { reportProblem } from "@/lib/ops/journal";
 
 const apiKey = process.env.RESEND_API_KEY;
 const fromAddress =
@@ -79,6 +80,7 @@ export async function POST(request: Request) {
     });
   } catch (err) {
     console.error("[custom-order:db-save-failed]", err);
+    await reportProblem({ area: "custom.order", severity: "critical", error: err, context: "db save" });
     // We still want the owner to get an email even if the DB write fails.
   }
 
@@ -118,10 +120,12 @@ export async function POST(request: Request) {
     });
     if (error) {
       console.error("[custom-order:error]", error);
+      await reportProblem({ area: "custom.order", severity: "critical", error: JSON.stringify(error), context: "email" });
       return NextResponse.json({ error: "Send failed" }, { status: 502 });
     }
   } catch (err) {
     console.error("[custom-order:exception]", err);
+    await reportProblem({ area: "custom.order", severity: "critical", error: err, context: "email" });
     return NextResponse.json({ error: "Send failed" }, { status: 502 });
   }
 

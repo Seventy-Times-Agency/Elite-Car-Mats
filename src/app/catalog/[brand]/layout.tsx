@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getMergedCatalogCached } from "@/lib/catalog-merge";
 import { getDictionary } from "@/i18n/getDictionary";
 import { makeT } from "@/i18n/dictionary";
+import { getShippingCopyVars } from "@/lib/pricing-overrides";
 import { localeAlternates } from "@/lib/seo/alternates";
 
 interface Params {
@@ -18,7 +19,10 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
 
   return {
     title: t("brand.metaTitle", { brand: brand.name }),
-    description: t("brand.metaDesc", { brand: brand.name }),
+    description: t("brand.metaDesc", {
+      brand: brand.name,
+      ...(await getShippingCopyVars()),
+    }),
     openGraph: {
       title: t("brand.ogTitle", { brand: brand.name }),
       description: t("brand.ogDesc", {

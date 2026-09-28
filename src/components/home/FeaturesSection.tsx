@@ -2,6 +2,7 @@
 
 import { Reveal } from "@/components/common/Reveal";
 import { useT } from "@/i18n/I18nProvider";
+import { useShippingVars } from "@/context/PriceOverridesContext";
 
 const ICONS = [
   <svg key="1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-7 h-7">
@@ -26,13 +27,14 @@ const ICONS = [
 
 export function FeaturesSection() {
   const t = useT();
+  const ship = useShippingVars();
   const features = [
     { icon: ICONS[0], title: t("features.f1Title"), desc: t("features.f1Desc") },
     { icon: ICONS[1], title: t("features.f2Title"), desc: t("features.f2Desc") },
     { icon: ICONS[2], title: t("features.f3Title"), desc: t("features.f3Desc") },
     { icon: ICONS[3], title: t("features.f4Title"), desc: t("features.f4Desc") },
     { icon: ICONS[4], title: t("features.f5Title"), desc: t("features.f5Desc") },
-    { icon: ICONS[5], title: t("features.f6Title"), desc: t("features.f6Desc") },
+    { icon: ICONS[5], title: t("features.f6Title", ship), desc: t("features.f6Desc", ship) },
   ];
   return (
     <section className="py-14 lg:py-20">

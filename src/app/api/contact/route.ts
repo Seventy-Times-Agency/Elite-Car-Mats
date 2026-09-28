@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { sendContactEmail } from "@/lib/email";
 import { rateLimit, getClientIp } from "@/lib/security/rate-limit";
+import { reportProblem } from "@/lib/ops/journal";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -47,6 +48,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true });
   } catch (err) {
     console.error("[api/contact] send failed:", err);
+    await reportProblem({ area: "contact.send", severity: "warning", error: err });
     return NextResponse.json(
       { ok: false, error: "Failed to send" },
       { status: 500 },

@@ -3,7 +3,7 @@ import { NextResponse, after } from "next/server";
 import { prisma } from "@/lib/db/prisma";
 import { ensureCatalogSeed, resetCatalogSeedCache } from "@/lib/db/seed";
 import { createOrderSchema, isAccessoryInput } from "@/lib/validations/order";
-import { getAccessoryPrice } from "@/lib/pricing";
+import { getAccessoryPrice, shippingFor } from "@/lib/pricing";
 import { findAccessoryVariant } from "@/data/accessories";
 import {
   badgePlates,
@@ -35,6 +35,8 @@ import {
 import { getDictionary, getLocaleFromCookie } from "@/i18n/getDictionary";
 import { makeT } from "@/i18n/dictionary";
 import type { OrderItemInput } from "@/lib/validations/order";
+import { reportProblem } from "@/lib/ops/journal";
+import { logOrderEvent } from "@/lib/orders/events";
 
 function generateOrderNumber(): string {
   const ts = Date.now().toString(36).toUpperCase();
@@ -340,7 +342,15 @@ export async function POST(request: Request) {
         // If the atomic consume failed (race lost / just expired), we
         // proceed without the discount rather than failing the order.
       }
-      const total = Math.max(0, subtotal - appliedDiscount);
+      const merchandise = Math.max(0, subtotal - appliedDiscount);
+      // Threshold is judged on what the customer pays for goods, i.e.
+      // after the promo — a code must not unlock free shipping it
+      // pushed the order below.
+      const shippingCost = shippingFor(merchandise, overrides, [
+        ...itemsResolved.map((r) => `${r.profile ?? "standard"}.${r.item.matSet}`),
+        ...accessoryItems.map((a) => `accessory.${a.accessorySlug}`),
+      ]);
+      const total = merchandise + shippingCost;
       return tx.order.create({
         data: {
           orderNumber: generateOrderNumber(),
@@ -356,6 +366,7 @@ export async function POST(request: Request) {
           promoCode: appliedCode,
           locale: customerLocale,
           total,
+          shippingCost,
           items: {
             create: [
               ...itemsResolved.map((r) => {
@@ -392,6 +403,7 @@ export async function POST(request: Request) {
           id: true,
           orderNumber: true,
           total: true,
+          shippingCost: true,
           customerName: true,
           email: true,
           phone: true,
@@ -453,11 +465,23 @@ export async function POST(request: Request) {
           : null,
       }),
     );
+    await reportProblem({
+      area: "order.create",
+      severity: "critical",
+      error: err,
+      context: e.code ? `prisma ${e.code}` : undefined,
+    });
     return NextResponse.json(
       { error: "Failed to create order. Please try again." },
       { status: 500 },
     );
   }
+
+  await logOrderEvent(createdOrder.id, "created", {
+    total: Number(createdOrder.total ?? 0),
+    shipping: Number(createdOrder.shippingCost ?? 0),
+    promo: promoPreview?.code ?? null,
+  });
 
   // Resolve the dictionary once per request — the name resolver below
   // is fast/sync and gets reused for both customer + owner emails.
@@ -523,6 +547,7 @@ export async function POST(request: Request) {
       // annotation we glue onto Order.comment for the packing slip).
       comment: shipping.comment || null,
       total: Number(createdOrder.total ?? 0),
+      shippingCost: Number(createdOrder.shippingCost ?? 0),
       items: [...emailItems, ...accessoryEmailItems],
       locale: customerLocale,
     };
@@ -571,6 +596,7 @@ export async function POST(request: Request) {
         }
       } catch (err) {
         console.error("[orders] abandoned-checkout scheduling failed:", err);
+        await reportProblem({ area: "orders.followup", severity: "warning", error: err });
       }
     });
   }

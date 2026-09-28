@@ -21,7 +21,7 @@ export const CROSSOVER_GUIDES: Record<string, ModelGuide> = {
       "On 1996–2000 models, tell us whether you have the three-door or the five-door.",
     ],
     metaDescription:
-      "Custom EVA floor mats for the Toyota RAV4, 1996–2025, cut for each generation including Hybrid and Prime. Hand-made in Rochester, NY, free US shipping.",
+      "Custom EVA floor mats for the Toyota RAV4, 1996–2026, cut for each generation including Hybrid and Prime. Hand-made in Rochester, NY, 30-day returns.",
   },
 
   "honda/cr-v": {
@@ -42,7 +42,7 @@ export const CROSSOVER_GUIDES: Record<string, ModelGuide> = {
       "Every US CR-V has two rows, so a full set covers the whole cabin.",
     ],
     metaDescription:
-      "EVA floor mats for the Honda CR-V, 1997–2025, including the CR-V Hybrid. Cut per generation, sewn edge in 11 colors, free US shipping.",
+      "EVA floor mats for the Honda CR-V, 1997–2027, including the CR-V Hybrid. Cut per generation, sewn edge in 11 colors, 30-day returns.",
   },
 
   "chevrolet/equinox": {
@@ -61,7 +61,7 @@ export const CROSSOVER_GUIDES: Record<string, ModelGuide> = {
       "Every Equinox has two rows, so a full set covers the whole cabin.",
     ],
     metaDescription:
-      "Chevrolet Equinox EVA floor mats for 2005–2025, cut for each generation from the sliding-bench years to the 2025 redesign. Made in Rochester, NY.",
+      "Chevrolet Equinox EVA floor mats for 2005–2027, cut for each generation from the sliding-bench years to the 2025 redesign. Made in Rochester, NY.",
   },
 
   "tesla/model-y": {
@@ -79,7 +79,7 @@ export const CROSSOVER_GUIDES: Record<string, ModelGuide> = {
       "The frunk and the under-floor well are separate from the main cargo area. A cargo set covers the main cargo floor.",
     ],
     metaDescription:
-      "Tesla Model Y EVA floor mats for the flat EV floor: five- and seven-seat cars, original and 2025 refresh. Hand-cut, waterproof, free US shipping.",
+      "Tesla Model Y EVA floor mats for the flat EV floor: five- and seven-seat cars, original and 2025 refresh. Hand-cut, waterproof, 30-day returns.",
   },
 
   "nissan/rogue": {
@@ -98,7 +98,7 @@ export const CROSSOVER_GUIDES: Record<string, ModelGuide> = {
       "The Rogue Sport and Rogue Select have their own pages in our catalog.",
     ],
     metaDescription:
-      "Nissan Rogue EVA floor mats, 2008–2025: five- and seven-seat 2014–2017 models, Hybrid, and the Divide-N-Hide cargo floor. Free US shipping.",
+      "Nissan Rogue EVA floor mats, 2008–2027: five- and seven-seat 2014–2017 models, Hybrid, and the Divide-N-Hide cargo floor. 30-day returns.",
   },
 
   "hyundai/tucson": {
@@ -117,7 +117,7 @@ export const CROSSOVER_GUIDES: Record<string, ModelGuide> = {
       "Every generation has two rows, so a full set covers the whole cabin.",
     ],
     metaDescription:
-      "Hyundai Tucson EVA floor mats, 2005–2025, cut for each generation including the long-wheelbase 2022+ model. Hand-made in Rochester, NY.",
+      "Hyundai Tucson EVA floor mats, 2005–2026, cut for each generation including the long-wheelbase 2022+ model. Hand-made in Rochester, NY.",
   },
 
   "kia/sportage": {
@@ -137,7 +137,7 @@ export const CROSSOVER_GUIDES: Record<string, ModelGuide> = {
       "1998–2002 two-door soft-top: tell us in the trim field, it has a shorter floor.",
     ],
     metaDescription:
-      "Kia Sportage EVA floor mats for 1995–2025, from the original two-door to the long 2023+ model. Hand-cut per generation, free US shipping.",
+      "Kia Sportage EVA floor mats for 1995–2027, from the original two-door to the long 2023+ model. Hand-cut per generation, 30-day returns.",
   },
 
   "mazda/cx-5": {
@@ -155,7 +155,7 @@ export const CROSSOVER_GUIDES: Record<string, ModelGuide> = {
       "Every US CX-5 has two rows, so a full set covers the whole cabin.",
     ],
     metaDescription:
-      "Mazda CX-5 EVA floor mats for 2013–2025, cut for the KE and KF generations. Waterproof honeycomb EVA, 11 edge colors, free US shipping.",
+      "Mazda CX-5 EVA floor mats for 2013–2026, cut for the KE and KF generations. Waterproof honeycomb EVA, 11 edge colors, 30-day returns.",
   },
 
   "subaru/forester": {
@@ -176,7 +176,7 @@ export const CROSSOVER_GUIDES: Record<string, ModelGuide> = {
       "A cargo set pairs well with Subaru owners' usual cargo: dogs, skis and muddy gear.",
     ],
     metaDescription:
-      "Subaru Forester EVA floor mats, 1998–2025, cut for every generation from the SF to the 2025 SL and Hybrid. Hand-made, free US shipping.",
+      "Subaru Forester EVA floor mats, 1998–2026, cut for every generation from the SF to the 2025 SL and Hybrid. Hand-made, 30-day returns.",
   },
 
   "subaru/crosstrek": {
@@ -194,7 +194,7 @@ export const CROSSOVER_GUIDES: Record<string, ModelGuide> = {
       "Every generation has two rows, so a full set covers the whole cabin.",
     ],
     metaDescription:
-      "Subaru Crosstrek EVA floor mats for 2013–2025, including XV Crosstrek years. Cut per generation, waterproof, free US shipping from Rochester, NY.",
+      "Subaru Crosstrek EVA floor mats for 2013–2026, including XV Crosstrek years. Cut per generation, waterproof, shipped from Rochester, NY.",
   },
 
   "subaru/outback": {
@@ -216,7 +216,7 @@ export const CROSSOVER_GUIDES: Record<string, ModelGuide> = {
       "Outback owners haul dogs and gear, so a full set with cargo protects the whole floor.",
     ],
     metaDescription:
-      "Subaru Outback EVA floor mats, 1996–2025: wagon and 2000–2004 sedan, every generation. Hand-cut in Rochester, NY, free US shipping.",
+      "Subaru Outback EVA floor mats, 1996–2026: wagon and 2000–2004 sedan, every generation. Hand-cut in Rochester, NY, 30-day returns.",
   },
 
   "chevrolet/trax": {
@@ -233,7 +233,7 @@ export const CROSSOVER_GUIDES: Record<string, ModelGuide> = {
       "Both generations have two rows, so a full set covers the whole cabin.",
     ],
     metaDescription:
-      "Chevrolet Trax EVA floor mats for 2015–2022 and the larger 2024+ model, each cut to its own pattern. Hand-made, free US shipping.",
+      "Chevrolet Trax EVA floor mats for 2015–2022 and the larger 2024+ model, each cut to its own pattern. Hand-made, 30-day returns.",
   },
 
   "honda/hr-v": {
@@ -250,7 +250,7 @@ export const CROSSOVER_GUIDES: Record<string, ModelGuide> = {
       "Pick your exact year: 2022 and 2023 are different cars underneath.",
     ],
     metaDescription:
-      "Honda HR-V EVA floor mats, 2016–2025: the Magic Seat years and the larger 2023+ HR-V, each cut to its own pattern. Free US shipping.",
+      "Honda HR-V EVA floor mats, 2016–2027: the Magic Seat years and the larger 2023+ HR-V, each cut to its own pattern. 30-day returns.",
   },
 
   "ford/escape": {
@@ -269,6 +269,6 @@ export const CROSSOVER_GUIDES: Record<string, ModelGuide> = {
       "2005–2012 Hybrid: the battery sits under the rear cargo floor, which matters for a cargo liner.",
     ],
     metaDescription:
-      "Ford Escape EVA floor mats, 2001–2025, including Hybrid and Plug-in Hybrid years. Cut per generation, 11 edge colors, free US shipping.",
+      "Ford Escape EVA floor mats, 2001–2026, including Hybrid and Plug-in Hybrid years. Cut per generation, 11 edge colors, 30-day returns.",
   },
 };

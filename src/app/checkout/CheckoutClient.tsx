@@ -21,6 +21,7 @@ import { useT, useLocale } from "@/i18n/I18nProvider";
 import { localizeMatSet, localizeColor } from "@/i18n/labels";
 import { TrustBadges } from "@/components/common/TrustBadges";
 import { trackEvent } from "@/lib/analytics";
+import { getConsent } from "@/lib/consent";
 import { usePriceOverrides } from "@/context/PriceOverridesContext";
 import { isAccessoryItem, type MatCartItem } from "@/types";
 import { accessoryView } from "@/lib/accessories/display";
@@ -395,6 +396,9 @@ export function CheckoutClient({ paymentEnabled }: { paymentEnabled: boolean }) 
               orderId: data.id,
               orderToken: data.orderToken,
               locale,
+              // Lets the server attach Meta click ids to the Purchase —
+              // only with consent (see /api/checkout/stripe).
+              ...(getConsent() === "accepted" ? { adConsent: true } : {}),
             }),
           });
           if (payRes.ok) {

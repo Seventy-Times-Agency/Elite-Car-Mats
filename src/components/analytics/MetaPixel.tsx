@@ -9,6 +9,7 @@ import {
   scrubOrderTokenFromUrl,
   CONSENT_EVENT,
 } from "@/lib/consent";
+import { stashFbclid, applyStashedFbclid } from "@/lib/analytics/fbclid";
 
 /**
  * Meta Pixel bootstrap. Renders nothing until NEXT_PUBLIC_META_PIXEL_ID
@@ -30,9 +31,17 @@ export function MetaPixel() {
       const ok = getConsent() === "accepted";
       // Drop the order token from the address bar BEFORE fbevents.js
       // mounts — the pixel reports the full URL in its `dl=` beacon.
-      if (ok && META_PIXEL_ID) scrubOrderTokenFromUrl();
+      if (ok && META_PIXEL_ID) {
+        scrubOrderTokenFromUrl();
+        // `_fbc` must exist before fbevents.js initializes, or the
+        // pixel's first events go out without the click id.
+        applyStashedFbclid();
+      }
       setConsented(ok);
     };
+    // Before `update()`: a visitor who consented on an earlier visit
+    // gets the landing URL's click id applied in the same pass.
+    if (META_PIXEL_ID) stashFbclid();
     update();
     window.addEventListener(CONSENT_EVENT, update);
     return () => window.removeEventListener(CONSENT_EVENT, update);

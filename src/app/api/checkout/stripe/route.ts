@@ -17,6 +17,8 @@ import { makeT } from "@/i18n/dictionary";
 import { localizeColor } from "@/i18n/labels";
 import { reportProblem } from "@/lib/ops/journal";
 import { logOrderEvent } from "@/lib/orders/events";
+import { isMetaCapiConfigured } from "@/lib/analytics/meta-capi";
+import { adSignalsFromRequest } from "@/lib/analytics/meta-event";
 
 const schema = z.object({
   orderId: z.string().min(1),
@@ -24,6 +26,10 @@ const schema = z.object({
    *  guessed an orderId cannot create Stripe sessions for someone else. */
   orderToken: z.string().min(1),
   locale: z.enum(["ru", "en", "uk"]).optional().default("en"),
+  /** Sent (as `true`) only when the visitor accepted the cookie banner.
+   *  Gates capturing the Meta click ids / IP / UA for the server-side
+   *  Purchase — without consent none of it is read or stored. */
+  adConsent: z.boolean().optional(),
 });
 
 const LOCALE_MAP: Record<string, Stripe.Checkout.SessionCreateParams.Locale> = {
@@ -97,7 +103,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const { orderId, orderToken, locale } = parsed.data;
+  const { orderId, orderToken, locale, adConsent } = parsed.data;
 
   if (!verifyOrderToken(orderId, orderToken)) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
@@ -212,6 +218,13 @@ export async function POST(request: Request) {
       shippingUsd,
       orderToken: signOrderToken(order.id),
       locale: LOCALE_MAP[locale] ?? "auto",
+      // The webhook that sends the Purchase has no browser to read these
+      // from, so they ride along in the session metadata. Skipped when
+      // CAPI is off — no point parking an IP in Stripe for nothing.
+      adSignals:
+        adConsent === true && isMetaCapiConfigured()
+          ? adSignalsFromRequest(request)
+          : undefined,
     });
 
     if (!session) {

@@ -1,6 +1,8 @@
 import "server-only";
 import type Stripe from "stripe";
 import { getStripe } from "./stripe";
+import type { AdSignals } from "@/lib/analytics/meta-capi";
+import { adSignalsToMetadata } from "@/lib/analytics/meta-event";
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://elitecarmats.us";
 
@@ -31,6 +33,9 @@ export interface CreateCheckoutSessionInput {
   orderToken?: string;
   /** Preferred locale for Stripe Checkout UI. Falls back to auto. */
   locale?: Stripe.Checkout.SessionCreateParams.Locale;
+  /** Meta click ids / IP / UA, present only with the visitor's consent;
+   *  read back by the webhook for the Conversions API Purchase. */
+  adSignals?: AdSignals;
 }
 
 export interface CheckoutSessionResult {
@@ -106,6 +111,7 @@ export async function createCheckoutSession(
     metadata: {
       orderId: input.orderId,
       orderNumber: input.orderNumber,
+      ...adSignalsToMetadata(input.adSignals),
     },
     // Same tags on the PaymentIntent: `payment_intent.payment_failed`
     // delivers the intent, not the session, and the order row only learns

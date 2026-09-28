@@ -22,7 +22,7 @@ export const CAR_GUIDES: Record<string, ModelGuide> = {
       "Wagon or coupe: they have their own pages too.",
     ],
     metaDescription:
-      "Toyota Camry EVA floor mats, 1990–2025: sedan in every generation, gas or hybrid, plus trunk liners. Hand-cut in Rochester, NY, free shipping.",
+      "Toyota Camry EVA floor mats, 1990–2025: sedan in every generation, gas or hybrid, plus trunk liners. Hand-cut in Rochester, NY, 30-day returns.",
   },
 
   "honda/civic": {
@@ -45,7 +45,7 @@ export const CAR_GUIDES: Record<string, ModelGuide> = {
       "Trunk liners differ by body style, so double-check it before adding a cargo mat.",
     ],
     metaDescription:
-      "Honda Civic sedan EVA floor mats, 1990–2025, cut for each generation. Hatchback, coupe, Si and Type R also in our catalog. Free US shipping.",
+      "Honda Civic sedan EVA floor mats, 1990–2025, cut for each generation. Hatchback, coupe, Si and Type R also in our catalog. 30-day returns.",
   },
 
   "toyota/corolla": {
@@ -67,7 +67,7 @@ export const CAR_GUIDES: Record<string, ModelGuide> = {
       "Wagon owners: pick the Corolla Wagon page for the right cargo liner.",
     ],
     metaDescription:
-      "Toyota Corolla EVA floor mats, 1990–2025, cut for every sedan generation. Hatchback, Hybrid and Cross also in our catalog. Free US shipping.",
+      "Toyota Corolla EVA floor mats, 1990–2025, cut for every sedan generation. Hatchback, Hybrid and Cross also in our catalog. 30-day returns.",
   },
 
   "honda/accord": {
@@ -90,7 +90,7 @@ export const CAR_GUIDES: Record<string, ModelGuide> = {
       "Before 2018 the hybrid battery sat in the trunk, so pick the Hybrid page for a trunk liner.",
     ],
     metaDescription:
-      "Honda Accord EVA floor mats, 1990–2025: every sedan generation, cut to its own pattern. Coupe, Wagon and Hybrid pages too. Free US shipping.",
+      "Honda Accord EVA floor mats, 1990–2025: every sedan generation, cut to its own pattern. Coupe, Wagon and Hybrid pages too. 30-day returns.",
   },
 
   "tesla/model-3": {
@@ -107,7 +107,7 @@ export const CAR_GUIDES: Record<string, ModelGuide> = {
       "A cargo set covers the main trunk floor; the front trunk and the under-floor well are separate.",
     ],
     metaDescription:
-      "Tesla Model 3 EVA floor mats for the flat EV floor, 2017–2026, original and Highland refresh. Hand-cut, waterproof, free US shipping.",
+      "Tesla Model 3 EVA floor mats for the flat EV floor, 2017–2026, original and Highland refresh. Hand-cut, waterproof, 30-day returns.",
   },
 
   "hyundai/elantra": {
@@ -129,7 +129,7 @@ export const CAR_GUIDES: Record<string, ModelGuide> = {
       "Every Elantra has two rows, so a full set covers the whole cabin.",
     ],
     metaDescription:
-      "Hyundai Elantra EVA floor mats, 1992–2025, cut for every sedan generation. Hybrid, N and GT pages too. Hand-made, free US shipping.",
+      "Hyundai Elantra EVA floor mats, 1992–2025, cut for every sedan generation. Hybrid, N and GT pages too. Hand-made, 30-day returns.",
   },
 
   "nissan/altima": {
@@ -150,6 +150,6 @@ export const CAR_GUIDES: Record<string, ModelGuide> = {
       "AWD or FWD? Mention it in the trim field for 2019 and newer cars.",
     ],
     metaDescription:
-      "Nissan Altima EVA floor mats, 1993–2025, cut for each sedan generation incl. 2019+ AWD. Coupe and Hybrid pages too. Free US shipping.",
+      "Nissan Altima EVA floor mats, 1993–2025, cut for each sedan generation incl. 2019+ AWD. Coupe and Hybrid pages too. 30-day returns.",
   },
 };

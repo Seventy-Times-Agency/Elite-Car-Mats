@@ -20,7 +20,7 @@ export const storefront: Dict = {
   "nav.skipToContent": "Skip to main content",
   "ann.aria": "Site announcements",
   "ann.ships": "Ships from Rochester, NY",
-  "ann.freeShipping": "Free US shipping",
+  "ann.freeShipping": "Free shipping over {freeFrom}",
   "ann.returns": "30-day returns",
   "trust.secure": "Secure Stripe checkout",
   "trust.returns": "30-day returns",
@@ -76,7 +76,7 @@ export const storefront: Dict = {
     "Production takes 2–3 business days. Once cut, the set ships the same or next day from our Rochester, NY workshop.",
   "prod.faq.shipping.q": "How fast will I get my order?",
   "prod.faq.shipping.a":
-    "Free USPS / UPS shipping to all 50 states — typically 3–7 business days after dispatch. You'll get a tracking number by email the moment the package leaves us.",
+    "USPS / UPS to all 50 states — {fee} flat, free on orders of {freeFrom} or more. Typically 3–7 business days after dispatch. You'll get a tracking number by email the moment the package leaves us.",
   "prod.faq.wash.q": "How do I clean them?",
   "prod.faq.wash.a":
     "Pull them out, hose them down, and let them dry. EVA doesn't soak up water, so there's no waiting for fabric to dry. Mild soap is fine for stubborn dirt — no harsh solvents, no power-washer at point-blank range.",
@@ -94,7 +94,7 @@ export const storefront: Dict = {
   "hero.titleLine2": "cut for",
   "hero.titleLine3": "your exact car.",
   "hero.subtitle":
-    "Premium EVA, hand-cut to your model's dedicated pattern and hand-sewn in Rochester, NY. Made to order — from $89, free US shipping.",
+    "Premium EVA, hand-cut to your model's dedicated pattern and hand-sewn in Rochester, NY. Made to order — from $89, free shipping over {freeFrom}.",
   "hero.learnMore": "How it's made",
   "hero.statModels": "Patterns",
   "hero.statLifespan": "Lifespan",
@@ -536,7 +536,7 @@ export const storefront: Dict = {
     "The edging is double-stitched with high-tensile thread, a badge with your car's logo is set, and an ELITECARMATS.US tag is sewn on the side.",
   "process.s4Title": "Shipped across the USA",
   "process.s4Desc":
-    "Packed in a heavy kraft mailer and shipped via USPS or UPS Ground within 2–3 business days. Free US shipping on every order.",
+    "Packed in a heavy kraft mailer and shipped via USPS or UPS Ground within 2–3 business days. Free US shipping on orders of {freeFrom} or more.",
   "process.cta": "Build my set",
   "materials.label": "Materials",
   "materials.title": "What your set is made of",
@@ -589,9 +589,9 @@ export const storefront: Dict = {
   "features.f5Title": "Odor-free",
   "features.f5Desc":
     "EVA doesn't smell like rubber and emits no VOCs. REACH-compliant — safe for cars with kids.",
-  "features.f6Title": "Free shipping",
+  "features.f6Title": "Free shipping over {freeFrom}",
   "features.f6Desc":
-    "USPS / UPS Ground anywhere in the USA — free on every order.",
+    "USPS / UPS Ground anywhere in the USA — {fee} flat, free on orders of {freeFrom} or more.",
   "gallery.label": "Our Work",
   "gallery.title": "Sets built for different rides",
   "gallery.subtitle":
@@ -666,7 +666,7 @@ export const storefront: Dict = {
     "2-year manufacturer warranty on all materials and stitching. If you find a manufacturing defect during the warranty period — a crack, stitch separation, edge deformation — we'll replace the mat or set free of charge. Normal wear (worn heel areas, heel scuffs) is not covered, but this is a natural process and takes 4–5 years of active use with EVA.",
   "faq.q7": "How fast is shipping and how much does it cost?",
   "faq.a7":
-    "We ship within 2–3 business days of payment. Within the USA, USPS / UPS Ground — 3–7 business days, free on every order. A tracking link is emailed the moment the package leaves. Shipping to Canada or Mexico is available on request — email us before ordering.",
+    "We ship within 2–3 business days of payment. Within the USA, USPS / UPS Ground — 3–7 business days, {fee} flat, free on orders of {freeFrom} or more. A tracking link is emailed the moment the package leaves. Shipping to Canada or Mexico is available on request — email us before ordering.",
   "faq.q8": "Can I return or exchange my mats?",
   "faq.a8":
     "Yes, within 30 days of delivery. Mats must be in original packaging, with no signs of use or odors. Refunds are processed within 5 business days of us receiving the return. If you picked the wrong set or color, we do a free exchange — you only cover the return shipping.",
@@ -767,7 +767,7 @@ export const storefront: Dict = {
   "legal.updatedLabel": "Last updated",
   "delivery.metaTitle": "Shipping",
   "delivery.metaDesc":
-    "Elite Car Mats shipping terms for the U.S.: free USPS / UPS shipping on every order.",
+    "Elite Car Mats shipping terms for the U.S.: USPS / UPS, {fee} flat, free on orders of {freeFrom} or more.",
   "delivery.title": "Shipping",
   "delivery.intro":
     "We ship orders from Rochester, NY within 2–3 business days of payment. Shipping nationwide across the United States.",
@@ -780,8 +780,8 @@ export const storefront: Dict = {
   "delivery.t3Pre": "Expedited shipping:",
   "delivery.t3": "available on request — email us",
   "delivery.costH": "Cost",
-  "delivery.c1Pre": "Free",
-  "delivery.c1": "standard U.S. shipping on every order",
+  "delivery.c1Pre": "{fee}",
+  "delivery.c1": "standard U.S. shipping; free on orders of {freeFrom} or more",
   "delivery.c2": "No hidden fees — the total you see at checkout is final",
   "delivery.c3": "Expedited shipping available on request",
   "delivery.whereH": "Where we ship",
@@ -948,7 +948,7 @@ export const storefront: Dict = {
   "terms.s2l2": "Prices are in U.S. dollars (USD) and include production",
   "terms.s2l3": "Sales tax is added at checkout where applicable",
   "terms.s2l4":
-    "Shipping within the U.S. is free on every order",
+    "Shipping within the U.S. costs {fee}; orders of {freeFrom} or more ship free",
   "terms.s3H": "3. Production & timelines",
   "terms.s3P":
     "Every set is made to order — typically cut, sewn and shipped within 2–3 business days of payment. Standard USPS / UPS Ground shipping within the U.S. takes 3–7 business days.",
@@ -981,10 +981,10 @@ export const storefront: Dict = {
   "terms.s10PPre": "For any questions: ",
   "root.title": "Elite Car Mats — Premium EVA Floor Mats for Your Car",
   "root.description":
-    "Custom-fit premium EVA car floor mats, hand-cut to your exact make and model. Free shipping across the USA. 2-year warranty.",
+    "Custom-fit premium EVA car floor mats, hand-cut to your exact make and model. Free US shipping over {freeFrom}. 2-year warranty.",
   "root.ogTitle": "Elite Car Mats — Premium EVA Floor Mats for Your Car",
   "root.ogDesc":
-    "Custom-fit premium EVA floor mats, hand-cut for your exact model. Free U.S. shipping on every order.",
+    "Custom-fit premium EVA floor mats, hand-cut for your exact model. Free U.S. shipping on orders over {freeFrom}.",
   "root.twitterTitle": "Elite Car Mats — Premium EVA Floor Mats",
   "root.twitterDesc": "Custom-fit EVA floor mats for your vehicle. Shipped across the USA.",
   "cat.metaTitle": "Car Mats Catalog",
@@ -995,14 +995,14 @@ export const storefront: Dict = {
   "brand.metaNotFound": "Brand not found",
   "brand.metaTitle": "{brand} Floor Mats",
   "brand.metaDesc":
-    "Premium EVA floor mats for {brand}: custom-cut for every model and year. Free U.S. shipping on every order.",
+    "Premium EVA floor mats for {brand}: custom-cut for every model and year. Free U.S. shipping over {freeFrom}.",
   "brand.ogTitle": "{brand} floor mats · Elite Car Mats",
   "brand.ogDesc":
     "Premium EVA floor mats for {brand} — {count} models, cut to your exact year. Made in Rochester, NY.",
   "prod.metaNotFound": "Model not found",
   "prod.metaTitle": "{brand} {model} EVA floor mats",
   "prod.metaDesc":
-    "Custom-cut EVA floor mats for the {brand} {model} ({yMin}–{yMax}). From ${price}. Hand-cut to a dedicated pattern, free US shipping, 30-day returns.",
+    "Custom-cut EVA floor mats for the {brand} {model} ({yMin}–{yMax}). From ${price}. Hand-cut to a dedicated pattern, free shipping over {freeFrom}, 30-day returns.",
   "prod.ogTitle": "{brand} {model} — premium EVA floor mats",
   "prod.ogDesc":
     "Cut for your exact {brand} {model}. From ${price}. Made in Rochester, NY.",
@@ -1031,8 +1031,8 @@ export const storefront: Dict = {
   "acc.listTitle": "Accessories",
   "acc.listSubtitle": "Extras that match your mats.",
   "acc.listMeta": "Accessories — honeycomb trunk organizer | Elite Car Mats",
-  "acc.listMetaDesc": "Fabric trunk organizer with the honeycomb pattern of our custom EVA car mats. Two colors, free US shipping, 30-day returns.",
-  "acc.trunk-organizer.metaDesc": "Foldable fabric trunk organizer with a honeycomb pattern, removable divider and Velcro lid. Black with red trim or gray. Free US shipping, 30-day returns.",
+  "acc.listMetaDesc": "Fabric trunk organizer with the honeycomb pattern of our custom EVA car mats. Two colors, 30-day returns.",
+  "acc.trunk-organizer.metaDesc": "Foldable fabric trunk organizer with a honeycomb pattern, removable divider and Velcro lid. Black with red trim or gray. 30-day returns.",
   "acc.lineChip": "Accessory",
   "acc.breadcrumb": "Accessories",
 

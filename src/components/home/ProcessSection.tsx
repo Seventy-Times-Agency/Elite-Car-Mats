@@ -2,6 +2,7 @@
 
 import { Reveal } from "@/components/common/Reveal";
 import { useT } from "@/i18n/I18nProvider";
+import { useShippingVars } from "@/context/PriceOverridesContext";
 
 const ICONS = [
   (
@@ -28,11 +29,12 @@ const ICONS = [
 
 export function ProcessSection() {
   const t = useT();
+  const ship = useShippingVars();
   const steps = [
     { n: "01", title: t("process.s1Title"), desc: t("process.s1Desc"), icon: ICONS[0] },
     { n: "02", title: t("process.s2Title"), desc: t("process.s2Desc"), icon: ICONS[1] },
     { n: "03", title: t("process.s3Title"), desc: t("process.s3Desc"), icon: ICONS[2] },
-    { n: "04", title: t("process.s4Title"), desc: t("process.s4Desc"), icon: ICONS[3] },
+    { n: "04", title: t("process.s4Title"), desc: t("process.s4Desc", ship), icon: ICONS[3] },
   ];
   return (
     <section className="py-14 lg:py-20 relative">

@@ -20,6 +20,8 @@ interface Props {
    * undefined and we omit it from the JSON-LD entirely.
    */
   aggregateRating?: { ratingValue: number; reviewCount: number };
+  /** Shipping for this item bought on its own (0 = free). */
+  shippingUsd?: number;
 }
 
 export function ProductJsonLd({
@@ -31,6 +33,7 @@ export function ProductJsonLd({
   image,
   url,
   aggregateRating,
+  shippingUsd = 0,
 }: Props) {
   const data: Record<string, unknown> = {
     "@context": "https://schema.org",
@@ -53,7 +56,11 @@ export function ProductJsonLd({
       seller: { "@type": "Organization", name: "Elite Car Mats" },
       shippingDetails: {
         "@type": "OfferShippingDetails",
-        shippingRate: { "@type": "MonetaryAmount", value: "0", currency: "USD" },
+        shippingRate: {
+          "@type": "MonetaryAmount",
+          value: shippingUsd.toFixed(2),
+          currency: "USD",
+        },
         shippingDestination: { "@type": "DefinedRegion", addressCountry: "US" },
       },
       hasMerchantReturnPolicy: {

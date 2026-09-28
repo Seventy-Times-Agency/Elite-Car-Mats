@@ -1,4 +1,5 @@
 import "server-only";
+import { shippingCopyVars } from "@/lib/pricing";
 import { unstable_cache } from "next/cache";
 import { prisma } from "@/lib/db/prisma";
 import type { MatSetType } from "@/types";
@@ -70,4 +71,12 @@ const loadPriceOverrideEntriesCached = unstable_cache(
 export async function loadPriceOverridesCached(): Promise<PriceOverrideMap> {
   const entries = await loadPriceOverrideEntriesCached();
   return new Map(entries);
+}
+
+/** `{fee}` / `{freeFrom}` vars for shipping copy in server metadata. */
+export async function getShippingCopyVars(): Promise<{
+  fee: string;
+  freeFrom: string;
+}> {
+  return shippingCopyVars(await loadPriceOverridesCached());
 }

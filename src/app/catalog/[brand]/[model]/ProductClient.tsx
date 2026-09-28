@@ -17,6 +17,7 @@ import {
   getThirdRowPrice,
   calculateItemUnitPrice,
   formatPrice,
+  shippingFor,
 } from "@/lib/pricing";
 import {
   getVehicleProfile,
@@ -38,7 +39,10 @@ import {
   localizeMatSet,
   localizeMatSetDesc,
 } from "@/i18n/labels";
-import { usePriceOverrides } from "@/context/PriceOverridesContext";
+import {
+  usePriceOverrides,
+  useShippingVars,
+} from "@/context/PriceOverridesContext";
 
 // Product rich results need an image. The default black set plus two
 // gallery shots; absolute so crawlers don't have to resolve them.
@@ -93,6 +97,7 @@ export default function ProductClient({
 }) {
   const searchParams = useSearchParams();
   const t = useT();
+  const ship = useShippingVars();
   const { addItem, openCart } = useCart();
   const priceOverrides = usePriceOverrides();
 
@@ -279,6 +284,7 @@ export default function ProductClient({
         description={t("prod.jsonLdDesc", { brand: brand.name, model: model.name })}
         url={`/catalog/${brand.slug}/${model.slug}`}
         image={JSONLD_IMAGES}
+        shippingUsd={shippingFor(unitPrice, priceOverrides)}
       />
       <BreadcrumbJsonLd
         items={[
@@ -553,7 +559,7 @@ export default function ProductClient({
                     d="M8.25 18.75a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 0 1-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 0 0-3.213-9.193 2.056 2.056 0 0 0-1.58-.86H14.25"
                   />
                 </svg>
-                {t("ann.freeShipping")}
+                {t("ann.freeShipping", ship)}
               </span>
               <span className="inline-flex items-center gap-1 text-text-dim">
                 <svg

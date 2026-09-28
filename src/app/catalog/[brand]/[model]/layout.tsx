@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { getMergedCatalogCached } from "@/lib/catalog-merge";
-import { getMatSetPrice } from "@/lib/pricing";
+import { getMatSetPrice, shippingCopyVars } from "@/lib/pricing";
 import { loadPriceOverridesCached } from "@/lib/pricing-overrides";
 import { getVehicleProfile, getDefaultMatSet } from "@/lib/vehicle-profile";
 import { getDictionary } from "@/i18n/getDictionary";
@@ -36,6 +36,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
     yMin,
     yMax,
     price,
+    ...shippingCopyVars(overrides),
   };
 
   const guide = locale === "en" ? getModelGuide(brand.slug, model.slug) : null;

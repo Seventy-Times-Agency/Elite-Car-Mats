@@ -21,6 +21,7 @@ import { FunnelTracker } from "@/components/analytics/FunnelTracker";
 import { getDictionary } from "@/i18n/getDictionary";
 import { LOCALE_HTML_LANG, LOCALE_OG } from "@/i18n/config";
 import { makeT } from "@/i18n/dictionary";
+import { getShippingCopyVars } from "@/lib/pricing-overrides";
 import { localeAlternates } from "@/lib/seo/alternates";
 import { headers } from "next/headers";
 
@@ -45,6 +46,7 @@ export const viewport: Viewport = {
 export async function generateMetadata(): Promise<Metadata> {
   const { locale, dict, fallback } = await getDictionary();
   const t = makeT(dict, fallback);
+  const ship = await getShippingCopyVars();
   // Unprefixed route path injected by src/proxy.ts — used for the
   // per-page canonical + hreflang set below. Defaults to "/" outside a
   // request scope (build-time metadata for static shells).
@@ -58,7 +60,7 @@ export async function generateMetadata(): Promise<Metadata> {
       default: t("root.title"),
       template: "%s | Elite Car Mats",
     },
-    description: t("root.description"),
+    description: t("root.description", ship),
     applicationName: "Elite Car Mats",
     authors: [{ name: "Elite Car Mats", url: SITE }],
     generator: "Next.js",
@@ -80,7 +82,7 @@ export async function generateMetadata(): Promise<Metadata> {
       locale: LOCALE_OG[locale],
       siteName: "Elite Car Mats",
       title: t("root.ogTitle"),
-      description: t("root.ogDesc"),
+      description: t("root.ogDesc", ship),
       url: SITE,
     },
     twitter: {

@@ -3,9 +3,11 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useT } from "@/i18n/I18nProvider";
+import { useShippingVars } from "@/context/PriceOverridesContext";
 
 export function HeroSection() {
   const t = useT();
+  const ship = useShippingVars();
   return (
     <section className="relative overflow-hidden -mt-16 lg:-mt-20 pt-16 lg:pt-20">
       {/* Ambient glow */}
@@ -22,7 +24,7 @@ export function HeroSection() {
             </h1>
 
             <p className="mt-6 text-text-dim text-base lg:text-lg max-w-lg leading-relaxed">
-              {t("hero.subtitle")}
+              {t("hero.subtitle", ship)}
             </p>
 
             <div className="mt-8 flex flex-wrap gap-4">

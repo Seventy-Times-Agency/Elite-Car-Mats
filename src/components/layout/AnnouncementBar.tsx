@@ -13,6 +13,7 @@ import {
   FacebookIcon,
   InstagramIcon,
 } from "@/components/common/ContactIcons";
+import { useShippingVars } from "@/context/PriceOverridesContext";
 
 /**
  * Slim accent bar that sits above the sticky header. Two jobs:
@@ -25,6 +26,7 @@ import {
  */
 export function AnnouncementBar() {
   const t = useT();
+  const ship = useShippingVars();
   return (
     <div
       role="region"
@@ -59,7 +61,7 @@ export function AnnouncementBar() {
           <span className="text-border/60" aria-hidden>
             ·
           </span>
-          <span>{t("ann.freeShipping")}</span>
+          <span>{t("ann.freeShipping", ship)}</span>
           <span className="text-border/60" aria-hidden>
             ·
           </span>

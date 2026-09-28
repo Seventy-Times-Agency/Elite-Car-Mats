@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getMergedCatalogCached } from "@/lib/catalog-merge";
 import { loadPriceOverridesCached } from "@/lib/pricing-overrides";
-import { getMatSetPrice, getAccessoryPrice } from "@/lib/pricing";
+import { getMatSetPrice, getAccessoryPrice, shippingFor } from "@/lib/pricing";
 import { ACCESSORIES, accessorySku } from "@/data/accessories";
 import { getAddonAvailabilityCached } from "@/lib/availability";
 import { feedItemGroupId, feedSku } from "@/lib/feed/sku";
@@ -53,7 +53,7 @@ function buildItemDescription(
   yMax: number,
 ): string {
   const yearStr = yMin === yMax ? String(yMin) : `${yMin}–${yMax}`;
-  return `Premium EVA car floor mats custom-cut for ${brand} ${model} (${yearStr}). ${setDescriptionEn}. CNC-cut from a 3D template specific to your year and trim. Made in Rochester, NY. Free US shipping, 30-day returns.`;
+  return `Premium EVA car floor mats custom-cut for ${brand} ${model} (${yearStr}). ${setDescriptionEn}. CNC-cut from a 3D template specific to your year and trim. Made in Rochester, NY. 30-day returns.`;
 }
 
 export async function GET() {
@@ -135,7 +135,7 @@ export async function GET() {
       <g:shipping>
         <g:country>US</g:country>
         <g:service>Standard</g:service>
-        <g:price>0.00 USD</g:price>
+        <g:price>${shippingFor(price, overrides).toFixed(2)} USD</g:price>
       </g:shipping>
     </item>`);
     }
@@ -178,7 +178,7 @@ export async function GET() {
       <g:shipping>
         <g:country>US</g:country>
         <g:service>Standard</g:service>
-        <g:price>0.00 USD</g:price>
+        <g:price>${shippingFor(price, overrides).toFixed(2)} USD</g:price>
       </g:shipping>
     </item>`);
     }

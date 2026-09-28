@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useMemo } from "react";
-import type { PriceOverrideMap } from "@/lib/pricing";
+import { shippingCopyVars, type PriceOverrideMap } from "@/lib/pricing";
 
 /**
  * Admin price overrides for client-side price display. The root layout
@@ -32,4 +32,10 @@ export function PriceOverridesProvider({
 
 export function usePriceOverrides(): PriceOverrideMap {
   return useContext(PriceOverridesContext);
+}
+
+/** `{fee}` / `{freeFrom}` vars for shipping copy, from the admin settings. */
+export function useShippingVars(): { fee: string; freeFrom: string } {
+  const overrides = usePriceOverrides();
+  return useMemo(() => shippingCopyVars(overrides), [overrides]);
 }

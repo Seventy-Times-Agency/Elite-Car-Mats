@@ -145,6 +145,14 @@ export function getShippingSettings(
   };
 }
 
+/** `{fee}` / `{freeFrom}` for the shipping copy in the dictionaries. */
+export function shippingCopyVars(
+  overrides?: PriceOverrideMap,
+): { fee: string; freeFrom: string } {
+  const { fee, freeFrom } = getShippingSettings(overrides);
+  return { fee: formatPrice(fee), freeFrom: formatPrice(freeFrom) };
+}
+
 /** Shipping charged on a merchandise subtotal (already net of promo). */
 export function shippingFor(
   merchandiseUsd: number,

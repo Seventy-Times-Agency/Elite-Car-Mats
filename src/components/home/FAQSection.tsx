@@ -2,10 +2,12 @@
 import { useState } from "react";
 import { useT } from "@/i18n/I18nProvider";
 import { FaqJsonLd } from "@/components/seo/ProductJsonLd";
+import { useShippingVars } from "@/context/PriceOverridesContext";
 
 export function FAQSection() {
   const [openIdx, setOpenIdx] = useState<number | null>(0);
   const t = useT();
+  const ship = useShippingVars();
   const faqs = [
     { q: t("faq.q1"), a: t("faq.a1") },
     { q: t("faq.q2"), a: t("faq.a2") },
@@ -13,7 +15,7 @@ export function FAQSection() {
     { q: t("faq.q4"), a: t("faq.a4") },
     { q: t("faq.q5"), a: t("faq.a5") },
     { q: t("faq.q6"), a: t("faq.a6") },
-    { q: t("faq.q7"), a: t("faq.a7") },
+    { q: t("faq.q7"), a: t("faq.a7", ship) },
     { q: t("faq.q8"), a: t("faq.a8") },
     { q: t("faq.q9"), a: t("faq.a9") },
     { q: t("faq.q10"), a: t("faq.a10") },

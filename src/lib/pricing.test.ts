@@ -190,3 +190,20 @@ describe("bundle savings", () => {
     expect(bundleSavings("pickup", "full-cargo", ov)).toBe(0);
   });
 });
+
+describe("per-product shipping", () => {
+  it("an order pays the highest product fee, once", () => {
+    const ov = new Map([
+      ["shipping:semi.front", 40],
+      ["shipping:accessory.trunk-organizer", 8],
+    ]);
+    expect(shippingFor(100, ov, ["standard.full"])).toBe(SHIPPING_FEE);
+    expect(shippingFor(100, ov, ["accessory.trunk-organizer"])).toBe(8);
+    expect(shippingFor(150, ov, ["standard.full", "semi.front", "accessory.trunk-organizer"])).toBe(40);
+  });
+
+  it("the free threshold still wins", () => {
+    const ov = new Map([["shipping:semi.front", 40]]);
+    expect(shippingFor(FREE_SHIPPING_FROM, ov, ["semi.front"])).toBe(0);
+  });
+});

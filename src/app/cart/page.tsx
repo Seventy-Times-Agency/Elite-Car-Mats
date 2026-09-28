@@ -5,6 +5,7 @@ import { useCart } from "@/context/CartContext";
 import {
   cartItemUnitPrice,
   cartTotal,
+  shippingKeyFor,
   formatPrice,
 } from "@/lib/pricing";
 import { useT } from "@/i18n/I18nProvider";
@@ -17,7 +18,8 @@ export default function CartPage() {
   const { items, removeItem, updateQuantity, clearCart, hydrated } = useCart();
   const priceOverrides = usePriceOverrides();
   const subtotal = cartTotal(items, priceOverrides);
-  const total = useBilledTotal(subtotal);
+  const shipKeys = items.map(shippingKeyFor);
+  const total = useBilledTotal(subtotal, shipKeys);
   const t = useT();
 
   if (!hydrated) return <div className="min-h-[60vh]" />;
@@ -139,7 +141,7 @@ export default function CartPage() {
           })}
         </div>
         <div className="mt-8 glass-card rounded-xl p-5 space-y-3">
-          <ShippingLine merchandise={subtotal} />
+          <ShippingLine merchandise={subtotal} keys={shipKeys} />
           <div className="flex items-baseline justify-between">
             <span className="text-text-dim text-xs uppercase tracking-wider">
               {t("cart.total")}

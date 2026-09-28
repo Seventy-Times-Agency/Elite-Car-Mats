@@ -135,7 +135,7 @@ export async function GET() {
       <g:shipping>
         <g:country>US</g:country>
         <g:service>Standard</g:service>
-        <g:price>${shippingFor(price, overrides).toFixed(2)} USD</g:price>
+        <g:price>${shippingFor(price, overrides, [`${profile}.${set.type}`]).toFixed(2)} USD</g:price>
       </g:shipping>
     </item>`);
     }
@@ -178,7 +178,7 @@ export async function GET() {
       <g:shipping>
         <g:country>US</g:country>
         <g:service>Standard</g:service>
-        <g:price>${shippingFor(price, overrides).toFixed(2)} USD</g:price>
+        <g:price>${shippingFor(price, overrides, [`accessory.${acc.slug}`]).toFixed(2)} USD</g:price>
       </g:shipping>
     </item>`);
     }

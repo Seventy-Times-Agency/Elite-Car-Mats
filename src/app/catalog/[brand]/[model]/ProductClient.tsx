@@ -285,7 +285,7 @@ export default function ProductClient({
         description={t("prod.jsonLdDesc", { brand: brand.name, model: model.name })}
         url={`/catalog/${brand.slug}/${model.slug}`}
         image={JSONLD_IMAGES}
-        shippingUsd={shippingFor(unitPrice, priceOverrides)}
+        shippingUsd={shippingFor(unitPrice, priceOverrides, [`${profile}.${ms.type}`])}
       />
       <BreadcrumbJsonLd
         items={[

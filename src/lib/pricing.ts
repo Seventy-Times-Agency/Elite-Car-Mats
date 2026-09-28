@@ -153,15 +153,38 @@ export function shippingCopyVars(
   return { fee: formatPrice(fee), freeFrom: formatPrice(freeFrom) };
 }
 
-/** Shipping charged on a merchandise subtotal (already net of promo). */
+/**
+ * Per-product shipping key: `<profile>.<matSet>` for mat sets,
+ * `accessory.<slug>` for accessories. Admin row `shipping:<key>`
+ * overrides the default fee for that product.
+ */
+export function shippingKeyFor(item: CartItem): string {
+  if (isAccessoryItem(item)) return `accessory.${item.accessorySlug}`;
+  return `${findProfileByModelId(item.modelId)}.${item.matSet}`;
+}
+
+/** Shipping fee of one product bought on its own (threshold aside). */
+export function productShippingFee(key: string, overrides?: PriceOverrideMap): number {
+  const ov = overrides?.get(`shipping:${key}`);
+  if (typeof ov === "number" && Number.isFinite(ov)) return ov;
+  return getShippingSettings(overrides).fee;
+}
+
+/**
+ * Shipping for an order. Everything ships in one parcel, so the order
+ * pays the highest fee among its products (not the sum), and nothing
+ * once the merchandise subtotal (already net of promo) reaches the
+ * free-shipping threshold. Without `keys` the default fee applies.
+ */
 export function shippingFor(
   merchandiseUsd: number,
   overrides?: PriceOverrideMap,
+  keys: string[] = [],
 ): number {
   const { fee, freeFrom } = getShippingSettings(overrides);
-  if (fee <= 0) return 0;
   if (freeFrom > 0 && merchandiseUsd >= freeFrom) return 0;
-  return fee;
+  const fees = keys.length ? keys.map((k) => productShippingFee(k, overrides)) : [fee];
+  return Math.max(0, ...fees);
 }
 
 /**

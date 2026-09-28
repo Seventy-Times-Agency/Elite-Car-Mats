@@ -1,105 +1,135 @@
 import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/security/auth";
-import { prisma } from "@/lib/db/prisma";
 import { AdminShell } from "@/components/admin/AdminShell";
+import { MAT_SETS_BY_PROFILE, type MatSetOption } from "@/data/catalog/mat-sets";
 import {
-  MAT_SETS_BY_PROFILE,
-  type MatSetOption,
-} from "@/data/catalog/mat-sets";
-import {
-  BADGE_PRICE,
-  HEEL_PAD_PRICE,
-  THIRD_ROW_PRICE,
-  SHIPPING_FEE,
-  FREE_SHIPPING_FROM,
+  getMatSetPrice,
+  getBadgePrice,
+  getHeelPadPrice,
+  getThirdRowPrice,
+  getAccessoryPrice,
+  getShippingSettings,
+  productShippingFee,
 } from "@/lib/pricing";
-import { findAccessory } from "@/data/accessories";
+import { loadPriceOverrides } from "@/lib/pricing-overrides";
 import type { VehicleConfigProfile } from "@/lib/vehicle-profile";
 import { getDictionary } from "@/i18n/getDictionary";
 import { makeT } from "@/i18n/dictionary";
-import { PricingManager, type ProfileBlock } from "./PricingManager";
+import { PricingManager, type PriceSection } from "./PricingManager";
 import { getAddonAvailability } from "@/lib/availability";
 
 export const dynamic = "force-dynamic";
 
-const PROFILE_LABEL: Record<VehicleConfigProfile, string> = {
-  standard: "Sedan / SUV (default)",
-  pickup: "Pickup",
-  twoSeater: "Two-seater (roadster, supercar)",
-  semi: "Semi-truck cabin",
-  minivan: "Minivan (3 rows)",
-};
+const PROFILE_ORDER: VehicleConfigProfile[] = [
+  "standard",
+  "minivan",
+  "pickup",
+  "twoSeater",
+  "semi",
+];
 
+/**
+ * Admin price list: every sellable thing with its live price and its own
+ * shipping fee, edited in place. Code defaults are an implementation
+ * detail — the operator only ever sees "the price" (see PricingManager).
+ */
 export default async function AdminPricingPage() {
   if (!(await requireAdmin())) redirect("/admin/login");
   const { dict, fallback } = await getDictionary();
   const t = makeT(dict, fallback);
-
-  const overrideRows = await prisma.matSetPriceOverride.findMany({
-    select: { profile: true, matSet: true, price: true },
-  });
-  const overrideMap = new Map<string, number>();
-  for (const r of overrideRows) {
-    overrideMap.set(`${r.profile}:${r.matSet}`, Number(r.price ?? 0));
-  }
-
-  const profiles: ProfileBlock[] = (
-    Object.entries(MAT_SETS_BY_PROFILE) as [
-      VehicleConfigProfile,
-      MatSetOption[],
-    ][]
-  ).map(([profile, sets]) => ({
-    profile,
-    label: PROFILE_LABEL[profile],
-    rows: sets.map((s) => ({
-      matSet: s.type,
-      label: s.label,
-      defaultPrice: s.price,
-      override: overrideMap.get(`${profile}:${s.type}`) ?? null,
-    })),
-  }));
-
-  const addons = {
-    badge: {
-      defaultPrice: BADGE_PRICE,
-      override: overrideMap.get("addon:badge") ?? null,
-    },
-    heelPad: {
-      defaultPrice: HEEL_PAD_PRICE,
-      override: overrideMap.get("addon:heelPad") ?? null,
-    },
-    thirdRow: {
-      defaultPrice: THIRD_ROW_PRICE,
-      override: overrideMap.get("addon:thirdRow") ?? null,
-    },
-    organizer: {
-      defaultPrice: findAccessory("trunk-organizer")?.price ?? 0,
-      override: overrideMap.get("accessory:trunk-organizer") ?? null,
-    },
-  };
-
-  const shipping = {
-    fee: {
-      defaultPrice: SHIPPING_FEE,
-      override: overrideMap.get("shipping:fee") ?? null,
-    },
-    freeFrom: {
-      defaultPrice: FREE_SHIPPING_FROM,
-      override: overrideMap.get("shipping:freeFrom") ?? null,
-    },
-  };
-
+  // Uncached: the page must show what the next order will be billed.
+  const overrides = await loadPriceOverrides();
   const availability = await getAddonAvailability();
+  const shipping = getShippingSettings(overrides);
+
+  const matSections: PriceSection[] = PROFILE_ORDER.map((profile) => {
+    const sets: MatSetOption[] = MAT_SETS_BY_PROFILE[profile] ?? [];
+    const cabinType = sets.some((s) => s.type === "full")
+      ? "full"
+      : sets.some((s) => s.type === "front")
+        ? "front"
+        : null;
+    return {
+      id: profile,
+      title: t(`admin.profile.${profile}`),
+      rows: sets.map((s) => ({
+        id: `${profile}:${s.type}`,
+        icon: s.type,
+        setLabel: s.label,
+        setDesc: s.description,
+        price: {
+          profile,
+          matSet: s.type,
+          value: getMatSetPrice(profile, s.type, overrides),
+        },
+        shipping: {
+          key: `${profile}.${s.type}`,
+          value: productShippingFee(`${profile}.${s.type}`, overrides),
+        },
+        // The complete set is the bundle: the row shows what it saves
+        // against cabin + trunk bought separately.
+        bundleParts:
+          s.type === "full-cargo" && cabinType && sets.some((x) => x.type === "cargo")
+            ? { cabin: `${profile}:${cabinType}`, cargo: `${profile}:cargo` }
+            : undefined,
+      })),
+    };
+  });
+
+  const extrasSection: PriceSection = {
+    id: "addons",
+    title: t("admin.pricingAddonsH"),
+    note: t("admin.pricingAddonsShipNote"),
+    rows: [
+      {
+        id: "addon:badge",
+        icon: "badge",
+        name: t("admin.pricingMetallicBadge"),
+        price: { profile: "addon", matSet: "badge", value: getBadgePrice(overrides) },
+        availability: { key: "badges", value: availability.badges },
+      },
+      {
+        id: "addon:heelPad",
+        icon: "heelPad",
+        name: t("admin.pricingHeelPad"),
+        price: { profile: "addon", matSet: "heelPad", value: getHeelPadPrice(overrides) },
+        availability: { key: "heelPad", value: availability.heelPad },
+      },
+      {
+        id: "addon:thirdRow",
+        icon: "thirdRow",
+        name: t("admin.pricingThirdRow"),
+        price: { profile: "addon", matSet: "thirdRow", value: getThirdRowPrice(overrides) },
+      },
+    ],
+  };
+
+  const accessorySection: PriceSection = {
+    id: "accessories",
+    title: t("admin.pricingAccessoriesH"),
+    rows: [
+      {
+        id: "accessory:trunk-organizer",
+        icon: "organizer",
+        name: t("admin.accessoryOrganizer"),
+        price: {
+          profile: "accessory",
+          matSet: "trunk-organizer",
+          value: getAccessoryPrice("trunk-organizer", overrides),
+        },
+        shipping: {
+          key: "accessory.trunk-organizer",
+          value: productShippingFee("accessory.trunk-organizer", overrides),
+        },
+        availability: { key: "organizer", value: availability.organizer },
+      },
+    ],
+  };
 
   return (
-    <AdminShell
-      title={t("admin.pricingTitle")}
-      subtitle={t("admin.pricingSubtitle")}
-    >
+    <AdminShell title={t("admin.pricingTitle")} subtitle={t("admin.pricingSubtitle")}>
       <PricingManager
-        profiles={profiles}
-        addons={addons}
-        availability={availability}
+        sections={[...matSections, extrasSection, accessorySection]}
         shipping={shipping}
       />
     </AdminShell>

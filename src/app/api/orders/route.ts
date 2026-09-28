@@ -346,7 +346,10 @@ export async function POST(request: Request) {
       // Threshold is judged on what the customer pays for goods, i.e.
       // after the promo — a code must not unlock free shipping it
       // pushed the order below.
-      const shippingCost = shippingFor(merchandise, overrides);
+      const shippingCost = shippingFor(merchandise, overrides, [
+        ...itemsResolved.map((r) => `${r.profile ?? "standard"}.${r.item.matSet}`),
+        ...accessoryItems.map((a) => `accessory.${a.accessorySlug}`),
+      ]);
       const total = merchandise + shippingCost;
       return tx.order.create({
         data: {

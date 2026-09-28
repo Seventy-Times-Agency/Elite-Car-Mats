@@ -10,10 +10,17 @@ import { formatPrice, getShippingSettings, shippingFor } from "@/lib/pricing";
  * where one is applied) — the same base the order API uses, so the
  * drawer, cart, checkout and the billed order agree.
  */
-export function ShippingLine({ merchandise }: { merchandise: number }) {
+export function ShippingLine({
+  merchandise,
+  keys,
+}: {
+  merchandise: number;
+  /** Per-product shipping keys of the cart lines (shippingKeyFor). */
+  keys: string[];
+}) {
   const t = useT();
   const overrides = usePriceOverrides();
-  const cost = shippingFor(merchandise, overrides);
+  const cost = shippingFor(merchandise, overrides, keys);
   const { freeFrom } = getShippingSettings(overrides);
   const remaining = cost > 0 && freeFrom > 0 ? freeFrom - merchandise : 0;
 
@@ -35,7 +42,7 @@ export function ShippingLine({ merchandise }: { merchandise: number }) {
 }
 
 /** Total the customer will be billed: goods (after promo) + shipping. */
-export function useBilledTotal(merchandise: number): number {
+export function useBilledTotal(merchandise: number, keys: string[]): number {
   const overrides = usePriceOverrides();
-  return merchandise + shippingFor(merchandise, overrides);
+  return merchandise + shippingFor(merchandise, overrides, keys);
 }

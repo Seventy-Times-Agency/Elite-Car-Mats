@@ -82,7 +82,7 @@ export default async function AccessoryPage({ params, searchParams }: Params) {
         "@type": "OfferShippingDetails",
         shippingRate: {
           "@type": "MonetaryAmount",
-          value: shippingFor(price, overrides),
+          value: shippingFor(price, overrides, [`accessory.${slug}`]),
           currency: "USD",
         },
         shippingDestination: { "@type": "DefinedRegion", addressCountry: "US" },

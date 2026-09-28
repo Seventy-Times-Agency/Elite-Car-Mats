@@ -13,6 +13,7 @@ import Link from "next/link";
 import {
   cartItemUnitPrice,
   cartTotal,
+  shippingKeyFor,
   shippingFor,
   formatPrice,
 } from "@/lib/pricing";
@@ -156,10 +157,11 @@ export function CheckoutClient({ paymentEnabled }: { paymentEnabled: boolean }) 
   const subtotal = cartTotal(items, priceOverrides);
   const discount = promoApplied?.amount ?? 0;
   const merchandise = Math.max(0, subtotal - discount);
-  const total = useBilledTotal(merchandise);
+  const shipKeys = items.map(shippingKeyFor);
+  const total = useBilledTotal(merchandise, shipKeys);
   // What the server bills if the promo is gone by the time the order is
   // created (raced to expiry) — goods at full price plus their shipping.
-  const fullPriceTotal = subtotal + shippingFor(subtotal, priceOverrides);
+  const fullPriceTotal = subtotal + shippingFor(subtotal, priceOverrides, shipKeys);
 
   const applyPromo = async () => {
     const code = promoInput.trim().toUpperCase();
@@ -808,7 +810,7 @@ export function CheckoutClient({ paymentEnabled }: { paymentEnabled: boolean }) 
                     <span className="text-gold">−{formatPrice(discount)}</span>
                   </div>
                 )}
-                <ShippingLine merchandise={merchandise} />
+                <ShippingLine merchandise={merchandise} keys={shipKeys} />
                 <div className="flex justify-between items-baseline pt-2 border-t border-border/30">
                   <span className="text-text-dim text-xs uppercase tracking-wider">
                     {t("co.total")}

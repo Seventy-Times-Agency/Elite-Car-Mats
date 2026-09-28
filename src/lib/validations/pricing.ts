@@ -43,7 +43,14 @@ export const priceOverrideUpsertSchema = z.union([
   // Shipping fee and free-shipping threshold — see getShippingSettings.
   z.object({
     profile: z.literal("shipping"),
-    matSet: z.enum(["fee", "freeFrom"]),
+    matSet: z.union([
+      z.enum(["fee", "freeFrom"]),
+      // Per-product fee: `<profile>.<matSet>` or `accessory.<slug>`.
+      z.string().regex(
+        /^(standard|pickup|twoSeater|semi|minivan)\.(front|full|cargo|full-cargo)$/,
+      ),
+      z.enum(ACCESSORY_SLUGS.map((s) => `accessory.${s}`) as [string, ...string[]]),
+    ]),
     price: priceField,
   }),
 ]);

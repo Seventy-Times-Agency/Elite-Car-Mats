@@ -16,7 +16,8 @@ import { loadPriceOverrides } from "@/lib/pricing-overrides";
 import { buildDbProfileResolver } from "@/lib/catalog-merge";
 import { cancelScheduledEmail } from "@/lib/email/transport";
 import { escapeHtml } from "@/lib/email/templates/base";
-import { sendMetaPurchase } from "@/lib/analytics/meta-capi";
+import { sendMetaPurchase, type AdSignals } from "@/lib/analytics/meta-capi";
+import { adSignalsFromMetadata } from "@/lib/analytics/meta-event";
 import { reportProblem } from "@/lib/ops/journal";
 import { logOrderEvent } from "@/lib/orders/events";
 
@@ -183,7 +184,10 @@ async function expireOtherOpenSession(
  * the Purchase to Meta's Conversions API (deduped with the browser
  * pixel via event_id).
  */
-async function firePostPaymentEffects(orderId: string): Promise<void> {
+async function firePostPaymentEffects(
+  orderId: string,
+  adSignals?: AdSignals,
+): Promise<void> {
   try {
     const order = await prisma.order.findUnique({
       where: { id: orderId },
@@ -202,6 +206,7 @@ async function firePostPaymentEffects(orderId: string): Promise<void> {
       city: order.city,
       state: order.state,
       zip: order.zip,
+      adSignals,
       contents: order.items.map((i) => ({
         id:
           i.kind === "accessory" && i.accessorySlug && i.accessoryVariant
@@ -419,7 +424,10 @@ export async function POST(request: Request) {
             after(async () => {
               await expireOtherOpenSession(orderId, session.id);
               await saveReceiptUrl(orderId, paymentIntentId);
-              await firePostPaymentEffects(orderId);
+              await firePostPaymentEffects(
+                orderId,
+                adSignalsFromMetadata(session.metadata),
+              );
               await sendOrderConfirmations(orderId).catch((err) => {
                 console.error(
                   "[stripe-webhook] confirmation email failed:",
@@ -483,7 +491,10 @@ export async function POST(request: Request) {
             after(async () => {
               await expireOtherOpenSession(orderId, session.id);
               await saveReceiptUrl(orderId, paymentIntentId);
-              await firePostPaymentEffects(orderId);
+              await firePostPaymentEffects(
+                orderId,
+                adSignalsFromMetadata(session.metadata),
+              );
               await sendOrderConfirmations(orderId).catch((err) => {
                 console.error(
                   "[stripe-webhook] confirmation email failed:",

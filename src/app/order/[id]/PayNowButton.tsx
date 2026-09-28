@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useT, useLocale } from "@/i18n/I18nProvider";
+import { getConsent } from "@/lib/consent";
 
 /**
  * "Complete payment" for a PENDING order, rendered on the tokened order
@@ -30,7 +31,14 @@ export function PayNowButton({
       const res = await fetch("/api/checkout/stripe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ orderId, orderToken, locale }),
+        body: JSON.stringify({
+          orderId,
+          orderToken,
+          locale,
+          // Lets the server attach Meta click ids to the Purchase — only
+          // with consent (see /api/checkout/stripe).
+          ...(getConsent() === "accepted" ? { adConsent: true } : {}),
+        }),
       });
       const data = await res.json().catch(() => ({}));
       if (res.ok && data?.url) {

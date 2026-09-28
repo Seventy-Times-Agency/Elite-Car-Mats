@@ -161,6 +161,7 @@ model Order {
   // cancels it the moment the customer actually pays.
   abandonedEmailId      String?
   items                 OrderItem[]
+  events                OrderEvent[]
   createdAt             DateTime    @default(now())
   updatedAt             DateTime    @updatedAt
 
@@ -297,6 +298,21 @@ model CustomOrderRequest {
 
 // Stripe webhook idempotency ledger. One row per processed event id —
 // claimed via INSERT ... ON CONFLICT DO NOTHING in the webhook handler.
+/// Payment history — see src/lib/orders/events.ts.
+model OrderEvent {
+  id        String   @id @default(cuid())
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  /// created | checkout_opened | payment_failed | paid | expired |
+  /// async_failed | status
+  type      String
+  /// JSON: amounts, Stripe decline code/message, new status.
+  detail    String?
+  createdAt DateTime @default(now())
+
+  @@index([orderId, createdAt])
+}
+
 model WebhookEvent {
   id        String   @id
   createdAt DateTime @default(now())

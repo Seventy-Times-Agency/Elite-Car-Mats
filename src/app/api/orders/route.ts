@@ -35,6 +35,8 @@ import {
 import { getDictionary, getLocaleFromCookie } from "@/i18n/getDictionary";
 import { makeT } from "@/i18n/dictionary";
 import type { OrderItemInput } from "@/lib/validations/order";
+import { reportProblem } from "@/lib/ops/journal";
+import { logOrderEvent } from "@/lib/orders/events";
 
 function generateOrderNumber(): string {
   const ts = Date.now().toString(36).toUpperCase();
@@ -460,11 +462,23 @@ export async function POST(request: Request) {
           : null,
       }),
     );
+    await reportProblem({
+      area: "order.create",
+      severity: "critical",
+      error: err,
+      context: e.code ? `prisma ${e.code}` : undefined,
+    });
     return NextResponse.json(
       { error: "Failed to create order. Please try again." },
       { status: 500 },
     );
   }
+
+  await logOrderEvent(createdOrder.id, "created", {
+    total: Number(createdOrder.total ?? 0),
+    shipping: Number(createdOrder.shippingCost ?? 0),
+    promo: promoPreview?.code ?? null,
+  });
 
   // Resolve the dictionary once per request — the name resolver below
   // is fast/sync and gets reused for both customer + owner emails.
@@ -579,6 +593,7 @@ export async function POST(request: Request) {
         }
       } catch (err) {
         console.error("[orders] abandoned-checkout scheduling failed:", err);
+        await reportProblem({ area: "orders.followup", severity: "warning", error: err });
       }
     });
   }

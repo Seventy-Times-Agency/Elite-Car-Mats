@@ -1,4 +1,5 @@
 import "server-only";
+import { redisEnabled, redisPipeline } from "@/lib/redis-rest";
 
 /**
  * Own-side conversion funnel: how many people reach each step on the way
@@ -44,9 +45,7 @@ export function isFunnelStep(v: unknown): v is FunnelStep {
   return typeof v === "string" && STEP_SET.has(v);
 }
 
-const url = process.env.UPSTASH_REDIS_REST_URL;
-const token = process.env.UPSTASH_REDIS_REST_TOKEN;
-export const funnelEnabled = Boolean(url && token);
+export const funnelEnabled = redisEnabled;
 
 /** Counters are kept for 90 days — enough for the 30-day admin view. */
 const TTL_SECONDS = 90 * 24 * 60 * 60;
@@ -103,33 +102,10 @@ export function recentDayKeys(n: number): string[] {
 
 const keyFor = (day: string, step: FunnelStep) => `${KEY_PREFIX}:${day}:${step}`;
 
-async function pipeline(commands: string[][]): Promise<unknown[] | null> {
-  if (!funnelEnabled) return null;
-  try {
-    const res = await fetch(`${url}/pipeline`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(commands),
-      cache: "no-store",
-    });
-    if (!res.ok) {
-      console.warn("[funnel] upstash non-OK:", res.status);
-      return null;
-    }
-    const data = (await res.json().catch(() => null)) as
-      | Array<{ result?: unknown; error?: string }>
-      | null;
-    if (!Array.isArray(data)) return null;
-    return data.map((d) => d?.result ?? null);
-  } catch (err) {
-    // Never surface to the visitor: a dropped analytics beacon is
-    // invisible, a thrown request is a broken page.
-    console.warn("[funnel] upstash request failed:", err);
-    return null;
-  }
+function pipeline(commands: string[][]): Promise<unknown[] | null> {
+  // Never surfaces to the visitor: a dropped analytics beacon is
+  // invisible, a thrown request is a broken page.
+  return redisPipeline(commands, "funnel");
 }
 
 /**

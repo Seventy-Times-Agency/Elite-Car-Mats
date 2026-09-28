@@ -1,6 +1,7 @@
 import "server-only";
 import { Pool, neonConfig } from "@neondatabase/serverless";
 import ws from "ws";
+import { reportProblem } from "@/lib/ops/journal";
 
 neonConfig.webSocketConstructor = ws;
 
@@ -517,6 +518,26 @@ async function execAll(): Promise<MigrationResult[]> {
     );
 
     // ------------------------------------------------------------------
+    // Payment history: one row per step of an order's life (created,
+    // opened Stripe, card declined + reason, paid, expired, status set
+    // by admin). Written only from API routes, never from public reads.
+    // ------------------------------------------------------------------
+    await run(
+      "table OrderEvent",
+      `CREATE TABLE IF NOT EXISTS "OrderEvent" (
+         "id" TEXT PRIMARY KEY,
+         "orderId" TEXT NOT NULL REFERENCES "Order"("id") ON DELETE CASCADE,
+         "type" TEXT NOT NULL,
+         "detail" TEXT,
+         "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+       )`,
+    );
+    await run(
+      "OrderEvent.orderId index",
+      `CREATE INDEX IF NOT EXISTS "OrderEvent_orderId_createdAt_idx" ON "OrderEvent"("orderId", "createdAt")`,
+    );
+
+    // ------------------------------------------------------------------
     // Blog. Single-table CMS — markdown body, optional cover image,
     // optional locale (null = visible in every locale).
     // ------------------------------------------------------------------
@@ -771,6 +792,7 @@ export function ensureSchema(): Promise<MigrationResult[]> {
   if (!done) {
     done = execAll().catch((err): MigrationResult[] => {
       console.error("[db-setup] fatal:", err);
+      void reportProblem({ area: "db.setup", severity: "critical", error: err });
       done = null;
       return [
         {

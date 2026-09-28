@@ -15,6 +15,8 @@ import { getDictionaryFor } from "@/i18n/getDictionary";
 import { DEFAULT_LOCALE } from "@/i18n/config";
 import { makeT } from "@/i18n/dictionary";
 import { localizeColor } from "@/i18n/labels";
+import { reportProblem } from "@/lib/ops/journal";
+import { logOrderEvent } from "@/lib/orders/events";
 
 const schema = z.object({
   orderId: z.string().min(1),
@@ -261,9 +263,14 @@ export async function POST(request: Request) {
       after(() => expireSessionSafely(prevSessionId));
     }
 
+    await logOrderEvent(order.id, "checkout_opened", {
+      amount: Number(order.total ?? 0),
+    });
+
     return NextResponse.json({ url: session.url, sessionId: session.id });
   } catch (err) {
     console.error("[stripe-checkout:error]", err);
+    await reportProblem({ area: "checkout.session", severity: "critical", error: err });
     return NextResponse.json(
       { error: "Failed to create checkout session" },
       { status: 502 },

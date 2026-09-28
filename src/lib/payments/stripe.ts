@@ -1,5 +1,6 @@
 import "server-only";
 import type Stripe from "stripe";
+import { reportProblem } from "@/lib/ops/journal";
 
 /**
  * Lazy-loaded Stripe client.
@@ -43,6 +44,7 @@ export async function getStripe(): Promise<Stripe | null> {
     return cached;
   } catch (err) {
     console.error("[stripe] failed to load SDK:", err);
+    await reportProblem({ area: "stripe.sdk", severity: "critical", error: err });
     cached = null;
     return null;
   }

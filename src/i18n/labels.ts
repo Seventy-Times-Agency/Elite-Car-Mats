@@ -68,6 +68,7 @@ const COLOR_KEY: Record<string, string> = {
   Синий: "color.blue",
   Коричневый: "color.brown",
   Бежевый: "color.beige",
+  "Светло-бежевый": "color.lightBeige",
   Жёлтый: "color.yellow",
   Зелёный: "color.green",
   Фиолетовый: "color.purple",

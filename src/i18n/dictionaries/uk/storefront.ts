@@ -377,6 +377,7 @@ export const storefront: Dict = {
   "color.darkGreen": "Темно-зелений",
   "color.darkBrown": "Темно-коричневий",
   "color.navy": "Темно-синій",
+  "color.lightBeige": "Світло-бежевий",
   "color.ivory": "Кремовий",
   "body.sedan": "Седан",
   "body.crossover": "Кросовер",

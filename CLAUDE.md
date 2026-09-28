@@ -89,7 +89,7 @@ src/
 │   │                             CookieBanner / FloatingCTA /
 │   │                             HeaderSearch / LanguageSwitcher /
 │   │                             NewsletterForm
-│   ├── product/                  MatPreview / MatColorSwatch /
+│   ├── product/                  MatColorSwatch /
 │   │                             ProductFaq / WishlistButton
 │   ├── cart/                     CartDrawer
 │   ├── common/                   TrustBadges / Reveal
@@ -350,7 +350,6 @@ edge for an hour.
 - `src/lib/catalog-merge.ts` — code + DB merge for public reads.
 - `src/lib/pricing.ts` — billing maths.
 - `src/lib/pricing-overrides.ts` — admin live overrides.
-- `src/components/product/MatPreview.tsx` — SVG mat preview.
 - `src/app/api/car-image/route.ts` — Wikipedia car-photo proxy.
 - `src/app/api/orders/route.ts` — order creation flow.
 - `src/app/api/checkout/stripe/route.ts` — Stripe checkout session.

@@ -143,6 +143,8 @@ export const operations: Dict = {
   "admin.pricingErrSave": "Could not save price.",
   "admin.pricingConfirmClear": "Reset to code default?",
   "admin.pricingAddonsH": "Add-ons",
+  "admin.bundleSaving": "Parts separately {parts} · customer saves {saving}",
+  "admin.bundleNoSaving": "= parts separately ({parts}) — no bundle discount. Lower this price to offer one.",
   "admin.shippingH": "Shipping",
   "admin.shippingFee": "Shipping fee",
   "admin.shippingFreeFrom": "Free shipping from (order total)",

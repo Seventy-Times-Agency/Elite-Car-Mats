@@ -187,7 +187,33 @@ export function PricingManager({
                       <td className="px-4 py-2.5 font-mono text-[11px] text-text-faint">
                         {r.matSet}
                       </td>
-                      <td className="px-4 py-2.5 text-text">{r.label}</td>
+                      <td className="px-4 py-2.5 text-text">
+                        {r.label}
+                        {r.matSet === "full-cargo" && (() => {
+                          // The complete set is the bundle: show what it
+                          // saves against cabin + trunk bought separately,
+                          // so a discount is set by lowering this price.
+                          const price = (type: string) => {
+                            const row = p.rows.find((x) => x.matSet === type);
+                            return row ? (row.override ?? row.defaultPrice) : null;
+                          };
+                          const cabin = price("full") ?? price("front");
+                          const cargo = price("cargo");
+                          if (cabin === null || cargo === null) return null;
+                          const parts = cabin + cargo;
+                          const saving = parts - live;
+                          return (
+                            <div className="text-[10px] text-text-faint mt-0.5">
+                              {saving > 0
+                                ? t("admin.bundleSaving", {
+                                    parts: formatPrice(parts),
+                                    saving: formatPrice(saving),
+                                  })
+                                : t("admin.bundleNoSaving", { parts: formatPrice(parts) })}
+                            </div>
+                          );
+                        })()}
+                      </td>
                       <td className="px-4 py-2.5 text-right text-text-faint hidden sm:table-cell">
                         {formatPrice(r.defaultPrice)}
                       </td>

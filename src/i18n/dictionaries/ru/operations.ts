@@ -142,6 +142,8 @@ export const operations: Dict = {
   "admin.pricingErrSave": "Не удалось сохранить.",
   "admin.pricingConfirmClear": "Сбросить override и вернуть code-default?",
   "admin.pricingAddonsH": "Доплаты",
+  "admin.bundleSaving": "По отдельности {parts} · выгода покупателю {saving}",
+  "admin.bundleNoSaving": "= сумма частей ({parts}) — скидки на комплект нет. Снизьте цену, чтобы её дать.",
   "admin.shippingH": "Доставка",
   "admin.shippingFee": "Стоимость доставки",
   "admin.shippingFreeFrom": "Бесплатно от (сумма заказа)",

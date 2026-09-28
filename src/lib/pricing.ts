@@ -164,6 +164,29 @@ export function shippingFor(
   return fee;
 }
 
+/**
+ * How much the complete set (cabin + trunk) saves against buying the
+ * cabin set and the trunk mat separately. 0 while the admin keeps the
+ * combo at the sum of its parts — which is the code default, so no
+ * discount shows until someone lowers the `full-cargo` price.
+ */
+export function bundleSavings(
+  profile: VehicleConfigProfile,
+  type: MatSetType,
+  overrides?: PriceOverrideMap,
+): number {
+  if (type !== "full-cargo") return 0;
+  const sets = MAT_SETS_BY_PROFILE[profile] ?? [];
+  const has = (t: MatSetType) => sets.some((s) => s.type === t);
+  const cabin: MatSetType | null = has("full") ? "full" : has("front") ? "front" : null;
+  if (!cabin || !has("cargo") || !has("full-cargo")) return 0;
+  const parts =
+    getMatSetPrice(profile, cabin, overrides) +
+    getMatSetPrice(profile, "cargo", overrides);
+  const saving = parts - getMatSetPrice(profile, "full-cargo", overrides);
+  return saving > 0 ? Math.round(saving * 100) / 100 : 0;
+}
+
 /** Unit price of any cart line — mat set or accessory. */
 export function cartItemUnitPrice(
   item: CartItem,

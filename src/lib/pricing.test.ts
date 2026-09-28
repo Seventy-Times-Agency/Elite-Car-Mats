@@ -8,6 +8,7 @@ import {
   clampBadgeCount,
   getMatSetPrice,
   getShippingSettings,
+  bundleSavings,
   shippingFor,
   SHIPPING_FEE,
   FREE_SHIPPING_FROM,
@@ -170,5 +171,22 @@ describe("shipping", () => {
     expect(shippingFor(149, ov)).toBe(12);
     expect(shippingFor(150, ov)).toBe(0);
     expect(getShippingSettings(ov)).toEqual({ fee: 12, freeFrom: 150 });
+  });
+});
+
+describe("bundle savings", () => {
+  it("is zero at code defaults (combo = sum of parts)", () => {
+    expect(bundleSavings("standard", "full-cargo")).toBe(0);
+    expect(bundleSavings("minivan", "full-cargo")).toBe(0);
+    expect(bundleSavings("standard", "full")).toBe(0);
+  });
+
+  it("shows the gap once the admin lowers the combo price", () => {
+    const ov = new Map([["standard:full-cargo", 179]]);
+    expect(bundleSavings("standard", "full-cargo", ov)).toBe(
+      getMatSetPrice("standard", "full") + getMatSetPrice("standard", "cargo") - 179,
+    );
+    // pickups sell no combo
+    expect(bundleSavings("pickup", "full-cargo", ov)).toBe(0);
   });
 });

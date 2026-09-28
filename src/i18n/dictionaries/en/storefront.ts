@@ -473,6 +473,7 @@ export const storefront: Dict = {
   "prod.subtitleSuffix": "EVA floor mats",
   "prod.stepYear": "Year",
   "prod.stepSet": "Set",
+  "prod.bundleSave": "Save {amount} vs separately",
   "prod.stepStyle": "Style",
   "prod.stepAddons": "Add-ons",
   "prod.stepColor": "Mat color",

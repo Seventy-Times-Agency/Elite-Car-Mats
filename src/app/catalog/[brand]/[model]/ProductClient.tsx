@@ -18,6 +18,7 @@ import {
   calculateItemUnitPrice,
   formatPrice,
   shippingFor,
+  bundleSavings,
 } from "@/lib/pricing";
 import {
   getVehicleProfile,
@@ -658,6 +659,7 @@ export default function ProductClient({
                   {profileMatSets.map((s) => {
                     const label = localizeMatSet(t, s.label);
                     const desc = localizeMatSetDesc(t, s.description);
+                    const saving = bundleSavings(profile, s.type, priceOverrides);
                     return (
                       <button
                         key={s.type}
@@ -686,6 +688,11 @@ export default function ProductClient({
                         <div className="text-[10px] text-text-dim mt-0.5 leading-snug">
                           {desc}
                         </div>
+                        {saving > 0 && (
+                          <div className="mt-1 inline-block text-[10px] font-semibold text-gold bg-gold/10 rounded px-1.5 py-0.5">
+                            {t("prod.bundleSave", { amount: formatPrice(saving) })}
+                          </div>
+                        )}
                       </button>
                     );
                   })}

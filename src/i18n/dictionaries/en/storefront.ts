@@ -62,7 +62,7 @@ export const storefront: Dict = {
   "blog.ctaTagline": "Ready for premium EVA mats cut for your exact car?",
   "blog.ctaButton": "Build my mats →",
   "brand.intro":
-    "Custom-cut EVA floor mats for your {brand} — {count} models supported. Every set is hand-cut to a dedicated pattern for your year and trim, then hand-sewn with the colored edge of your choice. Made and shipped from Rochester, NY in 2–3 business days.",
+    "Custom-cut EVA floor mats for your {brand} — {count} models supported. Every set is hand-cut to a dedicated pattern for your year and trim, then hand-sewn with the colored edge of your choice. Made and shipped from Rochester, NY, usually in 2–3 business days.",
   "prod.faq.label": "FAQ",
   "prod.faq.heading": "Frequently asked",
   "prod.faq.fit.q": "Will these mats actually fit my {brand} {model}?",
@@ -73,7 +73,7 @@ export const storefront: Dict = {
     "Premium closed-cell EVA foam, ~10 mm thick. Doesn't absorb water, doesn't crack in cold, doesn't fade in sun, doesn't off-gas a chemical smell. The honeycomb pattern traps water, snow, salt and dirt instead of pushing it back onto the carpet underneath.",
   "prod.faq.lead.q": "How long does it take to make?",
   "prod.faq.lead.a":
-    "Production takes 2–3 business days. Once cut, the set ships the same or next day from our Rochester, NY workshop.",
+    "Usually 2–3 business days. Once cut, the set ships the same or next day from our Rochester, NY workshop. In busy periods production can take longer — if it does, we'll contact you right after your order with the exact date.",
   "prod.faq.shipping.q": "How fast will I get my order?",
   "prod.faq.shipping.a":
     "USPS / UPS to all 50 states — {fee} flat, free on orders of {freeFrom} or more. Typically 3–7 business days after dispatch. You'll get a tracking number by email the moment the package leaves us.",
@@ -537,7 +537,7 @@ export const storefront: Dict = {
     "The edging is double-stitched with high-tensile thread, a badge with your car's logo is set, and an ELITECARMATS.US tag is sewn on the side.",
   "process.s4Title": "Shipped across the USA",
   "process.s4Desc":
-    "Packed in a heavy kraft mailer and shipped via USPS or UPS Ground within 2–3 business days. Free US shipping on orders of {freeFrom} or more.",
+    "Packed in a heavy kraft mailer and shipped via USPS or UPS Ground, usually within 2–3 business days. Free US shipping on orders of {freeFrom} or more.",
   "process.cta": "Build my set",
   "materials.label": "Materials",
   "materials.title": "What your set is made of",
@@ -583,7 +583,7 @@ export const storefront: Dict = {
     "Every set is hand-cut to your model's own pattern from our 1,000+ library — the same precise fit in every pair.",
   "features.f3Title": "Made to order",
   "features.f3Desc":
-    "Your set doesn't sit on a shelf — we start cutting after payment. 2–3 business days from order to shipment.",
+    "Your set doesn't sit on a shelf — we start cutting after payment. Usually 2–3 business days from order to shipment.",
   "features.f4Title": "2-year warranty",
   "features.f4Desc":
     "Covers material and stitching. Cracked or warped? We replace it free — no paperwork, no inspections.",
@@ -667,7 +667,7 @@ export const storefront: Dict = {
     "2-year manufacturer warranty on all materials and stitching. If you find a manufacturing defect during the warranty period — a crack, stitch separation, edge deformation — we'll replace the mat or set free of charge. Normal wear (worn heel areas, heel scuffs) is not covered, but this is a natural process and takes 4–5 years of active use with EVA.",
   "faq.q7": "How fast is shipping and how much does it cost?",
   "faq.a7":
-    "We ship within 2–3 business days of payment. Within the USA, USPS / UPS Ground — 3–7 business days, {fee} flat, free on orders of {freeFrom} or more. A tracking link is emailed the moment the package leaves. Shipping to Canada or Mexico is available on request — email us before ordering.",
+    "We usually ship within 2–3 business days of payment; in busy periods it can take longer, and we'll let you know the exact date right after your order. Within the USA, USPS / UPS Ground — 3–7 business days, {fee} flat, free on orders of {freeFrom} or more. A tracking link is emailed the moment the package leaves. Shipping to Canada or Mexico is available on request — email us before ordering.",
   "faq.q8": "Can I return or exchange my mats?",
   "faq.a8":
     "Yes, within 30 days of delivery. Mats must be in original packaging, with no signs of use or odors. Refunds are processed within 5 business days of us receiving the return. If you picked the wrong set or color, we do a free exchange — you only cover the return shipping.",
@@ -771,11 +771,11 @@ export const storefront: Dict = {
     "Elite Car Mats shipping terms for the U.S.: USPS / UPS, {fee} flat, free on orders of {freeFrom} or more.",
   "delivery.title": "Shipping",
   "delivery.intro":
-    "We ship orders from Rochester, NY within 2–3 business days of payment. Shipping nationwide across the United States.",
+    "We usually ship orders from Rochester, NY within 2–3 business days of payment. Every set is made by hand, so in busy periods production can take longer — if so, we'll contact you right after your order with the exact date. Shipping nationwide across the United States.",
   "delivery.updatedAt": "April 20, 2026",
   "delivery.timelinesH": "Timelines",
   "delivery.t1Pre": "Production:",
-  "delivery.t1": "2–3 business days after payment",
+  "delivery.t1": "usually 2–3 business days after payment; longer in busy periods (we'll tell you)",
   "delivery.t2Pre": "USPS / UPS Ground:",
   "delivery.t2": "3–7 business days within the U.S.",
   "delivery.t3Pre": "Expedited shipping:",
@@ -952,7 +952,7 @@ export const storefront: Dict = {
     "Shipping within the U.S. costs {fee}; orders of {freeFrom} or more ship free",
   "terms.s3H": "3. Production & timelines",
   "terms.s3P":
-    "Every set is made to order — typically cut, sewn and shipped within 2–3 business days of payment. Standard USPS / UPS Ground shipping within the U.S. takes 3–7 business days.",
+    "Every set is made to order — typically cut, sewn and shipped within 2–3 business days of payment. In busy periods production may take longer; we will notify you of the expected date promptly after your order. Standard USPS / UPS Ground shipping within the U.S. takes 3–7 business days.",
   "terms.s4H": "4. Returns & exchanges",
   "terms.s4PPre": "Full details are in our ",
   "terms.s4PLink": "return policy",

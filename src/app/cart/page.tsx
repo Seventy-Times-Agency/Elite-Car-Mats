@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { ShippingLine, useBilledTotal } from "@/components/cart/ShippingLine";
 import { useCart } from "@/context/CartContext";
 import {
   cartItemUnitPrice,
@@ -15,7 +16,8 @@ import { accessoryView } from "@/lib/accessories/display";
 export default function CartPage() {
   const { items, removeItem, updateQuantity, clearCart, hydrated } = useCart();
   const priceOverrides = usePriceOverrides();
-  const total = cartTotal(items, priceOverrides);
+  const subtotal = cartTotal(items, priceOverrides);
+  const total = useBilledTotal(subtotal);
   const t = useT();
 
   if (!hydrated) return <div className="min-h-[60vh]" />;
@@ -136,13 +138,16 @@ export default function CartPage() {
             );
           })}
         </div>
-        <div className="mt-8 glass-card rounded-xl p-5 flex items-baseline justify-between">
-          <span className="text-text-dim text-xs uppercase tracking-wider">
-            {t("cart.total")}
-          </span>
-          <span className="text-gold text-2xl font-bold">
-            {formatPrice(total)}
-          </span>
+        <div className="mt-8 glass-card rounded-xl p-5 space-y-3">
+          <ShippingLine merchandise={subtotal} />
+          <div className="flex items-baseline justify-between">
+            <span className="text-text-dim text-xs uppercase tracking-wider">
+              {t("cart.total")}
+            </span>
+            <span className="text-gold text-2xl font-bold">
+              {formatPrice(total)}
+            </span>
+          </div>
         </div>
         <div className="mt-4">
           <Link

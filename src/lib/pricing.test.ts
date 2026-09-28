@@ -7,6 +7,10 @@ import {
   calculateOrderTotal,
   clampBadgeCount,
   getMatSetPrice,
+  getShippingSettings,
+  shippingFor,
+  SHIPPING_FEE,
+  FREE_SHIPPING_FROM,
   type PriceOverrideMap,
 } from "./pricing";
 import { MAT_SETS_BY_PROFILE } from "@/data/catalog/mat-sets";
@@ -148,5 +152,23 @@ describe("calculateOrderTotal", () => {
 
   it("is zero for an empty cart", () => {
     expect(calculateOrderTotal([])).toBe(0);
+  });
+});
+
+describe("shipping", () => {
+  it("charges the flat fee below the threshold and nothing from it", () => {
+    expect(shippingFor(119)).toBe(SHIPPING_FEE);
+    expect(shippingFor(FREE_SHIPPING_FROM - 0.01)).toBe(SHIPPING_FEE);
+    expect(shippingFor(FREE_SHIPPING_FROM)).toBe(0);
+    expect(shippingFor(277)).toBe(0);
+  });
+
+  it("follows admin overrides: fee 0 = always free, threshold 0 = always paid", () => {
+    expect(shippingFor(50, new Map([["shipping:fee", 0]]))).toBe(0);
+    expect(shippingFor(500, new Map([["shipping:freeFrom", 0]]))).toBe(SHIPPING_FEE);
+    const ov = new Map([["shipping:fee", 12], ["shipping:freeFrom", 150]]);
+    expect(shippingFor(149, ov)).toBe(12);
+    expect(shippingFor(150, ov)).toBe(0);
+    expect(getShippingSettings(ov)).toEqual({ fee: 12, freeFrom: 150 });
   });
 });

@@ -187,7 +187,11 @@ export async function POST(request: Request) {
     (s, it) => s + it.unitPriceUsd * it.quantity,
     0,
   );
-  const dbTotal = Number(order.total ?? 0);
+  // Shipping is part of the stored total but billed as Stripe's own
+  // shipping line, so take it out before deriving the promo discount.
+  // NULL = order from before paid shipping (shipped free).
+  const shippingUsd = Number(order.shippingCost ?? 0);
+  const dbTotal = Number(order.total ?? 0) - shippingUsd;
   // Difference between subtotal and stored total is the promo discount.
   // Clamped so the session total never drops below Stripe's $0.50 card
   // minimum — a 100%-off promo would otherwise make session creation
@@ -203,6 +207,7 @@ export async function POST(request: Request) {
       customerEmail: order.email,
       items,
       discountUsd,
+      shippingUsd,
       orderToken: signOrderToken(order.id),
       locale: LOCALE_MAP[locale] ?? "auto",
     });

@@ -6,7 +6,13 @@ import {
   MAT_SETS_BY_PROFILE,
   type MatSetOption,
 } from "@/data/catalog/mat-sets";
-import { BADGE_PRICE, HEEL_PAD_PRICE, THIRD_ROW_PRICE } from "@/lib/pricing";
+import {
+  BADGE_PRICE,
+  HEEL_PAD_PRICE,
+  THIRD_ROW_PRICE,
+  SHIPPING_FEE,
+  FREE_SHIPPING_FROM,
+} from "@/lib/pricing";
 import { findAccessory } from "@/data/accessories";
 import type { VehicleConfigProfile } from "@/lib/vehicle-profile";
 import { getDictionary } from "@/i18n/getDictionary";
@@ -72,6 +78,17 @@ export default async function AdminPricingPage() {
     },
   };
 
+  const shipping = {
+    fee: {
+      defaultPrice: SHIPPING_FEE,
+      override: overrideMap.get("shipping:fee") ?? null,
+    },
+    freeFrom: {
+      defaultPrice: FREE_SHIPPING_FROM,
+      override: overrideMap.get("shipping:freeFrom") ?? null,
+    },
+  };
+
   const availability = await getAddonAvailability();
 
   return (
@@ -79,7 +96,12 @@ export default async function AdminPricingPage() {
       title={t("admin.pricingTitle")}
       subtitle={t("admin.pricingSubtitle")}
     >
-      <PricingManager profiles={profiles} addons={addons} availability={availability} />
+      <PricingManager
+        profiles={profiles}
+        addons={addons}
+        availability={availability}
+        shipping={shipping}
+      />
     </AdminShell>
   );
 }

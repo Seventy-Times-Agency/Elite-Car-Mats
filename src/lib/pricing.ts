@@ -117,6 +117,45 @@ export function getAccessoryPrice(
   return findAccessory(slug)?.price ?? 0;
 }
 
+/**
+ * Shipping: flat fee, free once the merchandise subtotal (after promo)
+ * reaches the threshold. Both are admin-editable under the pseudo-profile
+ * `shipping` (rows `shipping:fee`, `shipping:freeFrom`). Fee 0 = free
+ * shipping on every order; threshold 0 = no threshold (fee always).
+ */
+export const SHIPPING_FEE = 15;
+export const FREE_SHIPPING_FROM = 200;
+
+export interface ShippingSettings {
+  fee: number;
+  freeFrom: number;
+}
+
+export function getShippingSettings(
+  overrides?: PriceOverrideMap,
+): ShippingSettings {
+  const fee = overrides?.get("shipping:fee");
+  const freeFrom = overrides?.get("shipping:freeFrom");
+  return {
+    fee: typeof fee === "number" && Number.isFinite(fee) ? fee : SHIPPING_FEE,
+    freeFrom:
+      typeof freeFrom === "number" && Number.isFinite(freeFrom)
+        ? freeFrom
+        : FREE_SHIPPING_FROM,
+  };
+}
+
+/** Shipping charged on a merchandise subtotal (already net of promo). */
+export function shippingFor(
+  merchandiseUsd: number,
+  overrides?: PriceOverrideMap,
+): number {
+  const { fee, freeFrom } = getShippingSettings(overrides);
+  if (fee <= 0) return 0;
+  if (freeFrom > 0 && merchandiseUsd >= freeFrom) return 0;
+  return fee;
+}
+
 /** Unit price of any cart line — mat set or accessory. */
 export function cartItemUnitPrice(
   item: CartItem,

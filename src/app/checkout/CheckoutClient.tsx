@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import { ShippingLine, useBilledTotal } from "@/components/cart/ShippingLine";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/context/CartContext";
 import { trackFunnel } from "@/lib/analytics/funnel-client";
@@ -12,6 +13,7 @@ import Link from "next/link";
 import {
   cartItemUnitPrice,
   cartTotal,
+  shippingFor,
   formatPrice,
 } from "@/lib/pricing";
 import { useT, useLocale } from "@/i18n/I18nProvider";
@@ -153,7 +155,11 @@ export function CheckoutClient({ paymentEnabled }: { paymentEnabled: boolean }) 
 
   const subtotal = cartTotal(items, priceOverrides);
   const discount = promoApplied?.amount ?? 0;
-  const total = Math.max(0, subtotal - discount);
+  const merchandise = Math.max(0, subtotal - discount);
+  const total = useBilledTotal(merchandise);
+  // What the server bills if the promo is gone by the time the order is
+  // created (raced to expiry) — goods at full price plus their shipping.
+  const fullPriceTotal = subtotal + shippingFor(subtotal, priceOverrides);
 
   const applyPromo = async () => {
     const code = promoInput.trim().toUpperCase();
@@ -332,7 +338,7 @@ export function CheckoutClient({ paymentEnabled }: { paymentEnabled: boolean }) 
         if (
           Number.isFinite(serverTotal) &&
           serverTotal !== total &&
-          serverTotal !== subtotal
+          serverTotal !== fullPriceTotal
         ) {
           console.error(
             `[checkout] total mismatch: displayed=${total} server=${serverTotal}`,
@@ -349,7 +355,7 @@ export function CheckoutClient({ paymentEnabled }: { paymentEnabled: boolean }) 
         if (
           Number.isFinite(serverTotal) &&
           discount > 0 &&
-          serverTotal === subtotal &&
+          serverTotal === fullPriceTotal &&
           serverTotal !== total
         ) {
           // The retry will send `promoCode: null` — re-key the stored
@@ -790,20 +796,19 @@ export function CheckoutClient({ paymentEnabled }: { paymentEnabled: boolean }) 
                     <p className="text-[11px] text-error mt-1.5">{promoError}</p>
                   )}
                 </div>
-                {discount > 0 && (
-                  <div className="flex justify-between items-baseline text-xs">
-                    <span className="text-text-dim">{t("co.subtotal")}</span>
-                    <span className="text-text-dim">
-                      {formatPrice(subtotal)}
-                    </span>
-                  </div>
-                )}
+                <div className="flex justify-between items-baseline text-xs">
+                  <span className="text-text-dim">{t("co.subtotal")}</span>
+                  <span className="text-text-dim">
+                    {formatPrice(subtotal)}
+                  </span>
+                </div>
                 {discount > 0 && (
                   <div className="flex justify-between items-baseline text-xs">
                     <span className="text-gold">{t("co.discount")}</span>
                     <span className="text-gold">−{formatPrice(discount)}</span>
                   </div>
                 )}
+                <ShippingLine merchandise={merchandise} />
                 <div className="flex justify-between items-baseline pt-2 border-t border-border/30">
                   <span className="text-text-dim text-xs uppercase tracking-wider">
                     {t("co.total")}

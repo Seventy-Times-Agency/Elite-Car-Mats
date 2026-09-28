@@ -7,6 +7,7 @@ import {
   commentBlock,
   escapeHtml,
   itemsTable,
+  shippingRow,
   type OrderEmailData,
 } from "./base";
 
@@ -47,6 +48,7 @@ export async function sendOwnerOrderEmail(
     </div>
     <table style="width:100%;border-collapse:collapse;">
       ${itemsTable(t, data.items)}
+      ${shippingRow(t, data.shippingCost)}
       <tr>
         <td style="padding-top:16px;color:#8a8a8a;font-size:11px;letter-spacing:0.2em;text-transform:uppercase;">${t("email.totalLabel")}</td>
         <td style="padding-top:16px;text-align:right;color:#D4A54A;font-size:20px;font-weight:700;">${formatPrice(data.total)}</td>

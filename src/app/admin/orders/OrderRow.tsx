@@ -63,6 +63,8 @@ interface Order {
   promoCode: string | null;
   subtotal: number;
   discount: number;
+  /** Included in `total`; null on orders from before paid shipping. */
+  shipping: number | null;
   total: number;
   trackingNumber: string | null;
   itemsCount: number;
@@ -323,6 +325,16 @@ export function OrderRow({
                 <span className="text-text-dim">{t("admin.discountLabel")}</span>
                 <span className="text-gold tabular-nums">
                   −{formatPrice(order.discount)}
+                </span>
+              </div>
+            )}
+            {order.shipping !== null && (
+              <div className="flex justify-between gap-4">
+                <span className="text-text-dim">{t("admin.shippingLabel")}</span>
+                <span className="text-text tabular-nums">
+                  {order.shipping > 0
+                    ? formatPrice(order.shipping)
+                    : t("admin.shippingFree")}
                 </span>
               </div>
             )}

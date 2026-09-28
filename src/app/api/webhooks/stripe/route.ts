@@ -250,6 +250,7 @@ async function sendOrderConfirmations(orderId: string): Promise<void> {
     // promo code lives in Order.promoCode column.
     comment: order.comment,
     total: Number(order.total ?? 0),
+    shippingCost: order.shippingCost === null ? null : Number(order.shippingCost),
     locale: order.locale,
     items: order.items.map((i) => {
       if (i.kind === "accessory" && i.accessorySlug && i.accessoryVariant) {

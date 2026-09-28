@@ -85,6 +85,7 @@ export default async function AdminOrdersPage() {
               0,
             );
             const total = Number(o.total ?? 0);
+            const shipping = o.shippingCost === null ? null : Number(o.shippingCost);
             return (
               <OrderRow
                 key={o.id}
@@ -102,7 +103,8 @@ export default async function AdminOrdersPage() {
                   comment: o.comment,
                   promoCode: o.promoCode,
                   subtotal,
-                  discount: Math.max(0, subtotal - total),
+                  discount: Math.max(0, subtotal + (shipping ?? 0) - total),
+                  shipping,
                   total,
                   trackingNumber: o.trackingNumber,
                   itemsCount: o.items.length,

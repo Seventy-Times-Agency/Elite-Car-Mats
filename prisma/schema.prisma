@@ -137,6 +137,9 @@ model Order {
   // so admin reporting can group by code without LIKE-matching).
   promoCode             String?
   total                 Decimal?    @db.Decimal(10, 2)
+  // Shipping charged on this order (already included in `total`). NULL on
+  // orders from before paid shipping — those shipped free.
+  shippingCost          Decimal?    @db.Decimal(10, 2)
   trackingNumber        String?
   carrier               String?
   shippedAt             DateTime?

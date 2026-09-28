@@ -33,6 +33,13 @@ interface AddonRows {
   organizer: AddonPrice;
 }
 
+export interface ShippingRows {
+  /** Flat fee — row `shipping:fee`; 0 = free shipping on every order. */
+  fee: AddonPrice;
+  /** Free from this merchandise total — row `shipping:freeFrom`; 0 = never. */
+  freeFrom: AddonPrice;
+}
+
 export interface AddonAvailabilityProps {
   badges: boolean;
   heelPad: boolean;
@@ -43,10 +50,12 @@ export function PricingManager({
   profiles,
   addons,
   availability,
+  shipping,
 }: {
   profiles: ProfileBlock[];
   addons: AddonRows;
   availability: AddonAvailabilityProps;
+  shipping: ShippingRows;
 }) {
   const t = useT();
   const router = useRouter();
@@ -408,6 +417,85 @@ export function PricingManager({
         </div>
         <p className="mt-3 text-[10px] text-text-faint">
           {t("admin.pricingAddonsNote")}
+        </p>
+      </section>
+
+      <section>
+        <h2 className="text-[11px] uppercase tracking-[0.2em] text-text-dim font-semibold mb-2.5">
+          {t("admin.shippingH")}
+        </h2>
+        <div className="glass-card rounded-xl overflow-hidden">
+          <table className="w-full text-sm">
+            <tbody className="divide-y divide-border/30">
+              {(
+                [
+                  { matSet: "fee", label: t("admin.shippingFee"), price: shipping.fee },
+                  { matSet: "freeFrom", label: t("admin.shippingFreeFrom"), price: shipping.freeFrom },
+                ] as const
+              ).map((row) => {
+                const key = `shipping:${row.matSet}`;
+                const live = row.price.override ?? row.price.defaultPrice;
+                const isEditing = editingKey === key;
+                return (
+                  <tr key={key}>
+                    <td className="px-4 py-2.5 text-text">{row.label}</td>
+                    <td className="px-4 py-2.5 text-right">
+                      {isEditing ? (
+                        <input
+                          type="number"
+                          min={0}
+                          step="0.01"
+                          value={draft}
+                          onChange={(e) => setDraft(e.target.value)}
+                          autoFocus
+                          className="w-24 glass-card rounded-md px-2 py-1 text-sm text-right focus:border-gold/40 focus:outline-none"
+                          aria-label={row.label}
+                        />
+                      ) : (
+                        <span className="font-semibold text-gold">
+                          {live > 0 ? formatPrice(live) : t("admin.shippingOff")}
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-4 py-2.5 text-right whitespace-nowrap">
+                      {isEditing ? (
+                        <span className="inline-flex gap-1">
+                          <button
+                            type="button"
+                            onClick={() => save("shipping", row.matSet)}
+                            disabled={busy}
+                            className="text-gold text-[11px] font-semibold uppercase tracking-wider px-2 py-1 hover:text-gold-light disabled:opacity-50"
+                          >
+                            {t("admin.pricingBtnSave")}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={cancel}
+                            disabled={busy}
+                            className="text-text-faint text-[11px] uppercase tracking-wider px-2 py-1 hover:text-error"
+                          >
+                            {t("admin.pricingBtnCancel")}
+                          </button>
+                        </span>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => startEdit("shipping", row.matSet, live)}
+                          disabled={busy}
+                          className="text-text-dim text-[11px] uppercase tracking-wider px-2 py-1 hover:text-gold"
+                        >
+                          {t("admin.pricingBtnEdit")}
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+        <p className="mt-3 text-[10px] text-text-faint leading-relaxed">
+          {t("admin.shippingNote")}
         </p>
       </section>
 

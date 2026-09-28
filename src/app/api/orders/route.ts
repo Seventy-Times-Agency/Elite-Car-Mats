@@ -3,7 +3,7 @@ import { NextResponse, after } from "next/server";
 import { prisma } from "@/lib/db/prisma";
 import { ensureCatalogSeed, resetCatalogSeedCache } from "@/lib/db/seed";
 import { createOrderSchema, isAccessoryInput } from "@/lib/validations/order";
-import { getAccessoryPrice } from "@/lib/pricing";
+import { getAccessoryPrice, shippingFor } from "@/lib/pricing";
 import { findAccessoryVariant } from "@/data/accessories";
 import {
   badgePlates,
@@ -340,7 +340,12 @@ export async function POST(request: Request) {
         // If the atomic consume failed (race lost / just expired), we
         // proceed without the discount rather than failing the order.
       }
-      const total = Math.max(0, subtotal - appliedDiscount);
+      const merchandise = Math.max(0, subtotal - appliedDiscount);
+      // Threshold is judged on what the customer pays for goods, i.e.
+      // after the promo — a code must not unlock free shipping it
+      // pushed the order below.
+      const shippingCost = shippingFor(merchandise, overrides);
+      const total = merchandise + shippingCost;
       return tx.order.create({
         data: {
           orderNumber: generateOrderNumber(),
@@ -356,6 +361,7 @@ export async function POST(request: Request) {
           promoCode: appliedCode,
           locale: customerLocale,
           total,
+          shippingCost,
           items: {
             create: [
               ...itemsResolved.map((r) => {
@@ -392,6 +398,7 @@ export async function POST(request: Request) {
           id: true,
           orderNumber: true,
           total: true,
+          shippingCost: true,
           customerName: true,
           email: true,
           phone: true,
@@ -523,6 +530,7 @@ export async function POST(request: Request) {
       // annotation we glue onto Order.comment for the packing slip).
       comment: shipping.comment || null,
       total: Number(createdOrder.total ?? 0),
+      shippingCost: Number(createdOrder.shippingCost ?? 0),
       items: [...emailItems, ...accessoryEmailItems],
       locale: customerLocale,
     };

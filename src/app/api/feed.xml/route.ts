@@ -111,7 +111,9 @@ export async function GET() {
       // A car-maker's LOGO here violates Merchant Center image policy
       // (placeholder/logo images → item disapproval) and rode on an
       // uncontrolled third-party CDN; SVG isn't supported at all.
-      const image = `${SITE}/mats/black-black.jpg`;
+      // Unbranded copy: Merchant Center disapproves main images with logos
+      // or watermarks, and the site's /mats/ cards carry the store lockup.
+      const image = `${SITE}/mats/clean/black-black.jpg`;
 
       items.push(`
     <item>
@@ -120,7 +122,7 @@ export async function GET() {
       <g:description>${escapeXml(description)}</g:description>
       <g:link>${escapeXml(link)}</g:link>
       <g:image_link>${escapeXml(image)}</g:image_link>
-      <g:additional_image_link>${escapeXml(`${SITE}/mats/detail/black-black.jpg`)}</g:additional_image_link>
+      <g:additional_image_link>${escapeXml(`${SITE}/mats/clean/detail-black-black.jpg`)}</g:additional_image_link>
       <g:additional_image_link>${escapeXml(`${SITE}/mats/gallery/g01-hero-colors.jpg`)}</g:additional_image_link>
       <g:additional_image_link>${escapeXml(`${SITE}/mats/gallery/g02-install-front.jpg`)}</g:additional_image_link>
       <g:availability>in_stock</g:availability>

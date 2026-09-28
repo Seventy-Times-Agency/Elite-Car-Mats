@@ -49,8 +49,10 @@ import {
 // gallery shots; absolute so crawlers don't have to resolve them.
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://elitecarmats.us";
 const JSONLD_IMAGES = [
-  `${SITE_URL}/mats/black-black.jpg`,
-  `${SITE_URL}/mats/detail/black-black.jpg`,
+  // Unbranded copies — Google's product rich results follow the same
+  // no-watermark image rule as Merchant Center.
+  `${SITE_URL}/mats/clean/black-black.jpg`,
+  `${SITE_URL}/mats/clean/detail-black-black.jpg`,
   `${SITE_URL}/mats/gallery/g01-hero-colors.jpg`,
   `${SITE_URL}/mats/gallery/g02-install-front.jpg`,
 ];

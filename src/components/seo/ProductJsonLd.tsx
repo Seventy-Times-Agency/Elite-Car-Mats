@@ -4,6 +4,7 @@ import {
   INSTAGRAM_URL,
 } from "@/lib/contacts";
 import { jsonLdString } from "@/lib/seo/json-ld";
+import { offerShippingDetails, MERCHANT_RETURN_POLICY } from "@/lib/seo/offer";
 
 interface Props {
   brand: string;
@@ -54,22 +55,8 @@ export function ProductJsonLd({
       availability: "https://schema.org/InStock",
       itemCondition: "https://schema.org/NewCondition",
       seller: { "@type": "Organization", name: "Elite Car Mats" },
-      shippingDetails: {
-        "@type": "OfferShippingDetails",
-        shippingRate: {
-          "@type": "MonetaryAmount",
-          value: shippingUsd.toFixed(2),
-          currency: "USD",
-        },
-        shippingDestination: { "@type": "DefinedRegion", addressCountry: "US" },
-      },
-      hasMerchantReturnPolicy: {
-        "@type": "MerchantReturnPolicy",
-        applicableCountry: "US",
-        returnPolicyCategory: "https://schema.org/MerchantReturnFiniteReturnWindow",
-        merchantReturnDays: 30,
-        returnMethod: "https://schema.org/ReturnByMail",
-      },
+      shippingDetails: offerShippingDetails(shippingUsd),
+      hasMerchantReturnPolicy: MERCHANT_RETURN_POLICY,
     },
   };
 

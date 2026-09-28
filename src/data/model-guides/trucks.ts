@@ -32,7 +32,7 @@ export const TRUCK_GUIDES: Record<string, ModelGuide> = {
       "2004 is a split year: tell us whether you have the new truck or the F-150 Heritage. The Lightning EV and Raptor have their own pages.",
     ],
     metaDescription:
-      "Ford F-150 EVA floor mats, 1990–2025: Regular Cab, SuperCab and SuperCrew, bench or buckets. Hand-cut in Rochester, NY, 30-day returns.",
+      "Ford F-150 EVA floor mats, 1990–2026: Regular Cab, SuperCab and SuperCrew, bench or buckets. Hand-cut in Rochester, NY, 30-day returns.",
   },
 
   "chevrolet/silverado": {
@@ -52,7 +52,7 @@ export const TRUCK_GUIDES: Record<string, ModelGuide> = {
       "Split years (2007 Classic, 2019 LD, 2022 LTD): write the exact name so we use the right generation.",
     ],
     metaDescription:
-      "Chevy Silverado 1500 EVA floor mats, 1999–2025: Regular, Extended, Double and Crew Cab, including split-year Classic and LD trucks. 30-day returns.",
+      "Chevy Silverado 1500 EVA floor mats, 1999–2026: Regular, Extended, Double and Crew Cab, including split-year Classic and LD trucks. 30-day returns.",
   },
 
   "ram/1500": {
@@ -72,7 +72,7 @@ export const TRUCK_GUIDES: Record<string, ModelGuide> = {
       "The Ram 1500 Classic (2019–2024) and TRX have their own pages in our catalog.",
     ],
     metaDescription:
-      "Ram 1500 EVA floor mats, 1994–2025: Quad Cab, Crew Cab, Mega Cab and Regular Cab, with RamBin rear floors noted. Hand-cut, 30-day returns.",
+      "Ram 1500 EVA floor mats, 1994–2027: Quad Cab, Crew Cab, Mega Cab and Regular Cab, with RamBin rear floors noted. Hand-cut, 30-day returns.",
   },
 
   "gmc/sierra": {
@@ -92,7 +92,7 @@ export const TRUCK_GUIDES: Record<string, ModelGuide> = {
       "2019 and 2022 Sierra Limited: write “Limited” so we use the earlier generation. The Sierra EV has its own page.",
     ],
     metaDescription:
-      "GMC Sierra 1500 EVA floor mats for 1999–2025, every cab and the Limited split years. Hand-cut in Rochester, NY, 11 edge colors, 30-day returns.",
+      "GMC Sierra 1500 EVA floor mats for 1999–2026, every cab and the Limited split years. Hand-cut in Rochester, NY, 11 edge colors, 30-day returns.",
   },
 
   "toyota/tacoma": {
@@ -111,7 +111,7 @@ export const TRUCK_GUIDES: Record<string, ModelGuide> = {
       "Access Cab or Xtracab with rear jump seats: tell us in the trim field.",
     ],
     metaDescription:
-      "Toyota Tacoma EVA floor mats, 1995–2025: Regular, Xtracab, Access and Double Cab, including the 2024 XtraCab. Hand-cut, 30-day returns.",
+      "Toyota Tacoma EVA floor mats, 1995–2026: Regular, Xtracab, Access and Double Cab, including the 2024 XtraCab. Hand-cut, 30-day returns.",
   },
 
   "toyota/tundra": {
@@ -129,7 +129,7 @@ export const TRUCK_GUIDES: Record<string, ModelGuide> = {
       "Tell us whether it is a Double Cab or a CrewMax; they have different rear floors.",
     ],
     metaDescription:
-      "Toyota Tundra EVA floor mats, 2000–2025: Regular, Access, Double Cab and CrewMax, gas or i-FORCE MAX hybrid. Hand-cut, 30-day returns.",
+      "Toyota Tundra EVA floor mats, 2000–2027: Regular, Access, Double Cab and CrewMax, gas or i-FORCE MAX hybrid. Hand-cut, 30-day returns.",
   },
 
   "ford/maverick": {
@@ -145,7 +145,7 @@ export const TRUCK_GUIDES: Record<string, ModelGuide> = {
       "Hybrid or 2.0L EcoBoost? Mention it in the trim field.",
     ],
     metaDescription:
-      "Ford Maverick EVA floor mats for 2022–2025, hybrid or EcoBoost, cut for the four-door crew cab. Waterproof honeycomb EVA, 30-day returns.",
+      "Ford Maverick EVA floor mats for 2022–2027, hybrid or EcoBoost, cut for the four-door crew cab. Waterproof honeycomb EVA, 30-day returns.",
   },
 
   "ford/ranger": {
@@ -184,7 +184,7 @@ export const TRUCK_GUIDES: Record<string, ModelGuide> = {
       "Extended Cab: tell us in the trim field.",
     ],
     metaDescription:
-      "Chevrolet Colorado EVA floor mats for 2004–2012 and 2015–2025, Regular, Extended and Crew Cab. Hand-cut in Rochester, NY, 30-day returns.",
+      "Chevrolet Colorado EVA floor mats for 2004–2012 and 2015–2026, Regular, Extended and Crew Cab. Hand-cut in Rochester, NY, 30-day returns.",
   },
 
   "chevrolet/tahoe": {
@@ -204,7 +204,7 @@ export const TRUCK_GUIDES: Record<string, ModelGuide> = {
       "Front bench, or second-row captain's chairs instead of a bench? Write it in the trim field.",
     ],
     metaDescription:
-      "Chevrolet Tahoe EVA floor mats, 1995–2025, with third-row mats and bench or captain's chair layouts. Hand-cut, 30-day returns.",
+      "Chevrolet Tahoe EVA floor mats, 1995–2026, with third-row mats and bench or captain's chair layouts. Hand-cut, 30-day returns.",
   },
 
   "ford/expedition": {
@@ -225,7 +225,7 @@ export const TRUCK_GUIDES: Record<string, ModelGuide> = {
       "Expedition EL or Max: pick that page, the cargo area is longer.",
     ],
     metaDescription:
-      "Ford Expedition EVA floor mats, 1997–2025: three rows, bench or captain's chairs, standard length. Hand-cut in Rochester, NY, 30-day returns.",
+      "Ford Expedition EVA floor mats, 1997–2027: three rows, bench or captain's chairs, standard length. Hand-cut in Rochester, NY, 30-day returns.",
   },
 
   "jeep/wrangler": {
@@ -244,7 +244,7 @@ export const TRUCK_GUIDES: Record<string, ModelGuide> = {
       "The Wrangler Unlimited and the 4xe have their own pages in our catalog.",
     ],
     metaDescription:
-      "Jeep Wrangler EVA floor mats for YJ, TJ, JK and JL, 1990–2025. Waterproof and made for open-top, doors-off driving. 30-day returns.",
+      "Jeep Wrangler EVA floor mats for YJ, TJ, JK and JL, 1990–2026. Waterproof and made for open-top, doors-off driving. 30-day returns.",
   },
 
   "ford/bronco": {
@@ -282,6 +282,6 @@ export const TRUCK_GUIDES: Record<string, ModelGuide> = {
       "2010–2024 with the sliding cargo deck: mention it so the cargo liner matches.",
     ],
     metaDescription:
-      "Toyota 4Runner EVA floor mats, 1990–2025: two and three rows, sliding cargo deck, hybrid. Hand-cut in Rochester, NY, 30-day returns.",
+      "Toyota 4Runner EVA floor mats, 1990–2026: two and three rows, sliding cargo deck, hybrid. Hand-cut in Rochester, NY, 30-day returns.",
   },
 };

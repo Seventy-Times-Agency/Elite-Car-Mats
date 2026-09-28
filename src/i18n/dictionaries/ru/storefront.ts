@@ -485,6 +485,7 @@ export const storefront: Dict = {
   "prod.galleryAltBrand": "Elite Car Mats — постер премиальных EVA-ковриков",
   "prod.galleryAltColors": "Выберите цвет — постер с образцами текстур EVA",
   "prod.galleryAltCollection": "Коллекция премиум EVA-ковриков — все цвета на витрине",
+  "prod.galleryAltDetail": "Крупный план: соты EVA цвета «{color}», кант «{edge}» и клипса крепления",
   "prod.galleryAltHeroColors": "Коврик EVA в тёмном салоне и пять цветов ковра на выбор",
   "prod.galleryAltInstallFront": "Передний коврик с алюминиевым подпятником и эмблемой марки в Lexus",
   "prod.galleryAltInstallHeel": "Серый коврик EVA с алюминиевым подпятником у педалей",

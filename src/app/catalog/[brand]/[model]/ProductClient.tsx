@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { evaColors, edgeColors, badges } from "@/data/catalog";
-import { matPhotoSrc } from "@/data/catalog/mat-photos";
+import { matPhotoSrc, matDetailSrc } from "@/data/catalog/mat-photos";
 import { MAT_SETS_BY_PROFILE } from "@/data/catalog/mat-sets";
 import { useCart } from "@/context/CartContext";
 import { trackFunnel } from "@/lib/analytics/funnel-client";
@@ -50,6 +50,7 @@ import {
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://elitecarmats.us";
 const JSONLD_IMAGES = [
   `${SITE_URL}/mats/black-black.jpg`,
+  `${SITE_URL}/mats/detail/black-black.jpg`,
   `${SITE_URL}/mats/gallery/g01-hero-colors.jpg`,
   `${SITE_URL}/mats/gallery/g02-install-front.jpg`,
 ];
@@ -347,7 +348,13 @@ export default function ProductClient({
               const photoSrc = matPhotoSrc(color.id, edge.id);
               const showVariantPhoto =
                 photoSrc !== null && previewMode === "photo";
+              const detailSrc = matDetailSrc(color.id, edge.id);
               const gallery = [
+                // Close-up of the SELECTED colours first: cells, grommet
+                // and edge tape are what buyers zoom in on.
+                ...(detailSrc
+                  ? [{ src: detailSrc, alt: t("prod.galleryAltDetail", { color: localizedColor, edge: localizedEdge }) }]
+                  : []),
                 { src: "/mats/gallery/g01-hero-colors.jpg", alt: t("prod.galleryAltHeroColors") },
                 { src: "/mats/gallery/g02-install-front.jpg", alt: t("prod.galleryAltInstallFront") },
                 { src: "/mats/gallery/g03-install-heelpad.jpg", alt: t("prod.galleryAltInstallHeel") },
@@ -367,7 +374,7 @@ export default function ProductClient({
               const isLive = slide === 0;
               return (
                 <div>
-                  <div className="aspect-[2/3] glass-card rounded-xl relative overflow-hidden p-4 lg:p-5 max-w-[290px] mx-auto lg:max-w-none">
+                  <div className="aspect-square glass-card rounded-xl relative overflow-hidden p-4 lg:p-5 max-w-[290px] mx-auto lg:max-w-none">
                     {isLive ? (
                       showVariantPhoto ? (
                         <Image

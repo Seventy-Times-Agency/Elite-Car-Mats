@@ -120,6 +120,7 @@ export async function GET() {
       <g:description>${escapeXml(description)}</g:description>
       <g:link>${escapeXml(link)}</g:link>
       <g:image_link>${escapeXml(image)}</g:image_link>
+      <g:additional_image_link>${escapeXml(`${SITE}/mats/detail/black-black.jpg`)}</g:additional_image_link>
       <g:additional_image_link>${escapeXml(`${SITE}/mats/gallery/g01-hero-colors.jpg`)}</g:additional_image_link>
       <g:additional_image_link>${escapeXml(`${SITE}/mats/gallery/g02-install-front.jpg`)}</g:additional_image_link>
       <g:availability>in_stock</g:availability>

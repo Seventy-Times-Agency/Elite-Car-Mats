@@ -487,6 +487,7 @@ export const storefront: Dict = {
   "prod.galleryAltBrand": "Elite Car Mats — постер преміальних EVA-килимків",
   "prod.galleryAltColors": "Оберіть колір — постер зі зразками текстур EVA",
   "prod.galleryAltCollection": "Колекція преміум EVA-килимків — усі кольори на вітрині",
+  "prod.galleryAltDetail": "Крупний план: соти EVA кольору «{color}», кант «{edge}» і кліпса кріплення",
   "prod.galleryAltHeroColors": "Килимок EVA у темному салоні та п'ять кольорів килима на вибір",
   "prod.galleryAltInstallFront": "Передній килимок з алюмінієвим підп'ятником та емблемою марки в Lexus",
   "prod.galleryAltInstallHeel": "Сірий килимок EVA з алюмінієвим підп'ятником біля педалей",

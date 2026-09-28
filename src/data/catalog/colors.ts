@@ -27,6 +27,7 @@ export const edgeColors: EdgeColor[] = [
   { id: "dark-green", name: "Тёмно-зелёный", hex: "#39402B" },
   { id: "purple", name: "Фиолетовый", hex: "#5E3EA6" },
   { id: "red", name: "Красный", hex: "#D0202A" },
+  { id: "burgundy", name: "Бордовый", hex: "#6B1236" },
   { id: "yellow", name: "Жёлтый", hex: "#F4D91A" },
   { id: "beige", name: "Бежевый", hex: "#D7B291" },
   { id: "ivory", name: "Кремовый", hex: "#E4DDC4" },

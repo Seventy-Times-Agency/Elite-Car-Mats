@@ -10,6 +10,7 @@ import { makeT } from "@/i18n/dictionary";
 import { localeAlternates } from "@/lib/seo/alternates";
 import { jsonLdString } from "@/lib/seo/json-ld";
 import { AccessoryClient } from "./AccessoryClient";
+import { offerShippingDetails, MERCHANT_RETURN_POLICY } from "@/lib/seo/offer";
 
 export const dynamic = "force-dynamic";
 
@@ -78,15 +79,10 @@ export default async function AccessoryPage({ params, searchParams }: Params) {
         ? "https://schema.org/InStock"
         : "https://schema.org/OutOfStock",
       itemCondition: "https://schema.org/NewCondition",
-      shippingDetails: {
-        "@type": "OfferShippingDetails",
-        shippingRate: {
-          "@type": "MonetaryAmount",
-          value: shippingFor(price, overrides, [`accessory.${slug}`]),
-          currency: "USD",
-        },
-        shippingDestination: { "@type": "DefinedRegion", addressCountry: "US" },
-      },
+      shippingDetails: offerShippingDetails(
+        shippingFor(price, overrides, [`accessory.${slug}`]),
+      ),
+      hasMerchantReturnPolicy: MERCHANT_RETURN_POLICY,
     })),
   };
   const breadcrumbJsonLd = {

@@ -2,6 +2,7 @@
 
 import { LegalLayout } from "@/components/legal/LegalLayout";
 import { useT } from "@/i18n/I18nProvider";
+import { PrivacyChoices } from "@/components/legal/PrivacyChoices";
 
 export default function PrivacyPage() {
   const t = useT();
@@ -60,6 +61,7 @@ export default function PrivacyPage() {
 
       <h2 id="ccpa">{t("privacy.ccpaH")}</h2>
       <p>{t("privacy.ccpaP1")}</p>
+      <PrivacyChoices />
       <p>
         {t("privacy.ccpaP2Pre")}
         <a href="mailto:info@elitecarmats.us">info@elitecarmats.us</a>

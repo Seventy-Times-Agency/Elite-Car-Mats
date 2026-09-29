@@ -26,9 +26,10 @@ const schema = z.object({
    *  guessed an orderId cannot create Stripe sessions for someone else. */
   orderToken: z.string().min(1),
   locale: z.enum(["ru", "en", "uk"]).optional().default("en"),
-  /** Sent (as `true`) only when the visitor accepted the cookie banner.
-   *  Gates capturing the Meta click ids / IP / UA for the server-side
-   *  Purchase — without consent none of it is read or stored. */
+  /** Sent (as `true`) only when the visitor has not opted out of ad
+   *  measurement (lib/consent). Gates capturing the Meta click ids / IP /
+   *  UA for the server-side Purchase — for opted-out visitors none of it
+   *  is read or stored. */
   adConsent: z.boolean().optional(),
 });
 

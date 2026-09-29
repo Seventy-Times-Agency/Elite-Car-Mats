@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useT } from "@/i18n/I18nProvider";
-import { getConsent, setConsent } from "@/lib/consent";
+import { getConsent, hasGpcSignal, setConsent } from "@/lib/consent";
 
 export function CookieBanner() {
   const [visible, setVisible] = useState(false);
@@ -14,7 +14,8 @@ export function CookieBanner() {
     // Only a real accepted/rejected choice hides the banner — the old
     // banner stored a bare timestamp with no decline option, so legacy
     // visitors are re-asked once and get an actual choice this time.
-    if (getConsent()) return;
+    // A GPC browser is already opted out — nothing left to ask.
+    if (getConsent() || hasGpcSignal()) return;
     const id = setTimeout(() => setVisible(true), 1200);
     return () => clearTimeout(id);
   }, []);
@@ -24,8 +25,7 @@ export function CookieBanner() {
     setVisible(false);
   };
 
-  // Decline (and the ✕) record a rejection: analytics stays OFF. This is
-  // what makes the banner a consent mechanism rather than decoration.
+  // "Opt out" records a rejection: ad measurement and analytics stay OFF.
   const decline = () => {
     setConsent("rejected");
     setVisible(false);
@@ -62,7 +62,9 @@ export function CookieBanner() {
           {t("cookies.accept")}
         </button>
         <button
-          onClick={decline}
+          // ✕ only hides the notice for this page view — it is not an
+          // opt-out (that is the explicit button) and not a GA4 opt-in.
+          onClick={() => setVisible(false)}
           aria-label={t("cookies.dismiss")}
           className="shrink-0 text-text-faint hover:text-text-dim transition-colors p-1 -mr-1"
         >

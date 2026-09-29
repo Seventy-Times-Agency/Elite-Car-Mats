@@ -1,13 +1,14 @@
 "use client";
 
 /**
- * Cookie-consent state shared by the banner and the analytics loaders.
+ * Cookie-choice state shared by the banner, the privacy page and the
+ * analytics loaders.
  *
- * The privacy policy promises analytics "only with your consent" — so
- * the Meta Pixel (and any future tag) must not load until the visitor
- * explicitly accepts. The banner used to store a bare timestamp with no
- * decline path; those legacy values are treated as NO decision so the
- * visitor gets one real accept/decline choice.
+ * Ad measurement (Meta Pixel + Conversions API signals) follows the U.S.
+ * opt-out model the privacy policy describes (owner's decision,
+ * 2026-09-29): on unless the visitor opted out — via the banner, the
+ * "Do Not Sell or Share" control on /privacy, or a Global Privacy
+ * Control signal, which CPRA requires us to honor. GA4 stays opt-in.
  */
 
 export type ConsentValue = "accepted" | "rejected";
@@ -22,6 +23,24 @@ export function getConsent(): ConsentValue | null {
   } catch {
     return null;
   }
+}
+
+/** Browser sends Global Privacy Control — a standing opt-out that no
+ *  banner click overrides. */
+export function hasGpcSignal(): boolean {
+  try {
+    return (
+      (navigator as Navigator & { globalPrivacyControl?: boolean })
+        .globalPrivacyControl === true
+    );
+  } catch {
+    return false;
+  }
+}
+
+/** Meta Pixel / CAPI signals allowed: not opted out, no GPC signal. */
+export function adsAllowed(): boolean {
+  return !hasGpcSignal() && getConsent() !== "rejected";
 }
 
 /**

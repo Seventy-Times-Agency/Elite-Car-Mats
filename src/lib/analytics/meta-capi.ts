@@ -131,17 +131,22 @@ export interface MetaEventInput {
   eventName: string;
   /** Shared with the browser pixel's `eventID` — Meta dedupes on it. */
   eventId: string;
-  eventSourceUrl: string;
+  /** Required by Meta for action_source "website" only. */
+  eventSourceUrl?: string;
+  /** Defaults to "website"; CRM sales closed in DMs use "chat". */
+  actionSource?: "website" | "chat";
+  /** Unix seconds; defaults to now. Meta rejects events older than 7 days. */
+  eventTime?: number;
   userData: MetaUserInput;
   customData?: Record<string, unknown>;
   /** Short tag for logs / the problem journal (e.g. the order number). */
   logContext?: string;
 }
 
-export async function sendMetaEvent(input: MetaEventInput): Promise<void> {
+export async function sendMetaEvent(input: MetaEventInput): Promise<boolean> {
   const pixelId = process.env.NEXT_PUBLIC_META_PIXEL_ID ?? "";
   const token = process.env.META_CAPI_TOKEN ?? "";
-  if (!pixelId || !token) return;
+  if (!pixelId || !token) return false;
 
   const tag = `${input.eventName} ${input.logContext ?? input.eventId}`;
   // Only Purchase reaches the problem journal: one event per paid order,
@@ -160,10 +165,12 @@ export async function sendMetaEvent(input: MetaEventInput): Promise<void> {
     data: [
       {
         event_name: input.eventName,
-        event_time: Math.floor(Date.now() / 1000),
+        event_time: input.eventTime ?? Math.floor(Date.now() / 1000),
         event_id: input.eventId,
-        action_source: "website",
-        event_source_url: input.eventSourceUrl,
+        action_source: input.actionSource ?? "website",
+        ...(input.eventSourceUrl
+          ? { event_source_url: input.eventSourceUrl }
+          : {}),
         user_data: buildUserData(input.userData),
         ...(input.customData ? { custom_data: input.customData } : {}),
       },
@@ -195,9 +202,10 @@ export async function sendMetaEvent(input: MetaEventInput): Promise<void> {
           context: input.logContext,
         });
       }
-    } else if (journal) {
-      console.log(`[meta-capi] ${tag} sent`);
+      return false;
     }
+    if (journal) console.log(`[meta-capi] ${tag} sent`);
+    return true;
   } catch (err) {
     console.error(`[meta-capi] ${tag} failed:`, err);
     if (journal) {
@@ -208,6 +216,7 @@ export async function sendMetaEvent(input: MetaEventInput): Promise<void> {
         context: input.logContext,
       });
     }
+    return false;
   }
 }
 

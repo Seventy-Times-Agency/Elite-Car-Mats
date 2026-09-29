@@ -1,4 +1,4 @@
-import { getConsent } from "@/lib/consent";
+import { adsAllowed } from "@/lib/consent";
 import { stashFbclid, applyStashedFbclid } from "@/lib/analytics/fbclid";
 
 /**
@@ -116,7 +116,7 @@ export function trackEvent(
     }
   }
 
-  if (mirrored && id && getConsent() === "accepted") {
+  if (mirrored && id && adsAllowed()) {
     sendToServer(event, id, params);
   }
 }

@@ -73,8 +73,8 @@ export function cleanIp(value: string | null | undefined): string | undefined {
 
 /**
  * Browser / click identifiers captured from the visitor's own request —
- * only ever with cookie consent (the client gates /api/meta/event and
- * the `adConsent` flag on /api/checkout/stripe).
+ * never for visitors who opted out (the client gates /api/meta/event and
+ * the `adConsent` flag on /api/checkout/stripe via lib/consent).
  */
 export interface AdSignals {
   fbp?: string;

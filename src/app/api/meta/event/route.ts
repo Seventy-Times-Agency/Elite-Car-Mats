@@ -19,9 +19,9 @@ export const dynamic = "force-dynamic";
  * loaded) the server copy still lands, carrying the `_fbp` / `_fbc`
  * cookies, IP and user agent that drive match quality.
  *
- * The client only calls this after the visitor ACCEPTED cookies (the
- * privacy policy promises ad tracking only with consent); nothing here
- * is sent without that call.
+ * The client only calls this for visitors who have not opted out of ad
+ * measurement (banner, /privacy control or Global Privacy Control — see
+ * lib/consent); nothing here is sent without that call.
  *
  * Status codes are for debugging only — sendBeacon never reads them.
  */

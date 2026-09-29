@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { META_PIXEL_ID } from "@/lib/analytics";
 import {
-  getConsent,
+  adsAllowed,
   scrubOrderTokenFromUrl,
   CONSENT_EVENT,
 } from "@/lib/consent";
@@ -13,10 +13,9 @@ import { stashFbclid, applyStashedFbclid } from "@/lib/analytics/fbclid";
 
 /**
  * Meta Pixel bootstrap. Renders nothing until NEXT_PUBLIC_META_PIXEL_ID
- * is configured AND the visitor has accepted cookies — the privacy
- * policy promises analytics only with consent, so loading fbevents.js
- * unconditionally would make that promise false (an FTC §5 / CPRA
- * "sharing" problem, not just a courtesy). The init snippet fires the
+ * is configured, and never for a visitor who opted out or whose browser
+ * sends Global Privacy Control (lib/consent) — loading it for them would
+ * be a CPRA "sharing" violation. The init snippet fires the
  * first PageView; App Router client-side navigations fire follow-up
  * PageViews from the pathname effect (the browser never reloads, so the
  * snippet alone would only count the landing page).
@@ -28,7 +27,7 @@ export function MetaPixel() {
 
   useEffect(() => {
     const update = () => {
-      const ok = getConsent() === "accepted";
+      const ok = adsAllowed();
       // Drop the order token from the address bar BEFORE fbevents.js
       // mounts — the pixel reports the full URL in its `dl=` beacon.
       if (ok && META_PIXEL_ID) {

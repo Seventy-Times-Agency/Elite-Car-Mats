@@ -124,10 +124,10 @@ export const storefront: Dict = {
   "cfg.noResults": "No results",
   "cookies.aria": "Cookie notice",
   "cookies.title": "Cookies",
-  "cookies.body": "We use cookies to remember your cart and language. With your OK, we also use analytics cookies to improve the store.",
+  "cookies.body": "We use cookies to keep your cart and language, and Meta advertising cookies to measure our ads. You can opt out anytime.",
   "cookies.learnMore": "Learn more",
   "cookies.accept": "Got it",
-  "cookies.decline": "Decline",
+  "cookies.decline": "Opt out",
   "cookies.dismiss": "Dismiss",
   "news.placeholder": "Your email",
   "news.aria": "Email address",
@@ -890,24 +890,24 @@ export const storefront: Dict = {
   "privacy.title": "Privacy Policy",
   "privacy.intro":
     "We respect your privacy and collect only the minimum data required to process and deliver your order.",
-  "privacy.updatedAt": "April 20, 2026",
+  "privacy.updatedAt": "September 29, 2026",
   "privacy.s1H": "1. Data we collect",
   "privacy.s1P1":
     "To process your order we collect: name, email, phone, and shipping address. This information is used solely for order fulfillment and related communication.",
   "privacy.s1P2":
-    "When you visit the site, we automatically collect: IP address (for spam protection), browser technical data, and pages viewed. This data is anonymized and used to analyze site performance.",
+    "When you visit the site, we automatically collect: IP address (for spam protection), browser technical data, and pages viewed. Unless you opt out, the Meta Pixel also records your visit and actions on the site (pages viewed, items added to cart, purchases) to measure our Facebook and Instagram ads.",
   "privacy.s2H": "2. How we use your data",
   "privacy.s2l1": "Processing and shipping your order",
   "privacy.s2l2": "Communicating with you about order status (email, phone)",
   "privacy.s2l3": "Shipment notifications and tracking numbers",
-  "privacy.s2l4": "Improving the website (anonymized analytics)",
+  "privacy.s2l4": "Improving the website and measuring our advertising",
   "privacy.s2PPre": "We do ",
   "privacy.s2PBold": "not",
   "privacy.s2PPost":
-    " share your data with third parties, except with shipping carriers (USPS, UPS) for the physical delivery of your order.",
+    " sell your data. We share it only with shipping carriers (USPS, UPS) to deliver your order, with Stripe to process your payment, and with Meta Platforms to measure our Facebook and Instagram ads (see sections 3 and 9).",
   "privacy.s3H": "3. Cookies",
   "privacy.s3P":
-    "The site uses essential cookies for cart functionality and interface language preferences. Analytics cookies are enabled only with your consent (banner on your first visit).",
+    "The site uses essential cookies for the cart and your language preference. Unless you opt out, it also uses Meta advertising cookies (Meta Pixel) to measure our ads. Analytics cookies (Google Analytics) are used only if you click \"Got it\" in the cookie notice. You can opt out of advertising cookies in the notice or in section 9 below; browsers that send a Global Privacy Control signal are opted out automatically.",
   "privacy.s4H": "4. Storage & security",
   "privacy.s4PPre":
     "Order data is stored in a secure database on U.S.-based servers. Only our staff has access. We do ",
@@ -930,11 +930,16 @@ export const storefront: Dict = {
   "privacy.s8P": "Elite Car Mats · Rochester, NY, USA · ",
   "privacy.ccpaH": "9. California residents (CCPA / CPRA)",
   "privacy.ccpaP1":
-    "If you live in California, you have the right to know what personal information we collect, to request that we delete it, and to opt out of any \"sale\" or \"sharing\" of your personal information as those terms are defined under the California Consumer Privacy Act and the California Privacy Rights Act. We do not sell or share your personal information for cross-context behavioral advertising and we do not knowingly collect data from minors under 16. The information we hold is limited to what is needed to take, fulfill and ship your order (name, email, phone, shipping address, order history) plus standard server logs.",
+    "If you live in California, you have the right to know what personal information we collect, to request that we delete it, and to opt out of the \"sale\" or \"sharing\" of your personal information as defined by the CCPA and CPRA. We do not sell personal information. We do \"share\" it for cross-context behavioral advertising: the Meta Pixel on this site and our server connection to Meta (Conversions API) send Meta your activity on the site and, when you order from us — on the site or through Facebook or Instagram messages — your contact details in hashed (encrypted) form (email, phone, name, city, state, ZIP) together with the order amount, so Meta can measure which ads led to purchases. We do not knowingly collect data from minors under 16. You can opt out right here; we also honor Global Privacy Control.",
   "privacy.ccpaP2Pre":
-    "To exercise your CCPA rights — including \"Do Not Sell or Share My Personal Information\" — email ",
+    "You can also exercise your CCPA rights — including \"Do Not Sell or Share My Personal Information\" for orders placed through messages — by emailing ",
   "privacy.ccpaP2Post":
     " from the address on your order and we will respond within 45 days. We will never charge you, deny service, or change pricing because you exercised these rights.",
+  "privacy.choices.on": "Advertising measurement is on for this browser.",
+  "privacy.choices.off": "You have opted out of advertising measurement on this browser.",
+  "privacy.choices.gpc": "Your browser sends a Global Privacy Control signal, so you are opted out of advertising measurement.",
+  "privacy.choices.optOut": "Opt out (Do Not Sell or Share)",
+  "privacy.choices.optIn": "Turn measurement back on",
   "terms.metaTitle": "Terms of Service",
   "terms.metaDesc":
     "Terms for using the elitecarmats.us website and placing orders with Elite Car Mats.",

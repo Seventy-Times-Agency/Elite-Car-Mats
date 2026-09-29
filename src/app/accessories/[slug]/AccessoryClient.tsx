@@ -9,6 +9,7 @@ import { formatPrice, getAccessoryPrice } from "@/lib/pricing";
 import { accessorySku, type Accessory } from "@/data/accessories";
 import { accessoryView } from "@/lib/accessories/display";
 import { trackEvent } from "@/lib/analytics";
+import { QtyStepper } from "@/components/common/QtyStepper";
 
 export function AccessoryClient({
   accessory,
@@ -28,6 +29,7 @@ export function AccessoryClient({
       : accessory.variants[0].id,
   );
   const [imageIdx, setImageIdx] = useState(0);
+  const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
   const addedTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -47,15 +49,15 @@ export function AccessoryClient({
       kind: "accessory",
       accessorySlug: accessory.slug,
       variantId: variant.id,
-      quantity: 1,
+      quantity: qty,
     });
     trackEvent("AddToCart", {
       content_type: "product",
       content_ids: [accessorySku(accessory.slug, variant.id)],
       contents: [
-        { id: accessorySku(accessory.slug, variant.id), quantity: 1, item_price: price },
+        { id: accessorySku(accessory.slug, variant.id), quantity: qty, item_price: price },
       ],
-      value: price,
+      value: price * qty,
       currency: "USD",
     });
     openCart();
@@ -137,11 +139,13 @@ export function AccessoryClient({
           </div>
         </div>
 
+        <div className="mt-6 flex items-stretch gap-3">
+        <QtyStepper value={qty} onChange={setQty} />
         <button
           type="button"
           onClick={add}
           disabled={!available}
-          className={`mt-6 w-full py-4 rounded-xl text-[13px] font-semibold tracking-wider uppercase transition-all duration-300 flex items-center justify-center gap-2.5 disabled:opacity-50 disabled:cursor-not-allowed ${
+          className={`flex-1 py-4 rounded-xl text-[13px] font-semibold tracking-wider uppercase transition-all duration-300 flex items-center justify-center gap-2.5 disabled:opacity-50 disabled:cursor-not-allowed ${
             added
               ? "bg-success text-bg"
               : "bg-gradient-to-r from-gold to-gold-light text-bg shadow-[0_4px_20px_rgba(212,165,74,0.25)] hover:shadow-[0_6px_28px_rgba(212,165,74,0.4)] hover:-translate-y-0.5"
@@ -151,8 +155,9 @@ export function AccessoryClient({
             ? t("acc.soldOut")
             : added
               ? t("acc.inCart")
-              : t("acc.addToCart", { price: formatPrice(price) })}
+              : t("acc.addToCart", { price: formatPrice(price * qty) })}
         </button>
+        </div>
 
         <ul className="mt-8 space-y-2.5 text-sm text-text-dim">
           {[1, 2, 3, 4].map((n) => (

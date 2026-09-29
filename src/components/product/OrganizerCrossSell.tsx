@@ -9,6 +9,7 @@ import { formatPrice, getAccessoryPrice } from "@/lib/pricing";
 import { accessorySku, organizerVariantForEdge } from "@/data/accessories";
 import { accessoryView } from "@/lib/accessories/display";
 import { trackEvent } from "@/lib/analytics";
+import { QtyStepper } from "@/components/common/QtyStepper";
 
 const SLUG = "trunk-organizer";
 
@@ -21,6 +22,7 @@ export function OrganizerCrossSell({ edgeColorId }: { edgeColorId: string }) {
   const t = useT();
   const { addItem, openCart } = useCart();
   const priceOverrides = usePriceOverrides();
+  const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -29,12 +31,12 @@ export function OrganizerCrossSell({ edgeColorId }: { edgeColorId: string }) {
   const price = getAccessoryPrice(SLUG, priceOverrides);
 
   const add = () => {
-    addItem({ kind: "accessory", accessorySlug: SLUG, variantId: variant.id, quantity: 1 });
+    addItem({ kind: "accessory", accessorySlug: SLUG, variantId: variant.id, quantity: qty });
     trackEvent("AddToCart", {
       content_type: "product",
       content_ids: [accessorySku(SLUG, variant.id)],
-      contents: [{ id: accessorySku(SLUG, variant.id), quantity: 1, item_price: price }],
-      value: price,
+      contents: [{ id: accessorySku(SLUG, variant.id), quantity: qty, item_price: price }],
+      value: price * qty,
       currency: "USD",
     });
     openCart();
@@ -61,6 +63,7 @@ export function OrganizerCrossSell({ edgeColorId }: { edgeColorId: string }) {
           <div className="text-text-faint text-[11px] mt-0.5">{view.variantLabel}</div>
           <p className="text-text-dim text-xs mt-1.5 leading-snug">{t("acc.crossSellText")}</p>
           <div className="mt-3 flex items-center gap-3 flex-wrap">
+            <QtyStepper value={qty} onChange={setQty} size="sm" />
             <button
               type="button"
               onClick={add}
@@ -70,7 +73,7 @@ export function OrganizerCrossSell({ edgeColorId }: { edgeColorId: string }) {
                   : "bg-gold/15 text-gold border border-gold/40 hover:bg-gold/25"
               }`}
             >
-              {added ? t("acc.inCart") : t("acc.crossSellAdd", { price: formatPrice(price) })}
+              {added ? t("acc.inCart") : t("acc.crossSellAdd", { price: formatPrice(price * qty) })}
             </button>
             <Link
               href={`/accessories/${SLUG}?variant=${variant.id}`}

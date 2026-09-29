@@ -92,7 +92,7 @@ export const TRUCK_GUIDES: Record<string, ModelGuide> = {
       "2019 and 2022 Sierra Limited: write “Limited” so we use the earlier generation. The Sierra EV has its own page.",
     ],
     metaDescription:
-      "GMC Sierra 1500 EVA floor mats for 1999–2026, every cab and the Limited split years. Hand-cut in Rochester, NY, 11 edge colors, 30-day returns.",
+      "GMC Sierra 1500 EVA floor mats for 1999–2026, every cab and the Limited split years. Hand-cut in Rochester, NY, 13 edge colors, 30-day returns.",
   },
 
   "toyota/tacoma": {

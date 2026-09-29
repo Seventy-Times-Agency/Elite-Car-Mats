@@ -4,11 +4,10 @@ import Link from "next/link";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { evaColors, edgeColors, badges } from "@/data/catalog";
-import { matPhotoSrc } from "@/data/catalog/mat-photos";
+import { matPhotoSrc, matDetailSrc } from "@/data/catalog/mat-photos";
 import { MAT_SETS_BY_PROFILE } from "@/data/catalog/mat-sets";
 import { useCart } from "@/context/CartContext";
 import { trackFunnel } from "@/lib/analytics/funnel-client";
-import { MatPreview } from "@/components/product/MatPreview";
 import { MatColorSwatch } from "@/components/product/MatColorSwatch";
 import type { Brand, CarModel, MatSetType } from "@/types";
 import {
@@ -49,7 +48,10 @@ import {
 // gallery shots; absolute so crawlers don't have to resolve them.
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://elitecarmats.us";
 const JSONLD_IMAGES = [
-  `${SITE_URL}/mats/black-black.jpg`,
+  // Unbranded copies — Google's product rich results follow the same
+  // no-watermark image rule as Merchant Center.
+  `${SITE_URL}/mats/clean/black-black.jpg`,
+  `${SITE_URL}/mats/clean/detail-black-black.jpg`,
   `${SITE_URL}/mats/gallery/g01-hero-colors.jpg`,
   `${SITE_URL}/mats/gallery/g02-install-front.jpg`,
 ];
@@ -150,7 +152,6 @@ export default function ProductClient({
   // Preview mode. Real photos exist for the black mat (one per edge
   // color); other mat colors fall back to the schematic preview until
   // the supplier shoots them.
-  const [previewMode, setPreviewMode] = useState<"photo" | "scheme">("photo");
   // Gallery: slide 0 is the live configurator view (color-variant photo
   // or the schematic), the rest are static product shots. Color-swatch
   // clicks jump back to slide 0 so the "what am I buying" feedback loop
@@ -344,22 +345,28 @@ export default function ProductClient({
           </div>
           <div className="lg:sticky lg:top-24 lg:self-start">
             {(() => {
-              const photoSrc = matPhotoSrc(color.id, edge.id);
-              const showVariantPhoto =
-                photoSrc !== null && previewMode === "photo";
+              // Every palette combo has a studio card; the fallback only
+              // guards a colour added to colors.ts before its renders.
+              const photoSrc =
+                matPhotoSrc(color.id, edge.id) ?? "/mats/black-black.jpg";
+              const detailSrc = matDetailSrc(color.id, edge.id);
               const gallery = [
+                // Close-up of the SELECTED colours first: cells, grommet
+                // and edge tape are what buyers zoom in on.
+                ...(detailSrc
+                  ? [{ src: detailSrc, alt: t("prod.galleryAltDetail", { color: localizedColor, edge: localizedEdge }) }]
+                  : []),
                 { src: "/mats/gallery/g01-hero-colors.jpg", alt: t("prod.galleryAltHeroColors") },
                 { src: "/mats/gallery/g02-install-front.jpg", alt: t("prod.galleryAltInstallFront") },
-                { src: "/mats/gallery/g03-install-heelpad.jpg", alt: t("prod.galleryAltInstallHeel") },
                 { src: "/mats/gallery/g04-rear-red.jpg", alt: t("prod.galleryAltRearRed") },
                 { src: "/mats/gallery/g05-rear-black.jpg", alt: t("prod.galleryAltRearBlack") },
                 { src: "/mats/gallery/g06-trunk-sedan.jpg", alt: t("prod.galleryAltTrunkSedan") },
                 { src: "/mats/gallery/g07-trunk-suv.jpg", alt: t("prod.galleryAltTrunkSuv") },
-                { src: "/mats/gallery/g08-edge-swatches.jpg", alt: t("prod.galleryAltEdgeSwatches") },
                 { src: "/mats/gallery/g09-addons.jpg", alt: t("prod.galleryAltAddons") },
                 { src: "/mats/gallery/g10-texture.jpg", alt: t("prod.galleryAltTexture") },
-                { src: "/mats/gallery/g11-poster.jpg", alt: t("prod.galleryAltPoster") },
-                { src: "/mats/gallery/g12-before-after.jpg", alt: t("prod.galleryAltBeforeAfter") },
+                { src: "/mats/gallery/g13-blue-edge.jpg", alt: t("prod.galleryAltBlueEdge") },
+                { src: "/mats/gallery/g14-red-driver.jpg", alt: t("prod.galleryAltRedDriver") },
+                { src: "/mats/gallery/g15-truck-cabin.jpg", alt: t("prod.galleryAltTruckCabin") },
               ];
               const slidesCount = 1 + gallery.length;
               const go = (d: number) =>
@@ -367,30 +374,19 @@ export default function ProductClient({
               const isLive = slide === 0;
               return (
                 <div>
-                  <div className="aspect-[2/3] glass-card rounded-xl relative overflow-hidden p-4 lg:p-5 max-w-[290px] mx-auto lg:max-w-none">
+                  <div className="aspect-square glass-card rounded-xl relative overflow-hidden p-4 lg:p-5 max-w-[290px] mx-auto lg:max-w-none">
                     {isLive ? (
-                      showVariantPhoto ? (
-                        <Image
-                          src={photoSrc}
-                          alt={t("prod.photoAlt", {
-                            color: localizedColor,
-                            edge: localizedEdge,
-                          })}
-                          fill
-                          priority
-                          sizes="(max-width: 1024px) 100vw, 50vw"
-                          className="object-cover"
-                        />
-                      ) : (
-                        <MatPreview
-                          color={color}
-                          edgeColor={edge}
-                          showBadge={badge && !!bdg}
-                          showHeelPad={effHeelPad}
-                          brandLogoUrl={brand.logo}
-                          brandName={brand.name}
-                        />
-                      )
+                      <Image
+                        src={photoSrc}
+                        alt={t("prod.photoAlt", {
+                          color: localizedColor,
+                          edge: localizedEdge,
+                        })}
+                        fill
+                        priority
+                        sizes="(max-width: 1024px) 100vw, 50vw"
+                        className="object-cover"
+                      />
                     ) : (
                       <Image
                         src={gallery[slide - 1].src}
@@ -403,26 +399,6 @@ export default function ProductClient({
                     <div className="absolute top-3 left-3 text-[9px] uppercase tracking-[0.2em] text-gold/60 font-semibold drop-shadow-[0_1px_4px_rgba(0,0,0,0.6)]">
                       {t("prod.previewLabel")}
                     </div>
-                    {isLive && photoSrc && (
-                      <div className="absolute top-2.5 right-2.5 flex rounded-lg overflow-hidden border border-border/60 bg-bg/70 backdrop-blur-sm">
-                        {(["photo", "scheme"] as const).map((m) => (
-                          <button
-                            key={m}
-                            type="button"
-                            onClick={() => setPreviewMode(m)}
-                            className={`px-2.5 py-1 text-[10px] uppercase tracking-wider font-semibold transition-colors ${
-                              previewMode === m
-                                ? "bg-gold text-bg"
-                                : "text-text-dim hover:text-gold"
-                            }`}
-                          >
-                            {m === "photo"
-                              ? t("prod.viewPhoto")
-                              : t("prod.viewScheme")}
-                          </button>
-                        ))}
-                      </div>
-                    )}
                     {/* Prev / next arrows */}
                     <button
                       type="button"
@@ -483,7 +459,7 @@ export default function ProductClient({
                       </button>
                     ))}
                   </div>
-                  {isLive && showVariantPhoto && (
+                  {isLive && (
                     <p className="mt-2 text-[10.5px] text-text-faint leading-snug px-1">
                       {t("prod.photoNote")}
                     </p>

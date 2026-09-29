@@ -1,77 +1,19 @@
+import { evaColors, edgeColors } from "@/data/catalog/colors";
+
 /**
- * Which (mat color × edge color) combinations have a real studio photo
- * in `public/mats/<mat>-<edge>.jpg`. The configurator shows the photo
- * view only for combos listed here; everything else falls back to the
- * schematic preview. Add a key the moment a new supplier photo lands.
+ * Studio product cards per (mat color × edge color) in
+ * `public/mats/<mat>-<edge>.jpg` (square, main image) and the matching
+ * macro close-up in `public/mats/detail/<mat>-<edge>.jpg`. Every EVA ×
+ * edge combination from the palette has both, rendered from one master
+ * shot so shape and lighting are identical across colours. The set is
+ * derived from the palette, so a colour added to colors.ts must ship
+ * with its renders in both folders (a missing file would 404).
  *
  * Key format: `${matColorId}-${edgeColorId}`.
  */
-export const MAT_PHOTOS: ReadonlySet<string> = new Set<string>([
-  // Black mat — full set of 11 edge colors
-  "black-black",
-  "black-dark-brown",
-  "black-navy",
-  "black-dark-green",
-  "black-purple",
-  "black-red",
-  "black-yellow",
-  "black-beige",
-  "black-ivory",
-  "black-light-gray",
-  "black-white",
-
-  // Gray mat — full set of 11 edge colors
-  "gray-red",
-  "gray-black",
-  "gray-yellow",
-  "gray-light-gray",
-  "gray-purple",
-  "gray-dark-green",
-  "gray-white",
-  "gray-dark-brown",
-  "gray-beige",
-  "gray-navy",
-  "gray-ivory",
-
-  // Brown mat — full set of 11 edge colors
-  "brown-red",
-  "brown-light-gray",
-  "brown-black",
-  "brown-yellow",
-  "brown-purple",
-  "brown-dark-green",
-  "brown-white",
-  "brown-dark-brown",
-  "brown-beige",
-  "brown-navy",
-  "brown-ivory",
-
-  // Beige mat — full set of 11 edge colors
-  "beige-red",
-  "beige-purple",
-  "beige-black",
-  "beige-yellow",
-  "beige-light-gray",
-  "beige-dark-green",
-  "beige-white",
-  "beige-dark-brown",
-  "beige-beige",
-  "beige-navy",
-  "beige-ivory",
-
-  // Red mat — full set of 11 edge colors
-  "red-red",
-  "red-black",
-  "red-yellow",
-  "red-light-gray",
-  "red-purple",
-  "red-dark-green",
-  "red-white",
-  "red-dark-brown",
-  "red-beige",
-  "red-navy",
-  "red-ivory",
-]);
+export const MAT_PHOTOS: ReadonlySet<string> = new Set<string>(
+  evaColors.flatMap((m) => edgeColors.map((e) => `${m.id}-${e.id}`)),
+);
 
 /**
  * Path to the studio photo for a (mat, edge) pair, or null when none
@@ -83,4 +25,13 @@ export function matPhotoSrc(
 ): string | null {
   const key = `${matColorId}-${edgeColorId}`;
   return MAT_PHOTOS.has(key) ? `/mats/${key}.jpg` : null;
+}
+
+/** Macro close-up (cells, grommet, edge tape) for a (mat, edge) pair. */
+export function matDetailSrc(
+  matColorId: string,
+  edgeColorId: string,
+): string | null {
+  const key = `${matColorId}-${edgeColorId}`;
+  return MAT_PHOTOS.has(key) ? `/mats/detail/${key}.jpg` : null;
 }

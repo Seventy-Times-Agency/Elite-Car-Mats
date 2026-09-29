@@ -60,7 +60,7 @@ export function Header() {
 
   return (
     <header
-      className={`sticky top-0 z-50 transition-all duration-500 ${scrolled ? "bg-bg/90 backdrop-blur-xl shadow-[0_1px_0_rgba(212,165,74,0.08)]" : ""}`}
+      className={`sticky top-0 z-50 transition-all duration-500 ${scrolled ? "bg-bg/90 backdrop-blur-xl shadow-[0_1px_0_rgba(212,165,74,0.08)]" : "bg-gradient-to-b from-bg/90 via-bg/60 to-transparent"}`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16 lg:h-20">
         <Link

@@ -42,7 +42,7 @@ export const CROSSOVER_GUIDES: Record<string, ModelGuide> = {
       "Every US CR-V has two rows, so a full set covers the whole cabin.",
     ],
     metaDescription:
-      "EVA floor mats for the Honda CR-V, 1997–2027, including the CR-V Hybrid. Cut per generation, sewn edge in 11 colors, 30-day returns.",
+      "EVA floor mats for the Honda CR-V, 1997–2027, including the CR-V Hybrid. Cut per generation, sewn edge in 13 colors, 30-day returns.",
   },
 
   "chevrolet/equinox": {
@@ -155,7 +155,7 @@ export const CROSSOVER_GUIDES: Record<string, ModelGuide> = {
       "Every US CX-5 has two rows, so a full set covers the whole cabin.",
     ],
     metaDescription:
-      "Mazda CX-5 EVA floor mats for 2013–2026, cut for the KE and KF generations. Waterproof honeycomb EVA, 11 edge colors, 30-day returns.",
+      "Mazda CX-5 EVA floor mats for 2013–2026, cut for the KE and KF generations. Waterproof honeycomb EVA, 13 edge colors, 30-day returns.",
   },
 
   "subaru/forester": {
@@ -269,6 +269,6 @@ export const CROSSOVER_GUIDES: Record<string, ModelGuide> = {
       "2005–2012 Hybrid: the battery sits under the rear cargo floor, which matters for a cargo liner.",
     ],
     metaDescription:
-      "Ford Escape EVA floor mats, 2001–2026, including Hybrid and Plug-in Hybrid years. Cut per generation, 11 edge colors, 30-day returns.",
+      "Ford Escape EVA floor mats, 2001–2026, including Hybrid and Plug-in Hybrid years. Cut per generation, 13 edge colors, 30-day returns.",
   },
 };

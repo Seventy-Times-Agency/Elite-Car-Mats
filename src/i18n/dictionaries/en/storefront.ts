@@ -102,6 +102,12 @@ export const storefront: Dict = {
   "hero.statModelsValue": "1,000+",
   "hero.statLifespanValue": "5 years",
   "hero.statWarrantyValue": "2 years",
+  "hero.callout.fit.label": "Pattern",
+  "hero.callout.fit.value": "Cut around the pedals",
+  "hero.callout.material.label": "Material",
+  "hero.callout.material.value": "EVA 10 mm · honeycomb",
+  "hero.callout.edge.label": "Edge",
+  "hero.callout.edge.value": "13 colors to choose",
   "hero.imageAlt": "A black EVA honeycomb floor mat with red edge binding fitted in a car footwell",
   "cfg.label": "Configurator",
   "cfg.titleA": "Find your",
@@ -551,9 +557,9 @@ export const storefront: Dict = {
   "materials.edgeTitle": "Trim",
   "materials.edgeSpec": "Soft PVC, 8 mm profile",
   "materials.edgeDesc":
-    "The raised perimeter edge contains up to 1.5 liters of water, dirt, and snow. Available in 11 colors — from classic black to yellow, red, or navy accents. Double-stitched onto the top of the mat.",
+    "The raised perimeter edge contains up to 1.5 liters of water, dirt, and snow. Available in 13 colors — from classic black to yellow, red, or navy accents. Double-stitched onto the top of the mat.",
   "materials.edgeFact1": "30 mm edge height",
-  "materials.edgeFact2": "11 color options",
+  "materials.edgeFact2": "13 color options",
   "materials.edgeFact3": "Cold-resistant, no cracking",
   "materials.edgeImageAlt": "Close-up of the EVA mat edge: red woven binding with stitching and a black tag with gold ELITECARMATS.US lettering against the black honeycomb texture",
   "materials.baseImageAlt": "Extreme macro of the premium black EVA foam surface — crisp hexagonal honeycomb cells catching warm gold rim-light from the side",
@@ -633,7 +639,7 @@ export const storefront: Dict = {
   "comparison.row7Ours": "5–7 years",
   "comparison.row7Others": "1–2 years before failure",
   "comparison.row8Feat": "Personalization",
-  "comparison.row8Ours": "11 edge colors, 5 mat colors, brand badge",
+  "comparison.row8Ours": "13 edge colors, 5 mat colors, brand badge",
   "comparison.row8Others": "Black one-size-fits-all only",
   "comparison.row9Feat": "Warranty",
   "comparison.row9Ours": "2 years",
@@ -653,7 +659,7 @@ export const storefront: Dict = {
     "Most vehicles get 3 options. \"Full Set\" — the full cabin, front + rear rows ($129). \"Cargo\" — a separate trunk mat ($79). \"Full Set + Cargo\" — the whole cabin plus the trunk ($208). Three-row minivans and commercial trucks have their own sets — the configurator shows exactly what's available for your model. For most customers, \"Full Set + Cargo\" is the sweet spot — especially if you have kids, a dog, or frequent road trips.",
   "faq.q4": "What colors and edge options are available?",
   "faq.a4":
-    "Mat base: 5 colors — black, gray, brown, beige, and red. Edge trim: 11 colors, from classic black to yellow, red, or navy accents. You can also add a metal brand plate to any mat in the set and an aluminum heel pad to the driver's mat.",
+    "Mat base: 5 colors — black, gray, brown, beige, and red. Edge trim: 13 colors, from classic black to yellow, red, or navy accents. You can also add a metal brand plate to any mat in the set and an aluminum heel pad to the driver's mat.",
   "faq.q5": "How do I care for the mats?",
   "faq.a5":
     "Once every 1–2 weeks, shake them out and rinse with a hose or in the shower. For deeper cleaning, use warm water with mild soap and a soft brush. EVA handles water, auto chemistry, road salt, and de-icers. Dry away from direct heat (radiator, hair dryer, direct sun). Don't use abrasive cleaners — they damage the honeycomb structure.",
@@ -1004,7 +1010,7 @@ export const storefront: Dict = {
     "Cut for your exact {brand} {model}. From ${price}. Made in Rochester, NY.",
   "prod.jsonLdName": "EVA floor mats for {brand} {model}",
   "prod.jsonLdDesc":
-    "Premium closed-cell EVA floor mats custom-cut for the {brand} {model}. Hand-cut to a dedicated pattern, 11 edge colors, made in Rochester, NY.",
+    "Premium closed-cell EVA floor mats custom-cut for the {brand} {model}. Hand-cut to a dedicated pattern, 13 edge colors, made in Rochester, NY.",
   // ---- Accessories (trunk organizer) ----
   "nav.accessories": "Accessories",
   "acc.trunk-organizer.name": "Honeycomb Trunk Organizer",

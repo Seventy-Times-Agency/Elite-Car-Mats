@@ -80,6 +80,21 @@ export function allowedHosts(request: Request): Set<string> {
   return hosts;
 }
 
+/**
+ * Crawlers that execute JavaScript — Google's Merchant Center and Ads
+ * checkers, Bing, Meta's own link preview, headless browsers — render
+ * product pages and would fire the pixel like a shopper. The pixel
+ * script drops the best-known ones itself; the server mirror must not
+ * re-add them, and neither should it count a crawl of 3 900 feed URLs
+ * as 3 900 product views.
+ */
+const CRAWLER_UA =
+  /bot|crawl|spider|slurp|headless|lighthouse|pagespeed|facebookexternalhit|storebot|adsbot|mediapartners|python-requests|curl\/|wget\//i;
+
+export function isCrawlerUserAgent(ua: string | null | undefined): boolean {
+  return !!ua && CRAWLER_UA.test(ua);
+}
+
 /** True when `url` is an absolute http(s) URL on one of `hosts`. */
 export function isAllowedUrl(
   url: string | null | undefined,

@@ -33,7 +33,7 @@ export function NewsletterManager({ initial }: { initial: Subscriber[] }) {
 
   if (initial.length === 0) {
     return (
-      <div className="glass-card rounded-xl p-12 text-center text-text-dim">
+      <div className="admin-card p-12 text-center text-text-dim">
         {t("admin.newsletterEmpty")}
       </div>
     );
@@ -46,9 +46,9 @@ export function NewsletterManager({ initial }: { initial: Subscriber[] }) {
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         placeholder={t("admin.newsletterSearch")}
-        className="w-full glass-card rounded-lg px-4 py-2.5 text-sm focus:border-gold/40 focus:outline-none"
+        className="w-full admin-input px-4 py-2.5 text-sm focus:border-gold/40 focus:outline-none"
       />
-      <div className="glass-card rounded-xl divide-y divide-border/30">
+      <div className="admin-card divide-y divide-border/30">
         {filtered.map((s) => (
           <div
             key={s.id}

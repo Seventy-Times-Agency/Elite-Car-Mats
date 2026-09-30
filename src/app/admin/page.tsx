@@ -466,7 +466,7 @@ export default async function AdminDashboardPage() {
       {problems !== null && (
         <Link
           href="/admin/journal"
-          className="glass-card rounded-xl px-4 py-3 mb-4 flex items-center gap-3 hover:border-gold/30 transition-colors"
+          className="admin-card px-4 py-3 mb-4 flex items-center gap-3 hover:border-gold/30 transition-colors"
         >
           <span
             className={`w-2.5 h-2.5 rounded-full shrink-0 ${
@@ -493,7 +493,7 @@ export default async function AdminDashboardPage() {
 
       {/* Integration health — answers "does the server see my keys" at
           a glance, since env typos in Vercel are otherwise invisible. */}
-      <div className="glass-card rounded-xl p-4 mb-6">
+      <div className="admin-card p-4 mb-6">
         <div className="text-[10px] uppercase tracking-[0.2em] text-text-faint mb-3">
           {t("admin.intgTitle")}
         </div>
@@ -526,29 +526,27 @@ export default async function AdminDashboardPage() {
         )}
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {tiles.map((tile) => {
           const inner = (
             <>
-              <div className="text-[10px] uppercase tracking-[0.2em] text-text-faint">
-                {tile.label}
-              </div>
-              <div className="text-2xl font-bold text-gold mt-2">
+              <div className="text-[11px] text-text-dim">{tile.label}</div>
+              <div className="text-[26px] leading-tight font-semibold text-text tabular-nums mt-1.5">
                 {tile.value}
               </div>
-              <div className="text-[11px] text-text-dim mt-1">{tile.sub}</div>
+              <div className="text-[11px] text-text-faint mt-1">{tile.sub}</div>
             </>
           );
           return tile.href ? (
             <Link
               key={tile.label}
               href={tile.href}
-              className="glass-card rounded-xl p-4 hover:border-gold/40 transition-colors"
+              className="admin-card p-4 hover:border-border-hover transition-colors"
             >
               {inner}
             </Link>
           ) : (
-            <div key={tile.label} className="glass-card rounded-xl p-4">
+            <div key={tile.label} className="admin-card p-4">
               {inner}
             </div>
           );
@@ -557,7 +555,7 @@ export default async function AdminDashboardPage() {
 
       {/* Weekly revenue history — calendar weeks (Mon–Sun) in the shop
           timezone, so the operator can check what any recent week earned. */}
-      <div className="mt-8 glass-card rounded-xl p-5">
+      <div className="mt-8 admin-card p-5">
         <h2 className="text-sm font-semibold uppercase tracking-[0.2em] text-text-dim mb-4">
           {t("admin.dashWeeklyTitle")}
         </h2>
@@ -594,7 +592,7 @@ export default async function AdminDashboardPage() {
       </div>
 
       {/* Where the money came from — the question ad spend is judged by. */}
-      <div className="mt-8 glass-card rounded-xl p-5">
+      <div className="mt-8 admin-card p-5">
         <h2 className="text-sm font-semibold uppercase tracking-[0.2em] text-text-dim mb-4">
           {t("admin.channelTitle")}
         </h2>
@@ -639,11 +637,11 @@ export default async function AdminDashboardPage() {
             </Link>
           </div>
           {topModels.length === 0 ? (
-            <div className="glass-card rounded-xl p-8 text-center text-text-dim text-sm">
+            <div className="admin-card p-8 text-center text-text-dim text-sm">
               {t("admin.dashTopModelsEmpty")}
             </div>
           ) : (
-            <ol className="glass-card rounded-xl divide-y divide-border/30">
+            <ol className="admin-card divide-y divide-border/30">
               {topModels.map((m, i) => (
                 <li key={m.modelId}>
                   <Link
@@ -681,11 +679,11 @@ export default async function AdminDashboardPage() {
             </Link>
           </div>
           {recentOrders.length === 0 ? (
-            <div className="glass-card rounded-xl p-8 text-center text-text-dim text-sm">
+            <div className="admin-card p-8 text-center text-text-dim text-sm">
               {t("admin.ordersEmpty")}
             </div>
           ) : (
-            <div className="glass-card rounded-xl divide-y divide-border/30">
+            <div className="admin-card divide-y divide-border/30">
               {recentOrders.map((o) => (
                 <Link
                   key={o.id}

@@ -6,6 +6,7 @@ import {
   allowedHosts,
   isAllowedUrl,
   adSignalsFromRequest,
+  isCrawlerUserAgent,
 } from "@/lib/analytics/meta-event";
 
 export const runtime = "nodejs";
@@ -41,6 +42,10 @@ export async function POST(request: Request) {
   if (!isAllowedUrl(request.headers.get("origin"), hosts)) {
     return new NextResponse(null, { status: 403 });
   }
+
+  // Not a shopper: a crawler rendering the page. 204 so the client
+  // never retries.
+  if (isCrawlerUserAgent(request.headers.get("user-agent"))) return noContent();
 
   // A browsing session fires a handful of these per minute; 60 leaves
   // room for fast catalog clicking while capping what one IP can push

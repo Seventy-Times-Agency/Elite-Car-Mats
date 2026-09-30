@@ -101,7 +101,7 @@ export function CustomOrdersManager({
 
   if (initial.length === 0) {
     return (
-      <div className="glass-card rounded-xl p-12 text-center text-text-dim">
+      <div className="admin-card p-12 text-center text-text-dim">
         {t("admin.customEmpty")}
       </div>
     );
@@ -110,7 +110,7 @@ export function CustomOrdersManager({
   return (
     <div className="space-y-3">
       {actionError && (
-        <div className="glass-card rounded-lg px-4 py-2.5 text-xs text-error">
+        <div className="admin-input px-4 py-2.5 text-xs text-error">
           {actionError}
         </div>
       )}
@@ -118,7 +118,7 @@ export function CustomOrdersManager({
         const expanded = openId === r.id;
         const date = new Date(r.createdAt).toLocaleDateString();
         return (
-          <div key={r.id} className="glass-card rounded-xl">
+          <div key={r.id} className="admin-card">
             <button
               onClick={() => setOpenId(expanded ? null : r.id)}
               className="w-full flex items-center gap-4 p-4 text-left"
@@ -331,7 +331,7 @@ function InvoiceSection({ request: r }: { request: CustomRequest }) {
             onChange={(e) => setAmount(e.target.value)}
             placeholder={t("admin.invAmountPh")}
             aria-label={t("admin.invAmountPh")}
-            className="w-44 glass-card rounded-lg px-3 py-2 text-sm focus:border-gold/40 focus:outline-none"
+            className="w-44 admin-input px-3 py-2 text-sm focus:border-gold/40 focus:outline-none"
           />
           <button
             onClick={sendInvoice}
@@ -370,7 +370,7 @@ function AdminNotesField({
         onChange={(e) => setValue(e.target.value)}
         rows={3}
         placeholder={t("admin.customAdminNotesPh")}
-        className="w-full glass-card rounded-lg px-3 py-2 text-sm focus:border-gold/40 focus:outline-none resize-none"
+        className="w-full admin-input px-3 py-2 text-sm focus:border-gold/40 focus:outline-none resize-none"
       />
       {dirty && (
         <button

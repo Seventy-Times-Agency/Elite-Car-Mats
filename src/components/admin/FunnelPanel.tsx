@@ -48,7 +48,7 @@ function pct(n: number, of: number): string {
 export async function FunnelPanel({ t }: { t: TFn }) {
   if (!funnelEnabled) {
     return (
-      <div className="glass-card rounded-xl p-4 mb-6">
+      <div className="admin-card p-4 mb-6">
         <div className="text-[10px] uppercase tracking-[0.2em] text-text-faint mb-3">
           {t("admin.funnelTitle")}
         </div>
@@ -76,7 +76,7 @@ export async function FunnelPanel({ t }: { t: TFn }) {
   // Zeros here would read as "nobody visited", which is a different fact.
   if (counts === null) {
     return (
-      <div className="glass-card rounded-xl p-4 mb-6">
+      <div className="admin-card p-4 mb-6">
         <div className="text-[10px] uppercase tracking-[0.2em] text-text-faint mb-3">
           {t("admin.funnelTitle")}
         </div>
@@ -100,7 +100,7 @@ export async function FunnelPanel({ t }: { t: TFn }) {
   const top = rows[0]?.count ?? 0;
 
   return (
-    <div className="glass-card rounded-xl p-4 mb-6">
+    <div className="admin-card p-4 mb-6">
       <div className="flex items-baseline justify-between gap-3 mb-4">
         <div className="text-[10px] uppercase tracking-[0.2em] text-text-faint">
           {t("admin.funnelTitle")}

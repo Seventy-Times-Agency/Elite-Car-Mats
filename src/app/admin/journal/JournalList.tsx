@@ -22,14 +22,14 @@ export function JournalList({ problems }: { problems: Problem[] | null }) {
 
   if (problems === null) {
     return (
-      <div className="glass-card rounded-xl px-5 py-4 text-sm text-text-dim">
+      <div className="admin-card px-5 py-4 text-sm text-text-dim">
         {t("journal.unavailable")}
       </div>
     );
   }
   if (problems.length === 0) {
     return (
-      <div className="glass-card rounded-xl px-5 py-4 flex items-center gap-3">
+      <div className="admin-card px-5 py-4 flex items-center gap-3">
         <span className="w-2.5 h-2.5 rounded-full bg-success shadow-[0_0_10px_rgba(34,197,94,0.6)]" aria-hidden />
         <span className="text-sm text-text">{t("journal.allGood")}</span>
       </div>
@@ -63,7 +63,7 @@ export function JournalList({ problems }: { problems: Problem[] | null }) {
         {problems.map((p) => {
           const isOpen = open === p.id;
           return (
-            <li key={p.id} className="glass-card rounded-xl overflow-hidden">
+            <li key={p.id} className="admin-card overflow-hidden">
               <div className="flex items-start gap-3 px-4 py-3">
                 <span
                   className={`mt-1.5 w-2 h-2 rounded-full shrink-0 ${p.severity === "critical" ? "bg-error" : "bg-gold/70"}`}

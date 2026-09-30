@@ -1,9 +1,9 @@
 import "server-only";
-import { Pool, neonConfig } from "@neondatabase/serverless";
-import ws from "ws";
+import { Pool } from "@neondatabase/serverless";
+import { configureNeon } from "@/lib/db/neon-config";
 import { reportProblem } from "@/lib/ops/journal";
 
-neonConfig.webSocketConstructor = ws;
+configureNeon();
 
 /**
  * Idempotent schema bootstrap + migration. Brings a completely empty

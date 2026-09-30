@@ -134,7 +134,7 @@ export function BrandManager({
   };
 
   const input =
-    "w-full glass-card rounded-lg px-3 py-2 text-sm focus:border-gold/40 focus:outline-none";
+    "w-full admin-input px-3 py-2 text-sm focus:border-gold/40 focus:outline-none";
   const labelCls =
     "block text-[10px] uppercase tracking-wider text-text-faint mb-1";
 
@@ -153,7 +153,7 @@ export function BrandManager({
       </div>
 
       {editId !== null && (
-        <div className="glass-card rounded-xl p-5 border-gold/30 space-y-4">
+        <div className="admin-card p-5 border-gold/30 space-y-4">
           <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-gold">
             {editId === "new"
               ? t("admin.catalogBrandNew")
@@ -243,7 +243,7 @@ export function BrandManager({
                         }))
                       }
                       aria-pressed={active}
-                      className={`px-3 py-1.5 rounded-full text-[11px] font-semibold uppercase tracking-wider transition-all ${active ? "bg-gradient-to-r from-gold to-gold-light text-bg" : "glass-card text-text-dim hover:text-gold"}`}
+                      className={`px-3 py-1.5 rounded-full text-[11px] font-semibold uppercase tracking-wider transition-all ${active ? "bg-gradient-to-r from-gold to-gold-light text-bg" : "admin-card text-text-dim hover:text-gold"}`}
                     >
                       {t(`catalog.filter.${c}`)}
                     </button>
@@ -253,7 +253,7 @@ export function BrandManager({
             </div>
           </div>
           {error && (
-            <div className="text-error text-xs glass-card rounded-lg px-3 py-2 border-error/30">
+            <div className="text-error text-xs admin-input px-3 py-2 border-error/30">
               {error}
             </div>
           )}
@@ -283,11 +283,11 @@ export function BrandManager({
       )}
 
       {initial.length === 0 && editId === null ? (
-        <div className="glass-card rounded-xl p-12 text-center text-text-dim text-sm">
+        <div className="admin-card p-12 text-center text-text-dim text-sm">
           {t("admin.catalogBrandsEmpty")}
         </div>
       ) : (
-        <ul className="glass-card rounded-xl divide-y divide-border/30">
+        <ul className="admin-card divide-y divide-border/30">
           {initial.map((b) => (
             <li
               key={b.id}

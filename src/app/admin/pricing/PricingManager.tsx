@@ -153,7 +153,7 @@ export function PricingManager({
               <span className="w-28 text-right">{t("admin.pricingShipping")}</span>
             </div>
           </div>
-          <ul className="glass-card rounded-xl divide-y divide-border/30">
+          <ul className="admin-card divide-y divide-border/30">
             {section.rows.map((r) => {
               const d = draftOf(r);
               const dirty = isDirty(r);
@@ -244,7 +244,7 @@ export function PricingManager({
       <ShippingRules shipping={shipping} busy={busy} start={start} />
 
       {error && (
-        <div className="text-error text-xs glass-card rounded-lg px-3 py-2 border-error/30">
+        <div className="text-error text-xs admin-input px-3 py-2 border-error/30">
           {error}
         </div>
       )}
@@ -297,7 +297,7 @@ function ShippingRules({
       <h2 className="text-[11px] uppercase tracking-[0.2em] text-text-dim font-semibold mb-2.5">
         {t("admin.shippingH")}
       </h2>
-      <div className="glass-card rounded-xl px-4 py-4 flex flex-wrap items-end gap-4">
+      <div className="admin-card px-4 py-4 flex flex-wrap items-end gap-4">
         <MoneyInput label={t("admin.shippingFee")} value={fee} onChange={setFee} onEnter={save} wide />
         <MoneyInput
           label={t("admin.shippingFreeFrom")}
@@ -352,7 +352,7 @@ function MoneyInput({
           onChange={(e) => onChange(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && onEnter()}
           aria-label={label}
-          className="w-full glass-card rounded-md pl-6 pr-2.5 py-1.5 text-sm text-right tabular-nums text-text focus:border-gold/40 focus:outline-none"
+          className="w-full admin-input pl-6 pr-2.5 py-1.5 text-sm text-right tabular-nums text-text focus:border-gold/40 focus:outline-none"
         />
       </span>
     </label>

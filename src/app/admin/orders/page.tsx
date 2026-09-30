@@ -53,11 +53,19 @@ export default async function AdminOrdersPage() {
   return (
     <AdminShell title={t("admin.ordersTitle")} subtitle={subtitle}>
       {orders.length === 0 ? (
-        <div className="glass-card rounded-xl p-12 text-center text-text-dim">
+        <div className="admin-card p-12 text-center text-text-dim">
           {t("admin.ordersEmpty")}
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="admin-card overflow-hidden">
+          <div className="hidden md:grid grid-cols-[150px_1fr_150px_130px_110px_24px] gap-x-4 px-4 py-2 border-b border-border text-[10px] uppercase tracking-[0.14em] text-text-faint">
+            <div>{t("admin.ordersColOrder")}</div>
+            <div>{t("admin.ordersColCustomer")}</div>
+            <div>{t("admin.ordersColSource")}</div>
+            <div>{t("admin.ordersColStatus")}</div>
+            <div className="text-right">{t("admin.ordersColTotal")}</div>
+            <div />
+          </div>
           {orders.map((o) => {
             const items: OrderItemView[] = o.items.map((i) => ({
               id: i.id,

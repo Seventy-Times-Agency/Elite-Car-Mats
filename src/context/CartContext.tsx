@@ -24,6 +24,13 @@ interface CartContextType {
   removeItem: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
   clearCart: () => void;
+  /** Swap the whole cart for these lines (Meta Shop checkout link). */
+  replaceCart: (items: NewCartItem[]) => void;
+  /** Complete a `pendingSetup` mat line: year and colours from /cart. */
+  updateMatItem: (
+    id: string,
+    patch: Partial<Pick<MatCartItem, "year" | "color" | "edgeColor">>,
+  ) => void;
   itemsCount: number;
   isOpen: boolean;
   openCart: () => void;
@@ -303,6 +310,33 @@ export function CartProvider({ children }: { children: ReactNode }) {
     saveCart([]);
   }, []);
 
+  const replaceCart = useCallback((next: NewCartItem[]) => {
+    const lines = next
+      .slice(0, MAX_CART_ITEMS)
+      .map((it) => ({ ...it, id: crypto.randomUUID() }) as CartItem);
+    setItems(lines);
+    // Same reason as clearCart: the caller navigates right away.
+    saveCart(lines);
+  }, []);
+
+  const updateMatItem = useCallback(
+    (
+      id: string,
+      patch: Partial<Pick<MatCartItem, "year" | "color" | "edgeColor">>,
+    ) => {
+      setItems((prev) =>
+        prev.map((i) => {
+          if (i.id !== id || isAccessoryItem(i)) return i;
+          const next = { ...i, ...patch };
+          // A pending line is complete once the buyer picked a real year.
+          if (next.pendingSetup && next.year > 0) next.pendingSetup = false;
+          return next;
+        }),
+      );
+    },
+    [],
+  );
+
   const openCart = useCallback(() => setIsOpen(true), []);
   const closeCart = useCallback(() => setIsOpen(false), []);
 
@@ -316,6 +350,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
         removeItem,
         updateQuantity,
         clearCart,
+        replaceCart,
+        updateMatItem,
         itemsCount,
         isOpen,
         openCart,

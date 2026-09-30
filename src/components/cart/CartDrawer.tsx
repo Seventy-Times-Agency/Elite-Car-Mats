@@ -52,9 +52,11 @@ export function CartDrawer() {
   const shipKeys = items.map(shippingKeyFor);
   const billed = useBilledTotal(subtotal, shipKeys);
 
+  // Lines from the Meta Shop still need a year — finish them on /cart.
+  const pending = items.some((i) => !isAccessoryItem(i) && i.pendingSetup);
   const goCheckout = () => {
     closeCart();
-    router.push("/checkout");
+    router.push(pending ? "/cart" : "/checkout");
   };
 
   return (
@@ -192,7 +194,7 @@ export function CartDrawer() {
                     ) : (
                     <div className="mt-1.5 text-text-dim text-[11px] leading-snug space-y-0.5">
                       <div>
-                        {mat.year} ·{" "}
+                        {mat.year || t("cart.setup.yearMissing")} ·{" "}
                         {localizeMatSet(t, mat.matSetLabel)}
                       </div>
                       <div className="flex items-center gap-1.5 flex-wrap">

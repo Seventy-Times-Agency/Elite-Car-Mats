@@ -13,6 +13,8 @@ import { localizeColor, localizeMatSet } from "@/i18n/labels";
 import { usePriceOverrides } from "@/context/PriceOverridesContext";
 import { isAccessoryItem } from "@/types";
 import { accessoryView } from "@/lib/accessories/display";
+import { PendingMatSetup } from "@/components/cart/PendingMatSetup";
+import { useEffect, useState } from "react";
 
 export default function CartPage() {
   const { items, removeItem, updateQuantity, clearCart, hydrated } = useCart();
@@ -21,6 +23,21 @@ export default function CartPage() {
   const shipKeys = items.map(shippingKeyFor);
   const total = useBilledTotal(subtotal, shipKeys);
   const t = useT();
+  // Lines that arrived pending keep their picker open after the year is
+  // chosen, so the buyer can still adjust colours on the same card.
+  const [setupIds, setSetupIds] = useState<Set<string>>(new Set());
+  useEffect(() => {
+    const pending = items.filter((i) => !isAccessoryItem(i) && i.pendingSetup);
+    if (pending.length === 0) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setSetupIds((prev) => {
+      if (pending.every((i) => prev.has(i.id))) return prev;
+      const next = new Set(prev);
+      for (const i of pending) next.add(i.id);
+      return next;
+    });
+  }, [items]);
+  const blocked = items.some((i) => !isAccessoryItem(i) && i.pendingSetup);
 
   if (!hydrated) return <div className="min-h-[60vh]" />;
 
@@ -93,7 +110,7 @@ export default function CartPage() {
                   <p className="text-text-faint text-xs mt-1">
                     {mat ? (
                       <>
-                        {mat.year} · {localizeMatSet(t, mat.matSetLabel)} ·{" "}
+                        {mat.year || t("cart.setup.yearMissing")} · {localizeMatSet(t, mat.matSetLabel)} ·{" "}
                         {localizeColor(t, mat.color.name)} ·{" "}
                         {localizeColor(t, mat.edgeColor.name)}
                         {mat.badge
@@ -129,6 +146,9 @@ export default function CartPage() {
                       {formatPrice(unit)} {t("cart.perUnit")}
                     </span>
                   </div>
+                  {mat && setupIds.has(mat.id) && (
+                    <PendingMatSetup item={mat} />
+                  )}
                 </div>
                 <button
                   onClick={() => removeItem(item.id)}
@@ -152,12 +172,25 @@ export default function CartPage() {
           </div>
         </div>
         <div className="mt-4">
-          <Link
-            href="/checkout"
-            className="block w-full text-center bg-gradient-to-r from-gold to-gold-light text-bg text-sm font-semibold tracking-wider uppercase py-4 rounded-xl transition-all duration-300 shadow-[0_4px_24px_rgba(212,165,74,0.25)]"
-          >
-            {t("cart.checkout")}
-          </Link>
+          {blocked ? (
+            <>
+              <button
+                type="button"
+                disabled
+                className="block w-full text-center bg-gradient-to-r from-gold to-gold-light text-bg text-sm font-semibold tracking-wider uppercase py-4 rounded-xl opacity-40 cursor-not-allowed"
+              >
+                {t("cart.checkout")}
+              </button>
+              <p className="mt-2 text-center text-xs text-gold">{t("cart.setup.blocked")}</p>
+            </>
+          ) : (
+            <Link
+              href="/checkout"
+              className="block w-full text-center bg-gradient-to-r from-gold to-gold-light text-bg text-sm font-semibold tracking-wider uppercase py-4 rounded-xl transition-all duration-300 shadow-[0_4px_24px_rgba(212,165,74,0.25)]"
+            >
+              {t("cart.checkout")}
+            </Link>
+          )}
         </div>
       </div>
     </div>

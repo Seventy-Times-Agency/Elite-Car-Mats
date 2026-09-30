@@ -108,6 +108,13 @@ export interface MatCartItem {
    */
   thirdRow?: boolean;
   /**
+   * Added from the Facebook / Instagram Shop cart: the Meta catalog item
+   * carries no vehicle year or colours, so the line arrives with year 0
+   * and default colours and the buyer completes it on /cart. Checkout
+   * stays blocked while any line is pending.
+   */
+  pendingSetup?: boolean;
+  /**
    * Optional trim/floor-configuration note from the customer (hybrid,
    * AWD, 2nd-row captain chairs vs bench...) — one model can have
    * different floor pans per configuration, and the workshop needs

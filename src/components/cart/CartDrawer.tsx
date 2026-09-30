@@ -12,7 +12,7 @@ import {
   formatPrice,
 } from "@/lib/pricing";
 import { useT } from "@/i18n/I18nProvider";
-import { localizeColor, localizeMatSet } from "@/i18n/labels";
+import { localizeColor, localizeMatSet, matLineTitle } from "@/i18n/labels";
 import { TrustBadges } from "@/components/common/TrustBadges";
 import { usePriceOverrides } from "@/context/PriceOverridesContext";
 import { isAccessoryItem } from "@/types";
@@ -163,7 +163,7 @@ export function CartDrawer() {
                   <div className="flex-1 min-w-0">
                     <div className="flex justify-between gap-3">
                       <h3 className="text-text font-medium text-sm leading-tight truncate">
-                        {mat ? `${mat.brandName} ${mat.modelName}` : acc!.title}
+                        {mat ? matLineTitle(t, mat) : acc!.title}
                       </h3>
                       <button
                         onClick={() => removeItem(item.id)}

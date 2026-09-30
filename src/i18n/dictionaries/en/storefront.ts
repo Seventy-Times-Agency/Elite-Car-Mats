@@ -222,6 +222,7 @@ export const storefront: Dict = {
   "cart.drawerSecure": "Secure Stripe checkout · 30-day returns",
   "cart.drawerHeelPadChip": "+ heel pad",
   "cart.drawerThirdRowChip": "+ 3rd row",
+  "cart.matTitle": "EVA Floor Mats for {car}",
   "cart.setup.title": "Tell us about your car",
   "cart.setup.hint": "We cut every set to your exact model year. Pick the year and colors — takes 10 seconds.",
   "cart.setup.year": "Model year",

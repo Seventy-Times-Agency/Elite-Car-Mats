@@ -220,6 +220,7 @@ export const storefront: Dict = {
   "cart.drawerSecure": "Оплата защищена · 30 дней на возврат",
   "cart.drawerHeelPadChip": "+ накладка",
   "cart.drawerThirdRowChip": "+ 3-й ряд",
+  "cart.matTitle": "EVA-коврики для {car}",
   "cart.setup.title": "Уточните данные машины",
   "cart.setup.hint": "Каждый комплект кроим по лекалу вашего года выпуска. Выберите год и цвета — 10 секунд.",
   "cart.setup.year": "Год выпуска",

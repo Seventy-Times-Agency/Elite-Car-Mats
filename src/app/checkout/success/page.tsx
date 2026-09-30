@@ -8,6 +8,7 @@ import { trackEvent } from "@/lib/analytics";
 import { useCart } from "@/context/CartContext";
 import { clearPendingOrder } from "@/lib/checkout-session";
 import { accessorySku } from "@/data/accessories";
+import { feedSkuFromProductId } from "@/lib/feed/sku";
 
 function SuccessBody() {
   const t = useT();
@@ -56,7 +57,7 @@ function SuccessBody() {
             i.kind === "accessory" && i.accessorySlug && i.accessoryVariant
               ? accessorySku(i.accessorySlug, i.accessoryVariant)
               : typeof i.productId === "string"
-                ? `ECM-${i.productId}`
+                ? feedSkuFromProductId(i.productId)
                 : null;
           return id
             ? [{ id, quantity: i.quantity ?? 1, item_price: Number(i.price ?? 0) }]

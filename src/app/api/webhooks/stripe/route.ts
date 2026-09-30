@@ -20,6 +20,7 @@ import { sendMetaPurchase, type AdSignals } from "@/lib/analytics/meta-capi";
 import { adSignalsFromMetadata } from "@/lib/analytics/meta-event";
 import { reportProblem } from "@/lib/ops/journal";
 import { logOrderEvent } from "@/lib/orders/events";
+import { feedSkuFromProductId } from "@/lib/feed/sku";
 
 // Webhooks must see the raw body for signature verification. In the App
 // Router there is no body parser to disable — the route reads
@@ -211,7 +212,7 @@ async function firePostPaymentEffects(
         id:
           i.kind === "accessory" && i.accessorySlug && i.accessoryVariant
             ? accessorySku(i.accessorySlug, i.accessoryVariant)
-            : `ECM-${i.productId}`,
+            : feedSkuFromProductId(i.productId ?? ""),
         quantity: i.quantity,
         item_price: Number(i.price ?? 0),
       })),

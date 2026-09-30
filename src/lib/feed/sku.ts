@@ -23,9 +23,30 @@ export function feedSku(
   modelSlug: string,
   set: MatSetType,
 ): string {
-  const readable = `ECM-${brandSlug}-${modelSlug}-${set}`;
+  return feedSkuForModel(`${brandSlug}-${modelSlug}`, set);
+}
+
+/**
+ * Same id from the site's composite model id (`<brand>-<model>`, what
+ * cart lines carry). Pixel / CAPI events must use this rather than a
+ * hand-built string so the shortened long ids match the feed too.
+ */
+export function feedSkuForModel(modelId: string, set: MatSetType): string {
+  const readable = `ECM-${modelId}-${set}`;
   if (readable.length <= FEED_ID_MAX) return readable;
-  return `ECM-${brandSlug}-${modelSlug}-${SHORT_SET[set]}`;
+  return `ECM-${modelId}-${SHORT_SET[set]}`;
+}
+
+const SETS_LONGEST_FIRST: MatSetType[] = ["full-cargo", "front", "full", "cargo"];
+
+/** Feed id from an OrderItem.productId (`<brand>-<model>-<set>`). */
+export function feedSkuFromProductId(productId: string): string {
+  for (const set of SETS_LONGEST_FIRST) {
+    if (productId.endsWith(`-${set}`)) {
+      return feedSkuForModel(productId.slice(0, -(set.length + 1)), set);
+    }
+  }
+  return `ECM-${productId}`;
 }
 
 /** Item group (one per model) — shares the brand/model prefix with ids. */

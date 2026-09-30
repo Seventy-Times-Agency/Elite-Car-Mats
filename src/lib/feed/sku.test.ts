@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { FEED_ID_MAX, feedItemGroupId, feedSku } from "./sku";
+import {
+  FEED_ID_MAX,
+  feedItemGroupId,
+  feedSku,
+  feedSkuForModel,
+  feedSkuFromProductId,
+} from "./sku";
 import { brands } from "@/data/catalog/brands";
 import { mockModels } from "@/data/catalog/models";
 import { MAT_SETS_BY_PROFILE } from "@/data/catalog/mat-sets";
@@ -32,5 +38,26 @@ describe("feedSku", () => {
         seen.add(id);
       }
     }
+  });
+});
+
+// Pixel / CAPI content_ids must equal the catalog ids or Meta reports
+// "content ID mismatch" and dynamic ads can't match the product.
+describe("event ids match the feed", () => {
+  it("builds from a cart modelId", () => {
+    expect(feedSkuForModel("toyota-rav4", "full")).toBe(feedSku("toyota", "rav4", "full"));
+    expect(feedSkuForModel("oldsmobile-cutlass-supreme-convertible", "full-cargo")).toBe(
+      feedSku("oldsmobile", "cutlass-supreme-convertible", "full-cargo"),
+    );
+  });
+
+  it("builds from an order productId, full-cargo before cargo", () => {
+    expect(feedSkuFromProductId("land-rover-range-rover-full-cargo")).toBe(
+      "ECM-land-rover-range-rover-full-cargo",
+    );
+    expect(feedSkuFromProductId("toyota-rav4-cargo")).toBe("ECM-toyota-rav4-cargo");
+    expect(feedSkuFromProductId("oldsmobile-cutlass-supreme-convertible-full-cargo")).toBe(
+      "ECM-oldsmobile-cutlass-supreme-convertible-fc",
+    );
   });
 });

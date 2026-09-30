@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { ShippingLine, useBilledTotal } from "@/components/cart/ShippingLine";
 import { useRouter } from "next/navigation";
+import { feedSkuForModel } from "@/lib/feed/sku";
 import { useCart } from "@/context/CartContext";
 import { trackFunnel } from "@/lib/analytics/funnel-client";
 import {
@@ -237,12 +238,12 @@ export function CheckoutClient({ paymentEnabled }: { paymentEnabled: boolean }) 
       content_ids: items.map((i) =>
         isAccessoryItem(i)
           ? accessorySku(i.accessorySlug, i.variantId)
-          : `ECM-${i.modelId}-${i.matSet}`,
+          : feedSkuForModel(i.modelId, i.matSet),
       ),
       contents: items.map((i) => ({
         id: isAccessoryItem(i)
           ? accessorySku(i.accessorySlug, i.variantId)
-          : `ECM-${i.modelId}-${i.matSet}`,
+          : feedSkuForModel(i.modelId, i.matSet),
         quantity: i.quantity,
         item_price: cartItemUnitPrice(i, priceOverrides),
       })),

@@ -34,7 +34,7 @@ export function cartLinesFromMeta(raw: string | null): NewCartItem[] {
     if (!set) continue;
     lines.push({
       kind: "mat",
-      modelId: model.id,
+      modelId: `${brand.slug}-${model.slug}`,
       profile,
       brandName: brand.name,
       modelName: model.name,

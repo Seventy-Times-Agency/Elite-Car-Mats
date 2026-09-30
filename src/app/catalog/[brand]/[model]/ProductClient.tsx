@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
+import { feedSku, feedSkuForModel } from "@/lib/feed/sku";
 import { evaColors, edgeColors, badges } from "@/data/catalog";
 import { matPhotoSrc, matDetailSrc } from "@/data/catalog/mat-photos";
 import { MAT_SETS_BY_PROFILE } from "@/data/catalog/mat-sets";
@@ -183,7 +184,7 @@ export default function ProductClient({
     if (!brandSlug || !modelSlug) return;
     trackEvent("ViewContent", {
       content_type: "product",
-      content_ids: [`ECM-${brandSlug}-${modelSlug}-${getDefaultMatSet(profile)}`],
+      content_ids: [feedSku(brandSlug, modelSlug, getDefaultMatSet(profile))],
       content_name: `${brandName} ${modelName}`,
     });
   }, [brandSlug, modelSlug, brandName, modelName, profile]);
@@ -263,9 +264,9 @@ export default function ProductClient({
     trackEvent("AddToCart", {
       content_type: "product",
       // Feed-format sku (ECM-<brand>-<model>-<set>) — see ViewContent note.
-      content_ids: [`ECM-${cartModelId}-${ms.type}`],
+      content_ids: [feedSkuForModel(cartModelId, ms.type)],
       contents: [
-        { id: `ECM-${cartModelId}-${ms.type}`, quantity: 1, item_price: unitPrice },
+        { id: feedSkuForModel(cartModelId, ms.type), quantity: 1, item_price: unitPrice },
       ],
       value: unitPrice,
       currency: "USD",

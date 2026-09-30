@@ -74,6 +74,19 @@ function SuccessBody() {
           },
           `purchase-${orderNumber}`,
         );
+        // GA4 purchase — the key event Merchant Center and Google Ads
+        // read conversions from. gtag exists only with analytics consent.
+        window.gtag?.("event", "purchase", {
+          transaction_id: orderNumber,
+          value: Number(data.total ?? 0),
+          currency: "USD",
+          shipping: Number(data.shippingCost ?? 0),
+          items: withIds.map((i) => ({
+            item_id: i.id,
+            quantity: i.quantity,
+            price: i.item_price,
+          })),
+        });
       } catch {
         // analytics only — never surface errors on the thank-you page
       }

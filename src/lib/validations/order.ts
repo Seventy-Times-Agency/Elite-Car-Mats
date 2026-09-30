@@ -67,6 +67,9 @@ export const createOrderSchema = z.object({
     .min(1, "Корзина пуста")
     .max(50, "Слишком много позиций в заказе"),
   promoCode: z.string().trim().max(64).optional().nullable(),
+  // Where the visit came from (utm / referrer / landing), see
+  // lib/analytics/attribution.ts. Free-form here; the API sanitizes it.
+  attribution: z.unknown().optional(),
 });
 
 export type CreateOrderInput = z.infer<typeof createOrderSchema>;

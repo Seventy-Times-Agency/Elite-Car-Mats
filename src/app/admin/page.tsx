@@ -8,6 +8,7 @@ import { formatPrice } from "@/lib/pricing";
 import { getDictionary } from "@/i18n/getDictionary";
 import { makeT } from "@/i18n/dictionary";
 import { listProblems } from "@/lib/ops/journal";
+import { channelLabel } from "@/lib/analytics/channel-label";
 
 export const dynamic = "force-dynamic";
 
@@ -227,6 +228,7 @@ export default async function AdminDashboardPage() {
     aovRow,
     topModelsRaw,
     weeklyHistoryRaw,
+    channelRows,
   ] = await Promise.all([
     // Only orders that were actually paid/confirmed count as real —
     // a PENDING (unpaid, possibly abandoned Stripe checkout) or CANCELLED
@@ -333,7 +335,25 @@ export default async function AdminDashboardPage() {
       GROUP BY w.wk
       ORDER BY w.wk DESC
     `,
+    // Paid orders by marketing channel, rolling 30 days. NULL channel =
+    // placed before attribution existed; shown as its own row rather
+    // than folded into "direct", which would be a lie.
+    prisma.$queryRaw<{ channel: string | null; sum: number | null; n: bigint }[]>`
+      SELECT "channel", COALESCE(SUM("total"), 0)::float AS sum, COUNT(*)::bigint AS n
+      FROM "Order"
+      WHERE "createdAt" >= ${last30}
+        AND "status" NOT IN ('PENDING', 'CANCELLED')
+      GROUP BY "channel"
+      ORDER BY sum DESC
+    `,
   ]);
+  const channels = channelRows.map((r) => ({
+    key: r.channel ?? "unknown",
+    label: channelLabel(t, r.channel),
+    revenue: Number(r.sum ?? 0),
+    count: Number(r.n),
+  }));
+  const channelTotal = Math.max(1, channels.reduce((s, c) => s + c.revenue, 0));
 
   const revenueToday = Number(todayAgg?.[0]?.sum ?? 0);
   const revenueWeek = Number(weekAgg?.[0]?.sum ?? 0);
@@ -571,6 +591,38 @@ export default async function AdminDashboardPage() {
             </div>
           ))}
         </div>
+      </div>
+
+      {/* Where the money came from — the question ad spend is judged by. */}
+      <div className="mt-8 glass-card rounded-xl p-5">
+        <h2 className="text-sm font-semibold uppercase tracking-[0.2em] text-text-dim mb-4">
+          {t("admin.channelTitle")}
+        </h2>
+        {channels.length === 0 ? (
+          <p className="text-text-dim text-sm">{t("admin.channelEmpty")}</p>
+        ) : (
+          <div className="space-y-2.5">
+            {channels.map((c) => (
+              <div key={c.key} className="flex items-center gap-3">
+                <div className="w-[160px] shrink-0 text-xs text-text truncate">{c.label}</div>
+                <div className="flex-1 h-2 rounded-full bg-bg/60 overflow-hidden">
+                  <div
+                    className="h-full bg-gradient-to-r from-gold/60 to-gold rounded-full"
+                    style={{ width: `${Math.round((c.revenue / channelTotal) * 100)}%` }}
+                  />
+                </div>
+                <div className="w-28 shrink-0 text-right">
+                  <span className="text-gold font-semibold text-sm tabular-nums">
+                    {formatPrice(c.revenue)}
+                  </span>
+                  <span className="block text-[10px] text-text-faint">
+                    {c.count} {t("admin.channelOrders")}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="mt-10 grid grid-cols-1 lg:grid-cols-2 gap-8">

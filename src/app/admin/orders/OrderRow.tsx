@@ -8,6 +8,8 @@ import { localizeColor, localizeMatSet } from "@/i18n/labels";
 import { accessoryView } from "@/lib/accessories/display";
 import { formatPrice } from "@/lib/pricing";
 import { PaymentHistory, type OrderEventView } from "./PaymentHistory";
+import { ChannelChip } from "@/components/admin/ChannelChip";
+import type { Attribution, Touch } from "@/lib/analytics/attribution";
 
 type Status =
   | "PENDING"
@@ -62,6 +64,9 @@ interface Order {
   zip: string | null;
   comment: string | null;
   promoCode: string | null;
+  /** Marketing channel + the touches it came from; null before tracking. */
+  channel: string | null;
+  attribution: Attribution | null;
   subtotal: number;
   discount: number;
   /** Included in `total`; null on orders from before paid shipping. */
@@ -168,6 +173,7 @@ export function OrderRow({
               {STATUS_LABEL[order.status as Status] ?? order.status}
             </span>
             <span className="text-text-faint text-xs">{date}</span>
+            <ChannelChip channel={order.channel} />
           </div>
           <div className="text-sm text-text mt-1 truncate">
             {order.customerName} · {order.email} ·{" "}
@@ -214,6 +220,20 @@ export function OrderRow({
               </div>
             </div>
           </div>
+
+          {order.attribution && (
+            <div className="text-xs">
+              <div className="text-text-faint uppercase tracking-wider mb-1">
+                {t("admin.channelLabel")}
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <TouchView title={t("admin.attrLast")} touch={order.attribution.last} />
+                {sameTouch(order.attribution.first, order.attribution.last) ? null : (
+                  <TouchView title={t("admin.attrFirst")} touch={order.attribution.first} />
+                )}
+              </div>
+            </div>
+          )}
 
           {order.comment && (
             <div className="text-xs">
@@ -421,6 +441,45 @@ export function OrderRow({
             </div>
           </div>
         </div>
+      )}
+    </div>
+  );
+}
+
+function sameTouch(a: Touch, b: Touch): boolean {
+  return (
+    a.ts === b.ts ||
+    (a.source === b.source && a.medium === b.medium && a.campaign === b.campaign && a.referrer === b.referrer)
+  );
+}
+
+function TouchView({ title, touch }: { title: string; touch: Touch }) {
+  const t = useT();
+  const tags = [touch.source, touch.medium, touch.campaign, touch.content]
+    .filter(Boolean)
+    .join(" / ");
+  const rows: [string, string][] = [];
+  if (tags) rows.push([t("admin.attrTags"), tags]);
+  if (touch.referrer) rows.push([t("admin.attrReferrer"), touch.referrer]);
+  if (touch.landing) rows.push([t("admin.attrLanding"), touch.landing]);
+  if (touch.click) rows.push([t("admin.attrClick"), touch.click]);
+  return (
+    <div className="rounded-lg border border-border/40 bg-bg/30 px-3 py-2.5">
+      <div className="text-text-faint mb-1.5">
+        {title} ·{" "}
+        {new Date(touch.ts).toLocaleDateString(undefined, { day: "2-digit", month: "short" })}
+      </div>
+      {rows.length === 0 ? (
+        <div className="text-text-dim">{t("admin.channel.direct")}</div>
+      ) : (
+        <dl className="space-y-0.5">
+          {rows.map(([k, v]) => (
+            <div key={k} className="flex gap-2">
+              <dt className="text-text-dim shrink-0 w-28">{k}</dt>
+              <dd className="text-text break-all">{v}</dd>
+            </div>
+          ))}
+        </dl>
       )}
     </div>
   );

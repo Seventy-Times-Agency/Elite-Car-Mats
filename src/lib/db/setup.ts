@@ -290,6 +290,18 @@ async function execAll(): Promise<MigrationResult[]> {
       `ALTER TABLE "Order" ADD COLUMN IF NOT EXISTS "abandonedEmailId" TEXT`,
     );
     await run(
+      "order.channel",
+      `ALTER TABLE "Order" ADD COLUMN IF NOT EXISTS "channel" TEXT`,
+    );
+    await run(
+      "order.attribution",
+      `ALTER TABLE "Order" ADD COLUMN IF NOT EXISTS "attribution" JSONB`,
+    );
+    await run(
+      "Order.channel index",
+      `CREATE INDEX IF NOT EXISTS "Order_channel_idx" ON "Order"("channel")`,
+    );
+    await run(
       // NULL on orders placed before paid shipping existed = shipped free.
       "order.shippingCost",
       `ALTER TABLE "Order" ADD COLUMN IF NOT EXISTS "shippingCost" DECIMAL(10,2)`,

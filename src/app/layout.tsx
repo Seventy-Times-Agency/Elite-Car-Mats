@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import { Analytics } from "@vercel/analytics/next";
@@ -18,6 +19,7 @@ import { I18nProvider } from "@/i18n/I18nProvider";
 import { MetaPixel } from "@/components/analytics/MetaPixel";
 import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
 import { FunnelTracker } from "@/components/analytics/FunnelTracker";
+import { AttributionTracker } from "@/components/analytics/AttributionTracker";
 import { getDictionary } from "@/i18n/getDictionary";
 import { LOCALE_HTML_LANG, LOCALE_OG } from "@/i18n/config";
 import { makeT } from "@/i18n/dictionary";
@@ -193,6 +195,11 @@ export default async function RootLayout({
             the consent gate for the same reason Analytics does. Inert
             until Upstash is configured; see lib/analytics/funnel.ts. */}
         <FunnelTracker />
+        {/* Order attribution (utm / referrer / landing) — stored locally,
+            sent only with an order. useSearchParams needs Suspense. */}
+        <Suspense fallback={null}>
+          <AttributionTracker />
+        </Suspense>
         {/* Meta Pixel — inert until NEXT_PUBLIC_META_PIXEL_ID is set. */}
         <MetaPixel />
         <GoogleAnalytics />

@@ -5,6 +5,7 @@ import { formatPrice } from "@/lib/pricing";
 import { matSets } from "@/data/catalog/mat-sets";
 import { OrderRow, type OrderItemView } from "./OrderRow";
 import { AdminShell } from "@/components/admin/AdminShell";
+import { sanitizeAttribution } from "@/lib/analytics/attribution";
 import { getDictionary } from "@/i18n/getDictionary";
 import { makeT } from "@/i18n/dictionary";
 
@@ -103,6 +104,8 @@ export default async function AdminOrdersPage() {
                   zip: o.zip,
                   comment: o.comment,
                   promoCode: o.promoCode,
+                  channel: o.channel,
+                  attribution: sanitizeAttribution(o.attribution),
                   subtotal,
                   discount: Math.max(0, subtotal + (shipping ?? 0) - total),
                   shipping,

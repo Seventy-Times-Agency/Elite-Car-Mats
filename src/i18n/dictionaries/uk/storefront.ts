@@ -228,6 +228,8 @@ export const storefront: Dict = {
   "cart.setup.base": "Колір килимка",
   "cart.setup.edge": "Колір канту",
   "cart.setup.yearMissing": "рік не обрано",
+  "cart.setup.needYear": "Потрібен рік випуску",
+  "cart.setup.yearHint": "Кроїмо за лекалом вашого року",
   "cart.setup.blocked": "Оберіть рік випуску для кожного комплекту, щоб продовжити",
   "co.meta": "Оформлення замовлення",
   "co.title": "Оформлення замовлення",

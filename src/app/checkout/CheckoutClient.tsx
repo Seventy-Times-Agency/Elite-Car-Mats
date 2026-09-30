@@ -126,6 +126,14 @@ export function CheckoutClient({ paymentEnabled }: { paymentEnabled: boolean }) 
   const [promoChecking, setPromoChecking] = useState(false);
   const createdOrderRef = useRef<CreatedOrder | null>(null);
 
+  // A Meta Shop line without a year can't be cut — send the buyer back
+  // to /cart to finish it (the server would reject year 0 anyway).
+  useEffect(() => {
+    if (hydrated && items.some((i) => !isAccessoryItem(i) && i.pendingSetup)) {
+      router.replace("/cart");
+    }
+  }, [hydrated, items, router]);
+
   // Rehydrate an order created before a Stripe redirect — a customer who
   // cancelled on the Stripe page and clicked "Try again" reuses their
   // PENDING order instead of creating a duplicate (double promo use).

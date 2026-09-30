@@ -54,6 +54,25 @@ body {
   border: 1px solid rgba(255,255,255,0.06);
 }
 
+/* Admin panel: flat surfaces, no glass, no honeycomb. */
+.admin-root {
+  background: var(--color-bg);
+}
+.admin-card {
+  background: #141414;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+}
+.admin-input {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+}
+.admin-input:focus {
+  border-color: rgba(212, 165, 74, 0.5);
+  outline: none;
+}
+
 /* Gold glow on hover */
 .glow-hover {
   transition: box-shadow 0.3s, border-color 0.3s;

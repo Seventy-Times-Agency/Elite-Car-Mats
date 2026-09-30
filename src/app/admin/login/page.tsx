@@ -38,7 +38,7 @@ export default async function AdminLoginPage({
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
-      <div className="glass-card rounded-2xl p-8 w-full max-w-sm">
+      <div className="admin-card p-8 w-full max-w-sm">
         <h1 className="text-xl font-bold mb-2">{t("admin.loginTitle")}</h1>
         <p className="text-text-dim text-xs mb-6">{t("admin.loginSubtitle")}</p>
         {!configured && (
@@ -53,7 +53,7 @@ export default async function AdminLoginPage({
             placeholder={t("admin.passwordPh")}
             autoFocus
             required
-            className="w-full glass-card rounded-xl px-4 py-3 text-sm focus:border-gold/40 focus:outline-none"
+            className="w-full admin-card px-4 py-3 text-sm focus:border-gold/40 focus:outline-none"
           />
           {wrong && (
             <p className="text-[11px] text-error">{t("admin.wrongPassword")}</p>

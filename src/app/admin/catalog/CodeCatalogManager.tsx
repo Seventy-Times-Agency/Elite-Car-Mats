@@ -100,7 +100,7 @@ export function CodeCatalogManager({
         onChange={(e) => setQuery(e.target.value)}
         placeholder={t("admin.catalogCodeSearchPh")}
         aria-label={t("admin.catalogCodeSearchPh")}
-        className="w-full glass-card rounded-xl px-4 py-3 text-sm text-text placeholder:text-text-faint focus:border-gold/40 focus:outline-none"
+        className="w-full admin-card px-4 py-3 text-sm text-text placeholder:text-text-faint focus:border-gold/40 focus:outline-none"
       />
 
       {hiddenRows.length > 0 && (
@@ -108,7 +108,7 @@ export function CodeCatalogManager({
           <h2 className="text-[11px] uppercase tracking-[0.2em] text-text-dim font-semibold mb-2">
             {t("admin.catalogHiddenH")} · {hiddenRows.length}
           </h2>
-          <ul className="glass-card rounded-xl divide-y divide-border/30 border-gold/20">
+          <ul className="admin-card divide-y divide-border/30 border-gold/20">
             {hiddenRows.map((m) => (
               <Row key={m.id} m={m} />
             ))}
@@ -118,11 +118,11 @@ export function CodeCatalogManager({
 
       {q ? (
         results.length === 0 ? (
-          <div className="glass-card rounded-xl p-10 text-center text-text-dim text-sm">
+          <div className="admin-card p-10 text-center text-text-dim text-sm">
             {t("admin.catalogCodeNoResults")}
           </div>
         ) : (
-          <ul className="glass-card rounded-xl divide-y divide-border/30">
+          <ul className="admin-card divide-y divide-border/30">
             {results.map((m) => (
               <Row key={m.id} m={m} />
             ))}
@@ -130,7 +130,7 @@ export function CodeCatalogManager({
         )
       ) : (
         hiddenRows.length === 0 && (
-          <div className="glass-card rounded-xl p-10 text-center text-text-dim text-sm">
+          <div className="admin-card p-10 text-center text-text-dim text-sm">
             {t("admin.catalogCodeStart", { n: models.length })}
           </div>
         )

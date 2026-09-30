@@ -96,7 +96,7 @@ export function PromosManager({ initial }: { initial: Promo[] }) {
   };
 
   const input =
-    "w-full glass-card rounded-lg px-3 py-2 text-sm focus:border-gold/40 focus:outline-none";
+    "w-full admin-input px-3 py-2 text-sm focus:border-gold/40 focus:outline-none";
   const label = "block text-[10px] uppercase tracking-wider text-text-faint mb-1";
 
   const submit = () => {
@@ -169,7 +169,7 @@ export function PromosManager({ initial }: { initial: Promo[] }) {
       </div>
 
       {creating && (
-        <div className="glass-card rounded-xl p-5 space-y-4">
+        <div className="admin-card p-5 space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className={label}>{t("admin.promosFieldCode")}</label>
@@ -277,7 +277,7 @@ export function PromosManager({ initial }: { initial: Promo[] }) {
       )}
 
       {initial.length === 0 ? (
-        <div className="glass-card rounded-xl p-12 text-center text-text-dim">
+        <div className="admin-card p-12 text-center text-text-dim">
           {t("admin.promosEmpty")}
         </div>
       ) : (
@@ -289,7 +289,7 @@ export function PromosManager({ initial }: { initial: Promo[] }) {
             return (
               <div
                 key={p.id}
-                className={`glass-card rounded-xl p-4 flex items-center gap-4 flex-wrap ${
+                className={`admin-card p-4 flex items-center gap-4 flex-wrap ${
                   deadish ? "opacity-60" : ""
                 }`}
               >

@@ -1,9 +1,9 @@
 import "server-only";
-import { Pool, neonConfig } from "@neondatabase/serverless";
-import ws from "ws";
+import { Pool } from "@neondatabase/serverless";
+import { configureNeon } from "@/lib/db/neon-config";
 import { reportProblem } from "@/lib/ops/journal";
 
-neonConfig.webSocketConstructor = ws;
+configureNeon();
 
 /**
  * Idempotent schema bootstrap + migration. Brings a completely empty
@@ -288,6 +288,18 @@ async function execAll(): Promise<MigrationResult[]> {
     await run(
       "order.abandonedEmailId",
       `ALTER TABLE "Order" ADD COLUMN IF NOT EXISTS "abandonedEmailId" TEXT`,
+    );
+    await run(
+      "order.channel",
+      `ALTER TABLE "Order" ADD COLUMN IF NOT EXISTS "channel" TEXT`,
+    );
+    await run(
+      "order.attribution",
+      `ALTER TABLE "Order" ADD COLUMN IF NOT EXISTS "attribution" JSONB`,
+    );
+    await run(
+      "Order.channel index",
+      `CREATE INDEX IF NOT EXISTS "Order_channel_idx" ON "Order"("channel")`,
     );
     await run(
       // NULL on orders placed before paid shipping existed = shipped free.

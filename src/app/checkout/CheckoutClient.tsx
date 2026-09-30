@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { ShippingLine, useBilledTotal } from "@/components/cart/ShippingLine";
 import { useRouter } from "next/navigation";
 import { feedSkuForModel } from "@/lib/feed/sku";
+import { readAttribution } from "@/lib/analytics/attribution-client";
 import { useCart } from "@/context/CartContext";
 import { trackFunnel } from "@/lib/analytics/funnel-client";
 import {
@@ -306,6 +307,7 @@ export function CheckoutClient({ paymentEnabled }: { paymentEnabled: boolean }) 
         },
         ),
         promoCode: promoApplied?.code ?? null,
+        attribution: readAttribution(),
       };
       const fingerprint = JSON.stringify(payload);
 

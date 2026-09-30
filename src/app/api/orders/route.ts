@@ -1,8 +1,11 @@
 import { randomBytes } from "node:crypto";
 import { NextResponse, after } from "next/server";
 import { prisma } from "@/lib/db/prisma";
+import type { Prisma } from "@/generated/prisma/client";
 import { ensureCatalogSeed, resetCatalogSeedCache } from "@/lib/db/seed";
 import { createOrderSchema, isAccessoryInput } from "@/lib/validations/order";
+import { channelFor, sanitizeAttribution } from "@/lib/analytics/attribution";
+import { ensureSchema } from "@/lib/db/setup";
 import { getAccessoryPrice, shippingFor } from "@/lib/pricing";
 import { findAccessoryVariant } from "@/data/accessories";
 import {
@@ -119,6 +122,8 @@ export async function POST(request: Request) {
   }
 
   const { customer, shipping, items: allItems, promoCode } = parsed.data;
+  const attribution = sanitizeAttribution(parsed.data.attribution);
+  const channel = attribution ? channelFor(attribution) : null;
   // Mat sets and accessories take different paths below: mats resolve a
   // Product row per line, accessories are catalog slug + variant.
   const items = allItems.filter(
@@ -365,6 +370,8 @@ export async function POST(request: Request) {
           comment: shipping.comment || null,
           promoCode: appliedCode,
           locale: customerLocale,
+          channel,
+          attribution: attribution ? (JSON.parse(JSON.stringify(attribution)) as Prisma.InputJsonObject) : undefined,
           total,
           shippingCost,
           items: {
@@ -426,13 +433,23 @@ export async function POST(request: Request) {
       // Re-run the seed once (cross-instance safe: createMany+skipDuplicates)
       // and retry, instead of bouncing the customer with a 500.
       const e = err as { code?: string };
-      if (e.code !== "P2003") throw err;
-      console.warn(
-        "[orders] FK violation — re-mirroring catalog seed and retrying once",
-      );
-      resetCatalogSeedCache();
-      await ensureCatalogSeed();
-      createdOrder = await runCreateTransaction();
+      if (e.code === "P2022") {
+        // A column this build writes does not exist yet — the deploy
+        // landed before anyone opened the admin panel (which runs the
+        // schema bootstrap). Run it here and retry rather than lose the
+        // sale.
+        console.warn("[orders] missing column — running schema bootstrap and retrying once");
+        await ensureSchema();
+        createdOrder = await runCreateTransaction();
+      } else {
+        if (e.code !== "P2003") throw err;
+        console.warn(
+          "[orders] FK violation — re-mirroring catalog seed and retrying once",
+        );
+        resetCatalogSeedCache();
+        await ensureCatalogSeed();
+        createdOrder = await runCreateTransaction();
+      }
     }
   } catch (err) {
     // Never leak DB internals into the client response — log and emit a

@@ -160,6 +160,11 @@ model Order {
   // Resend id of the scheduled abandoned-checkout email — the webhook
   // cancels it the moment the customer actually pays.
   abandonedEmailId      String?
+  // Marketing channel the sale is credited to (lib/analytics/attribution.ts)
+  // plus the raw first/last touch it was derived from. NULL on orders
+  // placed before attribution existed.
+  channel               String?
+  attribution           Json?
   items                 OrderItem[]
   events                OrderEvent[]
   createdAt             DateTime    @default(now())
@@ -168,6 +173,7 @@ model Order {
   @@index([status])
   @@index([createdAt])
   @@index([email])
+  @@index([channel])
 }
 
 model OrderItem {

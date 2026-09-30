@@ -1,9 +1,8 @@
-import { neonConfig } from "@neondatabase/serverless";
+import { configureNeon } from "@/lib/db/neon-config";
 import { PrismaNeon } from "@prisma/adapter-neon";
 import { PrismaClient } from "@/generated/prisma/client";
-import ws from "ws";
 
-neonConfig.webSocketConstructor = ws;
+configureNeon();
 
 // We deliberately cache the PrismaClient on globalThis in production too —
 // each cold-start lambda would otherwise spin up a fresh Neon WS pool, and

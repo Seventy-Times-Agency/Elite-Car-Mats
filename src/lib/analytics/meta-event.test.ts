@@ -7,6 +7,7 @@ import {
   adSignalsFromRequest,
   adSignalsToMetadata,
   adSignalsFromMetadata,
+  isCrawlerUserAgent,
 } from "./meta-event";
 
 const valid = {
@@ -52,6 +53,30 @@ describe("metaEventSchema", () => {
     expect(bad({ email: "a@b.c" })).toBe(false);
     expect(metaEventSchema.safeParse({ ...valid, eventId: "x".repeat(65) }).success).toBe(false);
     expect(metaEventSchema.safeParse({ ...valid, extra: 1 }).success).toBe(false);
+  });
+});
+
+describe("isCrawlerUserAgent", () => {
+  it("flags JS-executing crawlers", () => {
+    for (const ua of [
+      "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+      "Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120 Mobile Safari/537.36 (compatible; Storebot-Google/1.0)",
+      "AdsBot-Google (+http://www.google.com/adsbot.html)",
+      "facebookexternalhit/1.1",
+      "Mozilla/5.0 HeadlessChrome/120.0",
+      "Mozilla/5.0 (compatible; bingbot/2.0)",
+    ]) {
+      expect(isCrawlerUserAgent(ua)).toBe(true);
+    }
+  });
+
+  it("lets real browsers through", () => {
+    expect(
+      isCrawlerUserAgent(
+        "Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1",
+      ),
+    ).toBe(false);
+    expect(isCrawlerUserAgent(null)).toBe(false);
   });
 });
 

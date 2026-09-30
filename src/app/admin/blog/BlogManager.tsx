@@ -64,7 +64,7 @@ export function BlogManager({ initial }: { initial: PostRow[] }) {
   const [busy, startBusy] = useTransition();
 
   const input =
-    "w-full glass-card rounded-lg px-3 py-2 text-sm focus:border-gold/40 focus:outline-none";
+    "w-full admin-input px-3 py-2 text-sm focus:border-gold/40 focus:outline-none";
   const labelCls =
     "block text-[10px] uppercase tracking-wider text-text-faint mb-1";
 
@@ -191,7 +191,7 @@ export function BlogManager({ initial }: { initial: PostRow[] }) {
       </div>
 
       {editingId !== null && (
-        <div className="glass-card rounded-xl p-5 space-y-4 border-gold/30">
+        <div className="admin-card p-5 space-y-4 border-gold/30">
           <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-gold">
             {editingId === "new" ? t("admin.blogNew") : t("admin.blogEdit")}
           </h2>
@@ -307,7 +307,7 @@ export function BlogManager({ initial }: { initial: PostRow[] }) {
           </div>
 
           {error && (
-            <div className="text-error text-xs glass-card rounded-lg px-3 py-2 border-error/30">
+            <div className="text-error text-xs admin-input px-3 py-2 border-error/30">
               {error}
             </div>
           )}
@@ -338,11 +338,11 @@ export function BlogManager({ initial }: { initial: PostRow[] }) {
       )}
 
       {sorted.length === 0 && editingId === null ? (
-        <div className="glass-card rounded-xl p-12 text-center text-text-dim text-sm">
+        <div className="admin-card p-12 text-center text-text-dim text-sm">
           {t("admin.blogEmpty")}
         </div>
       ) : (
-        <ul className="glass-card rounded-xl divide-y divide-border/30">
+        <ul className="admin-card divide-y divide-border/30">
           {sorted.map((p) => (
             <li
               key={p.id}

@@ -228,6 +228,8 @@ export const storefront: Dict = {
   "cart.setup.base": "Цвет коврика",
   "cart.setup.edge": "Цвет канта",
   "cart.setup.yearMissing": "год не выбран",
+  "cart.setup.needYear": "Нужен год выпуска",
+  "cart.setup.yearHint": "Кроим по лекалу вашего года",
   "cart.setup.blocked": "Выберите год выпуска для каждого комплекта, чтобы продолжить",
   "co.meta": "Оформление заказа",
   "co.title": "Оформление заказа",

@@ -230,6 +230,8 @@ export const storefront: Dict = {
   "cart.setup.base": "Mat color",
   "cart.setup.edge": "Edge color",
   "cart.setup.yearMissing": "year not selected",
+  "cart.setup.needYear": "Model year required",
+  "cart.setup.yearHint": "Cut to the template of your model year",
   "cart.setup.blocked": "Select the model year for each set to continue",
   "co.meta": "Checkout",
   "co.title": "Checkout",

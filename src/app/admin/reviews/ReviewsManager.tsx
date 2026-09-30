@@ -57,7 +57,7 @@ export function ReviewsManager({ initial }: { initial: Review[] }) {
 
   return (
     <div className="space-y-6">
-      <div className="glass-card rounded-xl p-1 inline-flex">
+      <div className="admin-card p-1 inline-flex">
         {(["pending", "approved", "all"] as const).map((f) => (
           <button
             key={f}
@@ -72,13 +72,13 @@ export function ReviewsManager({ initial }: { initial: Review[] }) {
       </div>
 
       {filtered.length === 0 ? (
-        <div className="glass-card rounded-xl p-12 text-center text-text-dim">
+        <div className="admin-card p-12 text-center text-text-dim">
           {t("admin.reviewsEmpty")}
         </div>
       ) : (
         <div className="space-y-3">
           {filtered.map((r) => (
-            <div key={r.id} className="glass-card rounded-xl p-4">
+            <div key={r.id} className="admin-card p-4">
               <div className="flex items-start gap-4 flex-wrap">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-3 flex-wrap">

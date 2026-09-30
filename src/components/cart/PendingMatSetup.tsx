@@ -10,8 +10,9 @@ import type { MatCartItem } from "@/types";
 
 /**
  * Year + colour picker for a cart line that came from the Meta Shop
- * without them (`pendingSetup`): year dropdown + the configurator's
- * colour tiles, so the buyer sees the actual texture they pick.
+ * without them (`pendingSetup`). Rendered as order-form rows under the
+ * line ("parameter — value"), full card width, so it reads as part of
+ * the order rather than a box floating in the text column.
  */
 export function PendingMatSetup({ item }: { item: MatCartItem }) {
   const t = useT();
@@ -19,76 +20,78 @@ export function PendingMatSetup({ item }: { item: MatCartItem }) {
   const years = [...(findModelById(item.modelId)?.years ?? [])].sort((a, b) => b - a);
   const missing = !item.year;
 
-  const yearSelect = (
-    <label className="block">
-      <span className="block text-[11px] uppercase tracking-wider text-text-dim mb-1.5">
-        {t("cart.setup.year")}
-      </span>
-      <select
-        value={item.year || ""}
-        onChange={(e) => updateMatItem(item.id, { year: Number(e.target.value) })}
-        className={`w-full rounded-lg bg-bg border px-3 py-2.5 text-sm text-text ${
-          missing ? "border-gold" : "border-border"
-        }`}
-      >
-        <option value="" disabled>
-          {t("cart.setup.yearPick")}
-        </option>
-        {years.map((y) => (
-          <option key={y} value={y}>
-            {y}
-          </option>
-        ))}
-      </select>
-    </label>
-  );
-
   return (
-    <div className="mt-3 rounded-lg border border-gold/40 bg-gold/5 p-3.5">
-      <p className="text-sm font-semibold text-text">{t("cart.setup.title")}</p>
-      <p className="text-xs text-text-dim mt-0.5 mb-3">{t("cart.setup.hint")}</p>
+    <div className="border-t border-white/[0.07]">
+      <Row label={t("cart.setup.year")} hint={t("cart.setup.yearHint")}>
+        <select
+          value={item.year || ""}
+          onChange={(e) => updateMatItem(item.id, { year: Number(e.target.value) })}
+          className={`w-full sm:max-w-[260px] h-11 rounded-lg bg-bg border px-3 text-sm text-text ${
+            missing ? "border-gold" : "border-border"
+          }`}
+        >
+          <option value="" disabled>
+            {t("cart.setup.yearPick")}
+          </option>
+          {years.map((y) => (
+            <option key={y} value={y}>
+              {y}
+            </option>
+          ))}
+        </select>
+      </Row>
+      <Row label={t("cart.setup.base")} hint={localizeColor(t, item.color.name)}>
+        <div className="flex flex-wrap gap-2">
+          {evaColors.map((c) => (
+            <MatColorSwatch
+              key={c.id}
+              color={c}
+              size="sm"
+              variant="diamond"
+              showLabel={false}
+              selected={c.id === item.color.id}
+              localizedName={localizeColor(t, c.name)}
+              onClick={() => updateMatItem(item.id, { color: c })}
+            />
+          ))}
+        </div>
+      </Row>
+      <Row label={t("cart.setup.edge")} hint={localizeColor(t, item.edgeColor.name)}>
+        <div className="flex flex-wrap gap-2">
+          {edgeColors.map((c) => (
+            <MatColorSwatch
+              key={c.id}
+              color={c}
+              size="sm"
+              variant="solid"
+              showLabel={false}
+              selected={c.id === item.edgeColor.id}
+              localizedName={localizeColor(t, c.name)}
+              onClick={() => updateMatItem(item.id, { edgeColor: c })}
+            />
+          ))}
+        </div>
+      </Row>
+    </div>
+  );
+}
 
-      <div className="space-y-3">
-        <div className="max-w-[200px]">{yearSelect}</div>
-        <div>
-          <span className="block text-[11px] uppercase tracking-wider text-text-dim mb-1.5">
-            {t("cart.setup.base")} · {localizeColor(t, item.color.name)}
-          </span>
-          <div className="flex flex-wrap gap-2">
-            {evaColors.map((c) => (
-              <MatColorSwatch
-                key={c.id}
-                color={c}
-                size="sm"
-                variant="diamond"
-                showLabel={false}
-                selected={c.id === item.color.id}
-                localizedName={localizeColor(t, c.name)}
-                onClick={() => updateMatItem(item.id, { color: c })}
-              />
-            ))}
-          </div>
-        </div>
-        <div>
-          <span className="block text-[11px] uppercase tracking-wider text-text-dim mb-1.5">
-            {t("cart.setup.edge")} · {localizeColor(t, item.edgeColor.name)}
-          </span>
-          <div className="flex flex-wrap gap-2">
-            {edgeColors.map((c) => (
-              <MatColorSwatch
-                key={c.id}
-                color={c}
-                size="sm"
-                variant="solid"
-                showLabel={false}
-                selected={c.id === item.edgeColor.id}
-                localizedName={localizeColor(t, c.name)}
-                onClick={() => updateMatItem(item.id, { edgeColor: c })}
-              />
-            ))}
-          </div>
-        </div>
+function Row({
+  label,
+  hint,
+  children,
+}: {
+  label: string;
+  hint?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="grid gap-2 px-4 py-3 border-t border-white/[0.05] first:border-t-0 sm:grid-cols-[180px_1fr] sm:items-center sm:px-5 sm:py-3.5">
+      <div>
+        <div className="text-[11px] uppercase tracking-[0.12em] text-text-dim">{label}</div>
+        {hint && <div className="text-xs text-text-faint mt-0.5">{hint}</div>}
       </div>
+      <div>{children}</div>
     </div>
   );
 }

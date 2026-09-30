@@ -8,6 +8,8 @@ import { localizeColor, localizeMatSet } from "@/i18n/labels";
 import { accessoryView } from "@/lib/accessories/display";
 import { formatPrice } from "@/lib/pricing";
 import { PaymentHistory, type OrderEventView } from "./PaymentHistory";
+import { ChannelChip } from "@/components/admin/ChannelChip";
+import type { Attribution, Touch } from "@/lib/analytics/attribution";
 
 type Status =
   | "PENDING"
@@ -62,6 +64,9 @@ interface Order {
   zip: string | null;
   comment: string | null;
   promoCode: string | null;
+  /** Marketing channel + the touches it came from; null before tracking. */
+  channel: string | null;
+  attribution: Attribution | null;
   subtotal: number;
   discount: number;
   /** Included in `total`; null on orders from before paid shipping. */
@@ -152,35 +157,50 @@ export function OrderRow({
   });
 
   return (
-    <div className="glass-card rounded-xl">
+    <div className={`border-b border-border last:border-b-0 ${expanded ? "bg-white/[0.02]" : ""}`}>
       <button
         onClick={() => setExpanded((p) => !p)}
-        className="w-full flex items-center gap-4 p-4 text-left"
+        className="w-full grid grid-cols-[1fr_auto] md:grid-cols-[150px_1fr_150px_130px_110px_24px] items-center gap-x-4 gap-y-1 px-4 py-3 text-left hover:bg-white/[0.03] transition-colors"
       >
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-3 flex-wrap">
-            <span className="text-gold font-mono text-sm">{order.orderNumber}</span>
-            <span
-              className={`text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full border ${
-                STATUS_COLOR[order.status as Status] ?? ""
-              }`}
-            >
-              {STATUS_LABEL[order.status as Status] ?? order.status}
-            </span>
-            <span className="text-text-faint text-xs">{date}</span>
-          </div>
-          <div className="text-sm text-text mt-1 truncate">
-            {order.customerName} · {order.email} ·{" "}
-            {t("admin.itemsCount", { n: order.itemsCount })}
-          </div>
+        <div className="min-w-0">
+          <div className="text-text font-mono text-[13px]">{order.orderNumber}</div>
+          <div className="text-text-faint text-[11px]">{date}</div>
         </div>
-        <div className="text-gold font-semibold text-lg shrink-0">
+        <div className="md:hidden text-text font-semibold text-sm tabular-nums text-right">
           {formattedTotal}
         </div>
-        <div className="text-text-faint shrink-0">{expanded ? "▲" : "▼"}</div>
+        <div className="min-w-0 col-span-2 md:col-span-1">
+          <div className="text-sm text-text truncate">{order.customerName}</div>
+          <div className="text-text-dim text-[11px] truncate">
+            {order.email} · {t("admin.itemsCount", { n: order.itemsCount })}
+          </div>
+        </div>
+        <div className="col-span-2 md:col-span-1 flex md:block items-center gap-2 flex-wrap">
+          <ChannelChip channel={order.channel} />
+          <span
+            className={`md:hidden text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full border ${
+              STATUS_COLOR[order.status as Status] ?? ""
+            }`}
+          >
+            {STATUS_LABEL[order.status as Status] ?? order.status}
+          </span>
+        </div>
+        <div className="hidden md:block">
+          <span
+            className={`text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full border ${
+              STATUS_COLOR[order.status as Status] ?? ""
+            }`}
+          >
+            {STATUS_LABEL[order.status as Status] ?? order.status}
+          </span>
+        </div>
+        <div className="hidden md:block text-text font-semibold text-sm tabular-nums text-right">
+          {formattedTotal}
+        </div>
+        <div className="hidden md:block text-text-faint text-xs text-right">{expanded ? "▲" : "▼"}</div>
       </button>
       {expanded && (
-        <div className="px-4 pb-4 pt-2 border-t border-border/30 space-y-4">
+        <div className="px-4 pb-5 pt-3 border-t border-border/60 space-y-4">
           {/* Customer + shipping */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
             <div>
@@ -214,6 +234,20 @@ export function OrderRow({
               </div>
             </div>
           </div>
+
+          {order.attribution && (
+            <div className="text-xs">
+              <div className="text-text-faint uppercase tracking-wider mb-1">
+                {t("admin.channelLabel")}
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <TouchView title={t("admin.attrLast")} touch={order.attribution.last} />
+                {sameTouch(order.attribution.first, order.attribution.last) ? null : (
+                  <TouchView title={t("admin.attrFirst")} touch={order.attribution.first} />
+                )}
+              </div>
+            </div>
+          )}
 
           {order.comment && (
             <div className="text-xs">
@@ -368,7 +402,7 @@ export function OrderRow({
               <select
                 value={status}
                 onChange={(e) => setStatus(e.target.value as Status)}
-                className="w-full glass-card rounded-lg px-3 py-2 text-sm focus:border-gold/40 focus:outline-none"
+                className="w-full admin-input px-3 py-2 text-sm focus:border-gold/40 focus:outline-none"
               >
                 {(Object.keys(STATUS_LABEL) as Status[]).map((s) => (
                   <option key={s} value={s} className="bg-bg">
@@ -385,7 +419,7 @@ export function OrderRow({
                 value={tracking}
                 onChange={(e) => setTracking(e.target.value)}
                 placeholder={t("admin.trackingPh")}
-                className="w-full glass-card rounded-lg px-3 py-2 text-sm focus:border-gold/40 focus:outline-none"
+                className="w-full admin-input px-3 py-2 text-sm focus:border-gold/40 focus:outline-none"
               />
             </div>
           </div>
@@ -421,6 +455,45 @@ export function OrderRow({
             </div>
           </div>
         </div>
+      )}
+    </div>
+  );
+}
+
+function sameTouch(a: Touch, b: Touch): boolean {
+  return (
+    a.ts === b.ts ||
+    (a.source === b.source && a.medium === b.medium && a.campaign === b.campaign && a.referrer === b.referrer)
+  );
+}
+
+function TouchView({ title, touch }: { title: string; touch: Touch }) {
+  const t = useT();
+  const tags = [touch.source, touch.medium, touch.campaign, touch.content]
+    .filter(Boolean)
+    .join(" / ");
+  const rows: [string, string][] = [];
+  if (tags) rows.push([t("admin.attrTags"), tags]);
+  if (touch.referrer) rows.push([t("admin.attrReferrer"), touch.referrer]);
+  if (touch.landing) rows.push([t("admin.attrLanding"), touch.landing]);
+  if (touch.click) rows.push([t("admin.attrClick"), touch.click]);
+  return (
+    <div className="rounded-lg border border-border/40 bg-bg/30 px-3 py-2.5">
+      <div className="text-text-faint mb-1.5">
+        {title} ·{" "}
+        {new Date(touch.ts).toLocaleDateString(undefined, { day: "2-digit", month: "short" })}
+      </div>
+      {rows.length === 0 ? (
+        <div className="text-text-dim">{t("admin.channel.direct")}</div>
+      ) : (
+        <dl className="space-y-0.5">
+          {rows.map(([k, v]) => (
+            <div key={k} className="flex gap-2">
+              <dt className="text-text-dim shrink-0 w-28">{k}</dt>
+              <dd className="text-text break-all">{v}</dd>
+            </div>
+          ))}
+        </dl>
       )}
     </div>
   );

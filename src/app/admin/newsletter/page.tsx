@@ -36,7 +36,7 @@ export default async function AdminNewsletterPage() {
           // eslint-disable-next-line @next/next/no-html-link-for-pages
           <a
             href="/api/admin/newsletter/export"
-            className="glass-card text-gold hover:bg-gold/5 text-xs font-semibold tracking-wider uppercase px-4 py-2 rounded-lg transition-colors"
+            className="admin-card text-gold hover:bg-gold/5 text-xs font-semibold tracking-wider uppercase px-4 py-2 rounded-lg transition-colors"
           >
             {t("admin.newsletterExportCsv")}
           </a>

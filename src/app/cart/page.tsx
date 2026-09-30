@@ -14,6 +14,7 @@ import { usePriceOverrides } from "@/context/PriceOverridesContext";
 import { isAccessoryItem } from "@/types";
 import { accessoryView } from "@/lib/accessories/display";
 import { PendingMatSetup } from "@/components/cart/PendingMatSetup";
+import { matPhotoSrc } from "@/data/catalog/mat-photos";
 import { useEffect, useState } from "react";
 
 export default function CartPage() {
@@ -89,73 +90,82 @@ export default function CartPage() {
               ? accessoryView(t, item.accessorySlug, item.variantId)
               : null;
             return (
-              <div key={item.id} className="glass-card rounded-xl p-5 flex gap-4">
-                <div
-                  className="w-14 h-14 rounded-lg border border-border shrink-0 bg-cover bg-center"
-                  style={
-                    mat
-                      ? { backgroundColor: mat.color.hex }
-                      : { backgroundImage: `url(${acc!.image})` }
-                  }
-                />
-                <div className="flex-1 min-w-0">
-                  <div className="flex justify-between gap-3">
-                    <h3 className="text-text font-medium text-sm">
-                      {mat ? matLineTitle(t, mat) : acc!.title}
-                    </h3>
-                    <span className="text-gold text-sm font-semibold shrink-0">
-                      {formatPrice(unit * item.quantity)}
-                    </span>
+              <div key={item.id} className="glass-card rounded-xl">
+                <div className="p-5 flex gap-4">
+                  <div
+                    className="w-16 h-16 rounded-lg border border-border shrink-0 bg-cover bg-center"
+                    style={{
+                      backgroundImage: `url(${
+                        mat
+                          ? (matPhotoSrc(mat.color.id, mat.edgeColor.id) ?? "/mats/black-black.jpg")
+                          : acc!.image
+                      })`,
+                    }}
+                  />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex justify-between gap-3">
+                      <h3 className="text-text font-medium text-sm">
+                        {mat ? matLineTitle(t, mat) : acc!.title}
+                      </h3>
+                      <span className="text-gold text-sm font-semibold shrink-0">
+                        {formatPrice(unit * item.quantity)}
+                      </span>
+                    </div>
+                    <p className="text-text-faint text-xs mt-1">
+                      {mat ? (
+                        mat.pendingSetup ? (
+                          <span className="inline-flex items-center gap-1.5 text-gold uppercase tracking-wider text-[11px]">
+                            <span className="w-1.5 h-1.5 rounded-full bg-gold" aria-hidden />
+                            {t("cart.setup.needYear")}
+                          </span>
+                        ) : (
+                          <>
+                            {mat.year} · {localizeMatSet(t, mat.matSetLabel)} ·{" "}
+                            {localizeColor(t, mat.color.name)} ·{" "}
+                            {localizeColor(t, mat.edgeColor.name)}
+                            {mat.badge
+                              ? ` · ${mat.badge.brandName}${(mat.badgeCount ?? 1) > 1 ? ` ×${mat.badgeCount}` : ""}`
+                              : ""}
+                            {mat.heelPad ? ` · ${t("cart.drawerHeelPadChip")}` : ""}
+                            {mat.thirdRow ? ` · ${t("cart.drawerThirdRowChip")}` : ""}
+                          </>
+                        )
+                      ) : (
+                        acc!.variantLabel
+                      )}
+                    </p>
+                    <div className="flex items-center gap-3 mt-3">
+                      <button
+                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                        disabled={item.quantity <= 1}
+                        aria-label="Decrease quantity"
+                        className="w-9 h-9 rounded-md border border-border text-text-dim hover:border-gold hover:text-gold text-base transition-colors disabled:opacity-30"
+                      >
+                        −
+                      </button>
+                      <span className="text-text text-sm w-6 text-center">
+                        {item.quantity}
+                      </span>
+                      <button
+                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                        aria-label="Increase quantity"
+                        className="w-9 h-9 rounded-md border border-border text-text-dim hover:border-gold hover:text-gold text-base transition-colors"
+                      >
+                        +
+                      </button>
+                      <span className="text-text-faint text-[11px] ml-2">
+                        {formatPrice(unit)} {t("cart.perUnit")}
+                      </span>
+                    </div>
                   </div>
-                  <p className="text-text-faint text-xs mt-1">
-                    {mat ? (
-                      <>
-                        {mat.year || t("cart.setup.yearMissing")} · {localizeMatSet(t, mat.matSetLabel)} ·{" "}
-                        {localizeColor(t, mat.color.name)} ·{" "}
-                        {localizeColor(t, mat.edgeColor.name)}
-                        {mat.badge
-                          ? ` · ${mat.badge.brandName}${(mat.badgeCount ?? 1) > 1 ? ` ×${mat.badgeCount}` : ""}`
-                          : ""}
-                        {mat.heelPad ? ` · ${t("cart.drawerHeelPadChip")}` : ""}
-                        {mat.thirdRow ? ` · ${t("cart.drawerThirdRowChip")}` : ""}
-                      </>
-                    ) : (
-                      acc!.variantLabel
-                    )}
-                  </p>
-                  <div className="flex items-center gap-3 mt-3">
-                    <button
-                      onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                      disabled={item.quantity <= 1}
-                      aria-label="Decrease quantity"
-                      className="w-9 h-9 rounded-md border border-border text-text-dim hover:border-gold hover:text-gold text-base transition-colors disabled:opacity-30"
-                    >
-                      −
-                    </button>
-                    <span className="text-text text-sm w-6 text-center">
-                      {item.quantity}
-                    </span>
-                    <button
-                      onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                      aria-label="Increase quantity"
-                      className="w-9 h-9 rounded-md border border-border text-text-dim hover:border-gold hover:text-gold text-base transition-colors"
-                    >
-                      +
-                    </button>
-                    <span className="text-text-faint text-[11px] ml-2">
-                      {formatPrice(unit)} {t("cart.perUnit")}
-                    </span>
-                  </div>
-                  {mat && setupIds.has(mat.id) && (
-                    <PendingMatSetup item={mat} />
-                  )}
+                  <button
+                    onClick={() => removeItem(item.id)}
+                    className="text-border hover:text-error transition-colors self-start"
+                  >
+                    ✕
+                  </button>
                 </div>
-                <button
-                  onClick={() => removeItem(item.id)}
-                  className="text-border hover:text-error transition-colors self-start"
-                >
-                  ✕
-                </button>
+                {mat && setupIds.has(mat.id) && <PendingMatSetup item={mat} />}
               </div>
             );
           })}

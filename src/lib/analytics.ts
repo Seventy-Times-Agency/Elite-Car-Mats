@@ -105,6 +105,9 @@ export function trackEvent(
   eventId?: string,
 ): void {
   if (!META_PIXEL_ID || typeof window === "undefined") return;
+  // Automation (Lighthouse, headless checks, our own smoke tests) is not
+  // a shopper; keep it out of the data set entirely.
+  if (navigator.webdriver) return;
   const mirrored = MIRRORED.has(event);
   const id = eventId ?? (mirrored ? newEventId(event) : undefined);
 

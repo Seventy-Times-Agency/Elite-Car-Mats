@@ -220,6 +220,7 @@ export const storefront: Dict = {
   "cart.drawerSecure": "Безпечна оплата · 30 днів на повернення",
   "cart.drawerHeelPadChip": "+ накладка",
   "cart.drawerThirdRowChip": "+ 3-й ряд",
+  "cart.matTitle": "EVA-килимки для {car}",
   "cart.setup.title": "Уточніть дані авто",
   "cart.setup.hint": "Кожен комплект кроїмо за лекалом вашого року випуску. Оберіть рік і кольори — 10 секунд.",
   "cart.setup.year": "Рік випуску",

@@ -97,3 +97,15 @@ export function localizeMatSetDesc(t: TFn, desc: string): string {
 export function localizeColor(t: TFn, name: string): string {
   return lookup(t, COLOR_KEY[name], name);
 }
+
+/**
+ * Cart line title for a mat set, in the catalog's shape ("EVA Floor Mats
+ * for Ford Probe — Front + Rear"). Meta's checkout-URL test compares the
+ * cart against the catalog title, so this must match the feed's wording.
+ */
+export function matLineTitle(
+  t: TFn,
+  item: { brandName: string; modelName: string; matSetLabel: string },
+): string {
+  return `${t("cart.matTitle", { car: `${item.brandName} ${item.modelName}` })} — ${localizeMatSet(t, item.matSetLabel)}`;
+}

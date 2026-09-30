@@ -18,7 +18,7 @@ import {
   formatPrice,
 } from "@/lib/pricing";
 import { useT, useLocale } from "@/i18n/I18nProvider";
-import { localizeMatSet, localizeColor } from "@/i18n/labels";
+import { localizeMatSet, localizeColor, matLineTitle } from "@/i18n/labels";
 import { TrustBadges } from "@/components/common/TrustBadges";
 import { trackEvent } from "@/lib/analytics";
 import { adsAllowed } from "@/lib/consent";
@@ -702,7 +702,7 @@ export function CheckoutClient({ paymentEnabled }: { paymentEnabled: boolean }) 
                       <div className="flex-1 min-w-0">
                         <div className="flex justify-between gap-2">
                           <div className="text-text font-medium text-[13px] truncate">
-                            {i.brandName} {i.modelName}
+                            {matLineTitle(t, i)}
                             {i.year ? <span className="text-text-faint font-normal"> · {i.year}</span> : null}
                           </div>
                           <div className="text-gold text-sm shrink-0">

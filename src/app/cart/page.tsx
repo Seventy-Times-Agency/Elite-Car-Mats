@@ -9,7 +9,7 @@ import {
   formatPrice,
 } from "@/lib/pricing";
 import { useT } from "@/i18n/I18nProvider";
-import { localizeColor, localizeMatSet } from "@/i18n/labels";
+import { localizeColor, localizeMatSet, matLineTitle } from "@/i18n/labels";
 import { usePriceOverrides } from "@/context/PriceOverridesContext";
 import { isAccessoryItem } from "@/types";
 import { accessoryView } from "@/lib/accessories/display";
@@ -101,7 +101,7 @@ export default function CartPage() {
                 <div className="flex-1 min-w-0">
                   <div className="flex justify-between gap-3">
                     <h3 className="text-text font-medium text-sm">
-                      {mat ? `${mat.brandName} ${mat.modelName}` : acc!.title}
+                      {mat ? matLineTitle(t, mat) : acc!.title}
                     </h3>
                     <span className="text-gold text-sm font-semibold shrink-0">
                       {formatPrice(unit * item.quantity)}

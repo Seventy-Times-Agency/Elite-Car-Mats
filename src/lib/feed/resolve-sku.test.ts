@@ -46,3 +46,11 @@ describe("parseMetaProducts", () => {
     expect(parseMetaProducts(null)).toEqual([]);
   });
 });
+
+describe("cartLinesFromMeta", () => {
+  it("uses the site's composite modelId so events match the feed", async () => {
+    const { cartLinesFromMeta } = await import("@/lib/cart/from-meta");
+    const [line] = cartLinesFromMeta("ECM-toyota-rav4-full:1");
+    expect(line).toMatchObject({ kind: "mat", modelId: "toyota-rav4", matSet: "full" });
+  });
+});

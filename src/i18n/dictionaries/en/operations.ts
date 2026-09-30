@@ -325,7 +325,7 @@ export const operations: Dict = {
   "admin.channel.direct": "Direct",
   "admin.channel.referral": "Referral",
   "admin.channel.other": "Other (tagged)",
-  "admin.channel.unknown": "Unknown (before tracking)",
+  "admin.channel.unknown": "Unknown",
   "admin.attrFirst": "First visit",
   "admin.attrLast": "Last visit",
   "admin.attrLanding": "Landing page",

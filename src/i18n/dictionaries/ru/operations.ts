@@ -325,7 +325,7 @@ export const operations: Dict = {
   "admin.channel.direct": "Прямой заход",
   "admin.channel.referral": "Переход с сайта",
   "admin.channel.other": "Другое (с метками)",
-  "admin.channel.unknown": "Неизвестно (до учёта)",
+  "admin.channel.unknown": "Неизвестно",
   "admin.attrFirst": "Первый визит",
   "admin.attrLast": "Последний визит",
   "admin.attrLanding": "Страница входа",

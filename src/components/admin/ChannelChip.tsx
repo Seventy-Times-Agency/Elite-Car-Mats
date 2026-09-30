@@ -14,7 +14,7 @@ export function ChannelChip({ channel }: { channel: string | null | undefined })
   const t = useT();
   return (
     <span
-      className={`text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full border ${TONE[channelTone(channel)]}`}
+      className={`whitespace-nowrap text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full border ${TONE[channelTone(channel)]}`}
     >
       {channelLabel(t, channel)}
     </span>

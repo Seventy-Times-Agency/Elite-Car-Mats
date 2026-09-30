@@ -9,6 +9,7 @@ import { AnnouncementBar } from "@/components/layout/AnnouncementBar";
 import { Footer } from "@/components/layout/Footer";
 import { FloatingCTA } from "@/components/layout/FloatingCTA";
 import { CookieBanner } from "@/components/layout/CookieBanner";
+import { NotOnAdmin } from "@/components/layout/NotOnAdmin";
 import { CartProvider } from "@/context/CartContext";
 import { WishlistProvider } from "@/context/WishlistContext";
 import { PriceOverridesProvider } from "@/context/PriceOverridesContext";
@@ -165,15 +166,19 @@ export default async function RootLayout({
           <PriceOverridesProvider entries={priceOverrideEntries}>
           <CartProvider>
             <WishlistProvider>
-              <AnnouncementBar />
-              <Header />
+              <NotOnAdmin>
+                <AnnouncementBar />
+                <Header />
+              </NotOnAdmin>
               <main id="main-content" className="flex-1">
                 {children}
               </main>
-              <Footer />
-              <FloatingCTA />
-              <CookieBanner />
-              <CartDrawer />
+              <NotOnAdmin>
+                <Footer />
+                <FloatingCTA />
+                <CookieBanner />
+                <CartDrawer />
+              </NotOnAdmin>
             </WishlistProvider>
           </CartProvider>
           </PriceOverridesProvider>

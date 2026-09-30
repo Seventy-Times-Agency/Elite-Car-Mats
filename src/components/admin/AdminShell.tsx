@@ -46,7 +46,7 @@ export async function AdminShell({
             href="/"
             className="flex items-center h-8 px-3 rounded-md text-xs text-text-dim hover:text-text hover:bg-white/[0.04]"
           >
-            ← {t("admin.backToSite")}
+            {t("admin.backToSite")}
           </Link>
           <form action="/admin/logout" method="POST">
             <button

@@ -14,6 +14,15 @@ import { getDictionaryFor } from "@/i18n/getDictionary";
 import { makeT } from "@/i18n/dictionary";
 import { localizeMatSet, localizeMatSetDesc } from "@/i18n/labels";
 
+/**
+ * Meta Shops treat an item with no stock count as not purchasable and
+ * label it "Sold" in the Facebook / Instagram shop, even with
+ * availability = in stock. Mats are cut to order, so there is no real
+ * stock — a standing quantity keeps the shop buyable. Google ignores the
+ * field.
+ */
+const META_MADE_TO_ORDER_QTY = 100;
+
 export const runtime = "nodejs";
 // Regenerate hourly at most — Google Merchant Center pulls daily and
 // the feed itself is cached at the edge for an hour via Cache-Control.
@@ -132,7 +141,9 @@ export async function GET() {
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
       <g:google_product_category>${GOOGLE_PRODUCT_CATEGORY}</g:google_product_category>
-      <g:product_type>${escapeXml("Auto Parts & Accessories > Floor Mats")}</g:product_type>
+      <g:product_type>${escapeXml(`Auto Parts & Accessories > Floor Mats > ${brand.name} > ${model.name}`)}</g:product_type>
+      <g:size>${escapeXml(setLabelEn)}</g:size>
+      <g:quantity_to_sell_on_facebook>${META_MADE_TO_ORDER_QTY}</g:quantity_to_sell_on_facebook>
       <g:custom_label_0>${escapeXml(profile)}</g:custom_label_0>
       <g:custom_label_1>${escapeXml(set.type)}</g:custom_label_1>
       <g:shipping>
@@ -176,6 +187,7 @@ export async function GET() {
       <g:identifier_exists>no</g:identifier_exists>
       <g:google_product_category>8237</g:google_product_category>
       <g:product_type>${escapeXml("Auto Parts & Accessories > Trunk Organizers")}</g:product_type>
+      <g:quantity_to_sell_on_facebook>${inStock ? META_MADE_TO_ORDER_QTY : 0}</g:quantity_to_sell_on_facebook>
       <g:custom_label_0>accessory</g:custom_label_0>
       <g:custom_label_1>${escapeXml(acc.slug)}</g:custom_label_1>
       <g:shipping>

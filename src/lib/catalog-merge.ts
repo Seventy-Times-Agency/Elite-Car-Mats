@@ -1,6 +1,7 @@
 import "server-only";
 import { unstable_cache } from "next/cache";
 import { prisma } from "@/lib/db/prisma";
+import { PUBLIC_DATA_TTL, degraded, readPublicCache } from "@/lib/public-cache";
 import {
   brands as codeBrands,
   mockModels as codeModels,
@@ -53,6 +54,8 @@ export interface MergedCatalog {
   customBrandIds: Set<string>;
   /** Set of model ids whose row came from the DB (vs code). */
   customModelIds: Set<string>;
+  /** True when the DB read failed and this is the code-only fallback. */
+  degraded?: boolean;
 }
 
 /**
@@ -75,6 +78,7 @@ export async function getMergedCatalog(): Promise<MergedCatalog> {
   // into the code brand's model list, bumping its modelsCount below.
   let codeAttachedModels: CarModel[] = [];
   let hiddenIds = new Set<string>();
+  let failed = false;
 
   try {
     const [cBrands, cModels, hidden] = await Promise.all([
@@ -187,6 +191,7 @@ export async function getMergedCatalog(): Promise<MergedCatalog> {
     dbModels = [];
     codeAttachedModels = [];
     hiddenIds = new Set();
+    failed = true;
   }
 
   // Hydrate modelsCount + (re)compute categories for custom brands so
@@ -237,6 +242,7 @@ export async function getMergedCatalog(): Promise<MergedCatalog> {
     models: [...visibleCodeModels, ...codeAttachedModels, ...dbModels],
     customBrandIds,
     customModelIds,
+    ...(failed ? { degraded: true } : {}),
   };
 }
 
@@ -247,8 +253,9 @@ export async function getMergedCatalog(): Promise<MergedCatalog> {
  * on every render. Tag is `catalog`; admin mutations call
  * `revalidateTag("catalog")` to bust this cache on save.
  *
- * Revalidate ceiling is 1 hour so a missed `revalidateTag` doesn't
- * leave the catalog stale forever.
+ * The time ceiling (lib/public-cache.ts) is only a backstop for a missed
+ * `revalidateTag`. A DB failure is not cached: the code-only fallback is
+ * served for that render and the page retries within minutes.
  *
  * `unstable_cache` serialises return values through JSON, which breaks
  * Set instances (they decode as `{}`). We cache an entries-array form
@@ -264,19 +271,21 @@ interface MergedCatalogCacheable {
 const getMergedCatalogCacheable = unstable_cache(
   async (): Promise<MergedCatalogCacheable> => {
     const m = await getMergedCatalog();
-    return {
+    const c = {
       brands: m.brands,
       models: m.models,
       customBrandIds: Array.from(m.customBrandIds),
       customModelIds: Array.from(m.customModelIds),
     };
+    if (m.degraded) throw degraded(c);
+    return c;
   },
   ["catalog-merged-v2"],
-  { tags: ["catalog"], revalidate: 3600 },
+  { tags: ["catalog"], revalidate: PUBLIC_DATA_TTL },
 );
 
 export async function getMergedCatalogCached(): Promise<MergedCatalog> {
-  const c = await getMergedCatalogCacheable();
+  const c = await readPublicCache(getMergedCatalogCacheable);
   return {
     brands: c.brands,
     models: c.models,

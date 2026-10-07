@@ -1,6 +1,7 @@
 import "server-only";
 import { unstable_cache } from "next/cache";
 import { prisma } from "@/lib/db/prisma";
+import { PUBLIC_DATA_TTL, degraded, readPublicCache } from "@/lib/public-cache";
 
 /**
  * Public review reads for the home-page strip and /reviews.
@@ -16,8 +17,9 @@ import { prisma } from "@/lib/db/prisma";
  * cache well. Tag is `reviews`; admin/reviews PATCH+DELETE call
  * `revalidateTag("reviews")`.
  *
- * TTL MUST stay at an hour, matching the catalog. The binding
- * constraint is not freshness, it is Neon's scale-to-zero:
+ * The TTL must never go BELOW an hour (it is a week now, see
+ * lib/public-cache.ts). The binding constraint is not freshness, it is
+ * Neon's scale-to-zero:
  *
  *   Free tier gives 100 CU-hours/month. The smallest compute is
  *   0.25 CU, so a compute that never sleeps costs 0.25 * 24 * 30 =
@@ -36,12 +38,10 @@ import { prisma } from "@/lib/db/prisma";
  * the TTL is only a backstop for a missed invalidation.
  *
  * The loaders fail SOFT (empty result, never a throw) so a DB outage
- * degrades to "no reviews yet" rather than a 500. That empty result is
- * cached like any other, so a blip can hide real reviews until the next
- * approval or the hour is up — accepted deliberately, as the
- * alternative is burning the quota and taking the whole shop down.
+ * degrades to "no reviews yet" rather than a 500. The empty result is
+ * not cached: the page that got it retries within minutes, while a
+ * stale real result, if there is one, keeps being served instead.
  */
-const REVIEWS_TTL = 3600;
 
 export interface HomeReview {
   id: string;
@@ -71,7 +71,7 @@ const EMPTY_HOME: HomeReviewsData = { reviews: [], total: 0, avg: 0 };
  * summary. Returns EMPTY_HOME on any DB failure — the caller renders
  * nothing rather than blowing up the whole home page.
  */
-export const getHomeReviews = unstable_cache(
+const getHomeReviewsCacheable = unstable_cache(
   async (): Promise<HomeReviewsData> => {
     try {
       const [rows, agg] = await Promise.all([
@@ -101,15 +101,19 @@ export const getHomeReviews = unstable_cache(
       };
     } catch (err) {
       console.error("[home-reviews] load failed:", err);
-      return EMPTY_HOME;
+      throw degraded(EMPTY_HOME);
     }
   },
   ["home-reviews-v1"],
-  { tags: ["reviews"], revalidate: REVIEWS_TTL },
+  { tags: ["reviews"], revalidate: PUBLIC_DATA_TTL },
 );
 
+export function getHomeReviews(): Promise<HomeReviewsData> {
+  return readPublicCache(getHomeReviewsCacheable);
+}
+
 /** Newest 50 approved reviews for the public /reviews page. */
-export const listPublicReviews = unstable_cache(
+const listPublicReviewsCacheable = unstable_cache(
   async (): Promise<PublicReview[]> => {
     try {
       const rows = await prisma.review.findMany({
@@ -130,9 +134,13 @@ export const listPublicReviews = unstable_cache(
       return rows.map((r) => ({ ...r, createdAt: r.createdAt.toISOString() }));
     } catch (err) {
       console.error("[reviews] load failed:", err);
-      return [];
+      throw degraded<PublicReview[]>([]);
     }
   },
   ["public-reviews-v1"],
-  { tags: ["reviews"], revalidate: REVIEWS_TTL },
+  { tags: ["reviews"], revalidate: PUBLIC_DATA_TTL },
 );
+
+export function listPublicReviews(): Promise<PublicReview[]> {
+  return readPublicCache(listPublicReviewsCacheable);
+}

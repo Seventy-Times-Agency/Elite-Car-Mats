@@ -4,7 +4,7 @@ import { getMergedCatalogCached } from "@/lib/catalog-merge";
 
 // No paths at build time: each one renders on its first request and is
 // then served from the ISR cache until a data tag it read (`catalog`,
-// `pricing`, …) is revalidated or the hour-long data-cache TTL runs out.
+// `pricing`, …) is revalidated or the week-long data-cache TTL runs out.
 export function generateStaticParams() {
   return [];
 }

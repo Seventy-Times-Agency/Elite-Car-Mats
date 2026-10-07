@@ -1,25 +1,31 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { LOCALE_COOKIE, resolveLocale } from "@/i18n/config";
+import {
+  MODEL_PAGE_PATH,
+  SET_VARIANT_PATH,
+  isMatSetType,
+} from "@/lib/mat-set-variant";
 
 /**
  * Locale-prefix routing. Storefront routes live under src/app/[locale]
- * and are prerendered once per locale; this proxy maps the URL the
- * visitor sees onto one of those copies without changing that URL:
+ * and are static per locale; this proxy maps the URL the visitor sees
+ * onto one of those copies without changing that URL:
  *
- *   /ru/*, /uk/*  served as-is (the prefix is the [locale] segment);
- *                 the cookie is synced so unprefixed in-app links stay
- *                 on the language the visitor arrived in.
+ *   /ru/*, /uk/*  the prefix is the [locale] segment; the cookie is
+ *                 synced so unprefixed in-app links stay on the
+ *                 language the visitor arrived in.
  *   /en/*         308 to the unprefixed URL — EN has one canonical
  *                 address.
  *   everything    rewritten to /<locale>/* where <locale> comes from
  *   else          the cookie, then Accept-Language, then EN. Crawlers
  *                 send neither, so they always get the EN copy.
  *
- * Rewriting (not redirecting) keeps unprefixed URLs serving RU/UK to
- * visitors who chose that language, exactly as before the routes moved.
+ * A model page with a known `?set=` (feed deep links) is additionally
+ * rewritten onto its set variant, so the cached HTML a crawler gets
+ * carries that set's price. Other query params never split the cache.
  */
 export function proxy(req: NextRequest) {
-  const { pathname } = req.nextUrl;
+  const { pathname, searchParams } = req.nextUrl;
   const seg = pathname.split("/")[1] ?? "";
 
   if (seg === "en") {
@@ -28,25 +34,44 @@ export function proxy(req: NextRequest) {
     return NextResponse.redirect(url, 308);
   }
 
-  if (seg === "ru" || seg === "uk") {
-    const res = NextResponse.next();
-    if (req.cookies.get(LOCALE_COOKIE)?.value !== seg) {
-      res.cookies.set(LOCALE_COOKIE, seg, {
-        path: "/",
-        maxAge: 60 * 60 * 24 * 365,
-        sameSite: "lax",
-      });
-    }
-    return res;
+  const prefixed = seg === "ru" || seg === "uk";
+  const path = prefixed ? pathname.slice(seg.length + 1) || "/" : pathname;
+
+  const direct = SET_VARIANT_PATH.exec(path);
+  if (direct) {
+    const url = req.nextUrl.clone();
+    url.pathname = prefixed ? `/${seg}${direct[1]}` : direct[1];
+    url.searchParams.set("set", direct[2]);
+    return NextResponse.redirect(url, 308);
   }
 
-  const locale = resolveLocale(
-    req.cookies.get(LOCALE_COOKIE)?.value,
-    req.headers.get("accept-language"),
-  );
-  const url = req.nextUrl.clone();
-  url.pathname = pathname === "/" ? `/${locale}` : `/${locale}${pathname}`;
-  return NextResponse.rewrite(url);
+  const set = searchParams.get("set");
+  const target =
+    MODEL_PAGE_PATH.test(path) && isMatSetType(set) ? `${path}/set/${set}` : path;
+
+  let res: NextResponse;
+  if (prefixed && target === path) {
+    res = NextResponse.next();
+  } else {
+    const locale = prefixed
+      ? seg
+      : resolveLocale(
+          req.cookies.get(LOCALE_COOKIE)?.value,
+          req.headers.get("accept-language"),
+        );
+    const url = req.nextUrl.clone();
+    url.pathname = target === "/" ? `/${locale}` : `/${locale}${target}`;
+    res = NextResponse.rewrite(url);
+  }
+
+  if (prefixed && req.cookies.get(LOCALE_COOKIE)?.value !== seg) {
+    res.cookies.set(LOCALE_COOKIE, seg, {
+      path: "/",
+      maxAge: 60 * 60 * 24 * 365,
+      sameSite: "lax",
+    });
+  }
+  return res;
 }
 
 export const config = {

@@ -1,6 +1,7 @@
 import "server-only";
 import { unstable_cache } from "next/cache";
 import { prisma } from "@/lib/db/prisma";
+import { PUBLIC_DATA_TTL, degraded, readPublicCache } from "@/lib/public-cache";
 
 /**
  * Operator-controlled stock availability for configurator add-ons.
@@ -27,22 +28,32 @@ const KEYS: Record<keyof AddonAvailability, string> = {
   organizer: "accessory.trunk-organizer.available",
 };
 
+const ALL_AVAILABLE: AddonAvailability = {
+  badges: true,
+  heelPad: true,
+  organizer: true,
+};
+
 export async function getAddonAvailability(): Promise<AddonAvailability> {
   try {
-    const rows = await prisma.storeSetting.findMany({
-      where: { key: { in: Object.values(KEYS) } },
-      select: { key: true, value: true },
-    });
-    const map = new Map(rows.map((r) => [r.key, r.value]));
-    return {
-      badges: map.get(KEYS.badges) !== "0",
-      heelPad: map.get(KEYS.heelPad) !== "0",
-      organizer: map.get(KEYS.organizer) !== "0",
-    };
+    return await queryAddonAvailability();
   } catch (err) {
     console.warn("[availability] read failed, defaulting to available:", err);
-    return { badges: true, heelPad: true, organizer: true };
+    return ALL_AVAILABLE;
   }
+}
+
+async function queryAddonAvailability(): Promise<AddonAvailability> {
+  const rows = await prisma.storeSetting.findMany({
+    where: { key: { in: Object.values(KEYS) } },
+    select: { key: true, value: true },
+  });
+  const map = new Map(rows.map((r) => [r.key, r.value]));
+  return {
+    badges: map.get(KEYS.badges) !== "0",
+    heelPad: map.get(KEYS.heelPad) !== "0",
+    organizer: map.get(KEYS.organizer) !== "0",
+  };
 }
 
 /**
@@ -58,16 +69,27 @@ export async function getAddonAvailability(): Promise<AddonAvailability> {
  *
  * Tag is `availability`; admin/availability POST calls
  * `revalidateTag("availability")`, so the storefront updates on save
- * anyway and the TTL is only a backstop.
+ * anyway and the TTL is only a backstop (see lib/public-cache.ts).
  *
  * The plain object here survives `unstable_cache`'s JSON round-trip
  * unchanged — no Maps, Sets or Dates to revive.
  */
-export const getAddonAvailabilityCached = unstable_cache(
-  async (): Promise<AddonAvailability> => getAddonAvailability(),
+const getAddonAvailabilityCacheable = unstable_cache(
+  async (): Promise<AddonAvailability> => {
+    try {
+      return await queryAddonAvailability();
+    } catch (err) {
+      console.warn("[availability] read failed, defaulting to available:", err);
+      throw degraded(ALL_AVAILABLE);
+    }
+  },
   ["addon-availability-v2"],
-  { tags: ["availability"], revalidate: 3600 },
+  { tags: ["availability"], revalidate: PUBLIC_DATA_TTL },
 );
+
+export function getAddonAvailabilityCached(): Promise<AddonAvailability> {
+  return readPublicCache(getAddonAvailabilityCacheable);
+}
 
 export async function setAddonAvailability(
   patch: Partial<AddonAvailability>,

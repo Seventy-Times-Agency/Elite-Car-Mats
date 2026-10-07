@@ -1,6 +1,7 @@
 import "server-only";
 import { unstable_cache } from "next/cache";
 import { prisma } from "@/lib/db/prisma";
+import { PUBLIC_DATA_TTL } from "@/lib/public-cache";
 import type { Locale } from "@/i18n/config";
 
 /**
@@ -8,12 +9,11 @@ import type { Locale } from "@/i18n/config";
  * read below has a cached twin. Tag is `blog`; admin/blog POST, PATCH
  * and DELETE call `revalidateTag("blog")`.
  *
- * Ceiling matches the catalog's hour. It is set by Neon's scale-to-zero
- * arithmetic, not by how fresh posts need to be — see the note in
- * lib/reviews/public.ts: every cache expiry wakes the compute for ~5
- * minutes, so a short TTL keeps the database awake all day and eats the
- * free tier's 100 CU-hours. Publishing stays instant regardless,
- * because the admin routes call `revalidateTag("blog")`.
+ * Ceiling is the shared public-data week (lib/public-cache.ts). It must
+ * never drop below an hour because of Neon's scale-to-zero arithmetic —
+ * see the note in lib/reviews/public.ts: every cache expiry wakes the
+ * compute for ~5 minutes. Publishing stays instant regardless, because
+ * the admin routes call `revalidateTag("blog")`.
  *
  * NOTE ON FAILURES: unlike reviews, these loaders deliberately keep
  * propagating real DB errors (only a missing table degrades to empty).
@@ -23,7 +23,7 @@ import type { Locale } from "@/i18n/config";
  * /blog keeps retrying Postgres while Neon is down. That is the
  * intended trade-off, not an oversight.
  */
-const BLOG_TTL = 3600;
+const BLOG_TTL = PUBLIC_DATA_TTL;
 
 /**
  * The public blog must degrade to "no posts" rather than a 500 when the

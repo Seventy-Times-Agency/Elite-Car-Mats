@@ -91,6 +91,7 @@ export default function ProductClient({
   model,
   addonAvailability = { badges: true, heelPad: true, organizer: true },
   guide = null,
+  initialSet,
 }: {
   brand: Brand | null;
   model: CarModel | null;
@@ -98,6 +99,8 @@ export default function ProductClient({
   addonAvailability?: { badges: boolean; heelPad: boolean; organizer?: boolean };
   /** Hand-written model notes (English, best-sellers only). */
   guide?: ModelGuide | null;
+  /** Server-chosen set for `?set=` deep links (ignored if not offered). */
+  initialSet?: MatSetType;
 }) {
   const t = useT();
   const ship = useShippingVars();
@@ -114,7 +117,9 @@ export default function ProductClient({
   );
 
   const [setRaw, setSet] = useState<MatSetType>(() =>
-    getDefaultMatSet(profile),
+    initialSet && availableSetTypes.includes(initialSet)
+      ? initialSet
+      : getDefaultMatSet(profile),
   );
   // Derived view of the chosen set. If the user navigates from a sedan
   // to a 2-seater without ever clicking the step (e.g. via search), the
@@ -130,9 +135,10 @@ export default function ProductClient({
     model ? model.years[model.years.length - 1] : 0,
   );
   // Deep-link preselection, applied once after hydration by
-  // <PreselectFromUrl>: ?set=full from Google Shopping (ignored when the
-  // set doesn't exist for this vehicle's profile) and ?year=YYYY from the
-  // home configurator (ignored unless it is a real year for this model).
+  // <PreselectFromUrl>: ?year=YYYY from the home configurator (ignored
+  // unless it is a real year for this model) and ?set= (ignored when the
+  // set doesn't exist for this vehicle's profile). Feed links already get
+  // ?set= server-side via `initialSet`; this covers client navigations.
   const applyUrlPreselect = (sp: ReadonlyURLSearchParams) => {
     const fromSet = sp.get("set") as MatSetType | null;
     if (fromSet && availableSetTypes.includes(fromSet)) setSet(fromSet);
@@ -1068,7 +1074,7 @@ export default function ProductClient({
 /**
  * Reads the query string for ProductClient's deep-link preselection.
  * Kept out of ProductClient's own render on purpose: the product page is
- * one static HTML for every query variant, and useSearchParams() in the
+ * static HTML shared by its query variants, and useSearchParams() in the
  * configurator itself would drop the whole configurator (JSON-LD
  * included) from that HTML. Under its own Suspense only this null
  * component is client-rendered.

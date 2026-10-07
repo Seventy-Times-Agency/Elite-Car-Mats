@@ -2,6 +2,7 @@ import "server-only";
 import { shippingCopyVars } from "@/lib/pricing";
 import { unstable_cache } from "next/cache";
 import { prisma } from "@/lib/db/prisma";
+import { PUBLIC_DATA_TTL, degraded, readPublicCache } from "@/lib/public-cache";
 import type { MatSetType } from "@/types";
 import type { VehicleConfigProfile } from "@/lib/vehicle-profile";
 
@@ -26,18 +27,22 @@ export const priceOverrideKey = (
  */
 export async function loadPriceOverrides(): Promise<PriceOverrideMap> {
   try {
-    const rows = await prisma.matSetPriceOverride.findMany({
-      select: { profile: true, matSet: true, price: true },
-    });
-    const map: PriceOverrideMap = new Map();
-    for (const r of rows) {
-      map.set(`${r.profile}:${r.matSet}`, Number(r.price ?? 0));
-    }
-    return map;
+    return await queryPriceOverrides();
   } catch (err) {
     console.warn("[pricing-overrides] load failed, using code defaults:", err);
     return new Map();
   }
+}
+
+async function queryPriceOverrides(): Promise<PriceOverrideMap> {
+  const rows = await prisma.matSetPriceOverride.findMany({
+    select: { profile: true, matSet: true, price: true },
+  });
+  const map: PriceOverrideMap = new Map();
+  for (const r of rows) {
+    map.set(`${r.profile}:${r.matSet}`, Number(r.price ?? 0));
+  }
+  return map;
 }
 
 /**
@@ -47,11 +52,15 @@ export async function loadPriceOverrides(): Promise<PriceOverrideMap> {
  */
 const loadPriceOverrideEntriesCached = unstable_cache(
   async (): Promise<[string, number][]> => {
-    const map = await loadPriceOverrides();
-    return Array.from(map.entries());
+    try {
+      return Array.from((await queryPriceOverrides()).entries());
+    } catch (err) {
+      console.warn("[pricing-overrides] load failed, using code defaults:", err);
+      throw degraded<[string, number][]>([]);
+    }
   },
   ["pricing-overrides-v2"],
-  { tags: ["pricing"], revalidate: 3600 },
+  { tags: ["pricing"], revalidate: PUBLIC_DATA_TTL },
 );
 
 /**
@@ -69,7 +78,7 @@ const loadPriceOverrideEntriesCached = unstable_cache(
  * the catalog product page.
  */
 export async function loadPriceOverridesCached(): Promise<PriceOverrideMap> {
-  const entries = await loadPriceOverrideEntriesCached();
+  const entries = await readPublicCache(loadPriceOverrideEntriesCached);
   return new Map(entries);
 }
 

@@ -1,61 +1,26 @@
 import "server-only";
-import { cookies, headers } from "next/headers";
-import {
-  DEFAULT_LOCALE,
-  LOCALE_COOKIE,
-  isLocale,
-  pickLocaleFromAcceptLanguage,
-  type Locale,
-} from "./config";
-import { ru } from "./dictionaries/ru";
-import { en } from "./dictionaries/en";
-import { uk } from "./dictionaries/uk";
-import type { Dict } from "./dictionary";
-
-const DICTS: Record<Locale, Dict> = { ru, en, uk };
+import { notFound } from "next/navigation";
+import { locale as routeLocaleParam } from "next/root-params";
+import { isLocale, type Locale } from "./config";
+import { dictsFor, getLocaleFromCookie, type LocaleDicts } from "./request-locale";
 
 /**
- * Resolve the active locale for the current request:
- *
- *   1. `x-locale` header injected by src/proxy.ts when the visitor is on
- *      a /ru/* or /uk/* URL — the URL prefix always wins so a crawler
- *      (or a shared link) renders the language the address promises.
- *   2. A valid `LOCALE_COOKIE` (the visitor picked a language manually
- *      via the header switcher).
- *   3. The browser's `Accept-Language` header. A Russian-speaking
- *      diaspora visitor still lands on RU; everyone else lands on EN.
- *   4. `DEFAULT_LOCALE` (English).
+ * The [locale] root segment of the current storefront route, or
+ * undefined under /admin (its own root layout, no locale segment).
+ * Reading it from the route instead of the request is what lets public
+ * pages render statically per locale. App-directory server code only —
+ * route handlers and emails use ./request-locale.
  */
-export async function getLocaleFromCookie(): Promise<Locale> {
-  try {
-    const h = await headers();
-    const forced = h.get("x-locale");
-    if (isLocale(forced)) return forced;
-  } catch {
-    // headers() can throw outside a request scope (e.g. during OG image
-    // generation at build) — fall through to the cookie/default below.
-  }
-  const store = await cookies();
-  const v = store.get(LOCALE_COOKIE)?.value;
-  if (isLocale(v)) return v;
-  // No (valid) cookie — derive from the browser's Accept-Language.
-  try {
-    const h = await headers();
-    return pickLocaleFromAcceptLanguage(h.get("accept-language"));
-  } catch {
-    return DEFAULT_LOCALE;
-  }
+export async function getRouteLocale(): Promise<Locale | undefined> {
+  const v: string | undefined = await routeLocaleParam();
+  if (v === undefined) return undefined;
+  // Unreachable through src/proxy.ts, but /<anything>.<ext> skips the
+  // proxy and would otherwise render the storefront under that segment.
+  if (!isLocale(v)) notFound();
+  return v;
 }
 
-export function getDictionaryFor(locale: Locale): Dict {
-  return DICTS[locale] ?? DICTS[DEFAULT_LOCALE];
-}
-
-export async function getDictionary(): Promise<{
-  locale: Locale;
-  dict: Dict;
-  fallback: Dict;
-}> {
-  const locale = await getLocaleFromCookie();
-  return { locale, dict: getDictionaryFor(locale), fallback: DICTS[DEFAULT_LOCALE] };
+/** Dictionary for pages and layouts (storefront and admin). */
+export async function getDictionary(): Promise<LocaleDicts> {
+  return dictsFor((await getRouteLocale()) ?? (await getLocaleFromCookie()));
 }

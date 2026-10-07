@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useRef, useEffect, useCallback } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { brands, mockModels } from "@/data/catalog";
 import { useT } from "@/i18n/I18nProvider";
@@ -350,12 +351,12 @@ export function CarSelectorSection() {
 
               <div className="mt-3 text-center text-[11px] text-text-faint">
                 {t("cfg.customHint")}{" "}
-                <a
+                <Link
                   href="/custom-order"
                   className="text-gold/85 hover:text-gold underline underline-offset-2 decoration-gold/30 hover:decoration-gold transition-colors"
                 >
                   {t("cfg.customHintLink")}
-                </a>
+                </Link>
               </div>
             </div>
           </div>

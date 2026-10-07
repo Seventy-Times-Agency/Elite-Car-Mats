@@ -1,6 +1,6 @@
 import "server-only";
 import { formatPrice } from "@/lib/pricing";
-import { getDictionary, getDictionaryFor } from "@/i18n/getDictionary";
+import { getDictionaryFor, getRequestDictionary } from "@/i18n/request-locale";
 import { DEFAULT_LOCALE, isLocale } from "@/i18n/config";
 import { makeT, type TFn } from "@/i18n/dictionary";
 import { localizeColor, localizeMatSet } from "@/i18n/labels";
@@ -236,6 +236,6 @@ export async function buildT(locale?: string | null): Promise<TFn> {
   if (isLocale(locale)) {
     return makeT(getDictionaryFor(locale), getDictionaryFor(DEFAULT_LOCALE));
   }
-  const { dict, fallback } = await getDictionary();
+  const { dict, fallback } = await getRequestDictionary();
   return makeT(dict, fallback);
 }

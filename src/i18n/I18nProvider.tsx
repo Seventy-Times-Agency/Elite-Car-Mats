@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useMemo } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { DEFAULT_LOCALE, LOCALE_COOKIE, type Locale } from "./config";
 import { splitLocaleFromPath, localizePath } from "./locale-path";
 import { makeT, type TFn, type Dict } from "./dictionary";
@@ -25,7 +25,6 @@ export function I18nProvider({
   fallback: Dict;
   children: React.ReactNode;
 }) {
-  const router = useRouter();
   const pathname = usePathname();
   const t = useMemo(() => makeT(dict, fallback), [dict, fallback]);
 
@@ -36,15 +35,19 @@ export function I18nProvider({
       // Locale also lives on the URL prefix (/ru, /uk — see src/proxy.ts),
       // and the prefix outranks the cookie, so switching must move to the
       // right URL: /ru/catalog → /catalog (EN) or /uk/catalog.
+      // Full page loads, not router.push/refresh: storefront pages are
+      // static now, so the client router holds prefetched copies of the
+      // unprefixed links in the old language, and nothing but a reload
+      // drops them.
       const { path } = splitLocaleFromPath(pathname ?? "/");
       const target = localizePath(path, l);
       if (target !== pathname) {
-        router.push(target);
+        window.location.assign(target);
       } else {
-        router.refresh();
+        window.location.reload();
       }
     },
-    [router, pathname],
+    [pathname],
   );
 
   const value = useMemo<I18nCtx>(

@@ -35,7 +35,7 @@ import {
   thirdRowAvailable,
   type VehicleConfigProfile,
 } from "@/lib/vehicle-profile";
-import { getDictionary, getLocaleFromCookie } from "@/i18n/getDictionary";
+import { getLocaleFromCookie, getRequestDictionary } from "@/i18n/request-locale";
 import { makeT } from "@/i18n/dictionary";
 import type { OrderItemInput } from "@/lib/validations/order";
 import { reportProblem } from "@/lib/ops/journal";
@@ -54,7 +54,7 @@ function generateOrderNumber(): string {
  * the per-item cost when this lived inline in a Promise.all map.
  */
 async function buildResolveNames() {
-  const { dict, fallback } = await getDictionary();
+  const { dict, fallback } = await getRequestDictionary();
   const t = makeT(dict, fallback);
   return (item: OrderItemInput, profile?: VehicleConfigProfile) => {
     const color = evaColors.find((c) => c.id === item.colorId);

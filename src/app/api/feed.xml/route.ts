@@ -10,7 +10,7 @@ import {
   getVehicleProfile,
   type VehicleConfigProfile,
 } from "@/lib/vehicle-profile";
-import { getDictionaryFor } from "@/i18n/getDictionary";
+import { getDictionaryFor } from "@/i18n/request-locale";
 import { makeT } from "@/i18n/dictionary";
 import { localizeMatSet, localizeMatSetDesc } from "@/i18n/labels";
 

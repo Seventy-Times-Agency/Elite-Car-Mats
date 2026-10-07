@@ -11,7 +11,7 @@ import { getAccessoryPrice } from "@/lib/pricing";
 import { accessoryView } from "@/lib/accessories/display";
 import { loadPriceOverrides } from "@/lib/pricing-overrides";
 import { buildDbProfileResolver } from "@/lib/catalog-merge";
-import { getDictionaryFor } from "@/i18n/getDictionary";
+import { getDictionaryFor } from "@/i18n/request-locale";
 import { DEFAULT_LOCALE } from "@/i18n/config";
 import { makeT } from "@/i18n/dictionary";
 import { localizeColor } from "@/i18n/labels";

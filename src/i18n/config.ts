@@ -75,3 +75,17 @@ export function pickLocaleFromAcceptLanguage(
   }
   return DEFAULT_LOCALE;
 }
+
+/**
+ * Locale for a visitor on an unprefixed URL: a valid `LOCALE_COOKIE`
+ * wins, else Accept-Language, else EN. Shared by src/proxy.ts (which
+ * picks the prerendered locale to serve) and server code that has no
+ * route locale, so both always agree.
+ */
+export function resolveLocale(
+  cookieValue: string | null | undefined,
+  acceptLanguage: string | null | undefined,
+): Locale {
+  if (isLocale(cookieValue)) return cookieValue;
+  return pickLocaleFromAcceptLanguage(acceptLanguage);
+}

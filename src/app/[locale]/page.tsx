@@ -1,0 +1,33 @@
+import type { Metadata } from "next";
+import { HeroSection } from "@/components/home/HeroSection";
+import { CarSelectorSection } from "@/components/home/CarSelectorSection";
+import { ProcessSection } from "@/components/home/ProcessSection";
+import { MaterialsSection } from "@/components/home/MaterialsSection";
+import { FeaturesSection } from "@/components/home/FeaturesSection";
+// import { GallerySection } from "@/components/home/GallerySection"; // "Наши работы" — temporarily hidden
+import { BeforeAfterSection } from "@/components/home/BeforeAfterSection";
+import { ReviewsSection } from "@/components/home/ReviewsSection";
+import { ComparisonSection } from "@/components/home/ComparisonSection";
+import { FAQSection } from "@/components/home/FAQSection";
+import { localeAlternates } from "@/lib/seo/alternates";
+
+export async function generateMetadata(): Promise<Metadata> {
+  return { alternates: await localeAlternates("/") };
+}
+
+export default function HomePage() {
+  return (
+    <>
+      <HeroSection />
+      <BeforeAfterSection />
+      <CarSelectorSection />
+      <ProcessSection />
+      <MaterialsSection />
+      <FeaturesSection />
+      {/* <GallerySection /> — "Наши работы" temporarily hidden per request */}
+      <ReviewsSection />
+      <ComparisonSection />
+      <FAQSection />
+    </>
+  );
+}

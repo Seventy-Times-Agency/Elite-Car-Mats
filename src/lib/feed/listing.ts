@@ -5,7 +5,8 @@ import type { MatSetType } from "@/types";
  * the first few words of a title on a phone. Titles therefore lead with
  * the vehicle — what the shopper searched for — and the product words
  * follow, so 3.9k cards no longer read as one repeated "EVA Floor Mats
- * for…".
+ * for…". "All-Weather" is the shopper's own search term for this kind
+ * of mat (honeycomb EVA holds water, mud and snow).
  */
 
 // Canonical (Russian) set labels from src/data/catalog/mat-sets.ts →
@@ -40,10 +41,10 @@ export function feedTitle(opts: {
     .filter(Boolean)
     .join(" ");
   if (opts.setType === "cargo") {
-    return `${car} Cargo Mat — Custom Fit EVA Trunk Liner`;
+    return `${car} All-Weather Cargo Mat — Custom Fit EVA Trunk Liner`;
   }
   const part = SET_PART_EN[opts.setLabelRu] ?? opts.setLabelEn;
-  return `${car} Floor Mats — ${part}, Custom Fit EVA`;
+  return `${car} All-Weather Floor Mats — ${part}, Custom Fit EVA`;
 }
 
 /**

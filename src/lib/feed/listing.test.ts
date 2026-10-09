@@ -6,20 +6,20 @@ const base = { brand: "Toyota", model: "Camry", yMin: 2018, yMax: 2024, setLabel
 describe("feedTitle", () => {
   it("leads with the vehicle and years", () => {
     expect(feedTitle({ ...base, setType: "full", setLabelRu: "Перед + зад" })).toBe(
-      "Toyota Camry 2018–2024 Floor Mats — Front & Rear Set, Custom Fit EVA",
+      "Toyota Camry 2018–2024 All-Weather Floor Mats — Front & Rear Set, Custom Fit EVA",
     );
   });
 
   it("names the cargo mat as a trunk liner", () => {
     expect(feedTitle({ ...base, setType: "cargo", setLabelRu: "Только багажник" })).toBe(
-      "Toyota Camry 2018–2024 Cargo Mat — Custom Fit EVA Trunk Liner",
+      "Toyota Camry 2018–2024 All-Weather Cargo Mat — Custom Fit EVA Trunk Liner",
     );
   });
 
   it("falls back to the localized label and skips missing years", () => {
     expect(
       feedTitle({ ...base, yMin: 0, yMax: 0, setType: "front", setLabelRu: "?", setLabelEn: "Odd" }),
-    ).toBe("Toyota Camry Floor Mats — Odd, Custom Fit EVA");
+    ).toBe("Toyota Camry All-Weather Floor Mats — Odd, Custom Fit EVA");
   });
 });
 

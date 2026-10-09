@@ -5,6 +5,7 @@ import { getMatSetPrice, getAccessoryPrice, shippingFor } from "@/lib/pricing";
 import { ACCESSORIES, accessorySku } from "@/data/accessories";
 import { getAddonAvailabilityCached } from "@/lib/availability";
 import { feedItemGroupId, feedSku } from "@/lib/feed/sku";
+import { feedImagePath, feedTitle } from "@/lib/feed/listing";
 import { MAT_SETS_BY_PROFILE } from "@/data/catalog/mat-sets";
 import {
   getVehicleProfile,
@@ -106,9 +107,17 @@ export async function GET() {
       const link = `${SITE}/catalog/${brand.slug}/${model.slug}?utm_source=google&utm_medium=shopping&utm_campaign=merchant-feed&set=${set.type}`;
       const setLabelEn = localizeMatSet(tEn, set.label);
       const setDescEn = localizeMatSetDesc(tEn, set.description);
-      // Product-first title: the item is OUR mats FOR the vehicle — the
-      // OEM name leads only as compatibility, not as g:brand.
-      const title = `EVA Floor Mats for ${brand.name} ${model.name} — ${setLabelEn}`;
+      // Vehicle-first title (see lib/feed/listing). The OEM name is
+      // compatibility only — g:brand stays Elite Car Mats.
+      const title = feedTitle({
+        brand: brand.name,
+        model: model.name,
+        yMin,
+        yMax,
+        setType: set.type,
+        setLabelRu: set.label,
+        setLabelEn,
+      });
       const description = buildItemDescription(
         brand.name,
         model.name,
@@ -116,13 +125,13 @@ export async function GET() {
         yMin,
         yMax,
       );
-      // Real product photo (self-hosted studio shot of the black set).
+      // Self-hosted studio shot, colour varies per model (lib/feed/listing).
       // A car-maker's LOGO here violates Merchant Center image policy
       // (placeholder/logo images → item disapproval) and rode on an
       // uncontrolled third-party CDN; SVG isn't supported at all.
       // Unbranded copy: Merchant Center disapproves main images with logos
       // or watermarks, and the site's /mats/ cards carry the store lockup.
-      const image = `${SITE}/mats/clean/black-black.jpg`;
+      const image = `${SITE}${feedImagePath(`${brand.slug}-${model.slug}`, set.type, model.bodyType, profile)}`;
 
       items.push(`
     <item>

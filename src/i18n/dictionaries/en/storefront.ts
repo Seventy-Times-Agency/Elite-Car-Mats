@@ -1056,5 +1056,13 @@ export const storefront: Dict = {
   "acc.trunk-organizer.metaDesc": "Foldable fabric trunk organizer with a honeycomb pattern, removable divider and Velcro lid. Black with red trim or gray. 30-day returns.",
   "acc.lineChip": "Accessory",
   "acc.breadcrumb": "Accessories",
-
+  "colors.heading": "{eva} mats with {edgeLc} trim",
+  "colors.sub": "Cut to the exact pattern of your car — pick it below.",
+  "colors.from": "from {price}",
+  "colors.p1": "Honeycomb cells hold water, mud and snow",
+  "colors.p2": "Handmade in Rochester, NY in 2–3 days",
+  "colors.p3": "2-year warranty",
+  "colors.otherTrims": "Same base, other trims",
+  "colors.metaTitle": "{eva} EVA Car Mats with {edge} Trim — Custom Fit",
+  "colors.metaDesc": "Custom EVA floor mats in {evaLc} with {edgeLc} trim, cut to your exact make, model and year. Handmade in Rochester, NY. Pick your car to start.",
 };

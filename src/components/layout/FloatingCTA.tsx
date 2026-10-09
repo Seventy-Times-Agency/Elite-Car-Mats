@@ -19,6 +19,9 @@ export function FloatingCTA() {
     pathname === "/checkout" ||
     (pathname?.startsWith("/admin") ?? false) ||
     (pathname?.startsWith("/order/") ?? false) ||
+    // Colour landings: the car picker is on the page, and /catalog would
+    // drop the colour the shopper came for.
+    (pathname?.startsWith("/colors/") ?? false) ||
     onProductPage
   )
     return null;

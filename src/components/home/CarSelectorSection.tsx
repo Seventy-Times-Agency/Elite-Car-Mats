@@ -239,7 +239,12 @@ function Combobox({
   );
 }
 
-export function CarSelectorSection() {
+export function CarSelectorSection({
+  colorPreset,
+}: {
+  /** Carried into the configurator URL so it opens with this colour pair. */
+  colorPreset?: { eva: string; edge: string };
+}) {
   const router = useRouter();
   const t = useT();
   const [brandId, setBrandId] = useState("");
@@ -269,10 +274,15 @@ export function CarSelectorSection() {
   const ready = !!(brandId && modelId);
 
   const go = () => {
-    if (brand && model)
-      router.push(
-        `/catalog/${brand.slug}/${model.slug}${yearId ? `?year=${yearId}` : ""}`,
-      );
+    if (!brand || !model) return;
+    const qs = new URLSearchParams();
+    if (yearId) qs.set("year", yearId);
+    if (colorPreset) {
+      qs.set("eva", colorPreset.eva);
+      qs.set("edge", colorPreset.edge);
+    }
+    const query = qs.toString();
+    router.push(`/catalog/${brand.slug}/${model.slug}${query ? `?${query}` : ""}`);
   };
 
   const noResults = t("cfg.noResults");

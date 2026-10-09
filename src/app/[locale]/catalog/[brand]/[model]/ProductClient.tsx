@@ -136,9 +136,11 @@ export default function ProductClient({
   );
   // Deep-link preselection, applied once after hydration by
   // <PreselectFromUrl>: ?year=YYYY from the home configurator (ignored
-  // unless it is a real year for this model) and ?set= (ignored when the
-  // set doesn't exist for this vehicle's profile). Feed links already get
-  // ?set= server-side via `initialSet`; this covers client navigations.
+  // unless it is a real year for this model), ?set= (ignored when the
+  // set doesn't exist for this vehicle's profile) and ?eva= / ?edge= from
+  // the colour landing pages (ignored unless a palette id). Feed links
+  // already get ?set= server-side via `initialSet`; this covers client
+  // navigations.
   const applyUrlPreselect = (sp: ReadonlyURLSearchParams) => {
     const fromSet = sp.get("set") as MatSetType | null;
     if (fromSet && availableSetTypes.includes(fromSet)) setSet(fromSet);
@@ -146,6 +148,10 @@ export default function ProductClient({
     if (model && Number.isFinite(fromYear) && model.years.includes(fromYear)) {
       setYear(fromYear);
     }
+    const fromEva = evaColors.find((c) => c.id === sp.get("eva"));
+    if (fromEva) setColor(fromEva);
+    const fromEdge = edgeColors.find((c) => c.id === sp.get("edge"));
+    if (fromEdge) setEdge(fromEdge);
   };
   const [badge, setBadge] = useState(false);
   const [badgeCount, setBadgeCount] = useState(1);

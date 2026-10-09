@@ -1,5 +1,6 @@
 import { MetadataRoute } from "next";
 import { ACCESSORIES } from "@/data/accessories";
+import { COLOR_COMBOS } from "@/data/catalog/color-combos";
 import { listAllPublishedSlugsCached } from "@/lib/blog";
 import { getMergedCatalogCached } from "@/lib/catalog-merge";
 
@@ -51,6 +52,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...localized("/accessories", { lastModified: now, changeFrequency: "monthly", priority: 0.7 }),
     ...ACCESSORIES.flatMap((a) =>
       localized(`/accessories/${a.slug}`, { lastModified: now, changeFrequency: "monthly", priority: 0.7 }),
+    ),
+    ...COLOR_COMBOS.flatMap((c) =>
+      localized(`/colors/${c.slug}`, { lastModified: now, changeFrequency: "monthly", priority: 0.5 }),
     ),
     ...localized("/blog", { lastModified: now, changeFrequency: "weekly", priority: 0.7 }),
     ...localized("/about", { lastModified: now, changeFrequency: "monthly", priority: 0.6 }),

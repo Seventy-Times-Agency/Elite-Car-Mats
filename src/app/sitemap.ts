@@ -59,7 +59,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...localized("/blog", { lastModified: now, changeFrequency: "weekly", priority: 0.7 }),
     ...localized("/about", { lastModified: now, changeFrequency: "monthly", priority: 0.6 }),
     ...localized("/contacts", { lastModified: now, changeFrequency: "monthly", priority: 0.6 }),
-    ...localized("/track", { lastModified: now, changeFrequency: "yearly", priority: 0.4 }),
+    // /track is noindex (order lookup form) — keep it out of the sitemap so
+    // Search Console doesn't flag "submitted URL marked noindex".
     ...localized("/delivery", { lastModified: now, changeFrequency: "yearly", priority: 0.4 }),
     ...localized("/warranty", { lastModified: now, changeFrequency: "yearly", priority: 0.4 }),
     ...localized("/privacy", { lastModified: now, changeFrequency: "yearly", priority: 0.3 }),

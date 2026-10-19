@@ -20,6 +20,35 @@ describe("parseUsAddress", () => {
   it("returns nothing for free text it cannot trust", () => {
     expect(parseUsAddress("Чикаго, самовывоз")).toEqual({});
   });
+
+  it("reads addresses written with line breaks and a lowercase state", () => {
+    expect(parseUsAddress("5521 SW 10TH PL\nMargate Fl 33068")).toEqual({
+      city: "Margate",
+      state: "FL",
+      zip: "33068",
+    });
+  });
+
+  it("reads a spelled-out state and drops a trailing country", () => {
+    expect(parseUsAddress("9 Sample Rd, Brooklyn, New York 11201, USA")).toEqual({
+      city: "Brooklyn",
+      state: "NY",
+      zip: "11201",
+    });
+  });
+
+  it("keeps state and zip when the city cannot be told from the street", () => {
+    expect(parseUsAddress("123 Main St Naperville IL 60540")).toEqual({
+      state: "IL",
+      zip: "60540",
+    });
+  });
+
+  it("does not take a non-state word for a state", () => {
+    expect(parseUsAddress("12 Oak Ave, Springfield, Apt 60601")).toEqual({
+      zip: "60601",
+    });
+  });
 });
 
 describe("toSale", () => {

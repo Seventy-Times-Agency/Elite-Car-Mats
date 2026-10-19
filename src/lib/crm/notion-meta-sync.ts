@@ -31,15 +31,87 @@ function text(p: NotionProp | undefined): string {
   return parts?.map((t) => t.plain_text ?? "").join("").trim() ?? "";
 }
 
-/** "123 Main St, Chicago, IL 60601" → { city, state, zip }. */
+const STATE_CODES = new Set(
+  "AL AK AZ AR CA CO CT DE DC FL GA HI ID IL IN IA KS KY LA ME MD MA MI MN MS MO MT NE NV NH NJ NM NY NC ND OH OK OR PA RI SC SD TN TX UT VT VA WA WV WI WY".split(
+    " ",
+  ),
+);
+
+// Longest names first so "west virginia" wins over "virginia".
+const STATE_NAMES: [string, string][] = (
+  [
+    ["alabama", "AL"], ["alaska", "AK"], ["arizona", "AZ"], ["arkansas", "AR"],
+    ["california", "CA"], ["colorado", "CO"], ["connecticut", "CT"], ["delaware", "DE"],
+    ["district of columbia", "DC"], ["florida", "FL"], ["georgia", "GA"], ["hawaii", "HI"],
+    ["idaho", "ID"], ["illinois", "IL"], ["indiana", "IN"], ["iowa", "IA"],
+    ["kansas", "KS"], ["kentucky", "KY"], ["louisiana", "LA"], ["maine", "ME"],
+    ["maryland", "MD"], ["massachusetts", "MA"], ["michigan", "MI"], ["minnesota", "MN"],
+    ["mississippi", "MS"], ["missouri", "MO"], ["montana", "MT"], ["nebraska", "NE"],
+    ["nevada", "NV"], ["new hampshire", "NH"], ["new jersey", "NJ"], ["new mexico", "NM"],
+    ["new york", "NY"], ["north carolina", "NC"], ["north dakota", "ND"], ["ohio", "OH"],
+    ["oklahoma", "OK"], ["oregon", "OR"], ["pennsylvania", "PA"], ["rhode island", "RI"],
+    ["south carolina", "SC"], ["south dakota", "SD"], ["tennessee", "TN"], ["texas", "TX"],
+    ["utah", "UT"], ["vermont", "VT"], ["virginia", "VA"], ["washington", "WA"],
+    ["west virginia", "WV"], ["wisconsin", "WI"], ["wyoming", "WY"],
+  ] as [string, string][]
+).sort((a, b) => b[0].length - a[0].length);
+
+/**
+ * Managers type addresses however they like: line breaks instead of
+ * commas, "Fl" instead of "FL", the state spelled out, a trailing "USA".
+ * Pull out whatever is reliable — the ZIP is the anchor, the state is the
+ * token right before it, the city is the comma/line segment before that.
+ * Anything that can't be read with confidence is left out rather than
+ * guessed: Meta matches on the fields it gets, a wrong one only hurts.
+ */
 export function parseUsAddress(addr: string): {
   city?: string;
   state?: string;
   zip?: string;
 } {
-  const m = addr.match(/,\s*([^,\d]+?)\s*,?\s+([A-Z]{2})\s*,?\s*(\d{5})(?:-\d{4})?/);
-  if (!m) return {};
-  return { city: m[1].trim(), state: m[2], zip: m[3] };
+  const text = addr
+    .replace(/\s*[\r\n]+\s*/g, ", ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .replace(/[,\s]*(?:USA|U\.S\.A\.|US|United States)\.?$/i, "")
+    .trim();
+
+  const zipMatch = [...text.matchAll(/\b(\d{5})(?:-\d{4})?\b/g)].pop();
+  if (!zipMatch || zipMatch.index === undefined) return {};
+
+  let before = text.slice(0, zipMatch.index).replace(/[,\s]+$/, "");
+  let state: string | undefined;
+
+  const code = before.match(/(?:^|[,\s])([A-Za-z]{2})\.?$/);
+  if (code && STATE_CODES.has(code[1].toUpperCase())) {
+    state = code[1].toUpperCase();
+    before = before.slice(0, before.length - code[0].length);
+  } else {
+    const lower = before.toLowerCase();
+    for (const [name, abbr] of STATE_NAMES) {
+      if (lower.endsWith(name) && /(^|[,\s])$/.test(lower.slice(0, lower.length - name.length))) {
+        state = abbr;
+        before = before.slice(0, before.length - name.length);
+        break;
+      }
+    }
+  }
+
+  before = before.replace(/[,\s]+$/, "");
+  let city: string | undefined;
+  const lastComma = before.lastIndexOf(",");
+  // Without a recognised state the segment before the ZIP is just as
+  // likely an apartment or a street as a city.
+  if (state && lastComma >= 0) {
+    const segment = before.slice(lastComma + 1).trim();
+    if (segment && !/\d/.test(segment)) city = segment;
+  }
+
+  return {
+    ...(city ? { city } : {}),
+    ...(state ? { state } : {}),
+    zip: zipMatch[1],
+  };
 }
 
 export interface CrmSale {
